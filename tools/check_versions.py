@@ -72,6 +72,7 @@ CHECKS = {
     "flatcar": flatcar,
     "fedora-coreos": fcos,
     "microos": microos,
+    "elemental": lambda: gh_latest("rancher/elemental-operator"),
 }
 
 

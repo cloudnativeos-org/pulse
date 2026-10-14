@@ -1727,7 +1727,8 @@ nodes:
       quote: 'site_name: +++ this site is archived, please see https://rancher.github.io/elemental +++'
 - id: elemental
   name: Elemental (Rancher OS management stack)
-  kind: relative
+  kind: entry
+  entry: elemental
   aliases:
   - name: 'SUSE Rancher Prime: OS Manager (current docs title)'
   - name: SLE Micro for Rancher (the OS build)
@@ -2032,8 +2033,7 @@ nodes:
     quote: openSUSE MicroOS, once an offshoot of the Kubic Project, will now take more of a prominent role
 - id: microos
   name: openSUSE MicroOS
-  kind: entry
-  entry: microos
+  kind: relative
   aliases:
   - name: Kubic MicroOS
   - name: MicroOS
