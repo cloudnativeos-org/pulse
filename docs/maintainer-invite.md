@@ -1,8 +1,8 @@
-Subject: {project} in the Cloud Native OS Pulse: could you check the facts?
+Subject: {project} in the cloud native OS Pulse: could you check the facts?
 
 Hi {name},
 
-I am putting together the Cloud Native OS Pulse, a sourced comparison of cloud native operating systems. {project} is one of the entries. Before I release it, I would like someone who knows the project to check that it is represented correctly and fairly. Up front: I am one of the maintainers of Kairos and Hadron, two of the other entries, and I work for Spectro Cloud. That is why every project gets this same request, Kairos and Hadron included.
+I am putting together the cloud native OS Pulse, a sourced comparison of cloud native operating systems. {project} is one of the entries. Before I release it, I would like someone who knows the project to check that it is represented correctly and fairly. Up front: I am one of the maintainers of Kairos and Hadron, two of the other entries, and I work for Spectro Cloud. That is why every project gets this same request, Kairos and Hadron included.
 
 That is the whole request. It is not a request to endorse the Pulse, to agree with how it is organised, or to review any other project. Correcting a fact about {project} does not mean you agree with anything else in it, and I will never present it as agreement. It should take about fifteen minutes, and saying no is completely fine.
 

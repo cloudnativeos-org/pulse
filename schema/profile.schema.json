@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/cloudnativeos-org/pulse/blob/main/schema/profile.schema.json",
-  "title": "Cloud Native OS Pulse project profile",
+  "title": "cloud native OS Pulse project profile",
   "description": "One profile per project per edition. See schema/vocabularies.md for the meaning of every enumerated value.",
   "type": "object",
   "required": [

@@ -32,7 +32,7 @@ weekly regardless.
 ## Why this document is shaped the way it is
 
 No standardized project-profile template survives from the methodology plan — that ticket was closed and
-superseded by the Cloud Native OS Pulse (the Pulse brief) before it produced one. the platform-profile task (NixOS) and the platform-profile task
+superseded by the cloud native OS Pulse (the Pulse brief) before it produced one. the platform-profile task (NixOS) and the platform-profile task
 (Unikraft) each hit the same gap and each designed a structure fitting their own question,
 recording that choice in-doc. Same precedent here.
 

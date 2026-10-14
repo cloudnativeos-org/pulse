@@ -1,7 +1,7 @@
 # Brand
 
-The mark of Cloud Native OS is two slashes, `//`: one in ink, one in the accent
-blue. Pulse is a product of Cloud Native OS, so it uses the same mark and adds
+The mark of cloud native OS is two slashes, `//`: one in ink, one in the accent
+blue. Pulse is a product of cloud native OS, so it uses the same mark and adds
 its name. A later product does the same, with no new logo.
 
 ## Files
@@ -14,8 +14,8 @@ its name. A later product does the same, with no new logo.
 | `favicon.svg` | Browser icon. Switches to the dark colours with the system theme |
 | `favicon-32.png` | Browser icon for clients that do not read SVG |
 | `apple-touch-icon.png` | 180 px home-screen icon, on the light paper background |
-| `lockup-parent-light.svg`, `-dark.svg` (and `.png`) | The mark with "Cloud Native OS" |
-| `lockup-pulse-light.svg`, `-dark.svg` (and `.png`) | The mark with a small "CLOUD NATIVE OS" label above "Pulse" |
+| `lockup-parent-light.svg`, `-dark.svg` (and `.png`) | The mark with "cloud native OS" |
+| `lockup-pulse-light.svg`, `-dark.svg` (and `.png`) | The mark with a small "cloud native OS" label above "Pulse" |
 
 The lockup SVGs set their text in Public Sans and fall back to a system sans
 serif. Where the font cannot be relied on (a README, a slide), use the PNGs,

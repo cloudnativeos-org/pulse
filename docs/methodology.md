@@ -1,4 +1,4 @@
-# Methodology, Cloud Native OS Pulse
+# Methodology, cloud native OS Pulse
 
 Data collected: **2026-09-15**. Every source re-read and every profile
 re-verified: **2026-09-22**. Schema version **1.0.0**.

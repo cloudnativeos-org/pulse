@@ -118,7 +118,7 @@ def write(P, tok, css, js, out, b):
     now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     index = {
         "v": 3, "layout": "files", "createdOnFiles": {"v": 1, "at": now},
-        "title": "Cloud Native OS Pulse", "namespace": "Pulse", "libraries": [],
+        "title": "cloud native OS Pulse", "namespace": "Pulse", "libraries": [],
         "sections": {}, "groups": [], "assetGroups": {}, "blobs": {}, "docs": {"sections": []},
         "lastChange": {"by": "Mauro Morales", "at": now, "via": "Claude Code", "note": "First version: tokens, components, sample previews from the 2026 profiles."},
     }
