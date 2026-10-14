@@ -40,6 +40,9 @@ it. That is a methodological risk, not a disclaimer to be waved away. Section 9
 lists the specific controls applied, including the ones built into the data
 schema so that they cannot be skipped. Section 11 records where the method was
 challenged and what changed as a result.
+One link needs naming: the creator of Kairos formerly led Elemental at SUSE, and
+Elemental is an entry. Section 10, "The fourteenth entry: Elemental", lists the
+controls applied to that profile.
 
 ## 3. The taxonomy, and why the obvious one is wrong
 
@@ -465,11 +468,11 @@ An entry in the comparison matrix meets all five inclusion criteria.
 
 | Rule | Name | Meaning |
 |---|---|---|
-| R1 | Versioned whole-system updates | One version names the whole OS content, and the OS updates as that unit: an image, a deployment or a pinned snapshot. It never updates package by package on a running node. The test is capability: the project documents a way to run it like this. Any condition, such as no package layering, is recorded in the profile. |
-| R2 | Immutable at runtime | The OS part (the root or `/usr`) is read-only on a running node. |
-| R3 | Rollback | At least one previous OS version is kept and can be booted. |
+| R1 | Atomic updates (versioned OS) | The OS version is one artifact, built once, that every node in a fleet runs. A fleet updates or rolls back by pointing it at a version. Examples: an OCI image, an image file, an OSTree commit. Extensions on top of the base, such as system extensions or layering, are allowed and recorded as conditions. A node that assembles its own update from packages does not meet R1, also when the packages come from a pinned repository. The local per-node rollback is R3. The test is capability: the project documents a way to run it like this. A cloud native OS is judged across a fleet, not on a single node. |
+| R2 | Immutable (read-only OS files) | The OS part (the root or `/usr`) is read-only on a running node. |
+| R3 | Rollback | Rollback goes back to the previous version, the artifact the whole fleet ran. Each node keeps that previous version locally, ready to boot. A snapshot of a node's own state is not this rollback. |
 | R4 | Declarative provisioning | A node configures itself at first boot from a declarative input, with no interactive install. |
-| R5 | Runs Kubernetes | The project, or its vendor, documents running Kubernetes on it: bundled, installed on it, or as the node OS of a Kubernetes service. |
+| R5 | Kubernetes ready | The project, or its vendor, documents running Kubernetes on it: bundled, installed on it, or as the node OS of a Kubernetes service. |
 
 R5 needs two notes.
 
@@ -534,7 +537,7 @@ says "source to add" rather than inventing one.
 | Hadron | Through Kairos. No Hadron image contains Kubernetes. The Kairos standard images built from Hadron bundle k3s or k0s. | [Hadron README](https://github.com/kairos-io/hadron/blob/main/README.md), [Kairos v4.3.0 release](https://github.com/kairos-io/kairos/releases/tag/v4.3.0) |
 | Talos Linux | Built for Kubernetes. Machines are control plane or worker nodes, and Kubernetes ships with the OS. | [Talos README](https://github.com/siderolabs/talos/blob/main/README.md), [Talos support matrix](https://docs.siderolabs.com/talos/v1.14/getting-started/support-matrix) |
 | bootc | Through images (cited in `bootc.yaml` d07). Red Hat documents MicroShift, its Kubernetes distribution, embedded in bootc images. The bootc roadmap also plans native Kubernetes integration. That is a direction, not evidence, and R5 does not rest on it. | [MicroShift with image mode for RHEL](https://docs.redhat.com/en/documentation/red_hat_build_of_microshift/4.22/html/installing_with_image_mode_for_rhel/index), [bootc roadmap](https://github.com/bootc-dev/bootc/blob/main/ROADMAP.md) |
-| openSUSE MicroOS | **Borderline.** SUSE documents RKE2 on SUSE Linux Micro, through a separate product. The openSUSE MicroOS k3s guide is marked unmaintained by the project itself. | [RKE2 in SUSE Edge](https://documentation.suse.com/suse-edge/3.5/html/edge/components-rke2.html), [K3s on MicroOS (unmaintained)](https://en.opensuse.org/SDB:K3s_cluster_deployment_on_MicroOS) |
+| Elemental | Rancher provisions RKE2 or K3s on Elemental nodes. The cluster phase creates the cluster from the registered machines. | [Elemental cluster deployment](https://elemental.docs.rancher.com/architecture-clusterdeployment) |
 | Ubuntu Core | MicroK8s, installed as a snap. Canonical documents a strictly confined build, which is the only kind Ubuntu Core can install. | [MicroK8s strict install](https://canonical.com/microk8s/docs/install-strict), [MicroK8s snap](https://snapcraft.io/microk8s) |
 | EVE-OS | Through its EVE-k build flavor (HV=k), which runs k3s. The default flavor (HV=kvm) ships no Kubernetes. | [EVE-K.md](https://github.com/lf-edge/eve/blob/master/docs/EVE-K.md) |
 
@@ -554,17 +557,17 @@ says "source to add" rather than inventing one.
 | NixOS | distribution, framework | adjacent | Challenges the premise. Its claim is reproducibility, not root immutability. |
 | Unikraft | framework | adjacent | Boundary case. Asks whether the host OS is the right unit at all. |
 | Yocto Project | build-system | adjacent | A build system, not an image to run. It builds the whole OS from source recipes, and R1 to R4 come from layers the adopter selects. Alternative paradigms, not in the matrix. |
-| openSUSE MicroOS | distribution | full | The transactional snapshot model, which no other entry uses. Covers Leap Micro and SUSE Linux Micro as its other release vehicles. |
+| Elemental | distribution, framework | full | SUSE's fleet-image path on the SL Micro base. One OCI image is rolled to every node in the selected clusters. See "The fourteenth entry: Elemental". |
 | Ubuntu Core | distribution, framework | full | The snap model, where the kernel and the root filesystem are separate images that update independently. |
 
 NixOS, Unikraft and the Yocto Project are profiled but appear under Alternative
 paradigms, not in the matrix. See the inclusion criteria above.
 
-Fifteen profiles rather than the nine originally proposed. Fedora CoreOS and
+Sixteen profiles rather than the nine originally proposed. Fedora CoreOS and
 bootc are separated rather than merged, the two general-purpose-host entries
 flagged as a known gap in the first draft were researched and
 added rather than deferred, Hadron was added in the second pass, on
-2026-09-22, for the reasons below, and NixOS, Unikraft and the Yocto Project
+2026-09-22, for the reasons below, Elemental was added on 2026-10-14 (see "The fourteenth entry: Elemental"), and NixOS, Unikraft and the Yocto Project
 are profiled as alternative paradigms.
 
 ### The thirteenth entry: Hadron
@@ -609,6 +612,49 @@ Kairos project is recorded from Hadron's side, where the announcement claims it
 and no primary source establishes it. And the Trusted Boot path has a live,
 dated, root-caused defect at the collection date, recorded under the same
 discipline as the Talos provider deprecations.
+
+### The fourteenth entry: Elemental
+
+Elemental entered the matrix on 2026-10-14, when openSUSE MicroOS left it. The
+reason for both moves is the same change to R1, recorded in the dated note in
+section 11 (item 13): a cloud native OS is judged across a fleet, not on a
+single node.
+
+**What the entry is.** Elemental is the operator, the toolkit and the Elemental
+OS images on the SUSE Linux Micro base. It is not SUSE Edge, and it is not SL
+Micro alone. A `ManagedOSImage` names one OCI image, and the operator rolls it
+to every node in the selected clusters. That is R1. Each upgrade unpacks the new
+image into a new snapshot that records its image source and digest. The toolkit
+keeps a set number of snapshots (default 2, or 4 on `btrfs`), and the boot menu
+has one entry for each kept snapshot. That is R3. Rancher provisions RKE2 or K3s
+on the nodes. That is R5. Rancher Manager v2.14 or later is a condition on R1,
+because the 1.9 operator must be paired with it.
+
+**Why it is not a second MicroOS.** `microos.yaml` covers SUSE Linux Micro as a
+release vehicle, and its update tool is `transactional-update`, which builds each
+snapshot on the node. Elemental uses SUSE Linux Micro only as its base. Its
+update and rollback come from the toolkit's image snapshots. This is the Kairos
+and Hadron shape: a lifecycle stack on a base. The base facts in `elemental.yaml`
+cite SUSE's own sources and not `microos.yaml`.
+
+**Fairness.** The creator of Kairos formerly led Elemental at SUSE
+(`data/lineage.yaml`), and the people who started this survey work on Kairos.
+Four controls apply to this profile, on top of section 9:
+
+1. A researcher who had not seen `kairos.yaml` or the lineage file wrote the
+   profile, with the section 9 control 5 instruction: hunt for limitations and
+   for strengths in the same way.
+2. Every source comes from the section 6 list: `elemental.docs.rancher.com`, the
+   `rancher/elemental*` repositories, `documentation.suse.com` and `suse.com`.
+   No source is on a Kairos or Spectro Cloud site.
+3. A second pass, as `docs/REFRESH.md` describes, re-read every claim, given the
+   profile and the sources and not the first pass's reasoning.
+4. The pull request that added the entry lists, for each matrix column,
+   Elemental's value next to Kairos's value, so a reader can check that a
+   difference rests on a source on each side.
+
+The maintainer invite for Elemental is produced like any other, and its sending
+is a separate decision.
 
 ### The two entries added after the first draft
 
@@ -686,11 +732,14 @@ Excluding a project is a methodological choice and is recorded as one.
 work, but no released OS image to check the dimensions against. Tracking only,
 with no scoring against mature systems.
 
-**openSUSE MicroOS, Leap Micro and SUSE Linux Micro.** No longer excluded. They
-were recorded as a known gap in the first draft and have since
-been researched and added as one profile, `microos.yaml`. See "The two entries
-added after the first draft" above for why they are one profile rather than
-three.
+**openSUSE MicroOS, Leap Micro and SUSE Linux Micro.** Excluded since 2026-10-14,
+because they do not meet R1. Each node builds its next snapshot from packages with
+`transactional-update`, also when the repository is pinned. The profile
+`microos.yaml` and its data sheet stay, so a reader can see the evidence. SUSE
+still has an entry in the matrix: Elemental, its fleet-image path on the same
+base. See "The fourteenth entry: Elemental" and item 13 in section 11. "The two
+entries added after the first draft" explains why these three vehicles are one
+profile.
 
 **Ubuntu Core.** No longer excluded. Recorded as a known gap in the first draft
 and since researched and added as `ubuntu-core.yaml`.
@@ -874,7 +923,30 @@ Recorded so a reader can audit the reasoning rather than trust it.
     that one version names the whole OS), all eleven pass, some with a
     condition. R1 uses the capability reading, the same rule the matrix
     columns follow: they record what is possible, not what ships switched on.
-12. The remaining challenges appear in each profile's `open_questions` and in
+13. **On 2026-10-14, R1 and R3 changed to a fleet reading.** A cloud native OS
+    is judged across a fleet, not on a single node. R1 now asks for one OS
+    artifact, built once, that every node in a fleet runs. A fleet updates or
+    rolls back by pointing it at a version. A node that assembles its own update
+    from packages does not meet R1. R3 now asks for a rollback to the previous
+    fleet version, which each node keeps locally, ready to boot. The five
+    criteria carry the display names Atomic updates (versioned OS), Immutable
+    (read-only OS files), Rollback, Declarative provisioning and Kubernetes
+    ready. The ids R1 to R5 and the old names stay as aliases. R1 always shows as
+    "Atomic updates (versioned OS)" and never as "Atomic updates" alone, because
+    MicroOS updates are atomic and still do not meet R1.
+    Results. openSUSE MicroOS leaves the matrix: each node builds its next
+    snapshot from packages, also from a pinned repository. SUSE still has an
+    entry, because Elemental enters as SUSE's fleet-image path on the same base.
+    Ubuntu Core passes R1 with a condition: the fleet's OS version is the signed
+    model assertion plus an enforced validation set that pins the snap
+    revisions. Without one, each device refreshes its snaps on its own. The other
+    nine matrix entries and Hadron consume or derive a centrally built image and
+    keep their results. For R3, the entries that keep a previous artifact pass.
+    Azure Container Linux and Container-Optimized OS stay in the matrix with R3
+    "unknown", because the method never reads a missing document as a "no"
+    (section 4). Their documented rollback happens at the node pool, and the
+    profiles record that as an open question.
+14. The remaining challenges appear in each profile's `open_questions` and in
     `follow-up-research.md`.
 
 ## 12. Correcting this
