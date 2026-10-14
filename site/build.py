@@ -2116,22 +2116,11 @@ def finish(page, P, gen, sha):
         page = re.sub(r'<div class="banner" role="note">.*?</div>',
                       '<div class="banner" role="note"><b>Preview, not released</b><span>This is a work in progress shared for review. '
                       'Facts are still being checked and may change. Please do not share it widely yet. '
-                      'The repository is private during the preview: send me your GitHub username, through the contact links on '
-                      '<a href="https://mauromorales.com/">mauromorales.com</a>, and I will give you access so you can open issues.</span></div>', page, count=1, flags=re.S)
+                      'Found a mistake? <a href="https://github.com/cloudnativeos-org/pulse/issues/new/choose">Open an issue</a> '
+                      'or send a pull request.</span></div>', page, count=1, flags=re.S)
         # Review notes and their switch are for the author, not for preview readers.
         page = re.sub(r'\s*<p class="review">.*?</p>', "", page, flags=re.S)
         page = re.sub(r'\s*<form class="review-bar[^"]*".*?</form>', "", page, flags=re.S)
-        # The repository is private until release: its links would 404, so the preview unlinks them.
-        page = re.sub(r'<p class="star-cta">.*?</p>', "", page, flags=re.S)
-        page = re.sub(r'\s*<a href="https://github\.com/cloudnativeos-org/pulse/blob/[^"]*/data/projects/[^"]*">Profile</a>', "", page)
-        page = page.replace('<p class="muted" style="margin:0">The Pulse is open to fixes and to proposals. Everything goes through the repository.</p>',
-                            '<p class="muted" style="margin:0">The Pulse is open to fixes and to proposals. During the preview the repository is private: '
-                            'send me your GitHub username through <a href="https://mauromorales.com/">mauromorales.com</a> and I will give you access. '
-                            'Then use the links below.</p>', 1)
-        page = page.replace("the full history is public in", "the full history will be public at release in")
-        page = page.replace('<span class="lin-access"></span>', 'During the preview the repository is private: send me your GitHub username through '
-                            '<a href="https://mauromorales.com/">mauromorales.com</a> and I will give you access. ', 1)
-        page = re.sub(r'<a href="https://github\.com/cloudnativeos-org/pulse/blob/[^"]*">([^<]*)</a>', r"\1", page)
     page = page.replace('<span class="lin-access"></span>', "")
     assert "—" not in page, "em dash in output"
     return page

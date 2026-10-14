@@ -13,7 +13,7 @@ Where to look:
 - The {project} row in the comparison matrix. Each cell shows a short value with its evidence label. The data sheet has the full text behind every cell.
 - The profile behind both, where every claim has an evidence label and a source.
 
-How to reply: the repository is private until release. Send me your GitHub username and I will give you access to the profile. Then you can open an issue with the correction form or send a pull request. Replying to this email works just as well. Every correction is recorded in the profile with its date and its source. If you disagree with something the sources support, I record your view next to it rather than hide it.
+How to reply: the repository is public at https://github.com/cloudnativeos-org/pulse. You can open an issue with the correction form or send a pull request. Replying to this email works just as well. Every correction is recorded in the profile with its date and its source. If you disagree with something the sources support, I record your view next to it rather than hide it.
 
 If you only have a few minutes, these are the questions I could not settle from public sources:
 
