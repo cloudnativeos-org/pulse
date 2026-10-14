@@ -1,4 +1,4 @@
-# Lineage graph for the Cloud Native OS Pulse chart "Where they came from".
+# Lineage graph for the cloud native OS Pulse chart "Where they came from".
 # Merged from three research files, then fact-checked 2026-10-06.
 # Evidence labels: DOCUMENTED (a source states it), INFERRED (says from what), UNKNOWN (says where searched).
 # first_public_note, end_of_life_note, scope and owner note are printed on the public page. research_note is not.
@@ -2105,7 +2105,7 @@ nodes:
     sources:
     - url: https://github.com/cloudnativeos-org/pulse/blob/main/data/projects/microos.yaml
       title: microos.yaml vehicles note
-      publisher: Cloud Native OS Pulse
+      publisher: cloud native OS Pulse
       date: '2026-09-22'
       quote: The commercial product was called SUSE Linux Enterprise Micro, or SLE Micro, through the 6.1 public beta on 2024-08-22, and appears as SUSE Linux Micro in the 6.1 general availability announcement on 2024-11-14.
   research_note: Date per endoflife.date. Plan per microos.yaml.

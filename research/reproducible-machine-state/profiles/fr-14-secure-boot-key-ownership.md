@@ -2,7 +2,7 @@
 
 Backlog id **FR-14**, tracked as
 , a follow-up
-from the Cloud Native OS Pulse 2026 (the Pulse brief),
+from the cloud native OS Pulse 2026 (the Pulse brief),
 under the Reproducible Machine State epic (the research epic).
 
 Research window 2026-09-16. All sources retrieved 2026-09-16 unless noted.

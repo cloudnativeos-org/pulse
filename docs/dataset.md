@@ -1,4 +1,4 @@
-# Cloud Native OS Pulse dataset
+# cloud native OS Pulse dataset
 
 **Data collected: 2026-09-15. Every source re-read and every profile
 re-verified: 2026-09-22.** Schema version 1.0.0.

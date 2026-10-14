@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Cloud Native OS Pulse project profiles.
+"""Validate cloud native OS Pulse project profiles.
 
 Usage:
     python3 tools/validate_profiles.py [PROFILE_DIR ...]

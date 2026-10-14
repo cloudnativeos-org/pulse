@@ -1,4 +1,4 @@
-# Cloud Native OS Pulse
+# cloud native OS Pulse
 
 A sourced comparison of cloud native operating systems.
 

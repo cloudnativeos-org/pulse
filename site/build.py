@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the Cloud Native OS Pulse sample site and design-system files from the YAML profiles.
+"""Build the cloud native OS Pulse sample site and design-system files from the YAML profiles.
 
 Usage: build.py <projects-dir> <out-dir>
 
@@ -18,6 +18,8 @@ import json
 import os
 import re
 import sys
+
+import urllib.parse
 
 import yaml
 
@@ -1508,7 +1510,7 @@ def what_is():
             ("Main job", "Anything", "Running cloud native workloads")]
     table = ('<table class="cmp"><thead><tr><th scope="col"></th><th scope="col">%s</th><th scope="col">%s</th></tr></thead><tbody>%s</tbody></table>'
              '<p class="t-meta" id="cmp-note">* Only part of the OS is read-only, and which part varies by system. See %s in the glossary.</p>'
-             % (g("General-purpose OS", "general-purpose-os"), g("Cloud native OS", "cloud-native-os"),
+             % (g("General-purpose OS", "general-purpose-os"), g("cloud native OS", "cloud-native-os"),
                 "".join('<tr><th scope="row">%s</th><td>%s</td><td>%s</td></tr>' % r for r in rows), g("Immutable", "immutable")))
     rules = [("Versioned whole-system updates", "One version names the whole OS, and the OS updates as that one unit, never package by package on a running node. It is enough that the project documents a way to run it like this."),
              ("Immutable at runtime", "The OS part, the root or <code>/usr</code>, is read-only on a running node."),
@@ -1545,7 +1547,7 @@ def what_is():
 
 GLOSSARY = [
     ("General-purpose OS", "An operating system built to run anything, such as Ubuntu, Debian or Fedora. It is installed once and then maintained by changing it in place for the rest of its life."),
-    ("Cloud native OS", "In the Pulse, an OS that meets the five inclusion criteria: versioned whole-system updates, read-only OS files at runtime, rollback, declarative provisioning, and documented Kubernetes use."),
+    ("cloud native OS", "In the Pulse, an OS that meets the five inclusion criteria: versioned whole-system updates, read-only OS files at runtime, rollback, declarative provisioning, and documented Kubernetes use."),
     ("In-place upgrade", "An upgrade that changes the running system piece by piece, for example package by package. The result depends on the state the machine was in before."),
     ("Atomic upgrade", "An upgrade that applies the new version as a whole or not at all. If it fails, the old version is still intact."),
     ("Image-based", "The OS is built ahead of time as one complete image, and that image is what gets installed and updated."),
@@ -1648,7 +1650,7 @@ def misconceptions():
 
 def who():
     return ('<div class="prose">'
-            '<p>I am <a href="https://mauromorales.com/">Mauro Morales</a>, the person behind the Cloud Native OS Pulse. '
+            '<p>I am <a href="https://mauromorales.com/">Mauro Morales</a>, the person behind the cloud native OS Pulse. '
             'I work as a Staff Engineer at <a href="https://www.spectrocloud.com/">Spectro Cloud</a>, and I am one of the maintainers of '
             '<a href="https://kairos.io/">Kairos</a> and <a href="https://hadron-linux.io/">Hadron</a>, two of the entries. '
             'I have also done quite a lot of <a href="https://mauromorales.com/public-speaking">public speaking</a> promoting these projects. '
@@ -1851,7 +1853,7 @@ def add_toc(page, groups=None):
         else:
             out.append('<div class="toc-g"><p class="toc-group">%s</p></div>' % head)
     nav = ('<button class="toc-toggle no-print" type="button" aria-expanded="false" aria-controls="toc" aria-label="Show contents" title="Show contents"><span aria-hidden="true">&raquo;</span></button>'
-           '<nav id="toc" class="toc no-print" aria-label="Contents"><a class="toc-top" href="#top">Cloud Native OS Pulse guide</a>%s</nav>' % "".join(out))
+           '<nav id="toc" class="toc no-print" aria-label="Contents"><a class="toc-top" href="#top">cloud native OS Pulse guide</a>%s</nav>' % "".join(out))
     return page.replace('<div class="pl page" id="top">', nav + '<div class="pl page" id="top">', 1)
 
 
@@ -1877,10 +1879,27 @@ def tabs(current):
     return '<nav class="tabs no-print" aria-label="Pages">%s%s</nav>' % (tab("index.html", "Matrix", "matrix"), tab("guide.html", "Guide", "guide"))
 
 
+# The cloud native OS mark, two slashes (brand/README.md). Drawn inline so it follows the page theme.
+MARK_PATHS = ('<path class="mk-a" d="M1 22H5.75L13.25 2H8.5Z"/>', '<path class="mk-b" d="M10.75 22H15.5L23 2H18.25Z"/>')
+
+
+def brand():
+    """The product lockup: the mark, a small cloud native OS label, and Pulse. It links to the matrix page."""
+    return ('<a class="brand" href="index.html" aria-label="cloud native OS Pulse, home">'
+            '<svg class="mark" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">%s%s</svg>'
+            '<span class="brand-name"><small>cloud native OS</small>Pulse</span></a>' % MARK_PATHS)
+
+
+def favicon_links():
+    """Both pages are single files, so the icon travels inside them as a data URI. It switches colour with the system theme."""
+    svg = open(os.path.join(HERE, "..", "brand", "favicon.svg")).read().strip()
+    return '<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%s">' % urllib.parse.quote(svg)
+
+
 def head_top(current):
-    return ('<div class="head-top">%s<div class="theme no-print" role="group" aria-label="Colour theme">'
+    return ('<div class="head-top">%s%s<div class="theme no-print" role="group" aria-label="Colour theme">'
             '<button type="button" value="system">System</button><button type="button" value="light">Light</button><button type="button" value="dark">Dark</button></div></div>'
-            % tabs(current))
+            % (brand(), tabs(current)))
 
 
 def cited(body):
@@ -1927,7 +1946,7 @@ def site(P, tok, css, js):
 <header>
   {head_top("matrix")}
   <span class="eyebrow build-eyebrow">__BUILD__</span>
-  <h1>Cloud Native OS Pulse</h1>
+  <h1>cloud native OS Pulse</h1>
   <p class="tagline">A sourced comparison of cloud native operating systems. Every cell carries an evidence label and a source. Click a project name to open its data sheet.</p>
   <p class="guide-link"><a href="guide.html">Read the guide: what a cloud native OS is, how this was built, and how to read the matrix.</a></p>
   <p class="byline-coi">I am one of the maintainers of Kairos and Hadron, two of the entries, and I work for Spectro Cloud. See <a href="#h-who">Who is behind it</a>.</p>
@@ -1966,7 +1985,7 @@ def site(P, tok, css, js):
 <header>
   {head_top("guide")}
   <span class="eyebrow build-eyebrow">__BUILD__</span>
-  <h1>Cloud Native OS Pulse guide</h1>
+  <h1>cloud native OS Pulse guide</h1>
   <p class="tagline">What a cloud native OS is, how the Pulse was made, and how to read the matrix.</p>
   <p class="byline">by Mauro Morales, CNCF Ambassador</p>
   <p class="byline-coi">I am one of the maintainers of Kairos and Hadron, two of the entries, and I work for Spectro Cloud. See <a href="#h-who">Who is behind it</a>.</p>
@@ -2036,7 +2055,7 @@ def site(P, tok, css, js):
   <p class="lede">Method, stake, and how to correct the record.</p>
   {made(P)}
   <div style="margin-top:var(--space-8)">{fix_callout()}</div>
-  <p class="star-cta">If the Cloud Native OS Pulse helps you, please <a href="https://github.com/cloudnativeos-org/pulse">star it on GitHub</a>. It helps more people find it.</p>
+  <p class="star-cta">If the cloud native OS Pulse helps you, please <a href="https://github.com/cloudnativeos-org/pulse">star it on GitHub</a>. It helps more people find it.</p>
 </section>
 
 <section class="sec" aria-labelledby="h-why">
@@ -2092,6 +2111,7 @@ def site(P, tok, css, js):
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{desc}">
+{favicon_links()}
 {head_script}
 <style>{tokens_css(tok)}</style>
 <style>{css}</style>
@@ -2099,8 +2119,8 @@ def site(P, tok, css, js):
 <script>{js}</script>
 </body></html>"""
 
-    return (document("Cloud Native OS Pulse", "Sample pages for the Cloud Native OS Pulse. Illustrative, data under fact-fix.", redirect, index_body),
-            document("Cloud Native OS Pulse guide", "The guide to the Cloud Native OS Pulse: what a cloud native OS is, how it was made, and how to read the matrix.",
+    return (document("cloud native OS Pulse", "Sample pages for the cloud native OS Pulse. Illustrative, data under fact-fix.", redirect, index_body),
+            document("cloud native OS Pulse guide", "The guide to the cloud native OS Pulse: what a cloud native OS is, how it was made, and how to read the matrix.",
                      '<script>document.documentElement.classList.add("js")</script>', guide_body))
 
 
@@ -2146,7 +2166,7 @@ def main():
     except Exception:
         sha = "unknown"
     gen = dt.date.today().isoformat()
-    css = css.replace('content: "Cloud Native OS Pulse 2026"', 'content: "Cloud Native OS Pulse"')
+    css = css.replace('content: "cloud native OS Pulse 2026"', 'content: "cloud native OS Pulse"')
     css = css.replace('content: "Data as of 22 Sep 2026"', 'content: "Data as of %s"' % fmt_date(data_dates(P)[1]))
     css = css.replace('content: "Illustrative, data under fact-fix"', 'content: "Generated %s from commit %s. Illustrative, data under fact-fix"' % (gen, sha))
     index_page, guide_page = site(P, tok, css, js)
@@ -2159,7 +2179,7 @@ def main():
     head, rest = page.split("<head>", 1)
     inner_head, body = rest.split("</head>", 1)
     inner_head = inner_head.replace('<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">', "")
-    inner_head = inner_head.replace("<title>Cloud Native OS Pulse</title>", "<title>OS Pulse Sample Pages</title>")
+    inner_head = inner_head.replace("<title>cloud native OS Pulse</title>", "<title>OS Pulse Sample Pages</title>")
     body = body.replace("<body>", "").replace("</body></html>", "")
     open(os.path.join(out, "site", "artifact.html"), "w").write(inner_head + body)
     try:

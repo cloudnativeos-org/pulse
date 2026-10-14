@@ -1,4 +1,4 @@
-/* Cloud Native OS Pulse: matrix sort and filter, group-rule and placement switches.
+/* cloud native OS Pulse: matrix sort and filter, group-rule and placement switches.
    No dependencies. Works on any table built by build.py (class "mx"). */
 (function () {
   "use strict";

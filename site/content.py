@@ -1,4 +1,4 @@
-"""Reader-route content for the Cloud Native OS Pulse: "Looks alike, differs on" pairs and
+"""Reader-route content for the cloud native OS Pulse: "Looks alike, differs on" pairs and
 "Start here" blocks. Data only, plus two render functions that produce the same markup as
 build.py's sample pair() and start_here().
 
