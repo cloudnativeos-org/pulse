@@ -15,7 +15,7 @@ import sys
 import yaml
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PREVIEW_URL = "https://pulse.mauromorales.com"
+PREVIEW_URL = "https://cloudnativeos.org"
 
 
 def main():
