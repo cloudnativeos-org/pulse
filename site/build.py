@@ -19,6 +19,8 @@ import os
 import re
 import sys
 
+import urllib.parse
+
 import yaml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -1877,10 +1879,27 @@ def tabs(current):
     return '<nav class="tabs no-print" aria-label="Pages">%s%s</nav>' % (tab("index.html", "Matrix", "matrix"), tab("guide.html", "Guide", "guide"))
 
 
+# The Cloud Native OS mark, two slashes (brand/README.md). Drawn inline so it follows the page theme.
+MARK_PATHS = ('<path class="mk-a" d="M1 22H5.75L13.25 2H8.5Z"/>', '<path class="mk-b" d="M10.75 22H15.5L23 2H18.25Z"/>')
+
+
+def brand():
+    """The product lockup: the mark, a small Cloud Native OS label, and Pulse. It links to the matrix page."""
+    return ('<a class="brand" href="index.html" aria-label="Cloud Native OS Pulse, home">'
+            '<svg class="mark" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">%s%s</svg>'
+            '<span class="brand-name"><small>Cloud Native OS</small>Pulse</span></a>' % MARK_PATHS)
+
+
+def favicon_links():
+    """Both pages are single files, so the icon travels inside them as a data URI. It switches colour with the system theme."""
+    svg = open(os.path.join(HERE, "..", "brand", "favicon.svg")).read().strip()
+    return '<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%s">' % urllib.parse.quote(svg)
+
+
 def head_top(current):
-    return ('<div class="head-top">%s<div class="theme no-print" role="group" aria-label="Colour theme">'
+    return ('<div class="head-top">%s%s<div class="theme no-print" role="group" aria-label="Colour theme">'
             '<button type="button" value="system">System</button><button type="button" value="light">Light</button><button type="button" value="dark">Dark</button></div></div>'
-            % tabs(current))
+            % (brand(), tabs(current)))
 
 
 def cited(body):
@@ -2092,6 +2111,7 @@ def site(P, tok, css, js):
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{desc}">
+{favicon_links()}
 {head_script}
 <style>{tokens_css(tok)}</style>
 <style>{css}</style>
