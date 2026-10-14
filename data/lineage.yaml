@@ -1,0 +1,3654 @@
+# Lineage graph for the Cloud Native OS Pulse chart "Where they came from".
+# Merged from three research files, then fact-checked 2026-10-06.
+# Evidence labels: DOCUMENTED (a source states it), INFERRED (says from what), UNKNOWN (says where searched).
+# first_public_note, end_of_life_note, scope and owner note are printed on the public page. research_note is not.
+
+retrieved: '2026-10-06'
+orgs:
+- id: org-coreos-inc
+  name: CoreOS, Inc.
+  events:
+  - type: acquired-by
+    to: org-red-hat
+    date: 2018-01-30 (agreement announced, USD 250 million)
+    evidence: DOCUMENTED
+    caveat: The closing date was not found.
+    sources:
+    - url: https://www.redhat.com/en/about/press-releases/red-hat-acquire-coreos-expanding-its-kubernetes-and-containers-leadership
+      title: Red Hat to Acquire CoreOS, Expanding its Kubernetes and Containers Leadership
+      publisher: Red Hat
+      date: '2018-01-30'
+      quote: today announced that it has signed a definitive agreement to acquire CoreOS, Inc.
+      quote_check: raw
+    note: 'Press release: "The transaction is expected to close in January 2018, subject to customary closing conditions."'
+- id: org-red-hat
+  name: Red Hat, Inc.
+- id: org-fedora-project
+  name: Fedora Project
+- id: org-kinvolk
+  name: Kinvolk GmbH
+  notes:
+  - the asker wrote 'Fold King'; the company is Kinvolk
+  - 'Source file kept this as a node of kind: organisation (kept as a node so the acquisition edge has a source end)'
+  events:
+  - type: acquired-by
+    to: org-microsoft
+    date: 2021-04-29 (announced)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://azure.microsoft.com/en-us/blog/microsoft-acquires-kinvolk-to-accelerate-containeroptimized-innovation/
+      title: Microsoft acquires Kinvolk to accelerate container-optimized innovation
+      publisher: Microsoft (Brendan Burns)
+      date: '2021-04-29'
+      quote: we’re announcing that Microsoft has acquired Kinvolk GmbH.
+      quote_check: raw
+  facts:
+  - field: location
+    value: Berlin
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.cncf.io/blog/2024/10/29/flatcar-brings-container-linux-to-the-cncf-incubator/
+      title: Flatcar brings Container Linux to the CNCF Incubator
+      publisher: CNCF
+      date: '2024-10-29'
+      quote: Flatcar was originally created by the team at Kinvolk, a Berlin-based cloud native technology company that is now a part of Microsoft, as a derivative of CoreOS Container Linux.
+      quote_check: raw
+  - field: founded
+    value: UNKNOWN
+    evidence: UNKNOWN
+    searched: One web search; no primary source found. kinvolk.io not read.
+- id: org-microsoft
+  name: Microsoft
+- id: org-cncf
+  name: Cloud Native Computing Foundation (CNCF)
+  aliases:
+  - name: Cloud Native Computing Foundation
+    note: name used in a second source file
+- id: org-lf-projects
+  name: LF Projects, LLC
+- id: org-rancher-labs
+  name: Rancher Labs
+  events:
+  - type: acquired-by
+    to: org-suse
+    date: '2020-12-01'
+    evidence: DOCUMENTED
+    note: News coverage used to date the close. Agreement announced 2020-07. Applies to k3os and rancheros ownership.
+    sources:
+    - url: https://siliconangle.com/2020/12/01/suse-completes-acquisition-rancher-labs/
+      title: SUSE completes acquisition of Rancher Labs
+      publisher: SiliconANGLE
+      date: '2020-12-01'
+      quote: SUSE Group today said it has completed the acquisition of Kubernetes management startup Rancher Labs Inc
+      quote_check: raw
+- id: org-suse
+  name: SUSE
+- id: org-kairos-project
+  name: Kairos project
+- id: org-spectro-cloud
+  name: Spectro Cloud
+- id: org-talos-systems
+  name: Talos Systems, Inc. (renamed Sidero Labs 2021-10-04)
+  events:
+  - type: renamed-to
+    to: org-sidero-labs
+    date: '2021-10-04'
+    evidence: DOCUMENTED
+    note: 'via WebFetch. Reason: trademark held by Cisco Talos.'
+    sources:
+    - url: https://www.siderolabs.com/blog/talos-systems-is-now-sidero-labs
+      title: Talos Systems is now Sidero Labs
+      publisher: Sidero Labs (Steve Francis)
+      date: '2021-10-04'
+      quote: Unfortunately, it was such a good name that it is in use by several other entities – amongst them the Talos intelligence cybersecurity group from Cisco Systems, who happened to have trademarked the name around the world.
+- id: org-sidero-labs
+  name: Sidero Labs
+  events:
+  - type: acquired-by
+    to: org-yardi
+    date: 2026-09-14 (announced)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.siderolabs.com/blog/sidero-labs-joins-yardi
+      title: Sidero Labs joins Yardi
+      publisher: Sidero Labs (Steve Francis)
+      date: '2026-09-14'
+      quote: Sidero Labs - the company behind Talos Linux and Omni - has been acquired by Yardi.
+      quote_check: raw
+    - url: https://www.siderolabs.com/blog/sidero-labs-joins-yardi
+      title: Sidero Labs joins Yardi
+      publisher: Sidero Labs (Steve Francis)
+      date: '2026-09-14'
+      quote: Sidero Labs continues to operate as a standalone company
+      quote_check: raw
+    caveat: closing date not stated; a 'July 2026' date seen in one search summary was not found in any source.
+  facts:
+  - field: independence
+    value: Sidero Labs continues to operate as a standalone company
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.siderolabs.com/blog/sidero-labs-joins-yardi
+      title: Sidero Labs joins Yardi
+      publisher: Sidero Labs (Steve Francis)
+      date: '2026-09-14'
+      quote: Sidero Labs continues to operate as a standalone company
+      quote_check: raw
+- id: org-yardi
+  name: Yardi
+- id: org-aws
+  name: Amazon Web Services
+- id: org-google
+  name: Google
+- id: org-zededa
+  name: ZEDEDA
+- id: org-lf-edge
+  name: LF Edge (The Linux Foundation)
+- id: org-canonical
+  name: Canonical
+- id: org-ettore-di-giacinto
+  name: Ettore Di Giacinto
+  kind: person
+- id: org-andrew-rynhard
+  name: Andrew Rynhard
+  kind: person
+- id: org-opensuse-project
+  name: openSUSE Project
+- id: org-docker
+  name: Docker, Inc.
+- id: org-alpine-linux-project
+  name: Alpine Linux project
+nodes:
+- id: chromium-os
+  name: Chromium OS
+  kind: ancestor
+  aliases:
+  - name: ChromiumOS
+  first_public: '2009-11-19'
+  first_public_note: source code opened
+  end_of_life: null
+  owners:
+  - org: org-google
+    from: null
+    to: null
+    how: null
+    who: Google
+  base:
+  - value: Builds with Gentoo's Portage package management system inside the CrOS SDK chroot
+  facts:
+  - field: relation-to-gentoo
+    value: Flatcar's documentation says ChromiumOS is based on Gentoo.
+    evidence: DOCUMENTED
+    caveat: This is Flatcar describing Chromium OS. No Chromium OS primary source was read for the Chromium OS to Gentoo relationship.
+    sources:
+    - url: https://www.flatcar.org/docs/latest/devguide/sdk-modifying-flatcar/
+      title: Guide to building custom Flatcar images from source
+      publisher: Flatcar project
+      date: undated living doc, read 2026-10-06
+      quote: Flatcar Container Linux is based on ChromiumOS, which is based on Gentoo.
+      quote_check: raw
+  - field: first-public
+    value: 2009-11-19 (source code opened)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://googleblog.blogspot.com/2009/11/releasing-chromium-os-open-source.html
+      title: Releasing the Chromium OS open source project
+      publisher: Official Google Blog
+      date: '2009-11-19'
+      quote: In July we announced that we were working on Google Chrome OS, an open source operating system
+      quote_check: raw
+  evidence: DOCUMENTED
+  evidence_note: Base is DOCUMENTED. First-release date is UNKNOWN.
+  sources:
+  - url: https://www.chromium.org/chromium-os/developer-library/guides/portage/ebuild-faq/
+    title: Portage / ebuild FAQ
+    publisher: The Chromium Projects
+    date: undated, retrieved 2026-10-06
+    quote: The CrOS SDK chroot environment uses the Portage package management system.
+  notes:
+  - Included only as the source of the SDK tooling and the first commits in the CoreOS build scripts. Not researched as a project in its own right.
+  research_note: Was UNKNOWN. Set from the Official Google Blog post. The Chromium blog URL tried earlier returned 404.
+  first_public_sources:
+  - url: https://googleblog.blogspot.com/2009/11/releasing-chromium-os-open-source.html
+    title: Releasing the Chromium OS open source project
+    publisher: Official Google Blog
+    date: '2009-11-19'
+    quote: In July we announced that we were working on Google Chrome OS, an open source operating system
+    quote_check: raw
+- id: gentoo
+  name: Gentoo Linux
+  kind: base
+  aliases:
+  - name: Gentoo (Portage)
+    note: name used in cloud-edge
+  first_public: null
+  end_of_life: null
+  notes:
+  - Included as a base distribution only. Not researched further.
+  - 'From cloud-edge: Reference node only, target of Chromium OS''s based-on edge. Not researched.'
+- id: fedora
+  name: Fedora Linux
+  kind: base
+  first_public: null
+  end_of_life: null
+  notes:
+  - Base distribution stub. Not researched in this group.
+- id: rhel
+  name: Red Hat Enterprise Linux
+  kind: base
+  first_public: null
+  end_of_life: null
+  notes:
+  - Base distribution stub. Not researched in this group.
+- id: photon-os
+  name: VMware Photon OS
+  kind: base
+  first_public: null
+  end_of_life: null
+  notes:
+  - Stub. Source of SPEC files for CBL-Mariner. Not researched.
+- id: coreos-container-linux
+  name: Container Linux by CoreOS
+  kind: ancestor
+  aliases:
+  - name: CoreOS
+  - name: CoreOS Linux
+    to: '2016-12-12'
+    rename_detail: CoreOS Linux -> Container Linux by CoreOS, 2016-12-12
+    evidence: DOCUMENTED
+    sources:
+    - url: https://coreos.com/blog/tectonic-self-driving.html
+      title: Self-Driving Kubernetes, Container Linux by CoreOS and Kubernetes 1.5
+      publisher: CoreOS, Inc.
+      date: '2016-12-12'
+      quote: we have renamed CoreOS Linux to “Container Linux by CoreOS”
+      quote_check: raw
+  - name: CoreOS Container Linux
+  - name: CoreOS (Container Linux)
+    note: name used in cloud-edge
+  first_public: 2013-08
+  first_public_note: first alpha
+  end_of_life: '2020-05-26'
+  end_of_life_note: last updates; resources deleted or made read-only on or after 2020-09-01
+  owners:
+  - org: org-coreos-inc
+    from: null
+    to: null
+    how: created
+    who: CoreOS, Inc. until the Red Hat acquisition (announced 2018-01-30)
+  - org: org-red-hat
+    from: '2018-01-30'
+    to: null
+    how: acquired
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.redhat.com/en/about/press-releases/red-hat-acquire-coreos-expanding-its-kubernetes-and-containers-leadership
+      title: Red Hat to Acquire CoreOS, Expanding its Kubernetes and Containers Leadership
+      publisher: Red Hat
+      date: '2018-01-30'
+      quote: today announced that it has signed a definitive agreement to acquire CoreOS, Inc.
+      quote_check: raw
+    edge_notes:
+    - 'from edge: acquired-by'
+    - 'edge date: 2018-01-30 (agreement announced, USD 250 million)'
+    - 'edge caveat: The closing date was not found.'
+    note: Red Hat acquired CoreOS, Inc. (agreement announced 2018-01-30).
+    research_note: The closing date was not found.
+  facts:
+  - field: company-founded
+    value: '2013'
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.redhat.com/en/technologies/cloud-computing/openshift/what-was-coreos
+      title: What was CoreOS and CoreOS Container Linux?
+      publisher: Red Hat
+      date: '2021-03-23'
+      quote: CoreOS was founded in 2013 with the mission to improve the security and reliability of the internet.
+      quote_check: raw
+  - field: build-repositories-created
+    value: '2013-02-28'
+    evidence: DOCUMENTED
+    method: 'gh api repos/coreos/scripts, coreos/coreos-overlay, coreos/portage-stable, coreos/manifest: created_at'
+    sources:
+    - url: https://github.com/coreos/scripts
+      title: coreos/scripts (archived)
+      publisher: CoreOS, GitHub
+      date: 2013-02-28 (repository created_at)
+      quote: Build and maintenance scripts for Container Linux
+      quote_check: raw
+  - field: first-public-release
+    value: 2013-08 (first alpha)
+    evidence: DOCUMENTED
+    caveat: Wikipedia gives 2013-10-03 as the initial release. That date was not found in a CoreOS source. The CoreOS blog is the primary source and says August 2013.
+    sources:
+    - url: https://coreos.com/blog/stable-release.html
+      archive: https://web.archive.org/web/2017/https://coreos.com/blog/stable-release.html
+      title: CoreOS stable release
+      publisher: CoreOS, Inc.
+      date: '2014-07-25'
+      quote: 'Since our first alpha release in August 2013:'
+      quote_check: raw
+  - field: first-stable-release
+    value: '2014-07-25'
+    evidence: DOCUMENTED
+    sources:
+    - url: https://coreos.com/blog/stable-release.html
+      archive: https://web.archive.org/web/2017/https://coreos.com/blog/stable-release.html
+      title: CoreOS stable release
+      publisher: CoreOS, Inc.
+      date: '2014-07-25'
+      quote: we are announcing the CoreOS stable release channel.
+      quote_check: raw
+  - field: rename
+    value: CoreOS Linux renamed to Container Linux by CoreOS, 2016-12-12
+    evidence: DOCUMENTED
+    sources:
+    - url: https://coreos.com/blog/tectonic-self-driving.html
+      archive: https://web.archive.org/web/2017/https://coreos.com/blog/tectonic-self-driving.html
+      title: Self-Driving Kubernetes, Container Linux by CoreOS and Kubernetes 1.5
+      publisher: CoreOS, Inc.
+      date: '2016-12-12'
+      quote: we have renamed CoreOS Linux to “Container Linux by CoreOS” and have given it a new logo as well.
+      quote_check: raw
+  - field: base
+    value: Gentoo packages built with an SDK taken from Chromium OS. The ebuild overlay is Gentoo. The build scripts and update_engine start from Chromium OS commits of 2009. The SDK is entered with Chromium OS's cros_sdk.
+    evidence: DOCUMENTED
+    caveat: No CoreOS page read here says in one sentence "CoreOS is based on Chromium OS". The Chromium OS link is shown by code history and tooling. The one-sentence statement exists only in Flatcar's docs.
+    sources:
+    - url: https://github.com/coreos/coreos-overlay
+      title: coreos/coreos-overlay README (archived)
+      publisher: CoreOS, GitHub
+      date: archived repository, read 2026-10-06
+      quote: This overlay contains Container Linux specific packages and Gentoo packages that differ from their upstream Gentoo versions.
+      quote_check: raw
+    - url: https://github.com/coreos/portage-stable
+      title: coreos/portage-stable (archived)
+      publisher: CoreOS, GitHub
+      date: 2013-02-28 (repository created_at)
+      quote: unmodified ebuilds mirrored from the portage tree
+      quote_check: raw
+    - url: https://github.com/coreos/scripts/commit/d74220d7727b063d84520c53185808a5db12fb6c
+      title: Oldest commit in coreos/scripts
+      publisher: GitHub (commit imported from Chromium OS svn)
+      date: '2009-10-09'
+      quote: 'git-svn-id: svn://chrome-svn/chromeos/trunk@4'
+      quote_check: raw
+    - url: https://github.com/coreos/update_engine/commit/49fdf1889b965be25f929eeebc5b60cd40b90435
+      title: Oldest commit in coreos/update_engine
+      publisher: GitHub (commit imported from Chromium OS svn)
+      date: '2009-10-10'
+      quote: 'git-svn-id: svn://chrome-svn/chromeos/trunk@24'
+      quote_check: raw
+    - url: https://coreos.com/docs/sdk-distributors/sdk/modifying-coreos/
+      archive: https://web.archive.org/web/20150325230234/https://coreos.com/docs/sdk-distributors/sdk/modifying-coreos/
+      title: CoreOS Developer SDK Guide
+      publisher: CoreOS, Inc.
+      date: capture 2015-03-25
+      quote: Download and enter the SDK chroot which contains all of the compilers and tooling. ./chromite/bin/cros_sdk
+      quote_check: raw
+  - field: ownership
+    value: CoreOS, Inc. until the Red Hat acquisition (announced 2018-01-30)
+    evidence: DOCUMENTED
+    source_ref: see edge e-coreos-inc-acquired-by-red-hat
+  - field: end-of-life
+    value: 2020-05-26 (last updates). Resources deleted or made read-only on or after 2020-09-01.
+    evidence: DOCUMENTED
+    caveat: The exact publication date of the EOL page is not on the page. Fedora Magazine (2020-01-17) said the date would be announced "later this month". The Register reported it on 2020-02-18. Flatcar's blog of 2020-02-24 refers to it. So the announcement is between 2020-01-17 and 2020-02-18. INFERRED.
+    sources:
+    - url: https://coreos.com/os/eol/
+      archive: https://web.archive.org/web/20200601000000/https://coreos.com/os/eol/
+      title: End-of-life announcement for CoreOS Container Linux
+      publisher: CoreOS (Red Hat)
+      date: undated page; Wayback capture 2020-06; The Register dates the announcement to 2020-02 (news, used for dating only)
+      quote: On May 26, 2020, CoreOS Container Linux will reach its end of life and will no longer receive updates.
+      quote_check: raw
+  notes:
+  - 'From cloud-edge: Reference node only, owned by another group. Needed as the target of EVE''s influenced-by edge.'
+  research_note: Wikipedia gives 2013-10-03 (see facts). First stable release 2014-07-25.
+  first_public_sources:
+  - url: https://coreos.com/blog/stable-release.html
+    archive: https://web.archive.org/web/2017/https://coreos.com/blog/stable-release.html
+    title: CoreOS stable release
+    publisher: CoreOS, Inc.
+    date: '2014-07-25'
+    quote: 'Since our first alpha release in August 2013:'
+    quote_check: raw
+  end_of_life_sources:
+  - url: https://coreos.com/os/eol/
+    archive: https://web.archive.org/web/20200601000000/https://coreos.com/os/eol/
+    title: End-of-life announcement for CoreOS Container Linux
+    publisher: CoreOS (Red Hat)
+    date: undated page; Wayback capture 2020-06; The Register dates the announcement to 2020-02 (news, used for dating only)
+    quote: On May 26, 2020, CoreOS Container Linux will reach its end of life and will no longer receive updates.
+    quote_check: raw
+- id: project-atomic
+  name: Project Atomic
+  kind: ancestor
+  first_public: '2014-04-15'
+  first_public_note: announced
+  end_of_life: null
+  end_of_life_note: project sunset
+  facts:
+  - field: announced
+    value: '2014-04-15'
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.redhat.com/en/about/press-releases/red-hat-accelerates-application-delivery-new-linux-container-innovations
+      title: Red Hat Accelerates Application Delivery with New Linux Container Innovations
+      publisher: Red Hat
+      date: '2014-04-15'
+      quote: Project Atomic – a new community project to develop technologies for creating lightweight Linux Container hosts, based on next-generation capabilities in the Linux ecosystem.
+      quote_check: raw
+  - field: scope
+    value: Upstream for Fedora and CentOS Atomic hosts and for RHEL Atomic Host
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.redhat.com/en/about/press-releases/red-hat-accelerates-application-delivery-new-linux-container-innovations
+      title: Red Hat Accelerates Application Delivery with New Linux Container Innovations
+      publisher: Red Hat
+      date: '2014-04-15'
+      quote: 'Project Atomic will provide the upstream community for Fedora and CentOS Atomic hosts, along with a new Red Hat Enterprise Linux offering: Red Hat Enterprise Linux Atomic Host .'
+      quote_check: raw
+  - field: update-technology
+    value: rpm-ostree
+    evidence: DOCUMENTED
+    sources:
+    - url: https://projectatomic.io/docs/introduction/
+      title: Project Atomic introduction
+      publisher: Project Atomic
+      date: undated, read 2026-10-06
+      quote: The host system is managed via rpm-ostree , an open source tool for managing bootable, immutable, versioned filesystem trees from upstream RPM content.
+      quote_check: raw
+  - field: end
+    value: sunset; no date on the page
+    evidence: DOCUMENTED
+    sources:
+    - url: https://projectatomic.io/download
+      title: Project Atomic is now sunset
+      publisher: Project Atomic
+      date: undated, read 2026-10-06
+      quote: Project Atomic is now sunset The Atomic Host platform is now replaced by CoreOS .
+      quote_check: raw
+  kind_note: umbrella project (not itself an OS image)
+  research_note: No date on the page.
+- id: fedora-atomic-host
+  name: Fedora Atomic Host
+  kind: ancestor
+  aliases:
+  - name: Fedora 21 Atomic image
+  first_public: '2014-12-09'
+  first_public_note: shipped with Fedora 21
+  end_of_life: '2019-11-26'
+  end_of_life_note: Fedora 29, its last base release, reached end of life
+  facts:
+  - field: first-release
+    value: 2014-12-09 (Fedora 21)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://fedoramagazine.org/announcing-fedora-21/
+      title: Announcing Fedora 21
+      publisher: Fedora Magazine
+      date: '2014-12-09'
+      quote: The Fedora 21 release is the first to offer an “Atomic” host for Fedora, which includes a minimal set of packages and an image composed with rpm-ostree.
+      quote_check: raw
+  - field: base
+    value: Fedora (same RPMs as other Fedora offerings)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://fedoramagazine.org/announcing-fedora-21/
+      title: Announcing Fedora 21
+      publisher: Fedora Magazine
+      date: '2014-12-09'
+      quote: While using the same RPMs as other Fedora offerings, the Atomic host lets you roll back updates
+      quote_check: raw
+  - field: last-release
+    value: Fedora 29 Atomic Host
+    evidence: DOCUMENTED
+    sources:
+    - url: https://projectatomic.io/blog/2018/06/welcome-to-fedora-coreos/
+      title: Announcing the Fedora CoreOS community!
+      publisher: Project Atomic (Dusty Mabe)
+      date: '2018-06-20'
+      quote: The last major release of Fedora Atomic Host will most likely be Fedora 29 Atomic Host.
+      quote_check: raw
+  - field: end-of-life
+    value: '2019-11-26'
+    evidence: DOCUMENTED
+    sources:
+    - url: https://projectatomic.io/blog/2019/11/fedora-atomic-host-nearing-eol/
+      title: Fedora Atomic Host Nearing End Of Life
+      publisher: Project Atomic (Dusty Mabe)
+      date: '2019-11-21'
+      quote: Fedora 29 will be End Of Life soon . With it Fedora Atomic Host will have its last incremental release (based on the Fedora 29 stream).
+      quote_check: raw
+  research_note: 'Was INFERRED, "with Fedora 29, late 2019". Fedora discussion post title: "Fedora 29 will be EOL on Tuesday, November 26, 2019" (URL not recorded).'
+  first_public_sources:
+  - url: https://fedoramagazine.org/announcing-fedora-21/
+    title: Announcing Fedora 21
+    publisher: Fedora Magazine
+    date: '2014-12-09'
+    quote: The Fedora 21 release is the first to offer an “Atomic” host for Fedora, which includes a minimal set of packages and an image composed with rpm-ostree.
+    quote_check: raw
+  end_of_life_sources:
+  - url: https://projectatomic.io/blog/2019/11/fedora-atomic-host-nearing-eol/
+    title: Fedora Atomic Host Nearing End Of Life
+    publisher: Project Atomic (Dusty Mabe)
+    date: '2019-11-21'
+    quote: Fedora 29 will be End Of Life soon . With it Fedora Atomic Host will have its last incremental release (based on the Fedora 29 stream).
+    quote_check: raw
+- id: rhel-atomic-host
+  name: Red Hat Enterprise Linux Atomic Host
+  kind: ancestor
+  first_public: '2014-04-15'
+  first_public_note: announced, planned to debut with RHEL 7
+  end_of_life: null
+  end_of_life_note: replaced by Red Hat CoreOS in OpenShift 4.1 (2019-06-04)
+  facts:
+  - field: announced
+    value: 2014-04-15, planned to debut with RHEL 7
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.redhat.com/en/about/press-releases/red-hat-accelerates-application-delivery-new-linux-container-innovations
+      title: Red Hat Accelerates Application Delivery with New Linux Container Innovations
+      publisher: Red Hat
+      date: '2014-04-15'
+      quote: a new variant of Red Hat Enterprise Linux – Red Hat Enterprise Linux Atomic Host—which Red Hat plans to debut with Red Hat Enterprise Linux 7.
+      quote_check: raw
+  - field: general-availability
+    value: UNKNOWN
+    evidence: UNKNOWN
+    searched: Not searched in depth. Only the 2014 announcement was read.
+  - field: replaced-in-openshift
+    value: OpenShift 4.1 (2019-06-04) lists Atomic Host as replaced by RHCOS
+    evidence: DOCUMENTED
+    source_ref: see edge e-rhel-atomic-succeeded-by-rhcos
+  research_note: General availability UNKNOWN. See edges.
+- id: centos-atomic-host
+  name: CentOS Atomic Host
+  kind: ancestor
+  first_public: null
+  first_public_note: planned in 2014 as a Project Atomic downstream
+  end_of_life: null
+  facts:
+  - field: existence
+    value: planned in 2014 as a Project Atomic downstream
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.redhat.com/en/about/press-releases/red-hat-accelerates-application-delivery-new-linux-container-innovations
+      title: Red Hat Accelerates Application Delivery with New Linux Container Innovations
+      publisher: Red Hat
+      date: '2014-04-15'
+      quote: Project Atomic will provide the upstream community for Fedora and CentOS Atomic hosts
+      quote_check: raw
+  notes:
+  - Named in the Project Atomic press release. Not researched further.
+  research_note: No release date researched.
+- id: ostree
+  name: OSTree
+  kind: technology
+  aliases:
+  - name: libostree
+  first_public: '2011-10-09'
+  first_public_note: first commit by Colin Walters
+  end_of_life: null
+  facts:
+  - field: first-commit
+    value: 2011-10-09, Colin Walters
+    evidence: DOCUMENTED
+    method: gh api repos/ostreedev/ostree/commits, last page
+    sources:
+    - url: https://github.com/ostreedev/ostree/commit/f874ac043dae8a2147ccbb428629888905a32603
+      title: ostree initial commit
+      publisher: GitHub
+      date: '2011-10-09'
+      quote: Initial commit
+      quote_check: raw
+  - field: rename
+    value: now known as libostree
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/ostreedev/ostree/blob/main/README.md
+      title: libostree README
+      publisher: ostreedev
+      date: living doc, read 2026-10-06
+      quote: This project is now known as "libostree"
+      quote_check: raw
+  - field: owner
+    value: UNKNOWN
+    evidence: UNKNOWN
+    searched: README read. No governance or ownership statement looked for.
+  kind_note: technology
+- id: rpm-ostree
+  name: rpm-ostree
+  kind: technology
+  first_public: '2013-12-22'
+  first_public_note: first commit by Colin Walters
+  end_of_life: null
+  facts:
+  - field: first-commit
+    value: 2013-12-22, Colin Walters
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/coreos/rpm-ostree/commit/958dfa435e4e4a3e44a232b7c0d5480e1b143fc1
+      title: rpm-ostree first commit
+      publisher: GitHub
+      date: '2013-12-22'
+      quote: Initial import from pkgsys-ostree
+      quote_check: raw
+  - field: org-move
+    value: projectatomic/rpm-ostree now redirects to coreos/rpm-ostree
+    evidence: DOCUMENTED
+    method: gh api repos/projectatomic/rpm-ostree returns full_name coreos/rpm-ostree
+    caveat: The date of the move was not found.
+  kind_note: technology
+- id: fedora-coreos
+  name: Fedora CoreOS
+  kind: entry
+  entry: fedora-coreos
+  aliases:
+  - name: FCOS
+  first_public: '2018-06-20'
+  first_public_note: announced
+  end_of_life: null
+  owners:
+  - org: org-fedora-project
+    from: null
+    to: null
+    how: null
+    who: Fedora Project working group
+  - org: org-red-hat
+    from: null
+    to: null
+    how: null
+    who: Red Hat holds the Fedora trademarks (see the fedora-coreos profile d13)
+  facts:
+  - field: announced
+    value: 2018-06-20 (Project Atomic blog), 2018-06-22 (CoreOS blog)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://projectatomic.io/blog/2018/06/welcome-to-fedora-coreos/
+      title: Announcing the Fedora CoreOS community!
+      publisher: Project Atomic (Dusty Mabe)
+      date: '2018-06-20'
+      quote: we have decided to merge future development of the two projects so that we can combine our efforts and bring two great communities of people together
+      quote_check: raw
+    - url: https://coreos.com/blog/fedora-coreos-red-hat-coreos-and-future-container-linux
+      archive: https://web.archive.org/web/2019/https://coreos.com/blog/fedora-coreos-red-hat-coreos-and-future-container-linux
+      title: Fedora CoreOS, Red Hat CoreOS, and the future of Container Linux
+      publisher: CoreOS (Benjamin Gilbert)
+      date: '2018-06-22'
+      quote: This week, the Fedora project announced the official launch of the Fedora CoreOS project, a new open source community effort under the Fedora banner.
+      quote_check: raw
+  - field: first-preview
+    value: '2019-07-24'
+    evidence: DOCUMENTED
+    sources:
+    - url: https://fedoramagazine.org/introducing-fedora-coreos/
+      title: Introducing Fedora CoreOS
+      publisher: Fedora Magazine (bgilbert)
+      date: '2019-07-24'
+      quote: The Fedora CoreOS team is excited to announce the first preview release of Fedora CoreOS
+      quote_check: summary
+  - field: general-availability
+    value: '2020-01-17'
+    evidence: DOCUMENTED
+    sources:
+    - url: https://fedoramagazine.org/fedora-coreos-out-of-preview/
+      title: Fedora CoreOS out of preview
+      publisher: Fedora Magazine (bgilbert)
+      date: '2020-01-17'
+      quote: Fedora CoreOS is now available for general use
+      quote_check: summary
+  - field: edition-status
+    value: official Fedora Edition, FESCo accepted 2022-07-19 (Fedora 37)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://pagure.io/fesco/issue/2823
+      title: 'FESCo #2823, Change: Make Fedora CoreOS an Edition'
+      publisher: Fedora FESCo
+      date: '2022-07-19'
+      quote: '#2823 Change: Make Fedora CoreOS an Edition Closed: Accepted Jul 19, 2022'
+      quote_check: raw
+  - field: base
+    value: Fedora
+    evidence: DOCUMENTED
+    sources:
+    - url: https://coreos.com/blog/fedora-coreos-red-hat-coreos-and-future-container-linux
+      title: Fedora CoreOS, Red Hat CoreOS, and the future of Container Linux
+      publisher: CoreOS (Benjamin Gilbert)
+      date: '2018-06-22'
+      quote: Fedora CoreOS also plans to build on the packaging and maintenance work done every day in the Fedora project.
+      quote_check: raw
+  - field: ownership
+    value: Fedora Project working group; Red Hat holds the Fedora trademarks (see the fedora-coreos profile d13)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://docs.fedoraproject.org/en-US/legal/trademarks/
+      title: Fedora trademarks
+      publisher: Fedora Project
+      date: read 2026-09-22 (profile)
+      quote: Red Hat protects the Fedora Trademarks on behalf of the entire Fedora community.
+      quote_check: taken from the fedora-coreos profile, not re-read
+  - field: inherited-from-container-linux
+    value: Ignition
+    evidence: DOCUMENTED
+    sources:
+    - url: https://coreos.com/blog/fedora-coreos-red-hat-coreos-and-future-container-linux
+      title: Fedora CoreOS, Red Hat CoreOS, and the future of Container Linux
+      publisher: CoreOS (Benjamin Gilbert)
+      date: '2018-06-22'
+      quote: Some Container Linux technologies, such as Ignition, are essential components of Fedora CoreOS.
+      quote_check: raw
+  - field: pending-change
+    value: Proposal opened 2026-08-26 to unify Fedora CoreOS and the Fedora bootc base images for Fedora 46. Open, no design yet.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/coreos/fedora-coreos-tracker/issues/2214
+      title: CoreOS and Image Mode/Bootc Unification
+      publisher: coreos/fedora-coreos-tracker (dustymabe)
+      date: '2026-08-26'
+      quote: form a working group on the topic of bringing the the bootc and CoreOS communities and outputs together for Fedora 46
+      quote_check: raw
+  research_note: Announced on the Project Atomic blog 2018-06-20 and the CoreOS blog 2018-06-22. First preview 2019-07-24. General availability 2020-01-17.
+  first_public_sources:
+  - url: https://projectatomic.io/blog/2018/06/welcome-to-fedora-coreos/
+    title: Announcing the Fedora CoreOS community!
+    publisher: Project Atomic (Dusty Mabe)
+    date: '2018-06-20'
+    quote: we have decided to merge future development of the two projects so that we can combine our efforts and bring two great communities of people together
+    quote_check: raw
+  - url: https://coreos.com/blog/fedora-coreos-red-hat-coreos-and-future-container-linux
+    archive: https://web.archive.org/web/2019/https://coreos.com/blog/fedora-coreos-red-hat-coreos-and-future-container-linux
+    title: Fedora CoreOS, Red Hat CoreOS, and the future of Container Linux
+    publisher: CoreOS (Benjamin Gilbert)
+    date: '2018-06-22'
+    quote: This week, the Fedora project announced the official launch of the Fedora CoreOS project, a new open source community effort under the Fedora banner.
+    quote_check: raw
+- id: rhcos
+  name: Red Hat Enterprise Linux CoreOS
+  kind: relative
+  aliases:
+  - name: Red Hat CoreOS
+  - name: RHCOS
+  first_public: '2018-05-08'
+  first_public_note: announced; first shipped in OpenShift Container Platform 4.1 (2019-06-04)
+  end_of_life: null
+  owners:
+  - org: org-red-hat
+    from: null
+    to: null
+    how: null
+    who: Red Hat
+  facts:
+  - field: announced
+    value: '2018-05-08'
+    evidence: DOCUMENTED
+    sources:
+    - url: https://coreos.com/blog/coreos-tech-to-combine-with-red-hat-openshift
+      archive: https://web.archive.org/web/2019/https://coreos.com/blog/coreos-tech-to-combine-with-red-hat-openshift
+      title: Bringing CoreOS technology to Red Hat OpenShift to deliver a next-generation automated Kubernetes platform
+      publisher: CoreOS (Reza Shafii)
+      date: '2018-05-08'
+      quote: With the acquisition, Container Linux will be reborn as Red Hat CoreOS, a new entry into the Red Hat ecosystem.
+      quote_check: raw
+  - field: first-shipped
+    value: 2019-06-04, OpenShift Container Platform 4.1
+    evidence: DOCUMENTED
+    sources:
+    - url: https://docs.redhat.com/en/documentation/openshift_container_platform/4.1/html/release_notes/ocp-4-1-release-notes
+      title: OpenShift Container Platform 4.1 release notes
+      publisher: Red Hat
+      date: '2019-06-04'
+      quote: You must use Red Hat Enterprise Linux CoreOS (RHCOS) for the control plane, or master, machines
+      quote_check: summary
+  - field: base
+    value: Fedora and RHEL sources (as planned in 2018); Fedora CoreOS named as its community upstream
+    evidence: DOCUMENTED
+    sources:
+    - url: https://coreos.com/blog/coreos-tech-to-combine-with-red-hat-openshift
+      title: Bringing CoreOS technology to Red Hat OpenShift
+      publisher: CoreOS (Reza Shafii)
+      date: '2018-05-08'
+      quote: Red Hat CoreOS will be based on Fedora and Red Hat Enterprise Linux sources and is expected to ultimately supersede Atomic Host as Red Hat’s immutable, container-centric operating system.
+      quote_check: raw
+    - url: https://coreos.com/blog/fedora-coreos-red-hat-coreos-and-future-container-linux
+      title: Fedora CoreOS, Red Hat CoreOS, and the future of Container Linux
+      publisher: CoreOS (Benjamin Gilbert)
+      date: '2018-06-22'
+      quote: Finally, Fedora CoreOS will serve as the community upstream of Red Hat CoreOS.
+      quote_check: raw
+  - field: owner
+    value: Red Hat
+    evidence: DOCUMENTED
+    source_ref: see announced
+  first_public_sources:
+  - url: https://coreos.com/blog/coreos-tech-to-combine-with-red-hat-openshift
+    archive: https://web.archive.org/web/2019/https://coreos.com/blog/coreos-tech-to-combine-with-red-hat-openshift
+    title: Bringing CoreOS technology to Red Hat OpenShift to deliver a next-generation automated Kubernetes platform
+    publisher: CoreOS (Reza Shafii)
+    date: '2018-05-08'
+    quote: With the acquisition, Container Linux will be reborn as Red Hat CoreOS, a new entry into the Red Hat ecosystem.
+    quote_check: raw
+- id: bootc
+  name: bootc
+  kind: entry
+  entry: bootc
+  aliases:
+  - name: containers/bootc (old GitHub path)
+  - name: bootc-dev/bootc
+  first_public: '2023-09-07'
+  first_public_note: first release v0.1
+  end_of_life: null
+  owners:
+  - org: org-red-hat
+    from: null
+    to: null
+    how: null
+    who: Red Hat; Red Hat and Fedora named as sponsoring orgs in the CNCF application
+  - org: org-fedora-project
+    from: null
+    to: null
+    how: null
+    who: Named as a contributing or sponsoring org in the CNCF application
+  - org: org-cncf
+    from: '2025-01-21'
+    to: null
+    how: donated
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.cncf.io/projects/bootc/
+      title: CNCF project page, bootc
+      publisher: CNCF
+      date: read 2026-09-22 (bootc profile)
+      quote: bootc was accepted to CNCF on January 21, 2025 at the Sandbox maturity level.
+      quote_check: verbatim per the bootc profile; the sandbox issue dates were re-read raw 2026-10-06
+    edge_notes:
+    - 'from edge: donated-to'
+    - 'edge date: 2025-01-21 (Sandbox)'
+  facts:
+  - field: repository-created
+    value: 2022-11-30 (containers/bootc; the API now resolves it to bootc-dev/bootc)
+    evidence: DOCUMENTED
+    method: gh api repos/containers/bootc -> full_name bootc-dev/bootc, created_at 2022-11-30T20:11:04Z
+  - field: first-release
+    value: v0.1, 2023-09-07
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/bootc-dev/bootc/releases/tag/v0.1
+      title: bootc v0.1
+      publisher: GitHub
+      date: '2023-09-07'
+      quote: v0.1 published_at 2023-09-07T13:38:16Z
+      quote_check: raw (API field, not prose)
+  - field: first-1.x-release
+    value: v1.1.0, 2024-10-17 (no v1.0 tag exists)
+    evidence: DOCUMENTED
+    method: gh api repos/bootc-dev/bootc/releases and /tags; no tag matches ^v1.0
+  - field: original-owner
+    value: Red Hat; Red Hat and Fedora named as sponsoring orgs in the CNCF application
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/cncf/sandbox/issues/310
+      title: '[Sandbox] bootc'
+      publisher: CNCF sandbox repository
+      date: '2024-11-14'
+      quote: '### Contributing or Sponsoring Org www.redhat.com, www.fedoraproject.org'
+      quote_check: raw
+  - field: cncf-sandbox
+    value: applied 2024-11-14, accepted 2025-01-21
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.cncf.io/projects/bootc/
+      title: CNCF project page, bootc
+      publisher: CNCF
+      date: read 2026-09-22 (profile)
+      quote: bootc was accepted to CNCF on January 21, 2025 at the Sandbox maturity level.
+      quote_check: taken from the bootc profile, which re-verified it verbatim
+    - url: https://github.com/cncf/sandbox/issues/310
+      title: '[Sandbox] bootc'
+      publisher: CNCF sandbox repository
+      date: opened 2024-11-14, closed 2025-01-21
+      quote: The bootc provides transactional, in-place operating system images and updates using OCI/Docker container images.
+      quote_check: raw
+  - field: backing-model
+    value: OSTree, shared with rpm-ostree
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/bootc-relationships.7.md
+      title: bootc relationships
+      publisher: bootc project
+      date: main at 7702842, read 2026-10-06
+      quote: bootc uses OSTree as a backing model, and so does rpm-ostree.
+      quote_check: raw
+  - field: relation-to-fedora-coreos
+    value: Goal of seamless transition from OSTree systems; tracked in an FCOS issue. Fedora CoreOS still applies updates with rpm-ostree (see the fedora-coreos profile d02).
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/bootc-relationships.7.md
+      title: bootc relationships
+      publisher: bootc project
+      date: main at 7702842, read 2026-10-06
+      quote: it is a toplevel goal to support a seamless, transactional update from existing OSTree based systems, which includes these Fedora derivatives.
+      quote_check: raw
+  kind_note: technology (tool and library), not a distribution
+  research_note: Repository created 2022-11-30. First 1.x release v1.1.0 on 2024-10-17.
+  first_public_sources:
+  - url: https://github.com/bootc-dev/bootc/releases/tag/v0.1
+    title: bootc v0.1
+    publisher: GitHub
+    date: '2023-09-07'
+    quote: v0.1 published_at 2023-09-07T13:38:16Z
+    quote_check: raw (API field, not prose)
+- id: fedora-bootc
+  name: Fedora bootc base images
+  kind: relative
+  first_public: '2024-05-07'
+  first_public_note: initiative announced
+  end_of_life: null
+  facts:
+  - field: initiative-announced
+    value: '2024-05-07'
+    evidence: DOCUMENTED
+    sources:
+    - url: https://fedoramagazine.org/get-involved-with-fedora-bootable-containers/
+      title: Get Involved with Fedora Bootable Containers
+      publisher: Fedora Magazine
+      date: '2024-05-07'
+      quote: With these changes, and the introduction of bootc , we now have the tools to build image-based systems using ordinary Containerfiles and regular OCI-container build tools.
+      quote_check: raw
+  - field: first-official-image
+    value: UNKNOWN
+    evidence: UNKNOWN
+    searched: Fedora Magazine 2024-05-07 and the Fedora bootc initiative wiki page. A search summary claimed "fedora-bootc:41" shipped with Fedora 41. That was not confirmed in a primary source.
+  research_note: First official image date UNKNOWN.
+- id: rhel-image-mode
+  name: Image mode for Red Hat Enterprise Linux
+  kind: relative
+  first_public: '2024-05-07'
+  first_public_note: announced as Technology Preview in RHEL 9.4; generally available 2025-05-20
+  end_of_life: null
+  facts:
+  - field: announced
+    value: 2024-05-07, Technology Preview in RHEL 9.4
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.redhat.com/en/about/press-releases/red-hat-reimagines-enterprise-linux-ai-future-image-mode-red-hat-enterprise-linux
+      title: Red Hat Reimagines Enterprise Linux for the AI Future with Image Mode for Red Hat Enterprise Linux
+      publisher: Red Hat
+      date: '2024-05-07'
+      quote: Image mode for Red Hat Enterprise Linux builds on the success of open source projects such as bootc to create a deployment model that fits seamlessly into container-native workflows.
+      quote_check: raw
+  - field: general-availability
+    value: '2025-05-20'
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.redhat.com/en/blog/image-mode-for-red-hat-enterprise-linux-generally-available
+      title: Image mode for Red Hat Enterprise Linux is generally available
+      publisher: Red Hat (Ben Breard)
+      date: '2025-05-20'
+      quote: Today, we're thrilled to announce the general availability of image mode for Red Hat Enterprise Linux (RHEL) .
+      quote_check: raw
+  - field: base
+    value: RHEL
+    evidence: DOCUMENTED
+    source_ref: see announced
+- id: flatcar
+  name: Flatcar Container Linux
+  kind: entry
+  entry: flatcar
+  aliases:
+  - name: Flatcar Linux (2018 name)
+  first_public: '2018-03-06'
+  first_public_note: announced
+  end_of_life: null
+  owners:
+  - org: org-kinvolk
+    from: 2018-03
+    to: null
+    how: created
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.flatcar.org/blog/2018/03/announcing-the-flatcar-linux-project/
+      title: Announcing the Flatcar Linux project
+      publisher: Kinvolk (Chris Kühl)
+      date: '2018-03-06'
+      quote: It is independently built, distributed and supported by the Kinvolk team.
+      quote_check: raw
+    edge_notes:
+    - 'from edge: acquired-by'
+    - 'edge detail: created by, not acquired; recorded so the owner chain is complete'
+  - org: org-microsoft
+    from: '2021-04-29'
+    to: null
+    how: acquired
+    evidence: DOCUMENTED
+    sources:
+    - url: https://azure.microsoft.com/en-us/blog/microsoft-acquires-kinvolk-to-accelerate-containeroptimized-innovation/
+      title: Microsoft acquires Kinvolk to accelerate container-optimized innovation
+      publisher: Microsoft (Brendan Burns)
+      date: '2021-04-29'
+      quote: we’re announcing that Microsoft has acquired Kinvolk GmbH.
+      quote_check: raw
+    edge_notes:
+    - 'from edge: acquired-by'
+    - 'edge date: 2021-04-29 (announced)'
+    note: Through the Kinvolk acquisition.
+    research_note: 'Node fact: Kinvolk (2018-03) to Microsoft via Kinvolk acquisition (2021-04-29).'
+  - org: org-cncf
+    from: '2024-08-02'
+    to: null
+    how: donated
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.cncf.io/projects/flatcar-container-linux/
+      title: CNCF project page, Flatcar Container Linux
+      publisher: CNCF
+      date: read 2026-10-06
+      quote: Flatcar Container Linux was accepted to CNCF on August 2, 2024 at the Incubating maturity level.
+      quote_check: raw
+    - url: https://github.com/cncf/toc/pull/991
+      title: Propose Flatcar for Incubation
+      publisher: CNCF TOC repository
+      date: opened 2023-01-06, merged 2024-09-03
+      quote: Propose Flatcar for Incubation
+      quote_check: raw
+    - url: https://www.cncf.io/blog/2024/10/29/flatcar-brings-container-linux-to-the-cncf-incubator/
+      title: Flatcar brings Container Linux to the CNCF Incubator
+      publisher: CNCF
+      date: '2024-10-29'
+      quote: The CNCF Technical Oversight Committee (TOC) has voted to accept Flatcar as a CNCF incubating project.
+      quote_check: raw
+    edge_notes:
+    - 'from edge: donated-to'
+    - 'edge date: accepted 2024-08-02 (Incubating); TOC pull request opened 2023-01-06, merged 2024-09-03; announced 2024-10-29'
+    - 'edge note: Flatcar entered CNCF directly at Incubating. It was not a Sandbox project first. The site footer names LF Projects, LLC as the holder (see the flatcar profile d13).'
+    note: Accepted at the Incubating level.
+  - org: org-lf-projects
+    from: null
+    to: null
+    how: null
+    note: Assets are held under LF Projects, LLC.
+    research_note: The site footer names it as the holder (see the flatcar profile d13).
+  facts:
+  - field: announced
+    value: '2018-03-06'
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.flatcar.org/blog/2018/03/announcing-the-flatcar-linux-project/
+      title: Announcing the Flatcar Linux project
+      publisher: Kinvolk (Chris Kühl), now hosted on flatcar.org
+      date: '2018-03-06'
+      quote: Flatcar Linux is a friendly fork of CoreOS’ Container Linux and as such, compatible with it.
+      quote_check: raw
+  - field: repositories-created
+    value: 2018-03-05 (flatcar/scripts, flatcar/Flatcar)
+    evidence: DOCUMENTED
+    method: gh api repos/flatcar/scripts created_at 2018-03-05T14:43:05Z; fork=false
+  - field: public-release
+    value: '2018-04-30'
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.flatcar.org/blog/2018/04/flatcar-linux-is-now-open-to-the-public/
+      title: Flatcar Linux is now open to the public
+      publisher: Kinvolk (Chris Kühl)
+      date: '2018-04-30'
+      quote: Thus, today we are ready to open Flatcar Linux to the public.
+      quote_check: raw
+  - field: rename
+    value: Flatcar Linux became Flatcar Container Linux, between 2018-04 and 2020-02
+    evidence: INFERRED
+    inferred_from: The 2018 posts say "Flatcar Linux". The 2020-02-24 post says "Flatcar Container Linux". No rename announcement was found.
+  - field: base
+    value: Gentoo, through the ChromiumOS-derived SDK it inherited from Container Linux
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.flatcar.org/docs/latest/devguide/sdk-modifying-flatcar/
+      title: Guide to building custom Flatcar images from source
+      publisher: Flatcar project
+      date: living doc, read 2026-10-06
+      quote: While the ChromiumOS heritage has faded and is barely visible nowadays, we heavily leverage Gentoo processes and tools.
+      quote_check: raw
+    - url: https://github.com/flatcar/scripts/commit/d74220d7727b063d84520c53185808a5db12fb6c
+      title: Chromium OS root commit present in flatcar/scripts
+      publisher: GitHub
+      date: '2009-10-09'
+      quote: Start copying over source.
+      quote_check: raw
+  - field: successor-claim
+    value: Flatcar calls itself the active successor to CoreOS Container Linux
+    evidence: DOCUMENTED
+    caveat: This is Flatcar's own claim. CoreOS's EOL page names Fedora CoreOS as the official successor and names Flatcar only as "a fork". Both are recorded as edges with their sources.
+    sources:
+    - url: https://www.flatcar.org/docs/latest/
+      title: Flatcar Container Linux documentation
+      publisher: Flatcar project
+      date: living doc, read 2026-10-06
+      quote: Flatcar Container Linux is a minimal, immutable, container-optimized Linux operating system and the active successor to CoreOS Container Linux.
+      quote_check: raw
+  - field: ownership
+    value: Kinvolk (2018-03) -> Microsoft via Kinvolk acquisition (2021-04-29) -> CNCF Incubating (accepted 2024-08-02); assets under LF Projects, LLC
+    evidence: DOCUMENTED
+    source_ref: see edges e-kinvolk-acquired-by-microsoft and e-flatcar-donated-to-cncf
+  - field: first-release
+    value: 2018-04-25 (stable 1688.5.3, beta 1722.2.0, alpha 1745.0.0, per flatcar.org/releases-json)
+    evidence: DOCUMENTED
+  research_note: Repositories created 2018-03-05. Opened to the public 2018-04-30. First releases 2018-04-25.
+  first_public_sources:
+  - url: https://www.flatcar.org/blog/2018/03/announcing-the-flatcar-linux-project/
+    title: Announcing the Flatcar Linux project
+    publisher: Kinvolk (Chris Kühl), now hosted on flatcar.org
+    date: '2018-03-06'
+    quote: Flatcar Linux is a friendly fork of CoreOS’ Container Linux and as such, compatible with it.
+    quote_check: raw
+  - url: https://www.flatcar.org/blog/2018/04/flatcar-linux-is-now-open-to-the-public/
+    title: Flatcar Linux is now open to the public
+    publisher: Kinvolk (Chris Kühl)
+    date: '2018-04-30'
+    quote: Thus, today we are ready to open Flatcar Linux to the public.
+    quote_check: raw
+- id: azure-linux
+  name: Azure Linux
+  kind: relative
+  aliases:
+  - name: CBL-Mariner
+    rename_detail: CBL-Mariner -> Azure Linux
+    evidence: INFERRED
+    inferred_from: Branch READMEs 2.0 (CBL-Mariner) vs 3.0 and 4.0 (Azure Linux); repository redirect microsoft/CBL-Mariner -> microsoft/azurelinux.
+  - name: Common Base Linux Mariner
+  first_public: null
+  first_public_note: repository created
+  end_of_life: null
+  facts:
+  - field: repository-created
+    value: 2020-07-22 (microsoft/CBL-Mariner, now microsoft/azurelinux)
+    evidence: DOCUMENTED
+    method: gh api repos/microsoft/CBL-Mariner -> full_name microsoft/azurelinux, created_at 2020-07-22T19:27:14Z
+  - field: first-public-release
+    value: UNKNOWN (2020)
+    evidence: UNKNOWN
+    searched: Release tags 1.0-preview and 1.0-stable now point at 2023 commits, so they cannot date the first release. News reports a 2020 public release; no Microsoft announcement was read.
+  - field: original-description
+    value: internal Linux distribution for Microsoft cloud and edge
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/microsoft/azurelinux/blob/1.0/README.md
+      title: CBL-Mariner README (1.0 branch)
+      publisher: Microsoft
+      date: branch 1.0, read 2026-10-06
+      quote: CBL-Mariner is an internal Linux distribution for Microsoft’s cloud infrastructure and edge products and services.
+      quote_check: raw
+  - field: rename
+    value: CBL-Mariner -> Azure Linux. The 2.0 branch README still says CBL-Mariner; the 3.0 README says Azure Linux. Azure Linux as an AKS host went GA 2023-05 (news date). Exact rename date not found in a primary source.
+    evidence: INFERRED
+    inferred_from: 'Branch READMEs (1.0, 2.0: CBL-Mariner; 3.0, 4.0: Azure Linux) and the GitHub repository redirect.'
+  - field: base-1.0-2.0
+    value: Built from source with its own toolkit; SPEC files taken from Photon OS and Fedora
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/microsoft/azurelinux/blob/2.0/README.md
+      title: CBL-Mariner README (2.0 branch), Acknowledgments
+      publisher: Microsoft
+      date: branch 2.0, read 2026-10-06
+      quote: The [Photon OS Project](https://vmware.github.io/photon/) for SPEC files originating from the Photon distribution.
+      quote_check: raw
+  - field: base-3.0
+    value: Before 2026-05 the README credited GNU, Fedora SPEC files, Photon OS SPEC files and Linux From Scratch. A README rewrite on 2026-05-16 now says sources are derived from Fedora.
+    evidence: DOCUMENTED
+    caveat: The two README states describe the same 3.0 release differently. The change is in wording on the branch, not a documented rebase of 3.0.
+    sources:
+    - url: https://github.com/microsoft/azurelinux/blob/47f1430032/README.md
+      title: Azure Linux README (3.0 branch, 2025-06-26 state)
+      publisher: Microsoft
+      date: '2025-06-26'
+      quote: 3) The [Photon OS Project](https://vmware.github.io/photon/) for SPEC files originating from the Photon distribution.
+      quote_check: raw
+    - url: https://github.com/microsoft/azurelinux/blob/3.0/README.md
+      title: Azure Linux README (3.0 branch, current)
+      publisher: Microsoft
+      date: after commit 4700714044, 2026-05-16
+      quote: An open-source Linux distribution built and optimized for [Azure](https://azure.microsoft.com/), with sources derived from [Fedora Linux](https://fedoraproject.org/).
+      quote_check: raw
+  - field: base-4.0
+    value: Fedora (TOML overlays applied to Fedora upstream packaging)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/microsoft/azurelinux/blob/4.0/README.md
+      title: Azure Linux README (4.0, default branch)
+      publisher: Microsoft
+      date: read 2026-10-06
+      quote: It is defined by a set of TOML configuration files and targeted *overlays* applied to [Fedora Linux](https://fedoraproject.org/), its upstream base.
+      quote_check: raw
+  research_note: Was "UNKNOWN (2020)". Repository created 2020-07-22.
+- id: azure-linux-os-guard
+  name: Azure Linux with OS Guard
+  kind: relative
+  first_public: '2026-01-04'
+  first_public_note: public preview (AKS release 2026-01-04)
+  end_of_life: '2026-12-10'
+  end_of_life_note: retirement planned for 2026-12-10; images removed 2027-03-10
+  facts:
+  - field: public-preview
+    value: AKS release 2026-01-04
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/Azure/AKS/releases/tag/2026-01-04
+      title: AKS release notes 2026-01-04
+      publisher: Microsoft (Azure/AKS)
+      date: '2026-01-04'
+      quote: a hardened and immutable variant of Azure Linux, is now in public preview.
+      quote_check: raw
+  - field: retirement
+    value: 2026-12-10 retired, images removed 2027-03-10
+    evidence: DOCUMENTED
+    source_ref: see edge e-os-guard-succeeded-by-acl
+- id: azure-container-linux
+  name: Azure Container Linux
+  kind: entry
+  entry: azure-container-linux
+  aliases:
+  - name: ACL
+  first_public: '2026-03-10'
+  first_public_note: announced; generally available 2026-05-29
+  end_of_life: null
+  owners:
+  - org: org-microsoft
+    from: null
+    to: null
+    how: null
+    who: Microsoft; no foundation
+  facts:
+  - field: announced
+    value: 2026-03-10 (AKS issue 5649, 'expected to GA in June')
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/Azure/AKS/issues/5649
+      title: Azure Container Linux (ACL)
+      publisher: Microsoft (Azure/AKS)
+      date: '2026-03-10'
+      quote: ACL is derived from the Flatcar Container Linux project, building on Flatcar’s proven, container‑first immutable design while adding Azure Linux packages, servicing, and deep integration with the Azure and AKS lifecycle.
+      quote_check: raw
+  - field: repository-created
+    value: 2026-05-21, as a GitHub fork of flatcar/scripts
+    evidence: DOCUMENTED
+    method: 'gh api repos/microsoft/azure-container-linux: created_at 2026-05-21T19:24:28Z, parent flatcar/scripts'
+  - field: general-availability
+    value: AKS release notes 2026-05-29, AKS v1.34 and later
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/Azure/AKS/releases/tag/2026-05-29
+      title: AKS release notes 2026-05-29
+      publisher: Microsoft (Azure/AKS)
+      date: '2026-05-29'
+      quote: is generally available (GA) as an OS option on AKS starting AKS v1.34.
+      quote_check: raw
+  - field: base
+    value: Flatcar image SDK and design; Azure Linux 3.0 RPM packages instead of Portage
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/architecture.md
+      title: ACL architecture
+      publisher: Microsoft
+      date: aclmain, read 2026-10-06
+      quote: Azure Container Linux (ACL) is a Microsoft derivative of [Flatcar Container Linux](https://www.flatcar.org/). It replaces the traditional Portage-based build system with **Azure Linux 3.0 RPM packages**
+      quote_check: raw
+  - field: owner
+    value: Microsoft; no foundation
+    evidence: DOCUMENTED
+    source_ref: see the azure-container-linux profile d13
+  - field: release-tag
+    value: 2026-05-29 (release tag), published 2026-06-04
+    evidence: DOCUMENTED
+  research_note: Announced in AKS issue 5649. Repository created 2026-05-21.
+  first_public_sources:
+  - url: https://github.com/Azure/AKS/issues/5649
+    title: Azure Container Linux (ACL)
+    publisher: Microsoft (Azure/AKS)
+    date: '2026-03-10'
+    quote: ACL is derived from the Flatcar Container Linux project, building on Flatcar’s proven, container‑first immutable design while adding Azure Linux packages, servicing, and deep integration with the Azure and AKS lifecycle.
+    quote_check: raw
+- id: c3os
+  name: c3OS
+  kind: ancestor
+  aliases:
+  - name: c3os
+  - name: cOS + k3s = c3OS
+  first_public: 2021-07
+  end_of_life: 2022-09
+  end_of_life_note: renamed to Kairos
+  owners:
+  - org: org-ettore-di-giacinto
+    from: '2021-07-30'
+    to: null
+    how: created
+    who: Ettore Di Giacinto, personal project (hobby project per the 1.0 announcement)
+  base:
+  - value: openSUSE Leap 15.3
+    from: '2021-07-30'
+  - value: 'multiple flavors: Alpine (experimental), Ubuntu, Fedora, openSUSE Tumbleweed, Rocky Linux'
+    from: '2022-01-27'
+  facts:
+  - claim: First commit 2021-07-30 by Ettore Di Giacinto, committed with a suse.com address.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/kairos-io/kairos/commit/12518a6a95c4090152aad3d595e077b3722b5204
+      title: First commit
+      publisher: kairos-io/kairos (git)
+      date: '2021-07-30'
+      quote: 'Author: Ettore Di Giacinto <edigiacinto@suse.com> ... First commit'
+  - claim: The first README calls it a cOS derivative with k3s. It does not mention k3OS.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/kairos-io/kairos/blob/12518a6a95c4090152aad3d595e077b3722b5204/README.md
+      title: README at first commit
+      publisher: kairos-io/kairos (git)
+      date: '2021-07-30'
+      quote: '# cOS + k3s = c3OS  A dead simple [cOS](https://github.com/rancher-sandbox/cOS-toolkit) derivative with k3s.'
+  - claim: The first image was built FROM opensuse/leap:15.3.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/kairos-io/kairos/blob/12518a6a95c4090152aad3d595e077b3722b5204/Dockerfile
+      title: Dockerfile at first commit
+      publisher: kairos-io/kairos (git)
+      date: '2021-07-30'
+      quote: FROM opensuse/leap:15.3
+  - claim: First tag v1.20.4 on 2021-07-30 (tags tracked the bundled k3s version).
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/kairos-io/kairos/tags
+      title: Tags
+      publisher: kairos-io/kairos (git for-each-ref)
+      date: '2021-07-30'
+      quote: v1.20.4 2021-07-30
+  - claim: Non-openSUSE flavors added from January 2022.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/kairos-io/kairos/commit/968cf963
+      title: Add experimental alpine flavor; later c5603b6d Add ubuntu/fedora flavors (2022-02-16)
+      publisher: kairos-io/kairos (git)
+      date: '2022-01-27'
+      quote: Add experimental alpine flavor
+  - claim: 'The repository was transferred: c3os-io/c3os and mudler/c3os both resolve to kairos-io/kairos.'
+    evidence: INFERRED
+    inferred_from: gh api repos/c3os-io/c3os and repos/mudler/c3os both return full_name kairos-io/kairos; repo created_at 2021-07-30 equals the first commit date.
+    sources:
+    - url: https://api.github.com/repos/c3os-io/c3os
+      title: GitHub API repo lookup
+      publisher: GitHub
+      date: '2026-10-06'
+      quote: kairos-io/kairos
+  research_note: See edge c3os renamed-to kairos.
+  first_public_sources:
+  - url: https://github.com/kairos-io/kairos/commit/12518a6a95c4090152aad3d595e077b3722b5204
+    title: First commit
+    publisher: kairos-io/kairos (git)
+    date: '2021-07-30'
+    quote: 'Author: Ettore Di Giacinto <edigiacinto@suse.com> ... First commit'
+  end_of_life_sources:
+  - url: https://github.com/kairos-io/kairos/commit/d6565876
+    title: ':art: Rebranding (#130)'
+    publisher: kairos-io/kairos
+    date: '2022-09-17'
+    quote: 'Sep 15 2022: Project is undergoing to a name rebranding from C3OS to Kairos.'
+    quote_check: raw
+- id: kairos
+  name: Kairos
+  kind: entry
+  entry: kairos
+  aliases:
+  - name: c3os
+    to: '2022-09-15'
+  - name: c3OS
+    to: '2022-09-15'
+  first_public: 2022-09
+  first_public_note: as Kairos; version 1.0 announced 2022-09-29
+  end_of_life: null
+  owners:
+  - org: org-ettore-di-giacinto
+    from: '2021-07-30'
+    to: null
+    how: created
+    who: Ettore Di Giacinto (c3OS era)
+    chart: false
+  - org: org-spectro-cloud
+    from: '2022-09-29'
+    to: null
+    how: sponsored
+    who: Sponsored by Spectro Cloud (Spectro Cloud Open Source Office); Di Giacinto joined Spectro Cloud as Head of Open Source
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/kairos-io/kairos/discussions/159
+      title: Kairos 1.0 GA announcement
+      publisher: kairos-io
+      date: '2022-09-29'
+      quote: The Kairos project will be officially sponsored and part of the Spectro Cloud Open Source Office.
+    edge_notes:
+    - 'from edge: acquired-by'
+    - 'edge date: 2022-09-29'
+    - 'edge note: Sponsorship, not acquisition. The project said it ''will remain fully community-driven and has its own governance''. Use a ''sponsored-by'' label if the graph allows; otherwise drop the edge.'
+  - org: org-cncf
+    from: '2024-04-13'
+    to: null
+    how: donated
+    who: CNCF Sandbox project (trademark held by LF Projects, LLC per kairos.yaml)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.cncf.io/projects/kairos/
+      title: CNCF project page, Kairos
+      publisher: CNCF
+      date: '2024-04-13'
+      quote: Kairos was accepted to CNCF on April 13, 2024 at the Sandbox maturity level.
+    edge_notes:
+    - 'from edge: donated-to'
+    - 'edge date: 2024-04-13'
+    note: Sandbox project. Trademark held by LF Projects, LLC.
+    research_note: Trademark holder per the source file.
+  base:
+  - value: openSUSE Leap (c3OS era), then multiple distributions as a meta-distribution
+    from: '2021-07-30'
+  - value: Hadron for all official artifacts; other distributions remain buildable
+    from: 2026-02-27 (v4.0.0)
+  facts:
+  - claim: Rename discussion opened 2022-08-16; three reasons given; Kairos won the poll on 2022-08-24.
+    evidence: DOCUMENTED
+    note: via WebFetch
+    sources:
+    - url: https://github.com/kairos-io/kairos/discussions/84
+      title: 'c3OS rename/branding #84'
+      publisher: kairos-io (GitHub Discussions)
+      date: '2022-08-16'
+      quote: it is too much a k3os reminder. While c3OS shares most of the project goals with k3os, it is a completely different project
+  - claim: Rebranding tracking issue, opened 2022-08-24, closed 2022-09-29.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/kairos-io/kairos/issues/88
+      title: Rebranding to Kairos
+      publisher: kairos-io (GitHub Issues)
+      date: '2022-08-24'
+      quote: After https://github.com/c3os-io/c3os/discussions/84 was closed, we have settled on a new name
+  - claim: README project status dates the rename to 2022-09-15 and Spectro Cloud backing to 2022-09-29.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/kairos-io/kairos/commit/695a52c8
+      title: README project status
+      publisher: kairos-io/kairos (git)
+      date: '2022-09-29'
+      quote: '(Sep 29 2022) announcing Kairos 1.0 GA availability. Kairos is now backed by Spectro Cloud, which contributes to the project. Kairos will remain fully community-driven and has its own governance. ... (Sep 15 2022) the c3OS project has a new name: Kairos!'
+  - claim: '1.0 announcement: c3OS was a hobby project; creator joined Spectro Cloud; creator was formerly lead of Elemental at SUSE.'
+    evidence: DOCUMENTED
+    note: via WebFetch
+    sources:
+    - url: https://github.com/kairos-io/kairos/discussions/159
+      title: Kairos 1.0 GA announcement
+      publisher: kairos-io (GitHub Discussions)
+      date: '2022-09-29'
+      quote: I've joined Spectro Cloud as Head of Open Source. ... The Kairos project will be officially sponsored and part of the Spectro Cloud Open Source Office.
+  - claim: Accepted to CNCF at Sandbox level on 2024-04-13.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.cncf.io/projects/kairos/
+      title: CNCF project page, Kairos
+      publisher: CNCF
+      date: retrieved 2026-09-22 (per kairos.yaml)
+      quote: Kairos was accepted to CNCF on April 13, 2024 at the Sandbox maturity level.
+  - claim: Project announced the Sandbox status publicly on 2024-10-08.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://kairos.io/blog/2024/10/08/kairos-joins-the-cncf-as-a-sandbox-project/
+      title: Kairos Joins the CNCF as a Sandbox Project
+      publisher: kairos.io blog (kairos-docs origin/main)
+      date: '2024-10-08'
+      quote: since April 2024, Kairos has been officially part of the Cloud Native Computing Foundation (CNCF) as a Sandbox Project
+  - claim: From v4, official artifacts are Hadron-based only. v4.0.0 released 2026-02-27.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://kairos.io/blog/2026/02/25/kairos-v4-hadron-artifacts-and-distro-flexibility/
+      title: Hadron-Only Artifacts with Ongoing Distro Support
+      publisher: kairos.io blog
+      date: '2026-02-25'
+      quote: Official artifacts published by the Kairos project for v4 and later will be based on Hadron.
+  research_note: v1.0.0 tagged 2022-09-28.
+  first_public_sources:
+  - url: https://github.com/kairos-io/kairos/commit/695a52c8
+    title: README project status
+    publisher: kairos-io/kairos (git)
+    date: '2022-09-29'
+    quote: '(Sep 29 2022) announcing Kairos 1.0 GA availability. Kairos is now backed by Spectro Cloud, which contributes to the project. Kairos will remain fully community-driven and has its own governance. ... (Sep 15 2022) the c3OS project has a new name: Kairos!'
+  - url: https://github.com/kairos-io/kairos/discussions/159
+    title: Kairos 1.0 GA announcement
+    publisher: kairos-io
+    date: '2022-09-29'
+    quote: The Kairos project will be officially sponsored and part of the Spectro Cloud Open Source Office.
+- id: hadron
+  name: Hadron Linux
+  kind: relative
+  linked_to: kairos
+  aliases:
+  - name: Hadron
+  first_public: 2025-11
+  first_public_note: first alpha release 2025-11-28; announced 2025-12-17
+  end_of_life: null
+  owners:
+  - org: org-kairos-project
+    from: '2025-06-28'
+    to: null
+    how: created
+    evidence: DOCUMENTED
+    who: Kairos project (kairos-io GitHub org; repo created 2025-06-28)
+    sources:
+    - url: https://kairos.io/blog/2025/12/17/introducing-hadron-the-minimal-upstream-first-linux-base-for-kairos/
+      title: 'Introducing Hadron: The Minimal, Upstream-First Linux Base for Kairos'
+      publisher: kairos.io blog (author Ettore Di Giacinto)
+      date: '2025-12-17'
+      quote: Hadron is a brand-new, minimal, and trustworthy Linux distribution engineered from scratch by the Kairos team
+      quote_check: raw
+  - org: org-spectro-cloud
+    from: null
+    to: null
+    how: sponsored
+    evidence: DOCUMENTED
+    who: Spectro Cloud announced Hadron on 2026-01-28
+    note: announced Hadron on 2026-01-28
+    sources:
+    - url: https://www.businesswire.com/news/home/20260128584925/en/Spectro-Cloud-Announces-Hadron-A-Lightweight-Security-First-Linux-Base-for-Modern-Enterprise-Edge-Deployments
+      title: Spectro Cloud Announces Hadron A Lightweight Security First Linux Base for Modern Enterprise Edge Deployments
+      publisher: Business Wire (Spectro Cloud press release)
+      date: '2026-01-28'
+      quote: Spectro Cloud Announces Hadron
+  base:
+  - value: its own (from scratch, not derived; musl libc + systemd + vanilla kernel)
+    from: '2025-11-28'
+  facts:
+  - claim: Announced as built from scratch by the Kairos team.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://kairos.io/blog/2025/12/17/introducing-hadron-the-minimal-upstream-first-linux-base-for-kairos/
+      title: 'Introducing Hadron: The Minimal, Upstream-First Linux Base for Kairos'
+      publisher: kairos.io blog (author Ettore Di Giacinto)
+      date: '2025-12-17'
+      quote: Hadron is a brand-new, minimal, and trustworthy Linux distribution engineered from scratch by the Kairos team ... | Base | Built from scratch, non-derived |
+  - claim: First prerelease v0.0.1-alpha on 2025-11-28.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/kairos-io/hadron/releases/tag/v0.0.1-alpha
+      title: Hadron releases
+      publisher: kairos-io/hadron (GitHub API)
+      date: '2025-11-28'
+      quote: v0.0.1-alpha 2025-11-28T08:29:16Z
+  - claim: Spectro Cloud issued a press release about Hadron on 2026-01-28. Used only to date the vendor announcement; page body not readable (HTTP 403).
+    evidence: DOCUMENTED
+    note: Date from the Business Wire URL and title only. Search summary said 'Hadron was created by Spectro Cloud's open-source team'; not re-read verbatim.
+    sources:
+    - url: https://www.businesswire.com/news/home/20260128584925/en/Spectro-Cloud-Announces-Hadron-A-Lightweight-Security-First-Linux-Base-for-Modern-Enterprise-Edge-Deployments
+      title: Spectro Cloud Announces Hadron A Lightweight Security First Linux Base for Modern Enterprise Edge Deployments
+      publisher: Business Wire (Spectro Cloud press release)
+      date: '2026-01-28'
+      quote: Spectro Cloud Announces Hadron
+  first_public_sources:
+  - url: https://github.com/kairos-io/hadron/releases/tag/v0.0.1-alpha
+    title: Hadron releases
+    publisher: kairos-io/hadron (GitHub API)
+    date: '2025-11-28'
+    quote: v0.0.1-alpha 2025-11-28T08:29:16Z
+  - url: https://kairos.io/blog/2025/12/17/introducing-hadron-the-minimal-upstream-first-linux-base-for-kairos/
+    title: 'Introducing Hadron: The Minimal, Upstream-First Linux Base for Kairos'
+    publisher: kairos.io blog (author Ettore Di Giacinto)
+    date: '2025-12-17'
+    quote: Hadron is a brand-new, minimal, and trustworthy Linux distribution engineered from scratch by the Kairos team
+    quote_check: raw
+- id: cos-toolkit
+  name: cOS-toolkit
+  kind: ancestor
+  aliases:
+  - name: cOS
+  - name: rancher-sandbox/cOS-toolkit
+  first_public: 2021-01
+  first_public_note: repository created
+  end_of_life: '2022-06-01'
+  end_of_life_note: renamed elemental-toolkit
+  owners:
+  - org: org-suse
+    from: '2021-01-08'
+    to: null
+    how: null
+    who: SUSE / Rancher (rancher-sandbox GitHub org); early commits by Ettore Di Giacinto
+  base:
+  - value: a toolkit for building derivatives, not a distribution; early images used openSUSE packages (c3OS used it on openSUSE Leap)
+    from: 2021-01
+    evidence: INFERRED
+  facts:
+  - claim: Earliest commits 2021-01-08 by Ettore Di Giacinto.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/rancher/elemental-toolkit/commits?until=2021-01-09
+      title: Commit history
+      publisher: rancher/elemental-toolkit (GitHub API)
+      date: '2021-01-08'
+      quote: 6557e2ab 2021-01-08T16:50:05Z Ettore Di Giacinto Add cache and publish to gh-pages
+  research_note: repo created 2021-01-08; first commit 63c030a2 'First import' 2021-01-08; oldest surviving GitHub release v0.5.3 on 2021-06-21. The v0.0.1 tag is later elemental-cli history (commit 2021-12-01). The month the repo became public is not known.
+  first_public_sources:
+  - url: https://github.com/rancher/elemental-toolkit/commits?until=2021-01-09
+    title: Commit history
+    publisher: rancher/elemental-toolkit (GitHub API)
+    date: '2021-01-08'
+    quote: 6557e2ab 2021-01-08T16:50:05Z Ettore Di Giacinto Add cache and publish to gh-pages
+  end_of_life_sources:
+  - url: https://github.com/rancher/elemental-toolkit/commit/b13694f7c4db8c42a808976826bd96ce6ec837eb
+    title: Change to new branding (#1466)
+    publisher: rancher/elemental-toolkit (git)
+    date: '2022-06-01'
+    quote: 'elemental -> elemental-cli
+
+      rancher-sandbox -> rancher
+
+      cos-toolkit -> elemental-toolkit'
+- id: elemental-toolkit
+  name: Elemental Toolkit
+  kind: relative
+  aliases:
+  - name: cOS-toolkit
+  - name: cos-toolkit
+  - name: elemental-cli (merged in)
+  first_public: 2022-06
+  first_public_note: renamed from cOS toolkit
+  end_of_life: null
+  owners:
+  - org: org-suse
+    from: '2022-06-01'
+    to: null
+    how: null
+    who: SUSE (rancher GitHub org)
+  base:
+  - value: toolkit, not a distribution
+    from: '2022-06-01'
+  facts:
+  - claim: Rename commit on 2022-06-01.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/rancher/elemental-toolkit/commit/b13694f7c4db8c42a808976826bd96ce6ec837eb
+      title: Change to new branding (#1466)
+      publisher: rancher/elemental-toolkit (git)
+      date: '2022-06-01'
+      quote: 'elemental -> elemental-cli
+
+        rancher-sandbox -> rancher
+
+        cos-toolkit -> elemental-toolkit'
+  - claim: rancher/elemental-cli (created 2021-11-30) was merged into elemental-toolkit and archived.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/rancher/elemental-cli
+      title: Repository description
+      publisher: rancher/elemental-cli (GitHub API)
+      date: '2026-10-06'
+      quote: This repo has been merged into https://github.com/rancher/elemental-toolkit and will be archived soon.
+  first_public_sources:
+  - url: https://github.com/rancher/elemental-toolkit/commit/b13694f7c4db8c42a808976826bd96ce6ec837eb
+    title: Change to new branding (#1466)
+    publisher: rancher/elemental-toolkit (git)
+    date: '2022-06-01'
+    quote: 'elemental -> elemental-cli
+
+      rancher-sandbox -> rancher
+
+      cos-toolkit -> elemental-toolkit'
+- id: rancheros-v2
+  name: RancherOS v2
+  kind: ancestor
+  aliases:
+  - name: rancher/os2
+  first_public: 2021-06
+  first_public_note: first commit
+  end_of_life: 2022-11
+  end_of_life_note: docs site redirected to Elemental; repo archived
+  owners:
+  - org: org-suse
+    from: '2021-06-06'
+    to: null
+    how: null
+    who: Rancher (SUSE); initial commit by Darren Shepherd
+  base:
+  - value: openSUSE Leap, built with cOS-toolkit
+    from: 2021-06
+  facts:
+  - claim: Built with cOS-toolkit and based on openSUSE Leap.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/rancher/os2/blob/master/README.md
+      title: RancherOS v2 README
+      publisher: rancher/os2 (GitHub API)
+      date: 2022-01-19 (last README change)
+      quote: It is built using the [cOS-toolkit](https://rancher-sandbox.github.io/cos-toolkit-docs/docs/) and based on openSUSE. ... RancherOS v2 is based off of openSUSE Leap.
+  - claim: Docs site redirected to Elemental on 2022-11-11.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/rancher/os2/commit/b954e990
+      title: announce Elemental in header
+      publisher: rancher/os2 (git)
+      date: '2022-11-11'
+      quote: 'site_name: +++ this site is archived, please see https://rancher.github.io/elemental +++'
+- id: elemental
+  name: Elemental (Rancher OS management stack)
+  kind: relative
+  aliases:
+  - name: 'SUSE Rancher Prime: OS Manager (current docs title)'
+  - name: SLE Micro for Rancher (the OS build)
+  first_public: 2022-04
+  first_public_note: first release v0.1.0 on 2022-04-21; repository created 2022-01-19
+  end_of_life: null
+  owners:
+  - org: org-suse
+    from: '2022-01-19'
+    to: null
+    how: null
+    who: SUSE (Rancher)
+  base:
+  - value: openSUSE Leap (inherited RancherOS v2 code)
+    from: 2022-01
+    evidence: INFERRED
+  - value: SLE Micro (a special build of SLE Micro for Rancher)
+    from: unknown
+  facts:
+  - claim: rancher/elemental shares its root commit (2b90d55b, 2021-06-06, Darren Shepherd) with rancher/os2.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/rancher/elemental/commit/2b90d55b0d8bc9eb6f612c9c5a9645f7b9f9e4be
+      title: Initial commit, present in both rancher/os2 and rancher/elemental
+      publisher: GitHub API
+      date: '2021-06-06'
+      quote: 2b90d55b0d8bc9eb6f612c9c5a9645f7b9f9e4be 2021-06-06T00:31:50Z Darren Shepherd
+  - claim: Elemental builds node OSes with the Elemental Toolkit.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/rancher/elemental/blob/main/README.md
+      title: Elemental README
+      publisher: rancher/elemental
+      date: 2026-10-06 (read)
+      quote: Cluster Node OSes are built and maintained via container images through the [Elemental Toolkit]
+  - claim: Elemental's OS is a special build of SLE Micro.
+    evidence: DOCUMENTED
+    note: via WebFetch
+    sources:
+    - url: https://documentation.suse.com/smart/rancher/html/Rancher-OS/index.html
+      title: Rancher Guide (Elemental), SUSE Linux Enterprise Micro 5.5
+      publisher: SUSE
+      date: page dated 2026-10-01
+      quote: A special build of SLE Micro to be used for Kubernetes nodes managed by Rancher.
+- id: k3os
+  name: k3OS
+  kind: ancestor
+  first_public: '2019-04-16'
+  first_public_sources:
+  - url: https://github.com/rancher/k3os/releases/tag/v0.1.0
+    title: rancher/k3os release v0.1.0
+    publisher: GitHub releases
+    date: '2019-04-16'
+    quote: 'v0.1.0, published 2019-04-16T15:07:07Z'
+    quote_check: raw
+  first_public_note: first release v0.1.0 on 2019-04-16; repository created 2019-03-06
+  end_of_life: null
+  end_of_life_note: last release 2021-10-09; deprecation notice 2023-12-08; repository archived
+  owners:
+  - org: org-rancher-labs
+    from: '2019-03-06'
+    to: null
+    how: created
+    who: Rancher Labs
+  - org: org-suse
+    from: '2020-12-01'
+    to: null
+    how: acquired
+    who: SUSE (acquired Rancher Labs)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://siliconangle.com/2020/12/01/suse-completes-acquisition-rancher-labs/
+      title: SUSE completes acquisition of Rancher Labs
+      publisher: SiliconANGLE
+      date: '2020-12-01'
+      quote: SUSE Group today said it has completed the acquisition of Kubernetes management startup Rancher Labs Inc
+      quote_check: raw
+    edge_notes:
+    - 'from edge: acquired-by'
+    - 'edge date: 2020-12-01'
+    - 'edge note: News coverage used to date the close. Agreement announced 2020-07. Applies to k3os and rancheros ownership.'
+  base:
+  - value: Alpine user space, Ubuntu 20.04 kernel source
+    from: 2019 (as stated in the final README)
+  facts:
+  - claim: Base distributions.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/rancher/k3os/blob/master/README.md
+      title: k3OS README, Upstream Distros
+      publisher: rancher/k3os
+      date: 2023-12-08 (last README change)
+      quote: Most of the user-space binaries comes from Alpine and are repackaged for k3OS. Currently the kernel source is coming from Ubuntu 20.04 LTS. Some code and a lot of inspiration came from [LinuxKit]
+  - claim: Superseded by Elemental.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/rancher/k3os/commit/8cdfdf26
+      title: update readme to include deprecation notice
+      publisher: rancher/k3os (git)
+      date: '2023-12-08'
+      quote: k3os is no longer maintained and has been superceeded by [Elemental] (https://elemental.docs.rancher.com/).
+  last_release: '2021-10-09'
+  last_release_note: the project says it is no longer maintained
+  last_release_sources:
+  - url: https://github.com/rancher/k3os/releases/tag/v0.21.5-k3s2r1
+    title: rancher/k3os release v0.21.5-k3s2r1
+    publisher: GitHub releases
+    date: '2021-10-09'
+    quote: 'v0.21.5-k3s2r1, published 2021-10-09T01:44:02Z'
+    quote_check: raw
+  - url: https://github.com/rancher/k3os
+    title: rancher/k3os README
+    publisher: GitHub
+    date: read 2026-10-06
+    quote: 'k3os is no longer maintained and has been superceeded by [Elemental]'
+    quote_check: raw
+- id: rancheros
+  name: RancherOS (1.x)
+  kind: ancestor
+  aliases:
+  - name: rancher/os
+  first_public: '2015-02-09'
+  first_public_sources:
+  - url: https://github.com/rancher/os/releases/tag/v0.0.2
+    title: rancher/os release v0.0.2
+    publisher: GitHub releases
+    date: '2015-02-09'
+    quote: 'v0.0.2, published 2015-02-09T05:13:00Z'
+    quote_check: raw
+  first_public_note: first release v0.0.2 on 2015-02-09; repository created 2015-01-05
+  end_of_life: null
+  end_of_life_note: last release v1.5.8 on 2021-02-05; no longer actively maintained; repository archived
+  owners:
+  - org: org-rancher-labs
+    from: '2015-01-05'
+    to: null
+    how: created
+    who: Rancher Labs
+  - org: org-suse
+    from: '2020-12-01'
+    to: null
+    how: acquired
+    who: SUSE (acquired Rancher Labs)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://siliconangle.com/2020/12/01/suse-completes-acquisition-rancher-labs/
+      title: SUSE completes acquisition of Rancher Labs
+      publisher: SiliconANGLE
+      date: '2020-12-01'
+      quote: SUSE Group today said it has completed the acquisition of Kubernetes management startup Rancher Labs Inc
+      quote_check: raw
+    edge_notes:
+    - 'from edge: acquired-by'
+    - 'edge date: 2020-12-01'
+    - 'edge note: News coverage used to date the close. Agreement announced 2020-07. Applies to k3os and rancheros ownership.'
+  base:
+  - value: UNKNOWN. README describes the whole OS as Docker containers; no base distribution named in the sources read.
+    from: '2015'
+  facts:
+  - claim: No longer maintained; a replacement was promised but not named.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/rancher/os/blob/master/README.md
+      title: RancherOS README
+      publisher: rancher/os
+      date: 2026-10-06 (read)
+      quote: RancherOS 1.x is no longer being actively maintained. ... We're working on a replacement. Stay tuned!
+  last_release: '2021-02-05'
+  last_release_note: the project says it is no longer maintained
+  last_release_sources:
+  - url: https://github.com/rancher/os/releases/tag/v1.5.8
+    title: rancher/os release v1.5.8
+    publisher: GitHub releases
+    date: '2021-02-05'
+    quote: 'v1.5.8, published 2021-02-05T19:21:23Z'
+    quote_check: raw
+  - url: https://github.com/rancher/os
+    title: rancher/os README
+    publisher: GitHub
+    date: read 2026-10-06
+    quote: 'RancherOS 1.x is no longer being actively maintained.'
+    quote_check: raw
+- id: suse-microos
+  name: SUSE MicroOS (OS of SUSE CaaS Platform)
+  kind: ancestor
+  first_public: 2017-06
+  first_public_note: SUSE CaaS Platform launched 2017-06-20
+  end_of_life: null
+  owners:
+  - org: org-suse
+    from: '2017'
+    to: null
+    how: null
+    who: SUSE
+  base:
+  - value: SUSE Linux Enterprise
+    from: '2017'
+    evidence: INFERRED
+  facts:
+  - claim: CaaS Platform press release names SUSE MicroOS as its purpose-built OS.
+    evidence: DOCUMENTED
+    note: via WebFetch
+    sources:
+    - url: https://suse.com/news/suse-caas-container-as-a-service-platform-makes-applications-easy-to-run-customers-more-agile
+      title: SUSE CaaS (Container as a Service) Platform Makes Applications Easy to Run, Customers More Agile
+      publisher: SUSE
+      date: '2017-06-20'
+      quote: a purpose-built operating system (SUSE MicroOS) for microservices and containers
+  research_note: Beta from 2017-03-30. End of life UNKNOWN. The CaaS Platform line ended after the Rancher acquisition; no dated end found.
+  first_public_sources:
+  - url: https://suse.com/news/suse-caas-container-as-a-service-platform-makes-applications-easy-to-run-customers-more-agile
+    title: SUSE CaaS (Container as a Service) Platform Makes Applications Easy to Run, Customers More Agile
+    publisher: SUSE
+    date: '2017-06-20'
+    quote: a purpose-built operating system (SUSE MicroOS) for microservices and containers
+- id: suse-caasp
+  name: SUSE CaaS Platform
+  kind: ancestor
+  aliases:
+  - name: CaaSP
+  first_public: '2017-06-20'
+  end_of_life: null
+  owners:
+  - org: org-suse
+    from: '2017'
+    to: null
+    how: null
+    who: SUSE
+  base:
+  - value: SUSE MicroOS
+    from: '2017'
+  facts:
+  - claim: Future CaaS versions to be based on Rancher technology.
+    evidence: DOCUMENTED
+    note: News coverage, used to date the statement. via WebFetch.
+    sources:
+    - url: https://www.theregister.com/2020/12/02/suse_rancher/
+      title: SUSE finalises Rancher purchase
+      publisher: The Register
+      date: '2020-12-02'
+      quote: Future versions of SUSE's Container as a Service (CaaS) would be based on Rancher's technology
+  research_note: End of life date UNKNOWN. SUSE said after the Rancher acquisition that future versions would be based on Rancher technology (news, 2020-12-02).
+- id: opensuse-kubic
+  name: openSUSE Kubic
+  kind: ancestor
+  aliases:
+  - name: Kubic
+  - name: Tumbleweed Kubic
+  first_public: 2017-05
+  first_public_note: project started
+  end_of_life: '2022-06-10'
+  end_of_life_note: officially wound down
+  owners:
+  - org: org-opensuse-project
+    from: 2017-05
+    to: null
+    how: null
+    who: openSUSE Project (sub-project)
+  base:
+  - value: openSUSE Tumbleweed, via MicroOS
+    from: '2017'
+  facts:
+  - claim: Started May 2017 as a close upstream for SUSE CaaS Platform.
+    evidence: DOCUMENTED
+    note: via WebFetch
+    sources:
+    - url: https://kubic.opensuse.org/blog/2018-08-09-newdirection/
+      title: An Exciting New Direction
+      publisher: openSUSE Kubic blog
+      date: '2018-08-09'
+      quote: a big part of the intial premise was to establish itself as a 'close upstream' community for SUSE CaaS Platform.
+  - claim: MicroOS was the Tumbleweed-derived base of Kubic.
+    evidence: DOCUMENTED
+    note: via WebFetch
+    sources:
+    - url: https://kubic.opensuse.org/blog/2018-03-22-introduction/
+      title: Introduction to Kubic
+      publisher: openSUSE Kubic blog
+      date: '2018-03-22'
+      quote: MicroOS is an openSUSE Tumbleweed derivative designed to run containers and optimised for large deployments.
+  - claim: Wound down 2022-06-10; users told to install MicroOS and then k3s.
+    evidence: DOCUMENTED
+    note: via WebFetch
+    sources:
+    - url: https://kubic.opensuse.org/blog/2022-06-10-kubic-retired/
+      title: Kubic Project Wound Down
+      publisher: openSUSE Kubic blog
+      date: '2022-06-10'
+      quote: openSUSE MicroOS, once an offshoot of the Kubic Project, will now take more of a prominent role
+  first_public_sources:
+  - url: https://kubic.opensuse.org/blog/2018-08-09-newdirection/
+    title: An Exciting New Direction
+    publisher: openSUSE Kubic blog
+    date: '2018-08-09'
+    quote: When we started in May 2017
+    quote_check: raw
+  end_of_life_sources:
+  - url: https://kubic.opensuse.org/blog/2022-06-10-kubic-retired/
+    title: Kubic Project Wound Down
+    publisher: openSUSE Kubic blog
+    date: '2022-06-10'
+    quote: openSUSE MicroOS, once an offshoot of the Kubic Project, will now take more of a prominent role
+- id: microos
+  name: openSUSE MicroOS
+  kind: entry
+  entry: microos
+  aliases:
+  - name: Kubic MicroOS
+  - name: MicroOS
+  first_public: '2018-03-22'
+  first_public_note: as MicroOS, base of Tumbleweed Kubic
+  end_of_life: null
+  owners:
+  - org: org-opensuse-project
+    from: '2017'
+    from_note: 2017-2018
+    to: null
+    how: null
+    who: openSUSE Project
+  base:
+  - value: openSUSE Tumbleweed (rolling)
+    from: '2018'
+  facts:
+  - claim: Integrated into the Tumbleweed release process by 2018-08.
+    evidence: DOCUMENTED
+    note: via WebFetch
+    sources:
+    - url: https://kubic.opensuse.org/blog/2018-08-09-newdirection/
+      title: An Exciting New Direction
+      publisher: openSUSE Kubic blog
+      date: '2018-08-09'
+      quote: Kubic MicroOS now a fully integrated part of the openSUSE Tumbleweed release process
+  notes:
+  - Pulse entry id is microos. The research id was opensuse-microos.
+  research_note: Name 'openSUSE MicroOS' in use by 2019-10-22 (microos.opensuse.org blog); rename date UNKNOWN.
+  first_public_sources:
+  - url: https://kubic.opensuse.org/blog/2018-03-22-introduction/
+    title: Introduction to Kubic
+    publisher: openSUSE Kubic blog
+    date: '2018-03-22'
+    quote: MicroOS is an openSUSE Tumbleweed derivative designed to run containers and optimised for large deployments.
+- id: sle-micro
+  name: SUSE Linux Micro
+  kind: relative
+  aliases:
+  - name: SUSE Linux Enterprise Micro
+  - name: SLE Micro
+  - name: SL Micro
+  first_public: 2021-03
+  first_public_note: version 5.0 released 2021-03-30
+  end_of_life: null
+  end_of_life_note: per release; planned to fold into SLES 16.1 Immutable (2026-11)
+  owners:
+  - org: org-suse
+    from: '2021'
+    to: null
+    how: null
+    who: SUSE
+  base:
+  - value: SUSE Linux Enterprise; 6.2 identifies as SLES 16.0 VARIANT Micro (per microos.yaml)
+    from: '2021'
+  facts:
+  - claim: Release dates 5.0 (2021-03-30) through 6.2 (2025-11-04).
+    evidence: DOCUMENTED
+    note: Third-party aggregator, used only for dates. via WebFetch.
+    sources:
+    - url: https://endoflife.date/suse-linux-micro
+      title: SUSE Linux Micro
+      publisher: endoflife.date
+      date: 2026-10-06 (read)
+      quote: 5.0 | 30 Mar 2021 | 31 Mar 2022
+  - claim: Renamed from SLE Micro to SUSE Linux Micro between the 6.1 beta (2024-08-22) and 6.1 GA (2024-11-14); no rename announcement found.
+    evidence: INFERRED
+    inferred_from: microos.yaml diff of dated SUSE pages
+    sources:
+    - url: https://github.com/cloudnativeos-org/pulse/blob/main/data/projects/microos.yaml
+      title: microos.yaml vehicles note
+      publisher: Cloud Native OS Pulse
+      date: '2026-09-22'
+      quote: The commercial product was called SUSE Linux Enterprise Micro, or SLE Micro, through the 6.1 public beta on 2024-08-22, and appears as SUSE Linux Micro in the 6.1 general availability announcement on 2024-11-14.
+  research_note: Date per endoflife.date. Plan per microos.yaml.
+- id: opensuse-leap-micro
+  name: openSUSE Leap Micro
+  kind: relative
+  first_public: null
+  end_of_life: null
+  end_of_life_note: Leap Micro 6.3 planned to become an appliance image of Leap 16.1
+  owners:
+  - org: org-opensuse-project
+    from: null
+    from_note: unknown
+    to: null
+    how: null
+    who: openSUSE Project
+  base:
+  - value: SUSE Linux Micro RPMs (a rebrand)
+    from: unknown
+  facts:
+  - claim: A rebrand of SLE Micro RPMs.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/cloudnativeos-org/pulse/blob/main/data/projects/microos.yaml
+      title: microos.yaml, quoting the openSUSE roadmap
+      publisher: openSUSE (via profile)
+      date: '2026-09-22'
+      quote: a re-brand of SLE Micro RPMs with minor configuration tweaks
+  research_note: First public date UNKNOWN. Not researched in this pass. Per microos.yaml.
+- id: opensuse-tumbleweed
+  name: openSUSE Tumbleweed
+  kind: base
+  first_public: null
+  end_of_life: null
+  owners:
+  - org: org-opensuse-project
+    from: null
+    from_note: unknown
+    to: null
+    how: null
+    who: openSUSE Project
+  base:
+  - value: its own
+    from: unknown
+- id: dianemo
+  name: Dianemo
+  kind: ancestor
+  aliases:
+  - name: autonomy/dianemo
+  first_public: '2018-04-03'
+  first_public_note: first alpha release v0.1.0-alpha.0
+  end_of_life: '2018-11-15'
+  end_of_life_note: renamed to Talos
+  owners:
+  - org: org-andrew-rynhard
+    from: '2017-11-03'
+    to: null
+    how: created
+    who: Andrew Rynhard, GitHub org 'autonomy' (first commit 2017-11-03)
+  base:
+  - value: its own
+    from: 2017-11
+    evidence: INFERRED
+  facts:
+  - claim: The first tagged release is named Dianemo in its README, under the autonomy GitHub org.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/siderolabs/talos/blob/v0.1.0-alpha.0/README.md
+      title: README at v0.1.0-alpha.0
+      publisher: siderolabs/talos (GitHub API)
+      date: '2018-04-03'
+      quote: '**Dianemo** is a Kubernetes distribution. ... https://github.com/autonomy/dianemo/releases/latest'
+  - claim: First commit 2017-11-03 by Andrew Rynhard.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/siderolabs/talos/commit/8fa6259e
+      title: Initial commit
+      publisher: siderolabs/talos (GitHub API)
+      date: '2017-11-03'
+      quote: 8fa6259e 2017-11-03T23:19:12Z Andrew Rynhard Initial commit
+  first_public_sources:
+  - url: https://github.com/siderolabs/talos/blob/v0.1.0-alpha.0/README.md
+    title: README at v0.1.0-alpha.0
+    publisher: siderolabs/talos (GitHub API)
+    date: '2018-04-03'
+    quote: '**Dianemo** is a Kubernetes distribution. ... https://github.com/autonomy/dianemo/releases/latest'
+  end_of_life_sources:
+  - url: https://github.com/siderolabs/talos/commit/ca9719cd
+    title: 'refactor: rename project to Talos (#211)'
+    publisher: siderolabs/talos (git)
+    date: '2018-11-15'
+    quote: 'refactor: rename project to Talos (#211)'
+- id: talos
+  name: Talos Linux
+  kind: entry
+  entry: talos
+  aliases:
+  - name: Dianemo
+    to: '2018-11-15'
+  - name: Talos OS
+  - name: Talos
+  first_public: '2018-04-03'
+  first_public_note: as Dianemo; first stable release 1.0 on 2022-03-29
+  end_of_life: null
+  owners:
+  - org: org-talos-systems
+    from: null
+    from_note: UNKNOWN founding date
+    to: null
+    how: null
+    who: Talos Systems, Inc.
+  - org: org-sidero-labs
+    from: '2021-10-04'
+    to: null
+    how: null
+    who: Sidero Labs (same company renamed)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.siderolabs.com/blog/talos-systems-is-now-sidero-labs
+      title: Talos Systems is now Sidero Labs
+      publisher: Sidero Labs (Steve Francis)
+      date: '2021-10-04'
+      quote: Unfortunately, it was such a good name that it is in use by several other entities – amongst them the Talos intelligence cybersecurity group from Cisco Systems, who happened to have trademarked the name around the world.
+    edge_notes:
+    - 'from edge: renamed-to'
+    - 'edge date: 2021-10-04'
+    - 'edge note: via WebFetch. Reason: trademark held by Cisco Talos.'
+  - org: org-yardi
+    from: '2026-09-14'
+    from_note: 2026-09-14 (per talos.yaml)
+    to: null
+    how: acquired
+    who: Yardi (acquired Sidero Labs)
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.siderolabs.com/blog/sidero-labs-joins-yardi
+      title: Sidero Labs joins Yardi
+      publisher: Sidero Labs (Steve Francis)
+      date: '2026-09-14'
+      quote: Sidero Labs - the company behind Talos Linux and Omni - has been acquired by Yardi.
+      quote_check: raw
+    - url: https://www.siderolabs.com/blog/sidero-labs-joins-yardi
+      title: Sidero Labs joins Yardi
+      publisher: Sidero Labs (Steve Francis)
+      date: '2026-09-14'
+      quote: Sidero Labs continues to operate as a standalone company
+      quote_check: raw
+    edge_notes:
+    - 'from edge: acquired-by'
+    - 'edge date: 2026-09-14'
+    - 'edge note: From talos.yaml d13; not re-read in this pass.'
+    note: announced; Sidero Labs continues to operate as a standalone company
+    research_note: Closing date not stated. A 'July 2026' date seen in one search summary was not found in any source.
+  base:
+  - value: its own; not based on any other distribution
+    from: 2017-11
+  facts:
+  - claim: Renamed from Dianemo to Talos on 2018-11-15.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/siderolabs/talos/commit/ca9719cd
+      title: 'refactor: rename project to Talos (#211)'
+      publisher: siderolabs/talos (git)
+      date: '2018-11-15'
+      quote: 'refactor: rename project to Talos (#211)'
+  - claim: Not based on any distribution; ground-up userspace rewrite.
+    evidence: DOCUMENTED
+    note: via WebFetch
+    sources:
+    - url: https://docs.siderolabs.com/talos/v1.14/learn-more/philosophy
+      title: Talos philosophy
+      publisher: Sidero Labs
+      date: 2026-10-06 (read)
+      quote: Talos Linux *isn't* based on any other distribution. ... Talos Linux is actually a ground-up rewrite of the userspace, from PID 1.
+  first_public_sources:
+  - url: https://github.com/siderolabs/talos/blob/v0.1.0-alpha.0/README.md
+    title: README at v0.1.0-alpha.0
+    publisher: siderolabs/talos (GitHub API)
+    date: '2018-04-03'
+    quote: '**Dianemo** is a Kubernetes distribution. ... https://github.com/autonomy/dianemo/releases/latest'
+- id: bottlerocket
+  name: Bottlerocket
+  kind: entry
+  entry: bottlerocket
+  aliases:
+  - name: Thar
+    note: Pre-launch internal name. The code base was renamed from Thar to Bottlerocket on 2020-02-10, one month before the public announcement.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://github.com/bottlerocket-os/bottlerocket/commit/780a2435e233604875aee510345d5ab76edfcdf8
+      title: Update packages/ from Thar to Bottlerocket
+      publisher: bottlerocket-os/bottlerocket (GitHub)
+      date: '2020-02-10'
+      quote: Update packages/ from Thar to Bottlerocket
+    to: '2020-02-10'
+    rename_detail: Thar renamed to Bottlerocket, 2020-02-10, before public launch
+  first_public: 2020-03
+  first_public_note: public preview announced; generally available 2020-08-31
+  end_of_life: null
+  owners:
+  - org: org-aws
+    from: null
+    to: null
+    how: created
+    who: Amazon Web Services (Amazon.com, Inc.). No foundation; no ownership change found.
+    evidence: DOCUMENTED
+    sources: []
+    edge_notes:
+    - 'from edge: owned-by'
+    - 'edge note: Created and owned by AWS since launch; no transfer. Source: the 2020-03-10 announcement above, and trademark holder in data/projects/bottlerocket.yaml d13.'
+  base:
+  - value: Its own build. Built from upstream source with RPM spec files inside a container SDK; no parent distribution. The kernel and GRUB are built from Amazon Linux 2023 source RPMs. The build SDK container itself starts FROM Fedora 43, and its Rust/Cargo RPM macros derive from Fedora's rust2rpm.
+  evidence: DOCUMENTED
+  sources:
+  - url: https://aws.amazon.com/about-aws/whats-new/2020/03/announcing-bottlerocket-a-new-open-source-linux-based-operating-system-optimized-to-run-containers/
+    title: Announcing Bottlerocket, a new open source Linux-based operating system purpose-built to run containers
+    publisher: AWS What's New
+    date: '2020-03-10'
+    quote: Today, Amazon Web Services (AWS) announced the public preview of Bottlerocket, a new open source Linux-based Operating System (OS) that is purpose-built to run containers.
+  - url: https://aws.amazon.com/about-aws/whats-new/2020/08/announcing-general-availability-of-bottlerocket/
+    title: Bottlerocket general availability
+    publisher: AWS What's New
+    date: '2020-08-31'
+    quote: Today, Amazon Web Services (AWS) announced the General Availability of Bottlerocket, a new open source Linux-based Operating System (OS) purpose-built to run containers.
+    note: Date and quote taken from the existing profile data/projects/bottlerocket.yaml (d14), retrieved 2026-09-22.
+  - url: https://github.com/bottlerocket-os/bottlerocket/blob/b2e2beeaa3384c616c4cb0e2b05b7686cdd41253/README.md
+    title: Bottlerocket README, Packaging
+    publisher: bottlerocket-os/bottlerocket (GitHub), develop at b2e2bee (2026-10-02)
+    date: '2026-10-02'
+    quote: Bottlerocket is built from source using a container toolchain. We use RPM package definitions to build and install individual packages into an image. RPM itself is not in the image
+  - url: https://github.com/bottlerocket-os/bottlerocket-kernel-kit/blob/develop/packages/kernel-6.1/Cargo.toml
+    title: bottlerocket-kernel-kit kernel-6.1 source
+    publisher: bottlerocket-os/bottlerocket-kernel-kit (GitHub), develop, cloned 2026-10-06
+    date: '2026-10-06'
+    quote: url = "https://cdn.amazonlinux.com/al2023/blobstore/cabf7aca9f0c7f4a7de972ac73535aa5a2325eaa421b9754e68eedb403c34653/kernel-6.1.188-233.386.amzn2023.src.rpm"
+  - url: https://github.com/bottlerocket-os/bottlerocket-sdk/blob/2d5121fd495e55f638eadcaec9a9486aa35c4c55/Dockerfile
+    title: bottlerocket-sdk Dockerfile
+    publisher: bottlerocket-os/bottlerocket-sdk (GitHub), develop at 2d5121f (2026-10-01)
+    date: '2026-10-01'
+    quote: FROM public.ecr.aws/docker/library/fedora:43 AS base
+  - url: https://github.com/bottlerocket-os/bottlerocket-sdk/blob/2d5121fd495e55f638eadcaec9a9486aa35c4c55/COPYRIGHT
+    title: bottlerocket-sdk COPYRIGHT
+    publisher: bottlerocket-os/bottlerocket-sdk (GitHub)
+    date: '2026-10-01'
+    quote: macros/rust and macros/cargo (used during build) are derived from the Fedora Rust SIG's rust2rpm.
+  research_note: Repository created 2019-04-03 (first commit 'Creating initial files from template'). GitHub release objects v0.1.x carry a publication date of 2020-01-18 and are flagged pre-release.
+  first_public_sources:
+  - url: https://aws.amazon.com/about-aws/whats-new/2020/03/announcing-bottlerocket-a-new-open-source-linux-based-operating-system-optimized-to-run-containers/
+    title: Announcing Bottlerocket, a new open source Linux-based operating system purpose-built to run containers
+    publisher: AWS What's New
+    date: '2020-03-10'
+    quote: Today, Amazon Web Services (AWS) announced the public preview of Bottlerocket, a new open source Linux-based Operating System (OS) that is purpose-built to run containers.
+- id: amazon-linux-2023
+  name: Amazon Linux 2023
+  kind: base
+  first_public: null
+  end_of_life: null
+  owners:
+  - org: org-aws
+    from: null
+    to: null
+    how: null
+    who: Amazon Web Services
+  evidence: UNKNOWN
+  notes:
+  - Included only as the source of Bottlerocket's kernel and GRUB source RPMs. Dates not researched; belongs to another group if any.
+  research_note: First public date UNKNOWN.
+- id: container-vm-debian
+  name: Container-optimized Google Compute Engine image (container-vm, Debian-based)
+  kind: ancestor
+  aliases:
+  - name: container-vm
+  first_public: 2014-05
+  end_of_life: null
+  owners:
+  - org: org-google
+    from: null
+    to: null
+    how: null
+    who: Google
+  base:
+  - value: Debian (news coverage only, not a primary source)
+  evidence: INFERRED
+  evidence_note: Existence and image name from a Docker docs commit. Debian base from SiliconANGLE news, 2016-05-16. No Google primary source found that describes this image or its retirement. Searched cloud.google.com blog and docs for 'container-vm' deprecation.
+  sources:
+  - url: https://git.causa-arcana.com/kotovalexarian-likes-github/moby--moby/commit/8622641b585d18476f1bc26e1bb5d4298cecf78f
+    title: 'Merge pull request #6100 from SvenDowideit/pr_out_docs_installation_google_update_to_use_container_vm_images (mirror of moby/moby)'
+    publisher: moby/moby git history (third-party mirror)
+    date: '2014-05-29'
+    quote: projects/google-containers/global/images/container-vm-v20140522
+  - url: https://siliconangle.com/?p=279904
+    title: Google says most of its containers now run on Chromium-based Container-VM
+    publisher: SiliconANGLE (news, used for dating only)
+    date: '2016-05-16'
+    quote: A Debian-based version of Container-VM, which is described as a 'container-optimized OS', has been around for sometime
+  research_note: Docker documentation pointed at image projects/google-containers/global/images/container-vm-v20140522 in a commit dated 2014-05-29. News coverage from 2016 calls it Debian-based. End of life UNKNOWN.
+- id: cos
+  name: Container-Optimized OS from Google
+  kind: entry
+  entry: cos
+  aliases:
+  - name: Container-VM Image
+    note: Beta name, spring 2016. Image names carried the prefix gci-, hence the abbreviation GCI.
+    to: '2017-04-05'
+    rename_detail: Container-VM Image (beta, 2016, image prefix gci-) renamed to Container-Optimized OS by GA, 2017-04-05
+    evidence: DOCUMENTED
+    sources:
+    - url: https://cloud.google.com/blog/products/gcp/container-optimized-os-from-google-is-generally-available/
+      title: Container-Optimized OS from Google is generally available
+      publisher: Google Cloud blog
+      date: '2017-04-05'
+      quote: Container-Optimized OS (formerly Container-VM Image
+  first_public: 2016-05
+  first_public_note: beta announced in spring 2016; generally available as Container-Optimized OS on 2017-04-05
+  end_of_life: null
+  owners:
+  - org: org-google
+    from: null
+    to: null
+    how: null
+    who: Google
+    evidence: DOCUMENTED
+    sources: []
+    edge_notes:
+    - 'from edge: owned-by'
+    - 'edge note: Google maintains it; see features-and-benefits page: ''Container-Optimized OS is maintained by Google''.'
+  base:
+  - value: Fork of Chromium OS
+  evidence: DOCUMENTED
+  sources:
+  - url: https://cloud.google.com/blog/products/gcp/introducing-google-container-vm-image
+    title: Introducing Google Container-VM Image
+    publisher: Google Cloud blog (Aditya Kali)
+    date: '2016-10-01'
+    quote: Container-VM Image is based on the open-source Chromium OS project. Chromium OS is a reliable and vetted source code base for this new operating system.
+    date_note: The blog shows 2016-10-01. The text says the beta was announced 'this spring'. The page date may reflect a later edit or migration; not resolved.
+  - url: https://cloud.google.com/blog/products/gcp/introducing-google-container-vm-image
+    title: Introducing Google Container-VM Image
+    publisher: Google Cloud blog
+    date: '2016-10-01'
+    quote: 'Note: All new Container-VM Images have "gci-" prefix in their names.'
+  - url: https://cloud.google.com/blog/products/gcp/container-optimized-os-from-google-is-generally-available/
+    title: Container-Optimized OS from Google is generally available
+    publisher: Google Cloud blog (Saied Kazemi)
+    date: '2017-04-05'
+    quote: Last spring, we released the beta version of Container-Optimized OS (formerly Container-VM Image, optimized for running containers on GCP.
+  - url: https://docs.cloud.google.com/container-optimized-os/docs/resources/sources
+    title: Container-Optimized OS sources
+    publisher: Google Cloud docs
+    date: retrieved 2026-10-06
+    quote: Container-Optimized OS from Google is a fork of the Chromium OS open-source project.
+  - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/features-and-benefits
+    title: Container-Optimized OS overview
+    publisher: Google Cloud docs
+    date: retrieved 2026-10-06
+    quote: Container-Optimized OS is the default node OS Image in Kubernetes Engine and other Kubernetes deployments on Google Cloud Platform.
+  - url: https://siliconangle.com/?p=279904
+    title: Google says most of its containers now run on Chromium-based Container-VM
+    publisher: SiliconANGLE (news, used for dating the beta only)
+    date: '2016-05-16'
+    quote: Google's Chromium OS-based variant was built specifically for Google Services on GCP.
+  research_note: News coverage dates the beta 2016-05-16.
+  first_public_sources:
+  - url: https://cloud.google.com/blog/products/gcp/container-optimized-os-from-google-is-generally-available/
+    title: Container-Optimized OS from Google is generally available
+    publisher: Google Cloud blog
+    date: '2017-04-05'
+    quote: Container-Optimized OS (formerly Container-VM Image
+- id: eve-os
+  name: EVE-OS
+  kind: entry
+  entry: eve-os
+  aliases:
+  - name: Project EVE
+  - name: Edge Virtualization Engine (EVE)
+  - name: EVE-OS
+    note: in use by 2021-07-19 (lf-edge/eve commit 'Adding EVE-OS deployment doc'); rename date UNKNOWN
+    evidence: INFERRED
+  first_public: 2019-01
+  first_public_note: announced as an LF Edge project contributed by ZEDEDA; seed code handover announced 2019-05-14
+  end_of_life: null
+  owners:
+  - org: org-zededa
+    from: null
+    to: null
+    how: created
+    who: Created by ZEDEDA (founded 2016 per news only). Hosted by LF Edge (Linux Foundation) since 2019. LF Edge Impact Stage (Stage 3) announced 2025-03-31.
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.linuxfoundation.org/press/press-release/the-linux-foundation-launches-new-lf-edge-to-establish-a-unified-open-source-framework-for-the-edge
+      title: The Linux Foundation Launches New LF Edge
+      publisher: The Linux Foundation
+      date: '2019-01-24'
+      quote: Project EVE (Edge Virtualization Engine), contributed by ZEDEDA
+    edge_notes:
+    - 'from edge: created-by'
+  - org: org-lf-edge
+    from: '2019-01-24'
+    to: null
+    how: donated
+    evidence: DOCUMENTED
+    sources:
+    - url: https://www.linuxfoundation.org/press/press-release/lf-edge-momentum-continues-with-project-eve-seed-code-project-demonstrations-at-iot-world-and-new-members
+      title: LF Edge Momentum Continues with Project EVE Seed Code
+      publisher: The Linux Foundation
+      date: '2019-05-14'
+      quote: Project Edge Virtualization Engine (EVE) receives initial seed code from LF Edge founding member ZEDEDA
+    edge_notes:
+    - 'from edge: donated-to'
+    - 'edge date: 2019-01-24 (project announced at LF Edge launch); seed code handed over 2019-05-14'
+  base:
+  - value: Own build with LinuxKit. Root filesystem holds a minimal Alpine Linux-derived environment; services are managed by the LinuxKit init system. Kernel from lf-edge/eve-kernel.
+  evidence: DOCUMENTED
+  sources:
+  - url: https://www.linuxfoundation.org/press/press-release/the-linux-foundation-launches-new-lf-edge-to-establish-a-unified-open-source-framework-for-the-edge
+    title: The Linux Foundation Launches New LF Edge to Establish a Unified Open Source Framework for the Edge
+    publisher: The Linux Foundation
+    date: '2019-01-24'
+    quote: Project EVE (Edge Virtualization Engine), contributed by ZEDEDA, will create an open and agnostic standard edge architecture
+  - url: https://www.linuxfoundation.org/press/press-release/lf-edge-momentum-continues-with-project-eve-seed-code-project-demonstrations-at-iot-world-and-new-members
+    title: LF Edge Momentum Continues with Project EVE Seed Code, Project Demonstrations at IoT World and New Members
+    publisher: The Linux Foundation
+    date: '2019-05-14'
+    quote: Project Edge Virtualization Engine (EVE) receives initial seed code from LF Edge founding member ZEDEDA
+  - url: https://github.com/lf-edge/eve/commit/fc05a1f8ea2dc7fa59cb13b76910409f86e3d720
+    title: Initial commit
+    publisher: lf-edge/eve (GitHub)
+    date: '2017-05-01'
+    quote: Erik Nordmark <erik@zededa.com> Initial commit
+  - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+    title: lf-edge/eve docs/README.md
+    publisher: lf-edge/eve (GitHub), master, raw read 2026-10-06
+    date: retrieved 2026-10-06
+    quote: Minimalistic Alpine Linux-derived UNIX environment
+  - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+    title: lf-edge/eve docs/README.md, Building EVE
+    publisher: lf-edge/eve (GitHub)
+    date: retrieved 2026-10-06
+    quote: EVE build system is using a simple top-level Makefile which under the hood uses Linuxkit to produce all 3 of these artifacts.
+  - url: https://www.linuxfoundation.org/press/project-eve-hits-maturity-within-lf-edge-releases-multi-node-support-for-enhanced-edge-computing-resilience
+    title: Project EVE hits maturity within LF Edge
+    publisher: The Linux Foundation
+    date: '2025-03-31'
+    quote: Project EVE's advancement to the Impact Stage validates EVE's role in creating a standardized yet flexible approach to edge computing
+  research_note: 'lf-edge/eve repository created 2019-04-19; its first commit is 2017-05-01 by a zededa.com author, so ZEDEDA''s earlier private history was carried over. Earliest GitHub release object: 3.4.0, 2019-07-19.'
+  first_public_sources:
+  - url: https://www.linuxfoundation.org/press/press-release/the-linux-foundation-launches-new-lf-edge-to-establish-a-unified-open-source-framework-for-the-edge
+    title: The Linux Foundation Launches New LF Edge
+    publisher: The Linux Foundation
+    date: '2019-01-24'
+    quote: Project EVE (Edge Virtualization Engine), contributed by ZEDEDA
+- id: alpine
+  name: Alpine Linux
+  kind: base
+  first_public: null
+  end_of_life: null
+  owners:
+  - org: org-alpine-linux-project
+    from: null
+    to: null
+    how: null
+    who: Alpine Linux project
+  evidence: UNKNOWN
+  notes:
+  - Included only as EVE's userland source. Dates not researched.
+  research_note: First public date UNKNOWN.
+- id: linuxkit
+  name: LinuxKit
+  kind: technology
+  first_public: null
+  end_of_life: null
+  owners:
+  - org: org-docker
+    from: null
+    to: null
+    how: null
+    who: Docker, Inc. originally (not researched)
+  base:
+  - value: toolkit, not a distribution
+  evidence: UNKNOWN
+  notes:
+  - Included only as EVE's build toolkit and init system. Dates and ownership not researched.
+  research_note: First public date UNKNOWN.
+- id: ubuntu-core
+  name: Ubuntu Core
+  kind: entry
+  entry: ubuntu-core
+  aliases:
+  - name: Snappy Ubuntu Core
+    note: Name used at announcement (2014) and for the 15.04 stable release. Canonical's 2016 release is titled 'Ubuntu Core 16' without 'Snappy'. Rename inferred from naming in Canonical posts; no rename announcement found.
+    rename_detail: Snappy Ubuntu Core (2014-2015) to Ubuntu Core (by Core 16, 2016)
+    evidence: INFERRED
+    rename_note: Inferred from the product name in Canonical's 2014, 2015 and 2016 posts. No rename announcement found.
+  first_public: 2014-12
+  first_public_note: announced 2014-12-09; first stable version shipped in Ubuntu 15.04 (2015-04-21)
+  end_of_life: null
+  end_of_life_note: per release; Core 16 standard security maintenance ended Jun 2026, Legacy add-on to Jun 2031
+  owners:
+  - org: org-canonical
+    from: null
+    to: null
+    how: null
+    who: Canonical
+    evidence: DOCUMENTED
+    sources: []
+    edge_notes:
+    - 'from edge: owned-by'
+    - 'edge note: Canonical has announced every release (sources on the node).'
+  base:
+  - value: Ubuntu. Each Core release is built from the matching Ubuntu LTS (Core 18 from 18.04, Core 20 from 20.04, Core 22 from 22.04, Core 24 from 24.04, Core 26 from 26.04). The base snap 'core' used by Core 16 is built from Ubuntu 16.04.
+  evidence: DOCUMENTED
+  sources:
+  - url: https://ubuntu.com/blog/a-new-transactionally-updated-snappy-ubuntu-core
+    title: A new, transactionally updated "snappy" Ubuntu Core
+    publisher: Canonical (Ubuntu blog)
+    date: '2014-12-09'
+    quote: The genesis of Ubuntu Core is our mission to perfect system and application updates on phones – we created the snappy technology and application confinement system to ensure a carrier-grade update experience for Ubuntu mobile users.
+  - url: https://ubuntu.com/blog/ubuntu-15-04-desktop-phone-and-iot-towards-a-converged-future
+    title: 'Ubuntu 15.04: Desktop, Phone and IoT; towards a converged future'
+    publisher: Canonical (Ubuntu blog)
+    date: '2015-04-21'
+    quote: The first stable version of 'Snappy' Ubuntu Core is now available as part of 15.04.
+  - url: https://ubuntu.com/blog/ubuntu-core-16-delivers-foundation-for-secure-iot
+    title: Ubuntu Core 16 delivers foundation for secure IoT
+    publisher: Canonical (Ubuntu blog)
+    date: '2016-11-03'
+    quote: Canonical today released Ubuntu Core 16 for the Internet of Things (IoT), with regular and reliable security updates, and app stores for intelligent connected devices.
+  - url: https://www.ubuntu.com/blog/ubuntu-core-18-released-for-secure-reliable-iot-devices
+    title: Ubuntu Core 18 released for secure, reliable IoT devices
+    publisher: Canonical (Ubuntu blog)
+    date: '2019-01-22'
+    quote: Canonical today published Ubuntu Core 18, bringing the popular Ubuntu 18.04 LTS to high-security embedded devices.
+  - url: https://ubuntu.com/blog/ubuntu-core-20-secures-linux-for-iot
+    title: Ubuntu Core 20 secures Linux for IoT
+    publisher: Canonical (Ubuntu blog)
+    date: '2021-02-02'
+    quote: Ubuntu Core 20, a minimal, containerised version of Ubuntu 20.04 LTS for IoT devices and embedded systems, is now generally available.
+  - url: https://documentation.ubuntu.com/core/reference/release-notes/
+    title: Ubuntu Core release notes
+    publisher: Canonical
+    date: retrieved 2026-10-06
+    quote: built on the foundations of Ubuntu 26.04 LTS (Resolute Raccoon)
+    note: Same page gives Core 26 14th May 2026, Core 24 4th June 2024 (Ubuntu 24.04 LTS), Core 22 15th June 2022 (Ubuntu 22.04 LTS).
+  - url: https://documentation.ubuntu.com/core/reference/support-duration/
+    title: Ubuntu Core support duration
+    publisher: Canonical
+    date: retrieved 2026-10-06
+    quote: Ubuntu Core 16 Jun 2016 Jun 2026 Jun 2031 amd64, arm64 2.61.x
+  - url: https://ubuntu.com/docs/snapcraft/stable/reference/bases/
+    title: 'Snapcraft reference: bases'
+    publisher: Canonical
+    date: retrieved 2026-10-06
+    quote: core | Ubuntu 16.04 ESM
+    note: WebFetch summary of the table; the row text is reformatted by the tool.
+  research_note: 'Versioned releases: Core 16 (announced 2016-11-03; Canonical''s support table lists Jun 2016), Core 18 (2019-01-22), Core 20 (2021-02-02), Core 22 (2022-06-15), Core 24 (2024-06-04), Core 26 (2026-05-14).'
+  first_public_sources:
+  - url: https://ubuntu.com/blog/a-new-transactionally-updated-snappy-ubuntu-core
+    title: A new, transactionally updated "snappy" Ubuntu Core
+    publisher: Canonical (Ubuntu blog)
+    date: '2014-12-09'
+    quote: Today we're announcing "snappy" Ubuntu Core
+    quote_check: raw
+- id: ubuntu
+  name: Ubuntu (LTS releases)
+  kind: base
+  first_public: null
+  end_of_life: null
+  owners:
+  - org: org-canonical
+    from: null
+    to: null
+    how: null
+    who: Canonical
+  evidence: UNKNOWN
+  notes:
+  - Parent of Ubuntu Core. Dates not researched here.
+  research_note: First public date UNKNOWN.
+- id: ubuntu-touch-canonical
+  name: Ubuntu phone (Ubuntu Touch, Canonical era)
+  kind: ancestor
+  first_public: null
+  end_of_life: null
+  owners:
+  - org: org-canonical
+    from: null
+    to: null
+    how: null
+    who: Canonical
+  evidence: UNKNOWN
+  notes:
+  - Included because Canonical says the snappy technology came from its phone work. Dates not researched.
+  research_note: First public date UNKNOWN. End of life UNKNOWN.
+- id: qubes-os
+  name: Qubes OS
+  kind: relative
+  first_public: null
+  end_of_life: null
+  evidence: UNKNOWN
+  notes:
+  - Reference node only, target of EVE's influenced-by edge. Not researched.
+- id: smartos
+  name: SmartOS
+  kind: relative
+  first_public: null
+  end_of_life: null
+  evidence: UNKNOWN
+  notes:
+  - Reference node only, target of EVE's influenced-by edge. Not researched.
+- id: debian
+  name: Debian
+  kind: base
+  first_public: null
+  end_of_life: null
+  evidence: UNKNOWN
+  notes:
+  - Reference node only, target of the old container-vm image's based-on edge. Not researched.
+- id: opensuse-leap
+  name: openSUSE Leap
+  kind: base
+  first_public: null
+  end_of_life: null
+  notes:
+  - Created by the merge. Target of the c3OS based-on edge. The kairos-suse-talos file named the id but had no node for it; nothing else was researched.
+edges:
+- id: e-cl-based-on-gentoo
+  from: coreos-container-linux
+  to: gentoo
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/coreos/coreos-overlay
+    title: coreos/coreos-overlay README
+    publisher: CoreOS, GitHub
+    date: archived repository, read 2026-10-06
+    quote: This overlay contains Container Linux specific packages and Gentoo packages that differ from their upstream Gentoo versions.
+    quote_check: raw
+- id: e-cl-forked-from-chromium-os
+  from: coreos-container-linux
+  to: chromium-os
+  type: forked-from
+  scope: build SDK and update_engine, not the package set
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/coreos/scripts/commit/d74220d7727b063d84520c53185808a5db12fb6c
+    title: Oldest commit in coreos/scripts
+    publisher: GitHub
+    date: '2009-10-09'
+    quote: 'git-svn-id: svn://chrome-svn/chromeos/trunk@4'
+    quote_check: raw
+  note: The code history proves the fork. The word "fork" is not used by a CoreOS source read here. A renderer may prefer based-on with scope "SDK".
+- id: e-cl-succeeded-by-fcos
+  from: coreos-container-linux
+  to: fedora-coreos
+  type: succeeded-by
+  evidence: DOCUMENTED
+  sources:
+  - url: https://coreos.com/os/eol/
+    archive: https://web.archive.org/web/20200601000000/https://coreos.com/os/eol/
+    title: End-of-life announcement for CoreOS Container Linux
+    publisher: CoreOS (Red Hat)
+    date: 2020 (see node caveat)
+    quote: Fedora CoreOS is the official successor to CoreOS Container Linux.
+    quote_check: raw
+- id: e-cl-merged-into-fcos
+  from: coreos-container-linux
+  to: fedora-coreos
+  type: merged-into
+  evidence: DOCUMENTED
+  sources:
+  - url: https://projectatomic.io/blog/2018/06/welcome-to-fedora-coreos/
+    title: Announcing the Fedora CoreOS community!
+    publisher: Project Atomic (Dusty Mabe)
+    date: '2018-06-20'
+    quote: we have decided to merge future development of the two projects
+    quote_check: raw
+  note: Paired with e-atomic-merged-into-fcos. The two predecessors merged into one successor.
+- id: e-flatcar-forked-from-cl
+  from: flatcar
+  to: coreos-container-linux
+  type: forked-from
+  date: '2018-03-06'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://www.flatcar.org/blog/2018/03/announcing-the-flatcar-linux-project/
+    title: Announcing the Flatcar Linux project
+    publisher: Kinvolk (Chris Kühl)
+    date: '2018-03-06'
+    quote: Flatcar Linux is a friendly fork of CoreOS’ Container Linux and as such, compatible with it.
+    quote_check: raw
+  also_stated_by:
+    url: https://coreos.com/os/eol/
+    quote: you may want to consider Flatcar Container Linux , which is a fork of CoreOS Container Linux.
+    quote_check: raw
+- id: e-cl-succeeded-by-flatcar-claim
+  from: coreos-container-linux
+  to: flatcar
+  type: succeeded-by
+  status: claimed by the successor only
+  claim_by: flatcar
+  evidence: DOCUMENTED
+  sources:
+  - url: https://www.flatcar.org/docs/latest/
+    title: Flatcar Container Linux documentation
+    publisher: Flatcar project
+    date: living doc, read 2026-10-06
+    quote: the active successor to CoreOS Container Linux.
+    quote_check: raw
+  note: The brief defines succeeded-by as "the project said this replaces it". CoreOS did not say this about Flatcar. Flatcar says it about itself. Draw it differently from e-cl-succeeded-by-fcos, or drop it.
+- id: e-cl-influenced-rhcos
+  from: rhcos
+  to: coreos-container-linux
+  type: influenced-by
+  evidence: DOCUMENTED
+  sources:
+  - url: https://coreos.com/blog/coreos-tech-to-combine-with-red-hat-openshift
+    title: Bringing CoreOS technology to Red Hat OpenShift
+    publisher: CoreOS (Reza Shafii)
+    date: '2018-05-08'
+    quote: With the acquisition, Container Linux will be reborn as Red Hat CoreOS, a new entry into the Red Hat ecosystem.
+    quote_check: raw
+  note: The 2018 source says "reborn as", which reads stronger than influence. The 2020 EOL page did not tell users to migrate to RHCOS; it named Fedora CoreOS. So succeeded-by is not used here.
+- id: e-fah-based-on-fedora
+  from: fedora-atomic-host
+  to: fedora
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://fedoramagazine.org/announcing-fedora-21/
+    title: Announcing Fedora 21
+    publisher: Fedora Magazine
+    date: '2014-12-09'
+    quote: While using the same RPMs as other Fedora offerings
+    quote_check: raw
+- id: e-fah-part-of-atomic
+  from: fedora-atomic-host
+  to: project-atomic
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://www.redhat.com/en/about/press-releases/red-hat-accelerates-application-delivery-new-linux-container-innovations
+    title: Red Hat Accelerates Application Delivery with New Linux Container Innovations
+    publisher: Red Hat
+    date: '2014-04-15'
+    quote: Project Atomic will provide the upstream community for Fedora and CentOS Atomic hosts
+    quote_check: raw
+  target_kind: technology
+- id: e-rhel-atomic-part-of-atomic
+  from: rhel-atomic-host
+  to: project-atomic
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://www.redhat.com/en/about/press-releases/red-hat-accelerates-application-delivery-new-linux-container-innovations
+    title: Red Hat Accelerates Application Delivery with New Linux Container Innovations
+    publisher: Red Hat
+    date: '2014-04-15'
+    quote: The tools that result from Project Atomic will allow creation of a new variant of Red Hat Enterprise Linux
+    quote_check: raw
+  target_kind: technology
+- id: e-centos-atomic-part-of-atomic
+  from: centos-atomic-host
+  to: project-atomic
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://www.redhat.com/en/about/press-releases/red-hat-accelerates-application-delivery-new-linux-container-innovations
+    title: Red Hat Accelerates Application Delivery with New Linux Container Innovations
+    publisher: Red Hat
+    date: '2014-04-15'
+    quote: Project Atomic will provide the upstream community for Fedora and CentOS Atomic hosts
+    quote_check: raw
+  source_ref: same as e-fah-part-of-atomic
+  target_kind: technology
+- id: e-atomic-uses-rpm-ostree
+  from: project-atomic
+  to: rpm-ostree
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://projectatomic.io/docs/introduction/
+    title: Project Atomic introduction
+    publisher: Project Atomic
+    date: undated, read 2026-10-06
+    quote: The host system is managed via rpm-ostree
+    quote_check: raw
+- id: e-rpm-ostree-on-ostree
+  from: rpm-ostree
+  to: ostree
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/bootc-relationships.7.md
+    title: bootc relationships
+    publisher: bootc project
+    date: read 2026-10-06
+    quote: bootc uses OSTree as a backing model, and so does rpm-ostree.
+    quote_check: raw
+- id: e-fah-succeeded-by-fcos
+  from: fedora-atomic-host
+  to: fedora-coreos
+  type: succeeded-by
+  evidence: DOCUMENTED
+  sources:
+  - url: https://projectatomic.io/blog/2019/11/fedora-atomic-host-nearing-eol/
+    title: Fedora Atomic Host Nearing End Of Life
+    publisher: Project Atomic (Dusty Mabe)
+    date: '2019-11-21'
+    quote: Last year we introduced the plans for Fedora CoreOS including that Fedora CoreOS would be the successor to Fedora Atomic Host and Container Linux
+    quote_check: raw
+- id: e-atomic-merged-into-fcos
+  from: project-atomic
+  to: fedora-coreos
+  type: merged-into
+  evidence: DOCUMENTED
+  sources:
+  - url: https://projectatomic.io/blog/2018/06/welcome-to-fedora-coreos/
+    title: Announcing the Fedora CoreOS community!
+    publisher: Project Atomic (Dusty Mabe)
+    date: '2018-06-20'
+    quote: we have decided to merge future development of the two projects
+    quote_check: raw
+- id: e-rhel-atomic-succeeded-by-rhcos
+  from: rhel-atomic-host
+  to: rhcos
+  type: succeeded-by
+  scope: inside OpenShift
+  evidence: DOCUMENTED
+  sources:
+  - url: https://docs.redhat.com/en/documentation/openshift_container_platform/4.1/html/release_notes/ocp-4-1-release-notes
+    title: OpenShift Container Platform 4.1 release notes
+    publisher: Red Hat
+    date: '2019-06-04'
+    quote: Replaced by Red Hat Enterprise Linux CoreOS.
+    quote_check: summary
+  - url: https://coreos.com/blog/coreos-tech-to-combine-with-red-hat-openshift
+    title: Bringing CoreOS technology to Red Hat OpenShift
+    publisher: CoreOS (Reza Shafii)
+    date: '2018-05-08'
+    quote: is expected to ultimately supersede Atomic Host as Red Hat’s immutable, container-centric operating system.
+    quote_check: raw
+- id: e-fcos-based-on-fedora
+  from: fedora-coreos
+  to: fedora
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://coreos.com/blog/fedora-coreos-red-hat-coreos-and-future-container-linux
+    title: Fedora CoreOS, Red Hat CoreOS, and the future of Container Linux
+    publisher: CoreOS (Benjamin Gilbert)
+    date: '2018-06-22'
+    quote: Fedora CoreOS also plans to build on the packaging and maintenance work done every day in the Fedora project.
+    quote_check: raw
+- id: e-fcos-uses-rpm-ostree
+  from: fedora-coreos
+  to: rpm-ostree
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://fedoraproject.org/wiki/Changes/CoreOSOstree2OCIUpdates
+    title: 'Fedora Change: move updates from OSTree to OCI'
+    publisher: Fedora Project
+    date: read 2026-09-22 (fedora-coreos profile)
+    quote: We will notably keep using rpm-ostree for updates
+    quote_check: taken from the fedora-coreos profile, not re-read
+- id: e-rhcos-upstream-fcos
+  from: rhcos
+  to: fedora-coreos
+  type: based-on
+  detail: Fedora CoreOS is the community upstream of RHCOS
+  evidence: DOCUMENTED
+  sources:
+  - url: https://coreos.com/blog/fedora-coreos-red-hat-coreos-and-future-container-linux
+    title: Fedora CoreOS, Red Hat CoreOS, and the future of Container Linux
+    publisher: CoreOS (Benjamin Gilbert)
+    date: '2018-06-22'
+    quote: Finally, Fedora CoreOS will serve as the community upstream of Red Hat CoreOS.
+    quote_check: raw
+- id: e-rhcos-based-on-rhel
+  from: rhcos
+  to: rhel
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://coreos.com/blog/coreos-tech-to-combine-with-red-hat-openshift
+    title: Bringing CoreOS technology to Red Hat OpenShift
+    publisher: CoreOS (Reza Shafii)
+    date: '2018-05-08'
+    quote: Red Hat CoreOS will be based on Fedora and Red Hat Enterprise Linux sources
+    quote_check: raw
+  note: This is the 2018 plan. Current RHCOS documentation was not read.
+- id: e-bootc-on-ostree
+  from: bootc
+  to: ostree
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/bootc-relationships.7.md
+    title: bootc relationships
+    publisher: bootc project
+    date: read 2026-10-06
+    quote: bootc uses OSTree as a backing model, and so does rpm-ostree.
+    quote_check: raw
+  note: The same document says the OSTree role "may further shrink", and the bootc profile records a composefs backend.
+- id: e-rhel-image-mode-on-bootc
+  from: rhel-image-mode
+  to: bootc
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://www.redhat.com/en/about/press-releases/red-hat-reimagines-enterprise-linux-ai-future-image-mode-red-hat-enterprise-linux
+    title: Red Hat Reimagines Enterprise Linux for the AI Future with Image Mode for Red Hat Enterprise Linux
+    publisher: Red Hat
+    date: '2024-05-07'
+    quote: Image mode for Red Hat Enterprise Linux builds on the success of open source projects such as bootc
+    quote_check: raw
+  target_kind: technology
+- id: e-rhel-image-mode-on-rhel
+  from: rhel-image-mode
+  to: rhel
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://www.redhat.com/en/about/press-releases/red-hat-reimagines-enterprise-linux-ai-future-image-mode-red-hat-enterprise-linux
+    title: Red Hat Reimagines Enterprise Linux for the AI Future with Image Mode for Red Hat Enterprise Linux
+    publisher: Red Hat
+    date: '2024-05-07'
+    quote: Image mode for Red Hat Enterprise Linux builds on the success of open source projects such as bootc
+    quote_check: raw
+  source_ref: same as e-rhel-image-mode-on-bootc
+- id: e-fedora-bootc-on-bootc
+  from: fedora-bootc
+  to: bootc
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://fedoramagazine.org/get-involved-with-fedora-bootable-containers/
+    title: Get Involved with Fedora Bootable Containers
+    publisher: Fedora Magazine
+    date: '2024-05-07'
+    quote: With these changes, and the introduction of bootc , we now have the tools to build image-based systems using ordinary Containerfiles
+    quote_check: raw
+  target_kind: technology
+- id: e-fedora-bootc-on-fedora
+  from: fedora-bootc
+  to: fedora
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://gitlab.com/fedora/bootc/base-images
+    title: Fedora bootc base images README
+    publisher: Fedora Project (GitLab)
+    date: main, read 2026-10-06
+    quote: Create and maintain base *bootable* container images from Fedora packages.
+    quote_check: raw
+  - url: https://fedoramagazine.org/get-involved-with-fedora-bootable-containers/
+    title: Get Involved with Fedora Bootable Containers
+    publisher: Fedora Magazine
+    date: '2024-05-07'
+    quote: to empower other projects and individual users to create their own Fedora-based derivatives by working together on bootable container technologies
+    quote_check: raw
+- id: e-azl-based-on-photon-fedora
+  from: azure-linux
+  to: photon-os
+  type: based-on
+  scope: SPEC files only, versions 1.0 to 3.0
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/microsoft/azurelinux/blob/2.0/README.md
+    title: CBL-Mariner README (2.0), Acknowledgments
+    publisher: Microsoft
+    date: read 2026-10-06
+    quote: The [Photon OS Project](https://vmware.github.io/photon/) for SPEC files originating from the Photon distribution.
+    quote_check: raw
+  note: Photon OS is outside this group. Add a stub node or drop the edge.
+  research_note: Built from source with Microsoft's own toolkit.
+- id: e-azl4-based-on-fedora
+  from: azure-linux
+  to: fedora
+  type: based-on
+  scope: Azure Linux 4.0 (and the 3.0 README since 2026-05-16)
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/microsoft/azurelinux/blob/4.0/README.md
+    title: Azure Linux README (4.0)
+    publisher: Microsoft
+    date: read 2026-10-06
+    quote: targeted *overlays* applied to [Fedora Linux](https://fedoraproject.org/), its upstream base.
+    quote_check: raw
+- id: e-acl-forked-from-flatcar
+  from: azure-container-linux
+  to: flatcar
+  type: forked-from
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/microsoft/azure-container-linux
+    title: microsoft/azure-container-linux repository metadata
+    publisher: GitHub
+    date: created 2026-05-21
+    quote: 'parent: flatcar/scripts (gh api repos/microsoft/azure-container-linux .parent.full_name)'
+    quote_check: raw (API field)
+  - url: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+    title: Azure Container Linux (ACL) for AKS overview
+    publisher: Microsoft Learn
+    date: ms.date 2026-04-28, updated 2026-09-12
+    quote: ACL is derived from the Flatcar Container Linux project
+    quote_check: summary
+  note: Microsoft's words are "derived from" and "derivative", not "fork". The GitHub fork relation is the mechanical evidence. The ACL architecture doc says ACL "currently tracks **Flatcar Linux stable** as its upstream base" and pushes changes upstream.
+- id: e-acl-based-on-azl
+  from: azure-container-linux
+  to: azure-linux
+  type: based-on
+  scope: Azure Linux 3.0 RPM packages
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/README.md
+    title: microsoft/azure-container-linux README
+    publisher: Microsoft
+    date: aclmain, read 2026-10-06
+    quote: it is built from Azure Linux packages and follows Azure Linux lifecycle and CVE servicing commitments, while inheriting core design principles and image composition SDK from the Flatcar Container Linux project.
+    quote_check: raw
+- id: e-flatcar-on-aks-succeeded-by-acl
+  from: flatcar
+  to: azure-container-linux
+  type: succeeded-by
+  scope: only the AKS preview offering "Flatcar Container Linux for AKS"; Flatcar itself continues
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/Azure/AKS/issues/5648
+    title: '[Retirement] Flatcar Container Linux for AKS (preview) retires June 8, 2026. Removal on Sept 8, 2026.'
+    publisher: Microsoft (Azure/AKS)
+    date: '2026-03-10'
+    quote: Flatcar Container Linux for AKS (preview) will be replaced by a new option, Azure Container Linux (ACL).
+    quote_check: raw
+  note: The preview was announced in the AKS release of 2026-01-04 and creation was blocked from the 2026-07-17 release. Node images were removed per the 2026-09-25 release. Do not draw this as Flatcar ending.
+  chart: false
+- id: e-os-guard-succeeded-by-acl
+  from: azure-linux-os-guard
+  to: azure-container-linux
+  type: succeeded-by
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/Azure/AKS/issues/5950
+    title: '[Retirement] Azure Linux with OS Guard (Public Preview) retires on December 10, 2026. Removal on March 10, 2027'
+    publisher: Microsoft (Azure/AKS)
+    date: '2026-09-08'
+    quote: Azure Linux with OS Guard (preview) will be replaced by [Azure Container Linux]
+    quote_check: raw
+- id: e-os-guard-variant-of-azl
+  from: azure-linux-os-guard
+  to: azure-linux
+  type: based-on
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/Azure/AKS/releases/tag/2026-01-04
+    title: AKS release notes 2026-01-04
+    publisher: Microsoft (Azure/AKS)
+    date: '2026-01-04'
+    quote: a hardened and immutable variant of Azure Linux, is now in public preview.
+    quote_check: raw
+- id: e-bottlerocket-based-on-amazon-linux-2023
+  from: bottlerocket
+  to: amazon-linux-2023
+  type: based-on
+  scope: kernel and GRUB source RPMs only; not the userland or the image
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/bottlerocket-os/bottlerocket-kernel-kit/blob/develop/packages/grub/Cargo.toml
+    title: bottlerocket-kernel-kit grub source
+    publisher: bottlerocket-os/bottlerocket-kernel-kit (GitHub), cloned 2026-10-06
+    date: '2026-10-06'
+    quote: url = "https://cdn.amazonlinux.com/al2023/blobstore/e17d7dca3d451a111a1ed9a8b24d6be5c7bb71b2726271508067c8d33d42ab5c/grub2-2.06-61.amzn2023.0.18.src.rpm"
+- id: e-bottlerocket-influenced-by-chromium-os
+  from: bottlerocket
+  to: chromium-os
+  type: influenced-by
+  scope: the boot-partition selection scheme only (Chrome OS-style GPT priority attribute bits)
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/2d7f4ea397a706cb7bea705d35437e96db2bebc0/sources/updater/signpost/README.md
+    title: signpost README
+    publisher: bottlerocket-os/bottlerocket-core-kit (GitHub), develop at 2d7f4ea (2026-10-02)
+    date: '2026-10-02'
+    quote: The Bottlerocket boot partition uses the same GPT partition attribute flags as Chrome OS, which are used by GRUB to select the partition from which to read a grub.cfg
+  research_note: Not a statement of general design lineage.
+- id: e-cos-forked-from-chromium-os
+  from: cos
+  to: chromium-os
+  type: forked-from
+  evidence: DOCUMENTED
+  sources:
+  - url: https://docs.cloud.google.com/container-optimized-os/docs/resources/sources
+    title: Container-Optimized OS sources
+    publisher: Google Cloud docs
+    date: retrieved 2026-10-06
+    quote: Container-Optimized OS from Google is a fork of the Chromium OS open-source project.
+- id: e-chromium-os-based-on-gentoo
+  from: chromium-os
+  to: gentoo
+  type: based-on
+  scope: build system and package management (Portage), not a Gentoo release
+  evidence: DOCUMENTED
+  sources:
+  - url: https://www.chromium.org/chromium-os/developer-library/guides/portage/ebuild-faq/
+    title: Portage / ebuild FAQ
+    publisher: The Chromium Projects
+    date: retrieved 2026-10-06
+    quote: 'Portage, from the Gentoo Linux distribution, consists of two main components: the tree of ebuild overlays and emerge.'
+- id: e-container-vm-debian-based-on-debian
+  from: container-vm-debian
+  to: debian
+  type: based-on
+  evidence: INFERRED
+  sources:
+  - url: https://siliconangle.com/?p=279904
+    title: Google says most of its containers now run on Chromium-based Container-VM
+    publisher: SiliconANGLE (news, used for dating only)
+    date: '2016-05-16'
+    quote: A Debian-based version of Container-VM, which is described as a 'container-optimized OS', has been around for sometime
+  note: 'From SiliconANGLE news only (2016-05-16): ''A Debian-based version of Container-VM''. No primary source.'
+  source_ref: 'Source taken from the node''s sources: the edge note names SiliconANGLE 2016-05-16 only.'
+- id: e-eve-os-based-on-alpine
+  from: eve-os
+  to: alpine
+  type: based-on
+  scope: userland environment in the root filesystem
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+    title: lf-edge/eve docs/README.md
+    publisher: lf-edge/eve (GitHub)
+    date: retrieved 2026-10-06
+    quote: Minimalistic Alpine Linux-derived UNIX environment
+- id: e-eve-os-based-on-linuxkit
+  from: eve-os
+  to: linuxkit
+  type: based-on
+  scope: build toolkit and init system
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+    title: lf-edge/eve docs/README.md
+    publisher: lf-edge/eve (GitHub)
+    date: retrieved 2026-10-06
+    quote: Their lifecycle is currently managed by linuxkit init system
+- id: e-eve-os-influenced-by-coreos-container-linux
+  from: eve-os
+  to: coreos-container-linux
+  type: influenced-by
+  scope: general design, plus partition layout and CoreOS's GRUB patches for A/B rootfs upgrade
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+    title: lf-edge/eve docs/README.md
+    publisher: lf-edge/eve (GitHub)
+    date: retrieved 2026-10-06
+    quote: it is heavily inspired by ideas from Qubes OS, ChromeOS, Core OS and Smart OS.
+  - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+    title: lf-edge/eve docs/README.md, partitioning
+    publisher: lf-edge/eve (GitHub)
+    date: retrieved 2026-10-06
+    quote: we're using their patches for the GRUB bootloader to provide rootfs upgrade functionality between IMGA and IMGB root filesystems
+- id: e-eve-os-influenced-by-chromium-os
+  from: eve-os
+  to: chromium-os
+  type: influenced-by
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+    title: lf-edge/eve docs/README.md
+    publisher: lf-edge/eve (GitHub)
+    date: retrieved 2026-10-06
+    quote: it is heavily inspired by ideas from Qubes OS, ChromeOS, Core OS and Smart OS.
+    note: The link text says ChromeOS and the link target is the Chromium OS design docs.
+- id: e-eve-os-influenced-by-qubes-os
+  from: eve-os
+  to: qubes-os
+  type: influenced-by
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+    title: lf-edge/eve docs/README.md
+    publisher: lf-edge/eve (GitHub)
+    date: retrieved 2026-10-06
+    quote: it is heavily inspired by ideas from Qubes OS, ChromeOS, Core OS and Smart OS.
+- id: e-eve-os-influenced-by-smartos
+  from: eve-os
+  to: smartos
+  type: influenced-by
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+    title: lf-edge/eve docs/README.md
+    publisher: lf-edge/eve (GitHub)
+    date: retrieved 2026-10-06
+    quote: it is heavily inspired by ideas from Qubes OS, ChromeOS, Core OS and Smart OS.
+- id: e-ubuntu-core-based-on-ubuntu
+  from: ubuntu-core
+  to: ubuntu
+  type: based-on
+  detail: 'Each Core release tracks one Ubuntu LTS: 16.04, 18.04, 20.04, 22.04, 24.04, 26.04'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://documentation.ubuntu.com/core/reference/release-notes/
+    title: Ubuntu Core release notes
+    publisher: Canonical
+    date: retrieved 2026-10-06
+    quote: A new version of Ubuntu Core is released every two years, built on the foundations of a Ubuntu LTS release.
+  - url: https://ubuntu.com/docs/snapcraft/stable/reference/bases/
+    title: 'Snapcraft reference: bases'
+    publisher: Canonical
+    date: retrieved 2026-10-06
+    quote: core | Ubuntu 16.04 ESM
+- id: e-ubuntu-core-influenced-by-ubuntu-touch-canonical
+  from: ubuntu-core
+  to: ubuntu-touch-canonical
+  type: influenced-by
+  scope: update and confinement technology (snappy) came from the phone work
+  evidence: DOCUMENTED
+  sources:
+  - url: https://ubuntu.com/blog/a-new-transactionally-updated-snappy-ubuntu-core
+    title: A new, transactionally updated "snappy" Ubuntu Core
+    publisher: Canonical
+    date: '2014-12-09'
+    quote: The genesis of Ubuntu Core is our mission to perfect system and application updates on phones
+- id: e-c3os-renamed-to-kairos
+  from: c3os
+  to: kairos
+  type: renamed-to
+  date: '2022-09-15'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/kairos-io/kairos/commit/d6565876
+    title: ':art: Rebranding (#130)'
+    publisher: kairos-io/kairos
+    date: '2022-09-17'
+    quote: 'Sep 15 2022: Project is undergoing to a name rebranding from C3OS to Kairos.'
+    quote_check: raw
+  - url: https://github.com/kairos-io/kairos/issues/88
+    title: Rebranding to Kairos
+    publisher: kairos-io
+    date: opened 2022-08-24, closed 2022-09-29
+    quote: Add project status section in README, mentioning that c3os is being renamed
+- id: e-c3os-based-on-cos-toolkit
+  from: c3os
+  to: cos-toolkit
+  type: based-on
+  date: '2021-07-30'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/kairos-io/kairos/blob/12518a6a95c4090152aad3d595e077b3722b5204/README.md
+    title: README at first commit
+    publisher: kairos-io/kairos
+    date: '2021-07-30'
+    quote: A dead simple [cOS](https://github.com/rancher-sandbox/cOS-toolkit) derivative with k3s.
+  note: Built as a derivative of the cOS toolkit (a build framework), on openSUSE Leap packages.
+- id: e-c3os-based-on-elemental-toolkit
+  from: c3os
+  to: elemental-toolkit
+  type: based-on
+  date: '2022-09-09'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/kairos-io/kairos/commit/c14f8539
+    title: README Alternatives section
+    publisher: kairos-io/kairos
+    date: '2022-09-09'
+    quote: '[elemental-toolkit](https://rancher.github.io/elemental-toolkit/docs/) as a fundament to build the Linux derivative. Indeed, any `Elemental` docs applies to `c3os` as well.'
+- id: e-c3os-based-on-opensuse-leap
+  from: c3os
+  to: opensuse-leap
+  type: based-on
+  date: '2021-07-30'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/kairos-io/kairos/blob/12518a6a95c4090152aad3d595e077b3722b5204/Dockerfile
+    title: Dockerfile at first commit
+    publisher: kairos-io/kairos
+    date: '2021-07-30'
+    quote: FROM opensuse/leap:15.3
+  note: opensuse-leap is not a node in this group; target id left for the merge step.
+- id: e-c3os-influenced-by-k3os
+  from: c3os
+  to: k3os
+  type: influenced-by
+  date: '2022-09-09'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/kairos-io/kairos/commit/c14f8539
+    title: README Alternatives section
+    publisher: kairos-io/kairos
+    date: '2022-09-09'
+    quote: There are other projects that are similar to c3os which are great and worth to mention, and actually c3os took to some degree inspiration from. However, c3os have different goals and takes completely unique approaches ... - [k3os](https://github.com/rancher/k3os) - [Talos](https://github.com/siderolabs/talos) - [FlatCar](https://flatcar-linux.org/) - [CoreOS](https://getfedora.org/it/coreos?stream=stable)
+    quote_check: raw
+  note: 'Same README names Talos and Flatcar too. It is inspiration, not code: the rename discussion calls c3OS ''a completely different project''.'
+- id: e-c3os-influenced-by-talos
+  from: c3os
+  to: talos
+  type: influenced-by
+  date: '2022-09-09'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/kairos-io/kairos/commit/c14f8539
+    title: README Alternatives section
+    publisher: kairos-io/kairos
+    date: '2022-09-09'
+    quote: actually c3os took to some degree inspiration from ... - [Talos](https://github.com/siderolabs/talos)
+- id: e-c3os-influenced-by-flatcar
+  from: c3os
+  to: flatcar
+  type: influenced-by
+  date: '2022-09-09'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/kairos-io/kairos/commit/c14f8539
+    title: README Alternatives section
+    publisher: kairos-io/kairos
+    date: '2022-09-09'
+    quote: actually c3os took to some degree inspiration from ... - [FlatCar](https://flatcar-linux.org/)
+  note: flatcar belongs to another group.
+- id: e-c3os-influenced-by-fedora-coreos
+  from: c3os
+  to: fedora-coreos
+  type: influenced-by
+  date: '2022-09-09'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/kairos-io/kairos/commit/c14f85399dfdb2cab19fe2bbc29499f7a46c12cd
+    title: README Alternatives section
+    publisher: kairos-io/kairos
+    date: '2022-09-09'
+    quote: actually c3os took to some degree inspiration from. ... - [CoreOS](https://getfedora.org/it/coreos?stream=stable)
+    quote_check: raw
+  note: The link text says CoreOS. The link target is Fedora CoreOS.
+- id: e-kairos-forked-from-elemental-toolkit
+  from: kairos
+  to: elemental-toolkit
+  type: forked-from
+  date: 2022-09-22 (fork repo created) to 2023-05-25 (elemental fully dropped)
+  scope: component-level fork of elemental-cli only; not a fork of the OS
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/kairos-io/kairos/commit/a9dd91389b4b69f17fce59dc91f705e5d08ce926
+    title: replace elemental-cli to our fork (#88)
+    publisher: kairos-io/kairos (git)
+    date: '2023-03-09'
+    quote: replace elemental-cli to our fork (#88)
+    quote_check: raw
+  - url: https://github.com/kairos-io/kairos/commit/22d7a418b598db7535049a0df932e9f77988018e
+    title: Fully drop elemental from kairos (#1441)
+    publisher: kairos-io/kairos (git)
+    date: '2023-05-25'
+    quote: Fully drop elemental from kairos (#1441)
+  note: 'kairos-io/elemental-cli go.mod: module github.com/rancher/elemental-cli. Forked from rancher/elemental-cli, which later merged into elemental-toolkit. Also kairos-agent 002b8ba5 ''Bring elemental-cli code into the agent (#13)'', 2023-05-05.'
+- id: e-kairos-based-on-hadron
+  from: kairos
+  to: hadron
+  type: based-on
+  date: '2026-02-27'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://kairos.io/blog/2026/02/25/kairos-v4-hadron-artifacts-and-distro-flexibility/
+    title: Hadron-Only Artifacts with Ongoing Distro Support
+    publisher: kairos.io blog
+    date: '2026-02-25'
+    quote: Starting with **Kairos v4**, the Kairos project will publish **Hadron-based artifacts only**.
+- id: e-cos-toolkit-renamed-to-elemental-toolkit
+  from: cos-toolkit
+  to: elemental-toolkit
+  type: renamed-to
+  date: '2022-06-01'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/rancher/elemental-toolkit/commit/b13694f7c4db8c42a808976826bd96ce6ec837eb
+    title: Change to new branding (#1466)
+    publisher: rancher/elemental-toolkit
+    date: '2022-06-01'
+    quote: cos-toolkit -> elemental-toolkit
+- id: e-rancheros-v2-based-on-cos-toolkit
+  from: rancheros-v2
+  to: cos-toolkit
+  type: based-on
+  date: '2021'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/rancher/os2/blob/master/README.md
+    title: RancherOS v2 README
+    publisher: rancher/os2
+    date: '2022-01-19'
+    quote: It is built using the [cOS-toolkit](https://rancher-sandbox.github.io/cos-toolkit-docs/docs/) and based on openSUSE.
+- id: e-rancheros-v2-renamed-to-elemental
+  from: rancheros-v2
+  to: elemental
+  type: renamed-to
+  date: 2022-01-19 (new repo) / 2022-11-11 (old site redirected)
+  evidence: INFERRED
+  inferred_from: rancher/elemental (created 2022-01-19) carries rancher/os2's root commit 2b90d55b; os2's site was redirected to Elemental on 2022-11-11 and the repo archived. No statement that says 'renamed' was found; forked-from is the safer type if the graph needs strictness.
+  sources:
+  - url: https://github.com/rancher/os2/commit/b954e990
+    title: announce Elemental in header
+    publisher: rancher/os2
+    date: '2022-11-11'
+    quote: 'site_name: +++ this site is archived, please see https://rancher.github.io/elemental +++'
+- id: e-elemental-based-on-elemental-toolkit
+  from: elemental
+  to: elemental-toolkit
+  type: based-on
+  date: '2022'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/rancher/elemental/blob/main/README.md
+    title: Elemental README
+    publisher: rancher/elemental
+    date: 2026-10-06 (read)
+    quote: Cluster Node OSes are built and maintained via container images through the [Elemental Toolkit]
+- id: e-elemental-based-on-sle-micro
+  from: elemental
+  to: sle-micro
+  type: based-on
+  date: unknown start
+  evidence: DOCUMENTED
+  sources:
+  - url: https://documentation.suse.com/smart/rancher/html/Rancher-OS/index.html
+    title: Rancher Guide (Elemental)
+    publisher: SUSE
+    date: '2026-10-01'
+    quote: A special build of SLE Micro to be used for Kubernetes nodes managed by Rancher.
+- id: e-k3os-succeeded-by-elemental
+  from: k3os
+  to: elemental
+  type: succeeded-by
+  date: '2023-12-08'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/rancher/k3os/commit/8cdfdf26
+    title: update readme to include deprecation notice
+    publisher: rancher/k3os
+    date: '2023-12-08'
+    quote: k3os is no longer maintained and has been superceeded by [Elemental]
+- id: e-k3os-based-on-alpine
+  from: k3os
+  to: alpine
+  type: based-on
+  date: '2019'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/rancher/k3os/blob/master/README.md
+    title: k3OS README
+    publisher: rancher/k3os
+    date: '2023-12-08'
+    quote: Most of the user-space binaries comes from Alpine and are repackaged for k3OS. Currently the kernel source is coming from Ubuntu 20.04 LTS.
+  note: alpine is not a node in this group. Kernel from Ubuntu 20.04.
+- id: e-k3os-influenced-by-linuxkit
+  from: k3os
+  to: linuxkit
+  type: influenced-by
+  date: '2019'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/rancher/k3os/blob/master/README.md
+    title: k3OS README
+    publisher: rancher/k3os
+    date: '2023-12-08'
+    quote: Some code and a lot of inspiration came from [LinuxKit](https://github.com/linuxkit/linuxkit)
+  note: linuxkit is not a node in this group.
+- id: e-suse-caasp-based-on-suse-microos
+  from: suse-caasp
+  to: suse-microos
+  type: based-on
+  date: '2017-06-20'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://suse.com/news/suse-caas-container-as-a-service-platform-makes-applications-easy-to-run-customers-more-agile
+    title: SUSE CaaS Platform press release
+    publisher: SUSE
+    date: '2017-06-20'
+    quote: a purpose-built operating system (SUSE MicroOS) for microservices and containers
+- id: e-opensuse-kubic-based-on-microos
+  from: opensuse-kubic
+  to: microos
+  type: based-on
+  date: 2018-03
+  evidence: DOCUMENTED
+  sources:
+  - url: https://kubic.opensuse.org/blog/2018-03-22-introduction/
+    title: Introduction to Kubic
+    publisher: openSUSE Kubic blog
+    date: '2018-03-22'
+    quote: MicroOS is the base system for Tumbleweed Kubic
+- id: e-microos-based-on-opensuse-tumbleweed
+  from: microos
+  to: opensuse-tumbleweed
+  type: based-on
+  date: '2018'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://kubic.opensuse.org/blog/2018-03-22-introduction/
+    title: Introduction to Kubic
+    publisher: openSUSE Kubic blog
+    date: '2018-03-22'
+    quote: MicroOS is an openSUSE Tumbleweed derivative
+- id: e-opensuse-kubic-succeeded-by-microos
+  from: opensuse-kubic
+  to: microos
+  type: succeeded-by
+  date: '2022-06-10'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://kubic.opensuse.org/blog/2022-06-10-kubic-retired/
+    title: Kubic Project Wound Down
+    publisher: openSUSE Kubic blog
+    date: '2022-06-10'
+    quote: install openSUSE MicroOS and then install k3s
+- id: e-opensuse-leap-micro-based-on-sle-micro
+  from: opensuse-leap-micro
+  to: sle-micro
+  type: based-on
+  date: unknown
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/cloudnativeos-org/pulse/blob/main/data/projects/microos.yaml
+    title: microos.yaml, quoting the openSUSE roadmap
+    publisher: openSUSE
+    date: '2026-09-22'
+    quote: a re-brand of SLE Micro RPMs with minor configuration tweaks
+- id: e-dianemo-renamed-to-talos
+  from: dianemo
+  to: talos
+  type: renamed-to
+  date: '2018-11-15'
+  evidence: DOCUMENTED
+  sources:
+  - url: https://github.com/siderolabs/talos/commit/ca9719cd
+    title: 'refactor: rename project to Talos (#211)'
+    publisher: siderolabs/talos
+    date: '2018-11-15'
+    quote: 'refactor: rename project to Talos (#211)'
+negative_checks:
+- claim: Bottlerocket cites CoreOS Container Linux as an influence
+  result: No source found
+  searched: AWS 2020-03-10 What's New post and Jeff Barr's AWS News Blog launch post (2020-03-10); AWS Open Source blog 'How the Bottlerocket build system works' (2021-01-25); grep for coreos|container linux|chromium|chrome os in bottlerocket (b2e2bee), bottlerocket-core-kit (2d7f4ea) and bottlerocket-sdk (2d5121f). Only hits were Go module paths (github.com/coreos/go-systemd) and the signpost Chrome OS partition note.
+- claim: COS cites CoreOS Container Linux as an influence
+  result: No source found
+  searched: 2016 Container-VM Image blog, 2017 GA blog, COS sources page, COS features page.
+- claim: Ubuntu Core cites CoreOS as an influence
+  result: No source found
+  searched: 2014-12-09 Canonical snappy announcement.

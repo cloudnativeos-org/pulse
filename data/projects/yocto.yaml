@@ -1,0 +1,1470 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: yocto
+name: Yocto Project
+homepage: https://www.yoctoproject.org/
+repository: https://git.yoctoproject.org/
+collected_at: "2026-10-12"
+
+# `build-system` is an entry kind in schema/profile.schema.json and schema/vocabularies.md
+# section 4 (added 2026-10-12).
+entry_kind:
+  - build-system
+
+category_fit:
+  comparable: adjacent
+  note: >-
+    The Yocto Project builds a custom Linux distribution from source recipes, with
+    no base distribution. A read-only root filesystem is an image feature in its
+    own documentation; whole-image updates with rollback and Kubernetes come from
+    separate layers such as meta-rauc, meta-swupdate, meta-mender, meta-updater and
+    meta-virtualization.
+
+    The entry is in this survey because the contrast is informative, not because
+    it is a peer of a Kubernetes node operating system. The project releases a
+    build system and metadata, and the adopter builds the operating system image.
+    Most of what R1 to R4 describe is reachable by selecting layers at build time,
+    so each dimension below names the layer that supplies a capability and
+    separates it from the Yocto Project itself.
+
+    Where a capability comes from a layer, the profile records the layer, its
+    licence and its branch for the observed release. Third-party layers are not
+    part of the Yocto Project and carry their own maintainers and release
+    schedules.
+
+self_description:
+  text: >-
+    The Yocto Project is an open source collaboration project that helps
+    developers create custom Linux-based systems that are designed for embedded
+    products regardless of the product’s hardware architecture.
+  source:
+    url: https://docs.yoctoproject.org/overview-manual/yp-intro.html
+    type: official-docs
+    title: Overview and Concepts Manual, Introducing the Yocto Project
+    retrieved: "2026-10-12"
+    quote: >-
+      helps developers create custom Linux-based systems that are designed for
+      embedded products
+
+version_observed:
+  version: "6.0.3 (Wrynose)"
+  released: "2026-08"
+  channel: "LTS, supported until April 2030"
+  method: >-
+    The newest series marked LTS on the project's releases page, and the latest
+    point release listed for it. Cross-checked against the 6.0.3 entry in the
+    documentation's release notes index and against the downloads directory
+    listing, which shows a 6.0.3 directory. The releases page gives the month
+    only, so the released field holds the month. The downloads directory shows a
+    modification time of 2026-09-03 for that directory; a directory time is not a
+    release date and is not used.
+  source:
+    url: https://www.yoctoproject.org/development/releases/
+    type: foundation-page
+    title: Yocto Project releases
+    retrieved: "2026-10-12"
+    quote: >-
+      Wrynose 6.0 April 2026 6.0.3 / August 2026 LTS until Apr. 2030
+  additional_channels:
+    - channel: "previous LTS, maintained (Scarthgap 5.0)"
+      version: "5.0.20"
+      released: "2026-08"
+      eol: "2028-04"
+    - channel: "next series, in development (Blacksail 6.1)"
+      version: "6.1"
+      released: null
+      eol: null
+
+taxonomy:
+  workload_scope: general-purpose-host
+  construction_model:
+    - framework
+  root_state_substrate:
+    - ab-partition-image
+    - ostree-deployment
+    - package-repository
+  notes: >-
+    The values describe what an adopter can build, not what the project ships.
+    The project ships no operating system image to run as a product. Its own
+    words about its reference distribution are "you cannot use it as a product".
+    The workload scope is whatever the adopter puts in the image, so
+    general-purpose-host is the closest closed value and is not a project claim.
+    The vocabulary has no value for "set by the adopter at build time". Notes.md
+    asks whether one should be added.
+
+    The root state substrate values each come from a separate layer or feature,
+    and none is the default. ab-partition-image is documented by the RAUC, Mender
+    and SWUpdate projects, which each have a Yocto layer. ostree-deployment is
+    documented by the meta-updater layer. package-repository is the
+    package-management image feature in OpenEmbedded-Core. A build that uses none
+    of them produces an image with no update mechanism in the project's own
+    documentation.
+
+    framework carries the cost the vocabulary names: the adopter owns building,
+    testing, signing, CVE response and support for the resulting image. The
+    project's documentation says so for the reference distribution and for
+    vulnerabilities in OpenEmbedded-Core.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: general-purpose-host
+      entry_kind: build-system
+      released_os_image: "the reference distribution Poky is documented as not usable as a product"
+      core_metadata: "OpenEmbedded-Core, documented as distro-less"
+      ships_kubernetes: "not in OpenEmbedded-Core; provided by the meta-virtualization layer"
+      packages_kubernetes: "yes, from the meta-virtualization layer"
+      init_system_options:
+        - sysvinit
+        - busybox-init
+        - systemd
+      init_system_default_in_poky: sysvinit
+      package_formats:
+        - rpm
+        - deb
+        - ipk
+    summary: >-
+      A build system and a body of metadata, not a released operating system. The
+      adopter selects source recipes, layers, an init system and image features,
+      and the build produces the image.
+    notes: >-
+      The project's reference distribution, Poky, is documented as a complete
+      distribution specification that is tested and put through QA, and also as
+      not usable as a product out of the box. OpenEmbedded-Core, the shared
+      metadata layer, describes itself as distro-less: it can build a functional
+      image with DISTRO set to nodistro and contains only emulated machine
+      support. Hardware support comes from board support package layers.
+
+      The init system is a build choice. Poky defaults to SysVinit. BusyBox init
+      and systemd are also supported.
+
+      Kubernetes is not in OpenEmbedded-Core. A search of the OpenEmbedded-Core
+      wrynose tree for recipe names containing k3s, kube, containerd, runc,
+      cloud-init, rauc, swupdate, mender or ostree returned no match. Kubernetes
+      comes from the meta-virtualization layer, see d07.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.yoctoproject.org/overview-manual/yp-intro.html
+        type: official-docs
+        title: Introducing the Yocto Project, reference distribution
+        retrieved: "2026-10-12"
+        quote: >-
+          you cannot use it as a product
+      - url: https://docs.yoctoproject.org/overview-manual/yp-intro.html
+        type: official-docs
+        title: Introducing the Yocto Project, features
+        retrieved: "2026-10-12"
+        quote: >-
+          Unlike a full Linux distribution, you can use the Yocto Project to
+          create exactly what you need for embedded devices.
+      - url: https://docs.yoctoproject.org/overview-manual/yp-intro.html
+        type: official-docs
+        title: Introducing the Yocto Project, build workflow
+        retrieved: "2026-10-12"
+        quote: >-
+          The build system fetches and downloads the source code from the
+          specified location.
+      - url: https://git.openembedded.org/openembedded-core/plain/README.OE-Core.md?h=wrynose
+        type: source-repo
+        title: OpenEmbedded-Core README, wrynose branch
+        retrieved: "2026-10-12"
+        quote: >-
+          It is distro-less (can build a functional image with DISTRO =
+          "nodistro") and contains only emulated machine support.
+      - url: https://docs.yoctoproject.org/dev-manual/init-manager.html
+        type: official-docs
+        title: Selecting an Initialization Manager
+        retrieved: "2026-10-12"
+        quote: >-
+          By default, the Poky distro uses SysVinit as the initialization manager.
+    unknowns:
+      - "Whether the project documents the absence of any Kubernetes or whole-image update capability in OpenEmbedded-Core. The recipe-name search above is a repository observation, not a documented statement."
+
+  d02_immutability:
+    normalized:
+      read_only:
+        - "/ , only when the adopter adds the read-only-rootfs image feature"
+      read_only_mechanism: "root filesystem image built for read-only use. The read-only-rootfs feature sets the root entry in /etc/fstab to ro and appends ro to the kernel command line"
+      ephemeral:
+        - "/var/volatile (tmpfs in the stock fstab)"
+        - "/run (tmpfs in the stock fstab)"
+      writable_and_persistent:
+        - "adopter-defined: for example a data partition used as the overlayfs upper layer, or a /etc overlay"
+      immutability_can_be_disabled: true
+      immutability_disable_where: "the read-only-rootfs image feature, which an image recipe or local configuration adds or leaves out"
+      configurable_paths:
+        value: "yes"
+        evidence: DOCUMENTED
+        how: >-
+          The adopter sets the writable paths at build time: the overlayfs class
+          takes a mount point per overlay and a list of writable directories, the
+          overlayfs-etc image feature puts /etc in an overlay, the volatile-binds
+          recipe takes a list of bind mounts, and the machine fstab sets the mount
+          points and options.
+        sources:
+          - url: https://docs.yoctoproject.org/ref-manual/classes.html
+            type: official-docs
+            title: Classes, overlayfs mount point
+            retrieved: "2026-10-12"
+            quote: >-
+              To use this class, set a mount point for a partition overlayfs is going
+              to use as upper layer in your machine configuration.
+          - url: https://docs.yoctoproject.org/ref-manual/features.html
+            type: official-docs
+            title: Features, overlayfs-etc
+            retrieved: "2026-10-12"
+            quote: >-
+              overlayfs-etc: Configures the /etc directory to be in overlayfs.
+          - url: https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/volatile-binds/volatile-binds.bb?h=wrynose
+            type: source-repo
+            title: volatile-binds recipe
+            retrieved: "2026-10-12"
+            quote: >-
+              Volatile bind mount setup and configuration for read-only-rootfs
+          - url: https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/base-files/base-files/fstab?h=wrynose
+            type: source-repo
+            title: Stock fstab
+            retrieved: "2026-10-12"
+            quote: >-
+              tmpfs /var/volatile tmpfs defaults
+      integrity_mechanism:
+        - read-only-mount
+      dm_verity: "opt-in, from the meta-security layer (dm-verity-img class), not in OpenEmbedded-Core"
+      survives_upgrade: "set by the update layer and the partition layout the adopter chooses, see d04"
+    summary: >-
+      Immutability is an image feature the adopter adds, not a default. With
+      read-only-rootfs the root filesystem is read-only, and the adopter decides
+      at build time which paths are writable, persistent or in memory.
+    notes: >-
+      The project's security manual says the feature is added to the image, and
+      warns that the system and applications must be configured to write
+      elsewhere or fail gracefully. The reference manual states there is no
+      default list for image features, so nothing turns the feature on unless an
+      image recipe or local configuration does.
+
+      Writable paths come from several separate mechanisms in OpenEmbedded-Core:
+      the overlayfs class for directories other than /etc, the overlayfs-etc
+      image feature for /etc, volatile bind mounts for /var data, and the
+      machine's fstab. The overlayfs class does not support /etc itself.
+      overlayfs-etc replaces /sbin/init with a generated script by default, and
+      the documentation says package management cannot then be used.
+
+      read-only-rootfs-delayed-postinsts exists for images whose root filesystem
+      is made writable for the first boot. The documentation says the feature
+      only disables the check for post-install scripts.
+
+      dm-verity is not in OpenEmbedded-Core. The dm-verity-img class is in the
+      meta-security layer. Its header says the root hash must be stored in a
+      trusted location or cryptographically signed and verified. A repository
+      search of the OpenEmbedded-Core wrynose tree found no verity class.
+
+      Stock Kubernetes layers do not enable the feature. The meta-virtualization
+      k3s README runs an ext4 image and reads /etc/rancher/k3s/k3s.yaml. A search
+      of the meta-virtualization wrynose tree found read-only-rootfs in one file,
+      a helper script for its vcontainer feature, and in no Kubernetes
+      documentation.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.yoctoproject.org/ref-manual/features.html
+        type: official-docs
+        title: Features, image features
+        retrieved: "2026-10-12"
+        quote: >-
+          read-only-rootfs: Creates an image whose root filesystem is read-only.
+      - url: https://docs.yoctoproject.org/ref-manual/features.html
+        type: official-docs
+        title: Features, default features
+        retrieved: "2026-10-12"
+        quote: >-
+          there is no IMAGE_FEATURES_DEFAULTS definition
+      - url: https://docs.yoctoproject.org/security-manual/read-only-rootfs.html
+        type: official-docs
+        title: Security Manual, Creating a Read-Only Root Filesystem
+        retrieved: "2026-10-12"
+        quote: >-
+          Supporting a read-only root filesystem requires that the system and
+          applications do not try to write to the root filesystem. You must
+          configure all parts of the target system to write elsewhere, or to
+          gracefully fail in the event of attempting to write to the root
+          filesystem.
+      - url: https://docs.yoctoproject.org/ref-manual/classes.html
+        type: official-docs
+        title: Classes, overlayfs
+        retrieved: "2026-10-12"
+        quote: >-
+          The overlayfs class provides a way to achieve that by means of overlayfs
+          and at the same time keeping the base root filesystem read-only.
+      - url: https://docs.yoctoproject.org/ref-manual/classes.html
+        type: official-docs
+        title: Classes, overlayfs mount point
+        retrieved: "2026-10-12"
+        quote: >-
+          To use this class, set a mount point for a partition overlayfs is going
+          to use as upper layer in your machine configuration.
+      - url: https://docs.yoctoproject.org/ref-manual/classes.html
+        type: official-docs
+        title: Classes, overlayfs and /etc
+        retrieved: "2026-10-12"
+        quote: >-
+          The class does not support the /etc directory itself, because systemd
+          depends on it.
+      - url: https://docs.yoctoproject.org/ref-manual/classes.html
+        type: official-docs
+        title: Classes, overlayfs-etc and package management
+        retrieved: "2026-10-12"
+        quote: >-
+          it poses a restriction that package-management can’t be used, because
+          updating the init manager would remove the generated script
+      - url: https://git.openembedded.org/openembedded-core/plain/meta/classes-recipe/rootfs-postcommands.bbclass?h=wrynose
+        type: source-repo
+        title: rootfs-postcommands.bbclass, kernel ro parameter
+        retrieved: "2026-10-12"
+        quote: >-
+          otherwise kernel or initramfs end up mounting the rootfs read/write
+      - url: https://git.openembedded.org/openembedded-core/plain/meta/classes-recipe/rootfs-postcommands.bbclass?h=wrynose
+        type: source-repo
+        title: rootfs-postcommands.bbclass, fstab ro option
+        retrieved: "2026-10-12"
+        quote: >-
+          Tweak the mount option and fs_passno for rootfs in fstab
+      - url: https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/base-files/base-files/fstab?h=wrynose
+        type: source-repo
+        title: Stock fstab, /run
+        retrieved: "2026-10-12"
+        quote: >-
+          tmpfs /run tmpfs mode=0755,nodev,nosuid,strictatime
+      - url: https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/volatile-binds/volatile-binds.bb?h=wrynose
+        type: source-repo
+        title: volatile-binds recipe
+        retrieved: "2026-10-12"
+        quote: >-
+          Volatile bind mount setup and configuration for read-only-rootfs
+      - url: https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/base-files/base-files/fstab?h=wrynose
+        type: source-repo
+        title: Stock fstab
+        retrieved: "2026-10-12"
+        quote: >-
+          tmpfs /var/volatile tmpfs defaults
+      - url: https://git.yoctoproject.org/meta-security/plain/classes/dm-verity-img.bbclass?h=wrynose
+        type: source-repo
+        title: dm-verity-img.bbclass, meta-security layer
+        retrieved: "2026-10-12"
+        quote: >-
+          This bbclass allows creating of dm-verity protected partition images.
+    unknowns:
+      - "Whether the project documents a runtime integrity check of the root filesystem in OpenEmbedded-Core. The dm-verity class is in a separate layer, and no verity class exists in the OpenEmbedded-Core wrynose tree."
+      - "Whether any documented configuration combines read-only-rootfs with a Kubernetes layer (k3s or kubernetes) and what writable paths it needs."
+
+  d03_artifact:
+    normalized:
+      primary_artifact: "adopter-built image, in formats the adopter selects (IMAGE_FSTYPES), including partitioned disk images from wic"
+      container_image_type: "an OCI-compliant container image of the build output, from the image-container class"
+      oci_registry_distribution: unknown
+      content_addressable: unknown
+      mirrorable: "source mirrors through the own-mirrors class"
+      signed: "not a core feature; set by the update layer (RAUC requires signed bundles)"
+      air_gapped_capable: unknown
+      reproducible_builds: "documented goal; builds are deterministic down to the binary level since 3.1"
+      sbom: "SPDX generated by default"
+    summary: >-
+      The artifact is whatever image the adopter's build configuration produces.
+      The project provides the image formats, a partitioned-image tool (wic) and
+      a container image type, and the update layers add their own bundle formats.
+    notes: >-
+      The wic tool generates partitioned images from build artifacts, driven by a
+      kickstart file. The image-container class produces an image for OCI
+      container tools, and its documentation says it does not install the tools on
+      the target: those come from the meta-virtualization layer. It describes a
+      container image of the build output. It does not describe the container
+      image as a bootable operating system artifact, so OCI registry distribution
+      of a bootable image is UNKNOWN here.
+
+      Update bundle formats come from layers: RAUC bundles (meta-rauc), SWU files
+      (meta-swupdate), Mender artifacts (meta-mender) and OSTree commits
+      (meta-updater).
+
+      Builds are documented as reproducible. The documentation says the goal has
+      been true down to the binary level since release 3.1, and also advises
+      adopters to check that their own project builds reproducibly.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.yoctoproject.org/dev-manual/wic.html
+        type: official-docs
+        title: Creating Partitioned Images Using Wic
+        retrieved: "2026-10-12"
+        quote: >-
+          wic command generates partitioned images from existing OpenEmbedded
+          build artifacts.
+      - url: https://docs.yoctoproject.org/ref-manual/classes.html
+        type: official-docs
+        title: Classes, image-container
+        retrieved: "2026-10-12"
+        quote: >-
+          Those tools are available in the meta-virtualization layer.
+      - url: https://docs.yoctoproject.org/ref-manual/classes.html
+        type: official-docs
+        title: Classes, own-mirrors
+        retrieved: "2026-10-12"
+        quote: >-
+          The own-mirrors class makes it easier to set up your own PREMIRRORS from
+          which to first fetch source before attempting to fetch it from the
+          upstream specified in SRC_URI within each recipe.
+      - url: https://docs.yoctoproject.org/test-manual/reproducible-builds.html
+        type: official-docs
+        title: Reproducible Builds
+        retrieved: "2026-10-12"
+        quote: >-
+          When you build a given input set of metadata, we expect you to get
+          consistent output.
+      - url: https://docs.yoctoproject.org/dev-manual/sbom.html
+        type: official-docs
+        title: Creating a Software Bill of Materials
+        retrieved: "2026-10-12"
+        quote: >-
+          The OpenEmbedded build system generates such information by default (by
+          inheriting the create-spdx class in INHERIT_DISTRO).
+    unknowns:
+      - "Whether a bootable Yocto image can be published to and pulled from an OCI registry by a documented path."
+      - "Whether the project documents an offline build for an air-gapped host, beyond source mirrors."
+      - "Whether image content is addressed by hash in a documented way. The hash equivalence server is a build cache feature and is not read as image addressing."
+
+  d04_upgrade:
+    normalized:
+      provided_by: "layers the adopter selects, plus the package-management image feature in OpenEmbedded-Core"
+      mechanism:
+        - ab-partition-switch
+        - ostree-deployment
+        - package-update
+      whole_image_updater_in_openembedded_core: unknown
+      layers:
+        - layer: meta-rauc
+          update_project: RAUC
+          layer_license: MIT
+          update_model: "image-based updater with redundant slots, signed bundles mandatory"
+          wrynose_branch: true
+          maintained_by_yocto_project: false
+        - layer: meta-swupdate
+          update_project: SWUpdate
+          layer_license: MIT
+          update_model: "single-copy (from an initrd) or double-copy approach, optional signing"
+          wrynose_branch: true
+          maintained_by_yocto_project: false
+        - layer: meta-mender
+          update_project: Mender
+          layer_license: Apache-2.0
+          update_model: "dual redundant (A/B) root filesystem, client with optional server"
+          wrynose_branch: true
+          maintained_by_yocto_project: false
+        - layer: meta-updater
+          update_project: "OSTree and aktualizr (Uptane client)"
+          layer_license: MIT
+          update_model: "OSTree atomic file system upgrades"
+          wrynose_branch: true
+          maintained_by_yocto_project: false
+      initiator: "the update client of the chosen layer"
+      artifact_verification: "set by the layer: RAUC requires signed bundles; the others are not recorded here"
+    summary: >-
+      OpenEmbedded-Core has no whole-image update mechanism in its documentation.
+      Whole-image updates come from separate layers (meta-rauc, meta-swupdate,
+      meta-mender, meta-updater), each a third-party project. The only in-core
+      path found is package-by-package update with the package-management image
+      feature.
+    notes: >-
+      Every update layer below is outside the Yocto Project. The project's
+      supported-features list names the layers it tests on its Autobuilder, and
+      none of these four appears in it. meta-virtualization does.
+
+      RAUC (meta-rauc, MIT): RAUC describes itself as an image-based updater that
+      installs file images on devices or partitions. Its documentation says a key
+      design decision is that signing a bundle is mandatory. meta-rauc has a
+      wrynose branch and its README lists it.
+
+      SWUpdate (meta-swupdate, MIT): the documentation calls SWUpdate mainly a
+      framework, generally used in a single-copy approach running in an initrd,
+      with a double-copy approach also possible. meta-swupdate has a wrynose
+      branch. Its master branch lists whinlatter, wrynose and blacksail as
+      compatible.
+
+      Mender (meta-mender, Apache-2.0): the client writes the new version to the
+      inactive partition and flips the partitions on the next boot. A server
+      component and a commercial layer exist, see d12. meta-mender has a wrynose
+      branch.
+
+      meta-updater (MIT): enables over-the-air updates with OSTree and aktualizr.
+      The README describes OSTree as a tool for atomic full file system upgrades
+      with rollback capability. meta-updater has a wrynose branch.
+
+      The layer compatibility lines on the default branches of meta-rauc and
+      meta-updater name only blacksail, the series in development. Both have a
+      separate wrynose branch whose layer.conf names wrynose. A reader who clones
+      the default branch of those two layers gets a layer that does not declare
+      wrynose compatibility.
+
+      In-core path: the package-management image feature installs package
+      management tools and preserves the package manager database. The project's
+      own package class documentation mentions on-device upgrades. This path
+      changes the running filesystem and cannot be combined with a read-only root
+      without further work, see d02.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://rauc.readthedocs.io/en/latest/basic.html
+        type: official-docs
+        title: RAUC basics
+        retrieved: "2026-10-12"
+        version: "1.15.1.532-1a41"
+        quote: >-
+          RAUC is basically an image-based updater, i.e. it installs file images
+          on devices or partitions.
+      - url: https://rauc.readthedocs.io/en/latest/basic.html
+        type: official-docs
+        title: RAUC basics, signing
+        retrieved: "2026-10-12"
+        version: "1.15.1.532-1a41"
+        quote: >-
+          A key design decision of RAUC is that signing a bundle is mandatory.
+      - url: https://raw.githubusercontent.com/rauc/meta-rauc/master/README.rst
+        type: source-repo
+        title: meta-rauc README
+        retrieved: "2026-10-12"
+        quote: >-
+          This layer integrates RAUC into Yocto builds for both **target usage
+          (update client)** and **host usage (bundle creation)**.
+      - url: https://raw.githubusercontent.com/rauc/meta-rauc/wrynose/conf/layer.conf
+        type: source-repo
+        title: meta-rauc layer.conf, wrynose branch
+        retrieved: "2026-10-12"
+        quote: >-
+          LAYERSERIES_COMPAT_rauc = "wrynose"
+      - url: https://raw.githubusercontent.com/rauc/meta-rauc/master/conf/layer.conf
+        type: source-repo
+        title: meta-rauc layer.conf, master branch
+        retrieved: "2026-10-12"
+        quote: >-
+          LAYERSERIES_COMPAT_rauc = "blacksail"
+      - url: https://raw.githubusercontent.com/rauc/meta-rauc/master/COPYING.MIT
+        type: governance-doc
+        title: meta-rauc licence file
+        retrieved: "2026-10-12"
+        quote: >-
+          Permission is hereby granted, free of charge, to any person obtaining a
+          copy of this software and associated documentation files
+      - url: https://sbabic.github.io/swupdate/swupdate.html
+        type: official-docs
+        title: SWUpdate overview
+        retrieved: "2026-10-12"
+        quote: >-
+          It is generally used in the single copy approach, running in an initrd
+          (recipes are provided to generate with Yocto). However, it is possible
+          to use it in a double-copy approach by use of Software collections.
+      - url: https://sbabic.github.io/swupdate/swupdate.html
+        type: official-docs
+        title: SWUpdate overview, framework
+        retrieved: "2026-10-12"
+        quote: >-
+          However, it should be mainly considered as a framework, where further
+          protocols or installers (in SWUpdate they are called handlers) can be
+          easily added to the application.
+      - url: https://raw.githubusercontent.com/sbabic/meta-swupdate/master/README
+        type: source-repo
+        title: meta-swupdate README
+        retrieved: "2026-10-12"
+        quote: >-
+          This layer's purpose is to add support for a deployment mechanism of
+          Yocto's images based on swupdate project.
+      - url: https://raw.githubusercontent.com/sbabic/meta-swupdate/master/conf/layer.conf
+        type: source-repo
+        title: meta-swupdate layer.conf
+        retrieved: "2026-10-12"
+        quote: >-
+          LAYERSERIES_COMPAT_swupdate = "whinlatter wrynose blacksail"
+      - url: https://raw.githubusercontent.com/sbabic/meta-swupdate/master/COPYING.MIT
+        type: governance-doc
+        title: meta-swupdate licence file
+        retrieved: "2026-10-12"
+        quote: >-
+          Permission is hereby granted, free of charge, to any person obtaining a
+          copy of this software and associated documentation files
+      - url: https://docs.mender.io/overview/introduction
+        type: vendor-docs
+        title: Mender introduction, robust operating system updates
+        retrieved: "2026-10-12"
+        quote: >-
+          Mender comes with built-in support for a dual redundant scheme (also
+          known as A/B scheme), ensuring that the device always returns to a
+          working state on failure.
+      - url: https://raw.githubusercontent.com/mendersoftware/meta-mender/master/README.md
+        type: source-repo
+        title: meta-mender README
+        retrieved: "2026-10-12"
+        quote: >-
+          This Yocto meta layer contains all the recipes needed to build the
+          Mender client into a Yocto image.
+      - url: https://raw.githubusercontent.com/mendersoftware/meta-mender/master/LICENSE
+        type: governance-doc
+        title: meta-mender licence file
+        retrieved: "2026-10-12"
+        quote: >-
+          All content in this project is licensed under the Apache License v2,
+          unless indicated otherwise.
+      - url: https://raw.githubusercontent.com/mendersoftware/meta-mender/wrynose/meta-mender-core/conf/layer.conf
+        type: source-repo
+        title: meta-mender core layer.conf, wrynose branch
+        retrieved: "2026-10-12"
+        quote: >-
+          LAYERSERIES_COMPAT_mender = "wrynose"
+      - url: https://raw.githubusercontent.com/uptane/meta-updater/master/README.adoc
+        type: source-repo
+        title: meta-updater README
+        retrieved: "2026-10-12"
+        quote: >-
+          is a tool for atomic full file system upgrades with rollback
+          capability.
+      - url: https://raw.githubusercontent.com/uptane/meta-updater/wrynose/conf/layer.conf
+        type: source-repo
+        title: meta-updater layer.conf, wrynose branch
+        retrieved: "2026-10-12"
+        quote: >-
+          LAYERSERIES_COMPAT_sota = "wrynose"
+      - url: https://raw.githubusercontent.com/uptane/meta-updater/master/conf/layer.conf
+        type: source-repo
+        title: meta-updater layer.conf, master branch
+        retrieved: "2026-10-12"
+        quote: >-
+          LAYERSERIES_COMPAT_sota = "blacksail"
+      - url: https://raw.githubusercontent.com/uptane/meta-updater/master/COPYING.MIT
+        type: governance-doc
+        title: meta-updater licence file
+        retrieved: "2026-10-12"
+        quote: >-
+          Permission is hereby granted, free of charge, to any person obtaining a
+          copy of this software and associated documentation files
+      - url: https://docs.yoctoproject.org/ref-manual/classes.html
+        type: official-docs
+        title: Classes, package, on-device upgrades
+        retrieved: "2026-10-12"
+        quote: >-
+          can affect your ability to perform on-device upgrades
+      - url: https://docs.yoctoproject.org/ref-manual/features.html
+        type: official-docs
+        title: Features, package-management
+        retrieved: "2026-10-12"
+        quote: >-
+          package-management: Installs package management tools and preserves the
+          package manager database.
+      - url: https://docs.yoctoproject.org/ref-manual/yocto-project-supported-features.html
+        type: official-docs
+        title: Supported architectures and features, secondary supported
+        retrieved: "2026-10-12"
+        quote: >-
+          meta-virtualization layer testing
+    unknowns:
+      - "Whether OpenEmbedded-Core documents or contains any whole-image updater. The manuals' search index has no entry for rauc, swupdate, mender, ostree or verity, and the OpenEmbedded-Core wrynose tree has no recipe named for them. Neither is a documented statement of absence."
+      - "Signature or verification behaviour of SWUpdate, Mender and meta-updater (Uptane), which this edition did not read in enough depth to record."
+      - "Mender's layer.conf sits under meta-mender-core, not at the repository root, unlike the other three layers."
+
+  d05_rollback_recovery:
+    normalized:
+      provided_by: "update layers, not OpenEmbedded-Core"
+      rollback_to_previous: "set by the update layer: A/B slot fallback documented for RAUC and Mender; OSTree rollback capability documented for meta-updater; SWUpdate not recorded"
+      automatic_rollback_on_boot_failure: "set by the layer and the bootloader. RAUC leaves the fallback to the bootloader and advises a hardware watchdog. Mender rolls back when the update is not committed"
+      retained_versions: "one previous version in an A/B layout, by design; RAUC also documents three redundant slots"
+      recovery_environment: unknown
+      factory_reset: unknown
+      network_independent_recovery: unknown
+    summary: >-
+      OpenEmbedded-Core documents no rollback mechanism. Rollback comes from the
+      update layer the adopter selects, and the bootloader the adopter configures
+      carries part of it.
+    notes: >-
+      RAUC states that the boot logic needs feedback from the booted system and
+      provides commands to mark a slot good or bad. It says detecting an invalid
+      boot is often not possible and that a system should use a hardware watchdog
+      with bootloader support to treat watchdog resets as failed boots. The
+      fallback choice is, in its words, up to the bootloader.
+
+      Mender commits the update on the first boot after an update. If the device
+      reboots before the commit, the bootloader flips the partitions back.
+
+      Mender also states a constraint on the filesystem: an OS update replaces
+      all files in a filesystem, so the filesystem has to be stateless and
+      modified files have to live in a separate partition.
+
+      Recovery environment, factory reset and network-independent recovery are
+      not documented at project level, because they depend on the partition
+      layout and bootloader the adopter builds.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://rauc.readthedocs.io/en/latest/basic.html
+        type: official-docs
+        title: RAUC basics, boot confirmation and fallback
+        retrieved: "2026-10-12"
+        version: "1.15.1.532-1a41"
+        quote: >-
+          your system should use a hardware watchdog during boot, and have
+          support in the bootloader to detect watchdog resets as failed boots.
+      - url: https://rauc.readthedocs.io/en/latest/basic.html
+        type: official-docs
+        title: RAUC basics, fallback is up to the bootloader
+        retrieved: "2026-10-12"
+        version: "1.15.1.532-1a41"
+        quote: >-
+          This handling is up to your bootloader.
+      - url: https://rauc.readthedocs.io/en/latest/basic.html
+        type: official-docs
+        title: RAUC basics, redundant slots
+        retrieved: "2026-10-12"
+        version: "1.15.1.532-1a41"
+        quote: >-
+          This allows to have setups with three redundant slots (A/B/C update)
+      - url: https://docs.mender.io/overview/introduction
+        type: vendor-docs
+        title: Mender introduction, rollback
+        retrieved: "2026-10-12"
+        quote: >-
+          the bootloader knows that something went wrong and will roll back to the
+          previous version by flipping the active and inactive partitions back
+          again.
+      - url: https://docs.mender.io/overview/introduction
+        type: vendor-docs
+        title: Mender introduction, stateless filesystem
+        retrieved: "2026-10-12"
+        quote: >-
+          to be updatable, a filesystem needs to be stateless.
+      - url: https://raw.githubusercontent.com/uptane/meta-updater/master/README.adoc
+        type: source-repo
+        title: meta-updater README, OSTree rollback
+        retrieved: "2026-10-12"
+        quote: >-
+          is a tool for atomic full file system upgrades with rollback
+          capability.
+    unknowns:
+      - "Whether SWUpdate documents rollback and boot-failure handling. The overview page read for this edition describes bootloader variable handling but states no rollback guarantee."
+      - "Whether OpenEmbedded-Core documents any rollback of its own."
+      - "Recovery environment, factory reset and network-independent recovery for any layer."
+
+  d06_customization:
+    normalized:
+      customization_points:
+        - build-time
+      mechanisms:
+        - layers
+        - recipes-and-bbappend-files
+        - image-features
+        - distro-configuration
+        - devtool
+        - board-support-package-layers
+        - wic-kickstart-partitioning
+      runtime_package_install: "optional, with the package-management image feature"
+      kernel_and_modules: "set by the board support package layer and kernel recipe the adopter selects"
+      adopter_owns: "building, testing, signing, CVE response and support for the resulting image"
+    summary: >-
+      Customisation is the product. The adopter composes layers, recipes, image
+      features and a distribution configuration, and the build produces a
+      purpose-built image. The adopter then owns the result.
+    notes: >-
+      The project's layer model separates BSP, GUI, distro configuration,
+      middleware and application layers, and layers can override earlier
+      instructions. The documentation advises using BSP layers from silicon
+      vendors when possible.
+
+      The project states the consequence of owning the build: for vulnerabilities
+      in OpenEmbedded-Core it is up to maintainers, users and contributors to
+      investigate and fix them. The overview says that commercial Linux vendors
+      could take an image the adopter cannot support and provide ongoing
+      support. A community mixin layer can add a feature or a newer package to an
+      LTS release.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.yoctoproject.org/overview-manual/yp-intro.html
+        type: official-docs
+        title: Layer model
+        retrieved: "2026-10-12"
+        quote: >-
+          Layers are repositories that contain related sets of instructions that
+          tell the OpenEmbedded Build System what to do.
+      - url: https://docs.yoctoproject.org/security-manual/vulnerabilities.html
+        type: official-docs
+        title: Security Manual, vulnerabilities
+        retrieved: "2026-10-12"
+        quote: >-
+          It is up to the maintainers, users, contributors and anyone interested
+          in the issues to investigate and possibly fix them by updating software
+          components to newer versions or by applying patches to address them.
+      - url: https://docs.yoctoproject.org/overview-manual/yp-intro.html
+        type: official-docs
+        title: Support from commercial vendors
+        retrieved: "2026-10-12"
+        quote: >-
+          could take it and provide ongoing support
+      - url: https://docs.yoctoproject.org/bsp-guide/bsp.html
+        type: official-docs
+        title: BSP guide
+        retrieved: "2026-10-12"
+        quote: >-
+          A BSP consists of a file structure inside a base directory.
+      - url: https://docs.yoctoproject.org/dev-manual/wic.html
+        type: official-docs
+        title: Wic
+        retrieved: "2026-10-12"
+        quote: >-
+          wic command generates partitioned images from existing OpenEmbedded
+          build artifacts.
+    unknowns:
+      - "Kernel configuration and out-of-tree module handling, which the Linux Kernel Development Manual covers and this edition did not read."
+
+  d07_kubernetes:
+    normalized:
+      requirement: optional
+      bundled: separately-installed
+      provided_by: "meta-virtualization layer, hosted at git.yoctoproject.org, tested by the project, not part of OpenEmbedded-Core"
+      independent_lifecycle: unknown
+      os_manages_kubernetes: unknown
+      kubernetes_manages_os: unknown
+      distributions:
+        - "k3s (recipe tracks release-1.35, version v1.35.2+k3s1)"
+        - "kubernetes with kubeadm (recipe version 1.35.5)"
+      container_runtimes:
+        - "containerd (recipe version 2.2.2)"
+        - "cri-o (recipe version 1.35.0, source branch release-1.36)"
+      reference_images:
+        - "container-image-host, with a k3s server profile (container-host-k3s) and a k3s agent profile (container-host-k3s-node)"
+        - "packagegroup-k8s-host and packagegroup-k8s-node"
+      documented_topologies:
+        - "single-node k3s on a QEMU x86-64 machine"
+        - "two-VM k3s cluster on QEMU socket networking"
+    summary: >-
+      Kubernetes is not in OpenEmbedded-Core and is not mentioned in the Yocto
+      manuals. The meta-virtualization layer provides recipes for k3s and for
+      Kubernetes with kubeadm, with containerd and cri-o runtimes, and a reference
+      image.
+    notes: >-
+      The manuals' search index at docs.yoctoproject.org has no entry for
+      kubernetes, k3s or containerd. The capability is documented only in the
+      layer's own READMEs. The layer is hosted on the project's git server, is in
+      the project's secondary supported list as "meta-virtualization layer
+      testing", and its README calls it the authoritative resource for
+      virtualization technologies in OpenEmbedded and Yocto built distributions.
+
+      The layer's Kubernetes README says it provides the recipes and packages
+      suitable for a k8s cluster instance, with package groups for a controller
+      and a worker. The k3s README gives a build recipe with a container-image-host
+      image, a single-node quick start and a two-VM multi-node example in which an
+      agent is selected with kernel command line parameters (k3s.role,
+      k3s.server, k3s.token). The documentation states a k3s server needs 2 GB of
+      memory.
+
+      The recipe versions above are those on the layer's wrynose branch at the
+      retrieval date. The cri-o recipe sets PV 1.35.0 and fetches the release-1.36
+      branch. This edition records both values and does not resolve the
+      difference.
+
+      Hardware examples are QEMU only. No documented Kubernetes deployment on
+      physical hardware was read for this edition.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/recipes-containers/kubernetes/README.md?h=wrynose
+        type: source-repo
+        title: meta-virtualization Kubernetes README, wrynose branch
+        retrieved: "2026-10-12"
+        quote: >-
+          meta-virtualization provides the recipes and packages suitable for a k8s
+          cluster instance.
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/recipes-containers/k3s/README.md?h=wrynose
+        type: source-repo
+        title: meta-virtualization k3s README, wrynose branch
+        retrieved: "2026-10-12"
+        quote: >-
+          After boot, k3s server starts automatically:
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/recipes-containers/k3s/README.md?h=wrynose
+        type: source-repo
+        title: k3s README, multi-node section
+        retrieved: "2026-10-12"
+        quote: >-
+          Multi-Node Cluster (QEMU Socket Networking)
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/recipes-containers/k3s/README.md?h=wrynose
+        type: source-repo
+        title: k3s README, role selection
+        retrieved: "2026-10-12"
+        quote: >-
+          The agent VM gets `k3s.role=agent` on the kernel cmdline
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/recipes-containers/k3s/README.md?h=wrynose
+        type: source-repo
+        title: k3s README, memory
+        retrieved: "2026-10-12"
+        quote: >-
+          K3s needs at least 2GB.
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/recipes-containers/k3s/k3s_git.bb?h=wrynose
+        type: source-repo
+        title: k3s recipe
+        retrieved: "2026-10-12"
+        quote: >-
+          PV = "v1.35.2+k3s1+git"
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/recipes-containers/kubernetes/kubernetes_git.bb?h=wrynose
+        type: source-repo
+        title: kubernetes recipe
+        retrieved: "2026-10-12"
+        quote: >-
+          PV = "1.35.5+git"
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/recipes-containers/containerd/containerd_git.bb?h=wrynose
+        type: source-repo
+        title: containerd recipe
+        retrieved: "2026-10-12"
+        quote: >-
+          CONTAINERD_VERSION = "2.2.2"
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/recipes-containers/cri-o/cri-o_git.bb?h=wrynose
+        type: source-repo
+        title: cri-o recipe
+        retrieved: "2026-10-12"
+        quote: >-
+          PV = "1.35.0+git"
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/conf/distro/include/container-host-k3s.conf?h=wrynose
+        type: source-repo
+        title: container-host-k3s profile
+        retrieved: "2026-10-12"
+        quote: >-
+          The k3s-host profile bundles the k3s server, embedded containerd, and
+          CNI plugins.
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/README.md?h=wrynose
+        type: source-repo
+        title: meta-virtualization README
+        retrieved: "2026-10-12"
+        quote: >-
+          The meta-virtualization layer is the authoritative resource for
+          virtualization technologies in OpenEmbedded / Yocto built
+          distributions.
+      - url: https://docs.yoctoproject.org/ref-manual/yocto-project-supported-features.html
+        type: official-docs
+        title: Supported architectures and features, secondary supported
+        retrieved: "2026-10-12"
+        quote: >-
+          meta-virtualization layer testing
+    unknowns:
+      - "Whether Kubernetes can be upgraded independently of the image, and whether the OS manages or is managed by Kubernetes. The layer READMEs describe a k3s systemd service and a role service, and state nothing on either question."
+      - "Which Kubernetes versions and distributions the project tests, beyond the layer's own test script mentions."
+      - "Whether any documented Kubernetes deployment runs on physical hardware."
+
+  d08_hardware_platform:
+    normalized:
+      architectures_primary_tested:
+        - arm
+        - arm64
+        - riscv64
+        - x86
+        - x86-64
+      architectures_secondary_tested:
+        - "powerpc (32-bit)"
+        - "riscv32"
+      architectures_untested:
+        - mips
+        - mips64
+        - "powerpc (32-bit, systemd)"
+        - "powerpc (64-bit)"
+      machines_in_openembedded_core: "emulated (QEMU) machines only"
+      hardware_support_mechanism: "board support package layers, usually from the silicon or board vendor"
+      platforms:
+        - bare-metal
+        - virtual-machines
+      tpm: "meta-security includes a meta-tpm sublayer; not assessed here"
+    summary: >-
+      OpenEmbedded-Core contains only emulated machines. Real hardware support
+      comes from board support package layers. The project tests ARM, ARM 64-bit,
+      RISC-V 64-bit and x86 daily on its Autobuilder.
+    notes: >-
+      "Primary" in the project's terms means dedicated builds run daily on the
+      Autobuilder and are tested with incoming changes. "Secondary" means no
+      testing of all incoming changes, with member organisations and maintainers
+      willing to run tests. "Untested" means the configuration exists but is not
+      tested regularly.
+
+      The primary list includes the meta-arm and meta-intel layers and a
+      Beaglebone image build, along with several other member layers. The
+      secondary list includes meta-virtualization, meta-openembedded and
+      meta-mingw.
+
+      Whether a given board works is a property of that board's BSP layer, not of
+      the Yocto Project.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.yoctoproject.org/ref-manual/yocto-project-supported-features.html
+        type: official-docs
+        title: Supported architectures and features, primary supported
+        retrieved: "2026-10-12"
+        quote: >-
+          dedicated builds for these architectures or features are being run on a
+          daily basis on the Yocto Project Autobuilder
+      - url: https://docs.yoctoproject.org/ref-manual/yocto-project-supported-features.html
+        type: official-docs
+        title: Supported architectures and features, untested
+        retrieved: "2026-10-12"
+        quote: >-
+          MIPS MIPS architecture testing No maintainers
+      - url: https://git.openembedded.org/openembedded-core/plain/README.OE-Core.md?h=wrynose
+        type: source-repo
+        title: OpenEmbedded-Core README, wrynose branch
+        retrieved: "2026-10-12"
+        quote: >-
+          contains only emulated machine support
+      - url: https://docs.yoctoproject.org/bsp-guide/bsp.html
+        type: official-docs
+        title: BSP guide
+        retrieved: "2026-10-12"
+        quote: >-
+          A BSP consists of a file structure inside a base directory.
+    unknowns:
+      - "GPU and accelerator support, which is a property of each BSP layer."
+      - "TPM and measured-boot support in a documented, tested configuration. The meta-security layer has a meta-tpm sublayer, and this edition did not assess it."
+
+  d09_provisioning:
+    normalized:
+      config_mechanism: "build-time configuration in image recipes and local.conf; no project-level first-boot mechanism documented"
+      methods:
+        - "partitioned disk image written to media (wic)"
+        - "update bundle from the chosen update layer"
+        - "kernel command line parameters (k3s.role, k3s.server, k3s.token) in the meta-virtualization k3s image"
+      declarative_first_boot_input: unknown
+      zero_touch: unknown
+      config_reapplied: unknown
+    summary: >-
+      The project documents image creation, and the adopter writes the image to
+      media. A declarative first-boot input is not documented at project level.
+      The meta-virtualization k3s image reads its role and join token from the
+      kernel command line.
+    notes: >-
+      A cloud-init recipe exists in the meta-virtualization layer (version
+      26.1.0 on the wrynose branch). This edition found no documented first-boot
+      use of it in that layer and records the use as unknown.
+
+      Per-device first-boot configuration and provisioning of update clients are
+      handled by each update layer. This edition did not read that detail for
+      meta-mender, meta-swupdate or meta-updater.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.yoctoproject.org/dev-manual/wic.html
+        type: official-docs
+        title: Wic
+        retrieved: "2026-10-12"
+        quote: >-
+          the result is an image or set of images that can be directly written
+          onto media and used on a particular system.
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/recipes-containers/k3s/README.md?h=wrynose
+        type: source-repo
+        title: k3s README, kernel command line parameters
+        retrieved: "2026-10-12"
+        quote: >-
+          `k3s-role-setup.service` reads the cmdline and:
+      - url: https://git.yoctoproject.org/meta-virtualization/plain/recipes-extended/cloud-init/cloud-init_git.bb?h=wrynose
+        type: source-repo
+        title: cloud-init recipe
+        retrieved: "2026-10-12"
+        quote: >-
+          PV = "26.1.0+git"
+    unknowns:
+      - "Whether any layer documents cloud-init, or another declarative input, as a first-boot mechanism on a Yocto image."
+      - "Zero-touch provisioning, and whether configuration is reapplied after the first boot."
+
+  d10_security:
+    normalized:
+      sbom: "SPDX, generated by default"
+      cve_check: "optional class (sbom-cve-check), enabled by a configuration fragment"
+      reproducible_builds: "documented goal, binary level since 3.1, with a reproducibility builder in the project's tested list"
+      dm_verity: "opt-in, meta-security layer"
+      secure_boot: "UKI class can sign a UKI; signing needs sbsign-tools from the meta-secure-core layer"
+      selinux: "distro feature, requires the meta-selinux layer"
+      read_only_root: "opt-in image feature, see d02"
+      default_on: unknown
+      opt_in:
+        - read-only-rootfs
+        - dm-verity
+        - uki-secure-boot-signing
+        - selinux
+        - sbom-cve-check
+      vulnerability_reporting: "Security Bugzilla, or a security mailing address, per the OpenEmbedded-Core SECURITY file"
+      security_team_size: unknown
+      fips: unknown
+    summary: >-
+      Most hardening is opt-in and comes from the adopter's build configuration or
+      from separate layers. The documented core features are SPDX SBOM
+      generation, a build-time CVE check and reproducible builds.
+    notes: >-
+      The unified kernel image class can produce signed images for UEFI Secure
+      Boot, but its own header says signing requires sbsign-tool-native, a recipe
+      from the meta-secure-core layer. The class also states that TPM PCR
+      pre-calculation is not supported there.
+
+      The SELinux distro feature requires the meta-selinux layer. dm-verity images
+      come from meta-security.
+
+      The vulnerabilities page tells adopters to turn the CVE check on with a
+      configuration fragment and says that fixing issues is up to maintainers,
+      users and contributors.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.yoctoproject.org/dev-manual/sbom.html
+        type: official-docs
+        title: Creating a Software Bill of Materials
+        retrieved: "2026-10-12"
+        quote: >-
+          The OpenEmbedded build system generates such information by default (by
+          inheriting the create-spdx class in INHERIT_DISTRO).
+      - url: https://docs.yoctoproject.org/security-manual/vulnerabilities.html
+        type: official-docs
+        title: Security Manual, vulnerability check at build time
+        retrieved: "2026-10-12"
+        quote: >-
+          To enable a check for CVE security vulnerabilities in the specific image
+          or target you are building
+      - url: https://git.openembedded.org/openembedded-core/plain/meta/classes-recipe/uki.bbclass?h=wrynose
+        type: source-repo
+        title: uki.bbclass, secure boot signing
+        retrieved: "2026-10-12"
+        quote: >-
+          for UEFI secure boot, systemd-boot and uki (including kernel) can be
+          signed but require sbsign-tool-native (recipe available from
+          meta-secure-core
+      - url: https://docs.yoctoproject.org/ref-manual/features.html
+        type: official-docs
+        title: Features, selinux
+        retrieved: "2026-10-12"
+        quote: >-
+          requires meta-selinux
+      - url: https://git.yoctoproject.org/meta-security/plain/classes/dm-verity-img.bbclass?h=wrynose
+        type: source-repo
+        title: dm-verity-img.bbclass, trust of the root hash
+        retrieved: "2026-10-12"
+        quote: >-
+          To assure data integrity, the root hash must be stored in a trusted
+          location or cryptographically signed and verified.
+      - url: https://git.openembedded.org/openembedded-core/plain/meta/classes-recipe/uki.bbclass?h=wrynose
+        type: source-repo
+        title: uki.bbclass, TPM measurement
+        retrieved: "2026-10-12"
+        quote: >-
+          TPM PCR pre-calculation is not supported
+      - url: https://git.openembedded.org/openembedded-core/plain/SECURITY.md?h=wrynose
+        type: source-repo
+        title: OpenEmbedded-Core SECURITY file
+        retrieved: "2026-10-12"
+        quote: >-
+          If you would like to report a public issue (for example, one with a
+          released CVE number), please report it using the
+    unknowns:
+      - "Which security features are on by default in the reference distribution, as a closed list."
+      - "Size of the security team, and any FIPS validation or documented FIPS build path."
+      - "Provenance or attestation for released artifacts. The project's releases are source and metadata; the adopter produces the image."
+
+  d11_operations_debugging:
+    normalized:
+      local_shell: "set by the image contents the adopter selects"
+      ssh: "image feature: ssh-server-dropbear or ssh-server-openssh, adopter-selected"
+      root_login: "controlled by the allow-root-login and empty-root-password image features"
+      debugging_tools: "image feature tools-debug (strace, gdb)"
+      package_manager_at_runtime: "optional, package-management image feature"
+      serial_console: "machine feature serial; console configuration set by the BSP layer"
+      support_bundle: unknown
+      works_without_kubernetes: "yes"
+    summary: >-
+      Operations tooling is a set of image features chosen at build time. An image
+      has an SSH server, debugging tools or a package manager only if the adopter
+      adds them.
+    notes: >-
+      The reference manual lists the SSH server features and the debugging tool
+      feature. It also documents image features that weaken access control, such
+      as empty-root-password and serial-autologin-root, and warns about the
+      latter.
+
+      A support-bundle or node-debug mechanism at project level is not documented
+      in the pages read.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.yoctoproject.org/ref-manual/features.html
+        type: official-docs
+        title: Features, SSH server
+        retrieved: "2026-10-12"
+        quote: >-
+          ssh-server-dropbear: Installs the Dropbear minimal SSH server.
+      - url: https://docs.yoctoproject.org/ref-manual/features.html
+        type: official-docs
+        title: Features, debugging tools
+        retrieved: "2026-10-12"
+        quote: >-
+          tools-debug: Installs debugging tools such as strace and gdb.
+      - url: https://docs.yoctoproject.org/ref-manual/features.html
+        type: official-docs
+        title: Features, root login
+        retrieved: "2026-10-12"
+        quote: >-
+          allow-root-login: Allows Dropbear and OpenSSH to accept root logins.
+    unknowns:
+      - "A project-level support bundle or log collection mechanism."
+      - "Serial console configuration in a documented, tested image."
+
+  d12_fleet_management:
+    normalized:
+      core_project: []
+      oss_companion:
+        - name: "Eclipse hawkBit"
+          note: "Update server. SWUpdate documents hawkBit support in its suricatta mode. Not a Yocto layer."
+          license: EPL-2.0
+          org: Eclipse
+          repo: https://github.com/eclipse-hawkbit/hawkbit
+        - name: "Mender client and Mender Server"
+          note: "The client repository is Apache-2.0. The server licence and edition split were not read for this edition."
+          license: "Apache-2.0 (client)"
+          org: "Northern.tech"
+          repo: https://github.com/mendersoftware/mender
+      commercial:
+        - name: "Mender commercial components"
+          vendor: "Northern.tech"
+          license: commercial
+          self_hostable: unknown
+          note: "The meta-mender README says commercially available components are available through the meta-mender-commercial layer."
+        - name: "HERE OTA Connect"
+          vendor: HERE
+          license: commercial
+          self_hostable: unknown
+          note: "The meta-updater README names it as the service aktualizr is the default client for, and also says aktualizr can connect to the adopter's own server."
+      cluster_api:
+        bootstrap_target: unknown
+        image_builder_target: unknown
+        os_specific_provider: unknown
+        upstream_interest: "a GitHub issue search for yocto in kubernetes-sigs/cluster-api and kubernetes-sigs/image-builder returned 0 results on the retrieval date"
+    summary: >-
+      The Yocto Project has no fleet management component. Fleet tooling comes
+      from the update layers' own servers and services, which are outside the
+      project, and some are commercial products.
+    notes: >-
+      SWUpdate documents a backend interface and says the current version
+      supports the hawkBit server. Mender documents a client and server
+      architecture with central management. meta-updater documents aktualizr and
+      says the adopter can connect it to their own server or to a hosted service.
+
+      The commercial products are vendor offerings. They are not capabilities of
+      the Yocto Project or of the update layers' open-source parts.
+
+      The Cluster API fields are UNKNOWN. The search covered the providers file
+      of the Cluster API repository and GitHub issues. It is a search result, not
+      a project statement.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://sbabic.github.io/swupdate/swupdate.html
+        type: official-docs
+        title: SWUpdate, backend integration
+        retrieved: "2026-10-12"
+        quote: >-
+          Current version supports the hawkBit server, but other backend can be
+          added.
+      - url: https://docs.mender.io/overview/introduction
+        type: vendor-docs
+        title: Mender introduction
+        retrieved: "2026-10-12"
+        quote: >-
+          It has a simple client/server architecture allowing central management
+          of deployments to all devices.
+      - url: https://raw.githubusercontent.com/mendersoftware/meta-mender/master/README.md
+        type: source-repo
+        title: meta-mender README, commercial layer
+        retrieved: "2026-10-12"
+        quote: >-
+          Commercially available components are available through the
+          `meta-mender-commercial` layer.
+      - url: https://raw.githubusercontent.com/uptane/meta-updater/master/README.adoc
+        type: source-repo
+        title: meta-updater README, server options
+        retrieved: "2026-10-12"
+        quote: >-
+          You can connect aktualizr to your own server solution or sign up for a
+          free account at
+      - url: https://raw.githubusercontent.com/eclipse-hawkbit/hawkbit/master/LICENSE
+        type: governance-doc
+        title: Eclipse hawkBit licence file
+        retrieved: "2026-10-12"
+        quote: >-
+          Eclipse Public License - v 2.0
+      - url: https://raw.githubusercontent.com/mendersoftware/mender/master/LICENSE
+        type: governance-doc
+        title: Mender client licence file
+        retrieved: "2026-10-12"
+        quote: >-
+          All content in this project is licensed under the Apache License v2,
+          unless indicated otherwise.
+    unknowns:
+      - "Licence and edition split of the Mender Server, and whether the commercial products can be self-hosted."
+      - "Any Cluster API provider, bootstrap or image-builder support for Yocto images."
+
+  d13_governance:
+    normalized:
+      open_source: true
+      open_governance: documented
+      vendor_neutral_ownership: foundation-held
+      foundation:
+        name: "Linux Foundation"
+        level: "collaborative project under the Linux Foundation umbrella"
+        cncf_landscape: "not listed (searched the landscape.yml file for yocto, openembedded, poky and bitbake: 0 matches)"
+      license: "MIT for OpenEmbedded-Core metadata, GPL-2.0-only for BitBake, per the repositories' licence files"
+      trademark_holder: "Linux Foundation"
+      governance_structure: "a Technical Steering Committee, a project architect, and a tree of maintainers, described as meritocratic"
+      contribution_diversity:
+        method: "Not measured. The leadership page lists names and roles, not employers. The OpenEmbedded-Core maintainer file lists people and areas."
+        value: unknown
+      primary_commercial_sponsor: unknown
+    summary: >-
+      A Linux Foundation collaborative project. Open source, with a published
+      technical governance structure. Contribution diversity is not measured in
+      this edition.
+    notes: >-
+      The leadership page describes governance as based on meritocracy, with the
+      Technical Steering Committee responsible for all technical aspects, a
+      project architect responsible for decisions and actions, and maintainers
+      underneath.
+
+      The documentation footer states that Linux Foundation and Yocto Project are
+      registered trademarks of the Linux Foundation.
+
+      The project is not in the CNCF landscape file. That is a fact about the
+      landscape file and says nothing about the project.
+
+      Membership tiers and member names are on the project's members pages, which
+      render in the browser and were not read for this edition.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.yoctoproject.org/about/
+        type: foundation-page
+        title: About the Yocto Project
+        retrieved: "2026-10-12"
+        quote: >-
+          The Yocto Project is a collaborative project under the Linux Foundation
+          umbrella.
+      - url: https://www.yoctoproject.org/about/leadership/
+        type: governance-doc
+        title: Leadership
+        retrieved: "2026-10-12"
+        quote: >-
+          The Yocto Project technical leadership and governance principle is based
+          on meritocracy
+      - url: https://www.yoctoproject.org/about/leadership/
+        type: governance-doc
+        title: Leadership, Technical Steering Committee
+        retrieved: "2026-10-12"
+        quote: >-
+          The TSC has overall responsibility for all technical aspects of the
+          Yocto Project.
+      - url: https://docs.yoctoproject.org/overview-manual/yp-intro.html
+        type: official-docs
+        title: Documentation footer, trademarks
+        retrieved: "2026-10-12"
+        quote: >-
+          Linux Foundation® and Yocto Project® are registered trademarks of the
+          Linux Foundation.
+      - url: https://git.openembedded.org/openembedded-core/plain/LICENSE?h=wrynose
+        type: governance-doc
+        title: OpenEmbedded-Core licence file
+        retrieved: "2026-10-12"
+        quote: >-
+          All metadata is MIT licensed unless otherwise stated.
+      - url: https://git.openembedded.org/bitbake/plain/LICENSE
+        type: governance-doc
+        title: BitBake licence file
+        retrieved: "2026-10-12"
+        quote: >-
+          BitBake is licensed under the GNU General Public License version 2.0.
+      - url: https://raw.githubusercontent.com/cncf/landscape/master/landscape.yml
+        type: source-repo
+        title: CNCF landscape file, searched for the project
+        retrieved: "2026-10-12"
+    unknowns:
+      - "Maintainer affiliations: no published N of M figure. The leadership page and the maintainer file list names, not employers."
+      - "Members and sponsors, which the members pages render client-side."
+
+  d14_maturity:
+    normalized:
+      first_release: "2010-10 (0.9, Laverne, per the releases page). 1.0 followed in March 2011"
+      current_version: "6.0.3 (Wrynose)"
+      current_version_date: "2026-08"
+      channel: "LTS"
+      release_cadence: "a major release every six months, roughly each April and October; point releases are unscheduled"
+      observed_intervals: "5.0 April 2024, 5.1 September 2024, 5.2 April 2025, 5.3 November 2025, 6.0 April or May 2026 (the project's pages disagree, see open questions)"
+      support_model: lts-stream
+      support_window: "stable releases are supported for seven months. An LTS release is made every two years and is supported for four years: 6.0 Wrynose until April 2030, 5.0 Scarthgap until April 2028"
+      commercial_support: available
+      commercial_support_vendors: "commercial Linux vendors listed on the project's members and participants pages. Names are not recorded here"
+    summary: >-
+      Releases since 2010 on a six-month cadence, with a four-year LTS series every
+      two years. The current LTS is Wrynose 6.0.3, supported until April 2030.
+    notes: >-
+      The releases page lists Kirkstone 4.0 and Dunfell 3.1 as end of life and
+      Scarthgap 5.0 as LTS until April 2028. The release process page says LTS
+      support began with Dunfell at two years and was later extended to four.
+
+      The release process page says Wrynose was released in May 2026. The releases
+      page says April 2026. Both are recorded in the open questions.
+
+      The update layers have their own schedules and branches. Their default
+      branches (master) carry the layers' development versions, and each has
+      release-named branches.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.yoctoproject.org/development/releases/
+        type: foundation-page
+        title: Releases, current series
+        retrieved: "2026-10-12"
+        quote: >-
+          Scarthgap 5.0 April 2024 5.0.20 / August 2026 LTS until Apr. 2028
+      - url: https://www.yoctoproject.org/development/releases/
+        type: foundation-page
+        title: Releases, first listed release
+        retrieved: "2026-10-12"
+        quote: >-
+          Laverne 0.9 October 2010
+      - url: https://docs.yoctoproject.org/ref-manual/release-process.html
+        type: official-docs
+        title: Release process, cadence
+        retrieved: "2026-10-12"
+        quote: >-
+          The Yocto Project delivers major releases (e.g. 6.0.3) using a six month
+          cadence roughly timed each April and October of the year.
+      - url: https://docs.yoctoproject.org/ref-manual/release-process.html
+        type: official-docs
+        title: Release process, stable releases
+        retrieved: "2026-10-12"
+        quote: >-
+          While stable releases are supported for a duration of seven months
+      - url: https://docs.yoctoproject.org/ref-manual/release-process.html
+        type: official-docs
+        title: Release process, LTS
+        retrieved: "2026-10-12"
+        quote: >-
+          A new LTS release is made every two years and is supported for four
+          years.
+      - url: https://docs.yoctoproject.org/ref-manual/release-process.html
+        type: official-docs
+        title: Release process, current LTS releases
+        retrieved: "2026-10-12"
+        quote: >-
+          released in May 2026 and supported until April 2030
+    unknowns:
+      - "The exact release date of 6.0. The releases page says April 2026 and the release process page says May 2026."
+      - "The exact release date of 6.0.3. The releases page says August 2026 and the downloads directory shows a directory time of 2026-09-03."
+
+tradeoffs:
+  buys:
+    - "The adopter chooses the image contents, the init system, the package formats, the partition layout and the update mechanism at build time, from source recipes."
+    - "Documented SPDX SBOM generation by default, a build-time CVE check, and reproducible builds down to the binary level."
+    - "A four-year LTS series every two years, with Wrynose supported until April 2030."
+    - "A choice of update layers (meta-rauc, meta-swupdate, meta-mender, meta-updater) and a layer for Kubernetes (meta-virtualization) for the current release series."
+    - "Hardware support through board support package layers, with ARM, ARM 64-bit, RISC-V 64-bit and x86 tested daily."
+  costs:
+    - "The project releases no operating system image to run. Its reference distribution is documented as not usable as a product, so the adopter owns building, testing, signing, CVE response and support for the image."
+    - "OpenEmbedded-Core documents no whole-image update or rollback mechanism. Each comes from a third-party layer with its own maintainers and schedule, and none of the four update layers appears in the project's tested list."
+    - "A read-only root filesystem is not on by default. The documentation says the adopter must configure the system and applications to write elsewhere."
+    - "Kubernetes appears only in the meta-virtualization layer's READMEs, with QEMU examples. The Yocto manuals do not mention it."
+
+open_questions:
+  - "Does the Yocto Project intend a project-level statement on which update layers it recommends, given that none of meta-rauc, meta-swupdate, meta-mender or meta-updater is in its supported-features list?"
+  - "Which date is correct for the Wrynose 6.0 release: April 2026 (releases page) or May 2026 (release process page and the downloads directory listing for 6.0)?"
+  - "What is the exact release date of 6.0.3: August 2026 (releases page) or early September 2026 (downloads directory time)?"
+  - "Is there a documented, tested combination of read-only-rootfs, an A/B or OSTree update layer and the meta-virtualization k3s profile?"
+  - "Does the meta-virtualization layer document cloud-init, or another declarative input, as a first-boot mechanism?"
+  - "What is the intended relationship of the cri-o recipe version (1.35.0) to its source branch (release-1.36)?"
+  - "How many of the Technical Steering Committee members and maintainers work for one company? The pages read publish names, not affiliations."
+  - "Which of the update layers keeps a wrynose branch current, given that the default branches of meta-rauc and meta-updater declare only blacksail?"
+  - "Can a bootable Yocto image be distributed through an OCI registry by a documented path?"

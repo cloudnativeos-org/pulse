@@ -1,0 +1,1586 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: bottlerocket
+name: Bottlerocket
+homepage: https://bottlerocket.dev/
+repository: https://github.com/bottlerocket-os/bottlerocket
+collected_at: "2026-09-15"
+
+entry_kind:
+  - distribution
+  - platform-os
+
+category_fit:
+  comparable: full
+  note: >-
+    A released distribution with versions, an update system and a documented
+    support policy. Comparable on all fourteen dimensions. Carries platform-os as
+    a second entry kind because AWS produces it primarily for its own container
+    services, and the project charter addresses that framing directly.
+
+self_description:
+  text: >-
+    Bottlerocket is a free and open-source Linux-based operating system meant for
+    hosting containers. Bottlerocket focuses on security and maintainability,
+    providing a reliable, consistent, and safe platform for container-based
+    workloads.
+  source:
+    url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/README.md
+    type: source-repo
+    title: bottlerocket README
+    retrieved: "2026-09-22"
+
+version_observed:
+  version: "v1.65.0"
+  released: "2026-09-09"
+  channel: stable
+  method: >-
+    Latest non-prerelease GitHub release on bottlerocket-os/bottlerocket via the
+    releases API. 134 releases published as of this date.
+  source:
+    url: https://github.com/bottlerocket-os/bottlerocket/releases/tag/v1.65.0
+    type: release-notes
+    title: Bottlerocket v1.65.0
+    retrieved: "2026-09-22"
+
+taxonomy:
+  workload_scope: kubernetes-oriented-host
+  construction_model:
+    - vendor-fixed-image
+    - framework
+  root_state_substrate:
+    - ab-partition-image
+  notes: >-
+    Not a Kubernetes appliance: ECS variants exist, and a non-orchestrator
+    variant family exists in tree. But the project itself says "Bottlerocket is
+    best used with a container orchestrator", and every fully supported
+    variant runs an orchestrator agent; the variants README labels the
+    orchestrator-free aws-mantle-1 family "limited support". That places it on the
+    kubernetes-oriented-host position rather than at either extreme.
+
+    framework appears as a second construction model because Twoliter is a
+    supported, documented path for building a variant out of tree, with the
+    explicit goal of letting maintainers replace core packages, opt out of
+    subsystems including the update system, bring their own signing keys and
+    define their own partition layouts. That is a framework, and it carries the
+    framework's cost.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: kubernetes-oriented-host
+      ships_kubernetes: true
+      ships_orchestrator_agent: true
+      variant_model: true
+    summary: >-
+      A minimal container host with no package manager, built around variants:
+      pre-defined sets of drivers, tools and an orchestrator agent, tailored to a
+      platform, an orchestrator and an orchestrator version.
+    notes: >-
+      The variant is the central concept and it has consequences everywhere else
+      in this profile. A variant name encodes platform, orchestrator,
+      orchestrator version, optional flavour and architecture. The Kubernetes
+      minor version is baked into the variant, so moving between Kubernetes minor
+      versions is a node replacement, not an upgrade.
+
+      Flavours documented: nvidia adds NVIDIA GPU support, fips adds FIPS 140-3
+      support.
+
+      The charter states the project's own framing: "It is not a Kubernetes
+      distro, nor an Amazon distro." That is a values statement and is recorded
+      as such. It sits alongside, and does not change, the ownership facts in
+      d13.
+
+      The README's variant list is materially out of date against the variants
+      tree on the same branch. The tree additionally contains FIPS Kubernetes and
+      VMware variants, aws-ecs-4, and an aws-mantle-1 family that runs no
+      orchestrator agent and is documented as permitted to make breaking changes
+      without warning.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://bottlerocket.dev/en/os/1.64.x/concepts/variants/
+        type: official-docs
+        title: Variants
+        retrieved: "2026-09-22"
+        quote: >-
+          Bottlerocket is not a general purpose Linux distribution and
+          intentionally doesn't have a package manager. Instead Bottlerocket has
+          variants.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/CHARTER.md
+        type: governance-doc
+        title: Bottlerocket charter
+        retrieved: "2026-09-22"
+        quote: >-
+          It is not a Kubernetes distro, nor an Amazon distro. We obsess over
+          shared components like the kernel, and work within the community to
+          support new orchestrators and platforms.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/variants/README.md
+        type: source-repo
+        title: Variants README
+        retrieved: "2026-09-22"
+        quote: >-
+          This variant is intended for use by AWS Bedrock's Mantle API and may
+          make breaking changes without warning.
+
+  d02_immutability:
+    normalized:
+      read_only:
+        - /
+      writable_and_persistent:
+        - /local
+        - /var
+        - /opt
+      integrity_mechanism:
+        - dm-verity
+      integrity_scope: root-filesystem
+      corruption_behaviour: kernel-restart-fail-closed
+      survives_upgrade:
+        - "/local, with /var and /opt bind-mounted from it"
+        - "API settings, which are migrated through updates"
+      ephemeral:
+        - /etc
+        - /run
+      ephemeral_mechanism: tmpfs
+      read_only_mechanism: dm-verity device
+      configurable_paths:
+        value: 'yes'
+        evidence: DOCUMENTED
+        how: 'Only to add storage: a bootstrap container can mount extra disks under /mnt, a bind mount of /local/mnt. No setting found changes the read-only or ephemeral set.'
+        sources:
+          - url: https://github.com/bottlerocket-os/bottlerocket/blob/8db07cb/README.md
+            type: source-repo
+            title: 'Bottlerocket README: mount propagation'
+            retrieved: '2026-10-12'
+            quote: You can use this feature to configure ephemeral disks attached to your hosts that you may want to use on your workloads.
+          - url: https://github.com/bottlerocket-os/bottlerocket/blob/8db07cb/README.md
+            type: source-repo
+            title: 'Bottlerocket README: /mnt'
+            retrieved: '2026-10-12'
+            quote: which itself is a bind mount of `/local/mnt`
+      mounts_sources:
+        - url: https://github.com/bottlerocket-os/bottlerocket/blob/8db07cb/SECURITY_GUIDANCE.md
+          type: source-repo
+          title: 'Bottlerocket security guidance: system mounts'
+          retrieved: '2026-10-12'
+          quote: Bottlerocket provides a read-only root filesystem, ephemeral mounts for system directories such as `/etc` and `/run`, and persistent storage under `/local`.
+        - url: https://github.com/bottlerocket-os/bottlerocket/blob/8db07cb/SECURITY_GUIDANCE.md
+          type: source-repo
+          title: 'Bottlerocket security guidance: /local'
+          retrieved: '2026-10-12'
+          quote: The `/local` directory is where persistent storage is mounted, with `/var` and `/opt` as subdirectories.
+    summary: >-
+      The whole root filesystem is a read-only dm-verity device, and the kernel
+      restarts if corruption is detected, so the system fails closed. /etc is a
+      tmpfs and does not survive a reboot. Persistent state lives on a separate
+      data volume at /local.
+    notes: >-
+      The ephemeral /etc is the distinguishing choice and its rationale is
+      stated: direct modification of files like /etc/resolv.conf or the
+      containerd config is not supported, which makes OS updates more reliable
+      because no local edits need to be accounted for, and makes it harder for an
+      attacker to persist a change across a reboot.
+
+      Configuration is not lost by this design. API settings persist, are
+      migrated through updates, and re-render the system configuration files from
+      templates on every boot. The state is held in a modelled store, not in
+      files on disk.
+
+      The mutable area is protected by SELinux, not by being read-only. The
+      project says so plainly, and notes that a sufficiently privileged user can
+      alter SELinux labels.
+
+      The project also states the limit of its own guarantee: dm-verity is
+      incomplete unless Secure Boot is enabled, because an attacker with full
+      access to the block device could otherwise alter both the verity metadata
+      and the filesystem contents.
+
+      A root shell is obtainable, via the admin container and sheltie, but the
+      filesystem and verity setup prevent most changes from persisting.
+
+      No mutable build is published, and that is worth stating precisely rather
+      than as "there is no mutable Bottlerocket". Every variant the vendor
+      publishes carries the same read-only dm-verity root, no variant flag or
+      setting makes the root writable, and no such option appears in the
+      variant documentation or the security guidance. What stops this from
+      being a proven absolute is Twoliter, the out-of-tree variant toolchain
+      recorded in this profile's taxonomy notes, which documents replacing core
+      packages, opting out of subsystems and defining custom partition layouts.
+      So the accurate claim is that the vendor publishes no mutable variant and
+      documents no way to make the root writable, not that the codebase makes
+      one impossible to build.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md
+        type: source-repo
+        title: Bottlerocket security features
+        retrieved: "2026-09-22"
+        quote: >-
+          Bottlerocket uses tmpfs, a memory-backed filesystem, for /etc. Direct
+          modification of system configuration files such as /etc/resolv.conf or
+          /etc/containerd/config.toml is not supported.
+      - url: https://bottlerocket.dev/en/os/1.64.x/concepts/restricted-filesystem/
+        type: official-docs
+        title: Restricted filesystem
+        retrieved: "2026-09-22"
+        quote: >-
+          Bottlerocket's root filesystem is a dm-verity device: all dm-verity
+          devices are read-only
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/README.md
+        type: source-repo
+        title: Bottlerocket README, storage layout
+        retrieved: "2026-09-22"
+        quote: >-
+          The data device is used as persistent storage for container images,
+          container orchestration, host-containers, and bootstrap containers.
+
+  d03_artifact:
+    normalized:
+      primary_artifact: disk-image
+      distribution: tuf-repository
+      oci_registry_distribution: "build inputs and host containers only, not the OS"
+      content_addressable: true
+      mirrorable: true
+      signed: tuf-multi-role
+      air_gapped_capable: partial
+    summary: >-
+      The artifact is a full disk image, registered as an AMI on AWS or written
+      directly to disk on metal. Updates are distributed through a TUF
+      repository, so payloads are hash-pinned in signed metadata and cannot be
+      fetched outside it.
+    notes: >-
+      TUF gives this profile its content-addressability: the targets metadata
+      lists every available file and its hash, and a file can only be downloaded
+      via the TUF repository, which prevents a client from downloading untrusted
+      data. The root role ships inside the image and can be rotated through
+      threshold signing.
+
+      The repository is mirrorable and self-hostable, and this is documented from
+      the publisher's side, including signing keys held as local files, SSM
+      SecureString parameters or KMS keys. Repository URLs can be changed at
+      build time or at run time through user data.
+
+      Air-gapped operation is recorded as partial rather than yes. The TUF half
+      is documented. The other half is not: host containers pull from ECR Public
+      by default, and the documented outbound requirements include ECR, EKS,
+      IMDS, SSM and possibly STS endpoints. There is no end-to-end air-gap
+      runbook.
+
+      OCI registries are used, but for build inputs rather than the OS. A kit is
+      a Yum repository distributed atomically as a container image, and the core
+      and kernel kits are published to ECR Public. Host containers are also OCI
+      images.
+
+      GitHub releases carry no binary assets at all. Images come as AMIs or
+      through tuftool.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/develop/sources/updater/README.md
+        type: source-repo
+        title: Bottlerocket updater
+        retrieved: "2026-09-22"
+        quote: >-
+          Any file listed in the manifest is also a TUF 'target' listed in
+          targets.json and can only be downloaded via the TUF repository,
+          preventing the client from downloading untrusted data.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/PUBLISHING.md
+        type: source-repo
+        title: Publishing
+        retrieved: "2026-09-22"
+        quote: >-
+          There are two ways to point your hosts at your own repo - at build
+          time or at run time.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/PROVISIONING-METAL.md
+        type: source-repo
+        title: Provisioning on bare metal
+        retrieved: "2026-09-22"
+        quote: >-
+          Decompress (unlz4) and write the Bottlerocket image to the desired
+          disk
+      - url: https://github.com/bottlerocket-os/twoliter/blob/develop/docs/design/README.md
+        type: design-doc
+        title: Twoliter design
+        retrieved: "2026-09-22"
+        quote: A kit is a Yum repo distributed in its entirety, atomically, as a container image.
+    unknowns:
+      - "No end-to-end air-gapped deployment runbook exists, covering both the TUF repository and the host container registry."
+
+  d04_upgrade:
+    normalized:
+      fleet_upgrade:
+        self_update: "No update agent is documented as a default. The README offers the operator, the ECS updater or an apiclient update apply."
+        paths:
+          - kind: operator
+            name: "brupop (Bottlerocket update operator)"
+            license: "Apache-2.0 OR MIT"
+            class: open-source
+            reconciliation: in-place
+            status: "maintained"
+            filter: true
+            note: "Version v1.8.0 of 2025-11-20. Reboot coordination is inside the operator."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://bottlerocket.dev/en/os/1.64.x/update/methods/in-place/
+                title: "Bottlerocket in-place updates"
+                retrieved: "2026-10-06"
+                quote: >-
+                  The recommended method to update your Bottlerocket nodes on Kubernetes is with Brupop.
+              - url: https://github.com/bottlerocket-os/bottlerocket-update-operator
+                title: "bottlerocket-update-operator repository"
+                retrieved: "2026-10-06"
+          - kind: fleet-server
+            name: "Bottlerocket ECS updater"
+            license: "Apache-2.0 OR MIT"
+            class: open-source
+            reconciliation: in-place
+            filter: true
+            note: "For the ECS variant. The updater checks for updates on a timer."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/bottlerocket-os/bottlerocket-ecs-updater
+                title: "bottlerocket-ecs-updater repository"
+                retrieved: "2026-10-06"
+                quote: >-
+                  By default, the ECS updater checks for updates every 12 hours
+          - kind: managed-service
+            name: "EKS managed node groups and Karpenter"
+            license: "service"
+            class: service
+            reconciliation: replacement
+            filter: true
+            note: "AWS services that replace nodes with a newer Bottlerocket image."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html
+                title: "EKS managed node groups"
+                retrieved: "2026-10-06"
+      version_identity:
+        identifier: "VARIANT_ID plus VERSION_ID (plus BUILD_ID) in os-release"
+        condition: "none"
+        evidence: DOCUMENTED
+        sources:
+          - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md
+            type: official-docs
+            title: "Bottlerocket security features"
+            retrieved: "2026-10-06"
+            quote: >-
+              The root filesystem is marked as read-only and cannot be directly modified by userspace processes.
+      mechanism:
+        - ab-partition-switch
+      scope: whole-os-image
+      scope_sources:
+        - url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/develop/sources/updater/signpost/README.md
+          type: source-repo
+          title: Bottlerocket signpost README, partition sets
+          retrieved: '2026-10-06'
+          quote: two partition sets, each containing three partitions
+      initiator: operator-or-automation
+      requires_kubernetes: false
+      requires_vendor_infrastructure: false
+      self_hostable_update_server: true
+      self_hostable_update_source: "A mirrored or self-hosted TUF repository"
+      artifact_verification: tuf-four-role
+      rollout_control: waves
+      cross_variant_upgrade: "none"
+    summary: >-
+      Two identical partition sets. An update writes the full filesystem image to
+      the inactive set, then GPT priority bits switch the active set, then the
+      machine reboots. There is no package database or shared filesystem tree
+      that can become corrupted.
+    notes: >-
+      The stated rationale is worth recording because it is a direct architectural
+      claim: using partition sets and modelled settings removes the dependency on
+      correct local state for reliable updates.
+
+      The update path is apiclient against a local Unix socket, so it works
+      without Kubernetes. The Kubernetes operator is explicitly optional. An ECS
+      updater and SSM Command Documents are the non-Kubernetes automation paths.
+
+      Waves are a first-class rollout control in the OS itself, not in a fleet
+      product. Each host computes its position in a wave from a seed value and
+      will not report an update as available until its time has passed. Waves can
+      be ignored, and a node can be pinned with a version lock.
+
+      Guard rails: updog only considers version increases by default, respects a
+      max_version field in the manifest, refuses updates for a different variant,
+      and checks that migration files exist to transition safely in both
+      directions.
+
+      Two documented limits matter operationally. Moving between Kubernetes minor
+      versions, or adding a flavour such as nvidia, is a variant change and
+      therefore a node replacement rather than an in-place upgrade. And updating
+      between versions that are too far apart can fail with a no-space error, so
+      the documented workaround is to update a couple of releases at a time.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/README.md
+        type: source-repo
+        title: Bottlerocket README, updates
+        retrieved: "2026-09-22"
+        quote: >-
+          The Bottlerocket image has two identical sets of partitions, A and B.
+          When updating Bottlerocket, the partition table is updated to point
+          from set A to set B, or vice versa.
+      - url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/develop/sources/updater/README.md
+        type: source-repo
+        title: Bottlerocket updater, TUF roles and waves
+        retrieved: "2026-09-22"
+        quote: >-
+          Updog also considers the Bottlerocket "variant" of its current image
+          and will not download updates for a different variant.
+      - url: https://bottlerocket.dev/en/os/1.64.x/update/guidelines/
+        type: official-docs
+        title: Update guidelines
+        retrieved: "2026-09-22"
+        quote: >-
+          In order to move between Kubernetes versions (or any variant), you must
+          replace the nodes in your cluster.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md
+        type: source-repo
+        title: Security features, update policy
+        retrieved: "2026-09-22"
+        quote: >-
+          Our philosophy for variants is that the right time for an unexpected
+          major version update to the kernel or orchestrator agent is "never".
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: available
+      automatic_rollback_on_boot_failure: available
+      automatic_rollback_trigger: "boot not marked successful"
+      automatic_rollback_attempts: "GPT tries-remaining field, one attempt after upgrade-to-inactive"
+      retained_versions: 2
+      recovery_environment: "none"
+      factory_reset: unknown
+      network_independent_recovery: partial
+      downgrade_to_older_release: available
+    summary: >-
+      GPT attributes track priority, tries remaining, successful boot and
+      whether boot has ever succeeded. An upgrade grants the new partition one
+      boot attempt and rolls back automatically if it fails. Two partition sets
+      are retained.
+    notes: >-
+      Manual rollback is signpost rollback-to-inactive followed by a reboot, and
+      the project notes it requires no external communication, which makes it the
+      one documented network-free recovery action.
+
+      Downgrading to an older release is supported through the update system and
+      is visible in the available-updates list, because the project supports
+      rolling back. That is a different capability from the two-partition
+      rollback and is recorded separately.
+
+      There is no recovery partition, no rescue shell and no factory reset
+      documented. The project's stated model is different: SECURITY_GUIDANCE.md
+      has a section called "Design for host replacement". That is a coherent
+      answer for a fleet of interchangeable nodes, and it is a real gap for a
+      single machine that must be recovered in place.
+
+      network_independent_recovery is partial for a specific reason. The rollback
+      command itself needs no network, but reaching a shell to run it requires
+      either an already-enabled admin container or a serial console on a
+      development variant. For a production variant with both host containers
+      disabled and no network, no offline recovery path is documented. The
+      documented recovery for that state goes back through the orchestrator, by
+      mounting the API socket into a privileged pod.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/develop/sources/updater/signpost/README.md
+        type: source-repo
+        title: signpost
+        retrieved: "2026-09-22"
+        quote: >-
+          Run signpost upgrade-to-inactive to prioritize the inactive partitions
+          and allow it one boot attempt before automatically rolling back.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/README.md
+        type: source-repo
+        title: Bottlerocket README, rollback
+        retrieved: "2026-09-22"
+        quote: >-
+          This doesn't require any external communication, so it's quicker than
+          apiclient, and it's made to be as reliable as possible.
+      - url: https://bottlerocket.dev/en/os/1.64.x/login/regaining-access/
+        type: official-docs
+        title: Regaining access
+        retrieved: "2026-09-22"
+        quote: >-
+          In general, the solution is to mount the API client and API socket
+          into a container on the Bottlerocket node and use the API client to
+          re-enable the admin container, control container, or both.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_GUIDANCE.md
+        type: source-repo
+        title: Security guidance
+        retrieved: "2026-09-22"
+        quote: >-
+          We recommend designing for periodic host replacement even with
+          automated updates enabled.
+    unknowns:
+      - "No documented recovery environment, factory reset, or offline recovery path for a production variant with both host containers disabled and no network."
+
+  d06_customization:
+    normalized:
+      runtime_package_install: "none"
+      mechanisms:
+        - settings-api
+        - host-containers
+        - bootstrap-containers
+        - bootstrap-commands
+        - variant-build
+        - twoliter-out-of-tree-build
+        - kmod-kit
+      customization_points:
+        - build-time
+        - provisioning
+        - boot-time
+        - runtime
+      add_software:
+      - kind: build-time-only
+        how: Software is added when the image is built. An adopter defines a custom variant out of tree with Twoliter. The design document says software cannot be installed after the image is created.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/bottlerocket-os/twoliter/blob/ff81b1732407cbeb2f6730ec0ce251a762064eb4/docs/design/README.md
+          type: design-doc
+          title: Twoliter design document
+          retrieved: '2026-10-12'
+          quote: Because software cannot be installed on Bottlerocket after the image has been created, it lacks a traditional package manager.
+        - url: https://github.com/bottlerocket-os/bottlerocket/blob/8db07cb89e233ea931d74e0c0aab331d12a6b5af/BUILDING.md
+          type: source-repo
+          title: Building Bottlerocket
+          retrieved: '2026-10-12'
+          quote: If you'd like to build your own image instead of relying on an Amazon-provided image, follow these steps.
+    summary: >-
+      No package manager, and the project says so deliberately: there are no
+      interpreted languages installed or even available as packages. The two
+      supported configuration routes are the settings API and containers.
+    notes: >-
+      Four distinct customization points exist at boot and runtime, in order.
+      Bootstrap commands run first and can only invoke apiclient. Bootstrap
+      containers run next, concurrently, before the orchestrator, and one marked
+      essential that exits non-zero halts the boot. Host containers run
+      continuously outside the orchestrator with their own containerd instance.
+      Orchestrated containers run last.
+
+      Host containers are not privileged by magic: the control and admin
+      containers are ordinary host containers with specific privileges, and the
+      documentation says their functionality can be fully replaced with your own.
+
+      Build-time customization has two tiers. In tree, a variant is a Cargo.toml
+      listing included packages and an optional image layout. Out of tree,
+      Twoliter exists specifically so that customizing Bottlerocket does not
+      require forking the repository, with stated requirements covering replacing
+      core packages, opting out of subsystems including the update system,
+      bringing your own signing keys and defining your own partition layouts.
+
+      Out-of-tree kernel modules are supported through the kmod kit, a
+      cross-compilation toolchain and kernel headers downloaded from the TUF
+      repository.
+
+      The stated scope limit on official images is explicit: no plan to add
+      out-of-tree drivers, no plan to add CPU architectures, no plan to add
+      drivers for embedded devices.
+
+      One security consequence of a flavour is worth recording precisely. NVIDIA
+      variants need to load unsigned kernel modules at runtime, which kernel
+      lockdown in integrity mode prohibits, so on those variants lockdown is set
+      to none. The project also notes that NVIDIA variants include precompiled
+      binaries that may not have been built with its hardening flags. That is a
+      documented trade, stated once in the security document and not repeated in
+      the GPU documentation.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md
+        type: source-repo
+        title: Security features
+        retrieved: "2026-09-22"
+        quote: >-
+          Interpreted languages such as Python are not installed or even
+          available as packages.
+      - url: https://bottlerocket.dev/en/os/1.64.x/concepts/bootstrap-containers/
+        type: official-docs
+        title: Bootstrap containers
+        retrieved: "2026-09-22"
+        quote: >-
+          any bootstrap container set to essential=true that exits with an
+          non-zero exit code halts the boot process
+      - url: https://bottlerocket.dev/en/os/1.64.x/concepts/host-containers/
+        type: official-docs
+        title: Host containers
+        retrieved: "2026-09-22"
+        quote: >-
+          The control and admin containers are not actually special: both are
+          just host containers with specific privileges.
+      - url: https://github.com/bottlerocket-os/twoliter/blob/develop/docs/design/README.md
+        type: design-doc
+        title: Twoliter design
+        retrieved: "2026-09-22"
+        quote: >-
+          Maintainers must be able to opt out of certain Bottlerocket
+          subsystems by choosing not to install them.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/BUILDING.md
+        type: source-repo
+        title: Building, kmod kit
+        retrieved: "2026-09-22"
+        quote: >-
+          kmod kits are included in the official Bottlerocket repos starting
+          with Bottlerocket v1.0.6.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SUPPORTED-HARDWARE.md
+        type: source-repo
+        title: Supported hardware
+        retrieved: "2026-09-22"
+        quote: >-
+          There is no plan to add out-of-tree drivers to Bottlerocket images.
+          There is no plan to add additional CPU architectures.
+
+  d07_kubernetes:
+    normalized:
+      requirement: optional
+      bundled: bundled
+      independent_lifecycle: partial
+      os_manages_kubernetes: "no"
+      kubernetes_manages_os: "Bottlerocket Update Operator (brupop), optional, separate repository"
+      distributions:
+        - EKS
+        - self-hosted Kubernetes
+        - Karpenter-managed
+        - Amazon ECS
+      managed_kubernetes_default_node_image: "no; EKS managed node groups on cluster version 1.30 or newer default to Amazon Linux 2023, and Bottlerocket is an opt-in AMI type"
+      managed_kubernetes_sole_node_image: "yes on EKS Auto Mode; that mode runs a custom Bottlerocket variant and supports no other AMI"
+    summary: >-
+      Kubernetes is not required: ECS variants run the ECS agent instead, and a
+      non-orchestrator variant family exists. But the orchestrator agent ships in
+      the image, and the Kubernetes minor version is part of the variant name.
+    notes: >-
+      The default-versus-option distinction on the vendor's managed Kubernetes
+      is recorded here because it is the fact a reader comparing hyperscalers
+      needs, and "supported on EKS" hides it.
+
+      On managed node groups it is **not** the default. Newly created managed
+      node groups on cluster version 1.30 or newer default to Amazon Linux 2023,
+      a conventional package-managed distribution whose own documentation names
+      DNF as its package management tool. Bottlerocket is selected deliberately,
+      as an AMI type on a managed node group, on self-managed nodes, or through
+      Karpenter. An operator who selects nothing does not get it.
+
+      On EKS Auto Mode it is the **only** option. That mode's nodes run a custom
+      Bottlerocket variant, and the vendor's own guidance answers the question of
+      customizing the AMI with "No, currently the only supported AMIs are for
+      Amazon-provided Bottlerocket". The Auto Mode variant is built on the open
+      source distribution and adds Auto Mode packages, disables host containers,
+      and removes SSH and the Systems Manager agent. So the same platform offers
+      both a mutable default and a mode with no mutable option at all, depending
+      on which cluster mode is chosen at creation time.
+
+      Lifecycle independence is partial and the split is precise. The Bottlerocket
+      version is independent of the variant, so the OS updates freely within a
+      variant. The Kubernetes minor version is not independent: changing it is a
+      variant migration, which means replacing the node.
+
+      Each variant declares a compatibility window, for example the aws-k8s-1.33
+      variant being compatible with Kubernetes 1.33 through 1.36 clusters.
+
+      Kubernetes manages the OS only if brupop is installed. It lives in a
+      separate repository with its own release cadence and a narrower support
+      policy, requires cert-manager, and is opt-in per node through a label.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://bottlerocket.dev/en/os/1.64.x/concepts/variants/
+        type: official-docs
+        title: Variants
+        retrieved: "2026-09-22"
+        quote: >-
+          you cannot update to a different variant: that is a migration (which
+          involves replacing a node in the orchestrated cluster)
+      - url: https://github.com/bottlerocket-os/bottlerocket-update-operator
+        type: source-repo
+        title: Bottlerocket Update Operator
+        retrieved: "2026-09-22"
+        quote: >-
+          However, please note that we only provide security patches for the
+          latest minor version.
+      - url: https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html
+        type: vendor-docs
+        title: Bottlerocket AMIs for EKS
+        retrieved: "2026-09-22"
+        quote: >-
+          In addition to managed node groups and self-managed nodes,
+          Bottlerocket is also supported by Karpenter.
+      - url: https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html
+        type: vendor-docs
+        title: EKS-optimized Amazon Linux AMIs, the managed node group default
+        retrieved: "2026-09-22"
+        quote: >-
+          Any newly created managed node groups in clusters on version 1.30 or
+          newer will automatically default to using AL2023 as the node operating
+          system.
+      - url: https://docs.aws.amazon.com/eks/latest/userguide/automode.html
+        type: vendor-docs
+        title: EKS Auto Mode, node operating system
+        retrieved: "2026-09-22"
+        quote: >-
+          The nodes use variants of Bottlerocket AMIs that are optimized to run
+          containers. The Bottlerocket AMIs have locked-down software, immutable
+          root file systems, and secure network access (to prevent direct
+          communications through SSH or SSM).
+      - url: https://docs.aws.amazon.com/eks/latest/best-practices/automode.html
+        type: vendor-docs
+        title: EKS Auto Mode best practices, custom AMI support
+        retrieved: "2026-09-22"
+        quote: >-
+          No, currently the only supported AMIs are for Amazon-provided
+          Bottlerocket
+      - url: https://docs.aws.amazon.com/whitepapers/latest/security-overview-amazon-eks-auto-mode/eks-auto-mode-data-plane.html
+        type: vendor-docs
+        title: Security overview of EKS Auto Mode, node operating system
+        retrieved: "2026-09-22"
+        quote: >-
+          The operating system for EKS Auto Mode nodes is a custom variant of
+          Bottlerocket.
+      - url: https://docs.aws.amazon.com/linux/al2023/ug/package-management.html
+        type: vendor-docs
+        title: Amazon Linux 2023 package management tool
+        retrieved: "2026-09-22"
+        quote: >-
+          The default software package management tool in AL2023 is DNF.
+    unknowns:
+      - "EKS Anywhere is never mentioned in Bottlerocket's own sources, although EKS, self-managed clusters and Karpenter are."
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        items:
+          - vendor: nvidia-gpu
+            what: "NVIDIA GPU, open and proprietary driver"
+            arch: [amd64, arm64]
+            delivery: vendor-image
+            delivery_note: "aws-k8s-*-nvidia variants with the driver in the image"
+            secure_boot: unsigned
+            gpu_operator: host-driver-and-toolkit
+            status: supported
+            note: "The arm64 variant covers g5g only. The toolkit is shipped. CDI is supported, with cdi-cri as the default. Secure Boot is enabled for new variants on UEFI platforms, but the nvidia variants load unsigned modules."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/bottlerocket-os/bottlerocket/blob/b2e2bee/SECURITY_FEATURES.md
+                title: "bottlerocket SECURITY_FEATURES.md at b2e2bee"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Certain variants such as `*-nvidia` need to load unsigned kernel modules at runtime ... Lockdown is set to "none"
+              - url: https://docs.aws.amazon.com/eks/latest/userguide/ml-eks-optimized-ami.html
+                title: "Amazon EKS optimized Bottlerocket AMI, GPU Operator"
+                retrieved: "2026-10-06"
+                quote: >-
+                  you must disable the operator installation of the driver, toolkit, and device plugin
+          - vendor: aws-neuron
+            what: "AWS Inferentia and Trainium"
+            arch: [amd64]
+            delivery: vendor-image
+            delivery_note: "included in the standard aws-k8s variants"
+            secure_boot: not-documented
+            status: supported
+            note: "The profile keeps 'from v1.30.0'. The CHANGELOG lists 'Add Neuron kmod for 6.1 kernel' under v1.21.0. The accelerators run on x86_64 instances."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/bottlerocket-os/bottlerocket/blob/b2e2bee/README.md
+                title: "bottlerocket README.md at b2e2bee"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Bottlerocket variants, from `v1.30.0+`, include the required packages and configurations to leverage AWS Neuron Accelerated Instances.
+      architectures_released:
+        - amd64
+        - arm64
+      architectures_absent:
+        - riscv64
+      platforms:
+        - aws-ec2
+        - vmware
+        - qemu-kvm-local
+      platforms_discontinued:
+        - bare-metal-kubernetes
+      gpu: "NVIDIA variants for Kubernetes and ECS; AWS Neuron support from v1.30.0"
+      tpm: "TPM2 used for PCR measurement and key sealing"
+      extension_mechanism: "custom variant via Twoliter; kmod kit for out-of-tree modules; issue template for metal drivers"
+    summary: >-
+      amd64 and arm64 only, on EC2, VMware and local QEMU. The bare-metal
+      Kubernetes variants were dropped in v1.27.0, leaving only a metal
+      development variant in tree.
+    notes: >-
+      riscv64 is a documented absence, not an unknown. The supported-hardware
+      document states there is no plan to add additional CPU architectures, and
+      no riscv64 variant, kernel config or SDK toolchain exists in the
+      organization.
+
+      The bare-metal position needs care. PROVISIONING-METAL.md and
+      SUPPORTED-HARDWARE.md are still present and read as current, but the metal
+      Kubernetes variants they describe were removed in v1.27.0 in November 2024,
+      and the provisioning guide's own example is pinned to v1.26.1 with an
+      inline note. There is no deprecation banner. The confirmed-working hardware
+      table lists four machines, all confirmed by the AWS Bottlerocket team.
+
+      The project states its own reasoning for the narrow hardware surface: the
+      need to be compatible with as much hardware as possible conflicts with
+      keeping the system small and simple, so the number of drivers in the kernel
+      has been reduced substantially compared with general purpose distributions.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SUPPORTED-HARDWARE.md
+        type: source-repo
+        title: Supported hardware
+        retrieved: "2026-09-22"
+        quote: >-
+          the number of drivers included in the Bottlerocket kernels has been
+          reduced substantially comparing to common general purpose Linux
+          distributions
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/README.md
+        type: source-repo
+        title: Bottlerocket README, architectures and unsupported variants
+        retrieved: "2026-09-22"
+        quote: "Our supported architectures include x86_64 and aarch64"
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/CHANGELOG.md
+        type: release-notes
+        title: Changelog, v1.27.0 metal variant removal
+        retrieved: "2026-09-22"
+        quote: "Drop k8s 1.28 and k8s 1.29 metal variants"
+
+  d09_provisioning:
+    normalized:
+      config_tools:
+        - name: "TOML settings (early-boot-config and the API)"
+          license: "Apache-2.0 OR MIT"
+          runs: [userspace]
+          reruns: any-time
+          runs_note: "Runs in userspace after the network is online; early-boot-config runs once and settings re-render config files each boot (INFERRED)."
+          early_disk: "In userspace, user data can run apiclient ephemeral-storage init through settings.bootstrap-commands, which sets up devices as a RAID array and formats them; TPM2 data encryption is a build feature (INFERRED)."
+          change_after_first_boot: "apiclient set, at any time"
+          evidence: DOCUMENTED
+          sources:
+            - url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/2d7f4ea/packages/early-boot-config/early-boot-config.service
+              title: "early-boot-config.service"
+              retrieved: "2026-10-06"
+              quote: >-
+                Need network online to talk to IMDS
+            - url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/2d7f4ea/sources/api/apiclient/README.md
+              title: "apiclient README"
+              retrieved: "2026-10-06"
+              quote: >-
+                sets up the storage devices as a RAID array and formats them
+            - url: https://bottlerocket.dev/en/os/1.59.x/concepts/bootstrap-commands/
+              title: "Bottlerocket bootstrap commands"
+              retrieved: "2026-10-06"
+      methods:
+        - ami-launch-with-user-data
+        - vmware-cdrom-or-guestinfo
+        - direct-disk-write-metal
+        - local-qemu
+      config_mechanism: toml-user-data-via-early-boot-config
+      config_reapplied: "settings persist in a datastore and re-render config files on every boot"
+      pxe: unknown
+      iso: unknown
+    summary: >-
+      Configuration is TOML settings delivered as user data and applied by
+      early-boot-config. Sources are read in order with later sources overriding
+      earlier ones, starting with an on-disk file, then IMDS on AWS, or CD-ROM
+      and guestinfo on VMware.
+    notes: >-
+      Bare metal provisioning is structurally different and the docs explain why:
+      because boot and root are dm-verity checked and the system is immutable at
+      runtime, a user cannot provision an image and then write configuration
+      files into it. Instead you write the image to disk, mount the private
+      partition, and place user-data.toml, a mandatory net.toml and an optional
+      bootconfig.data there.
+
+      net.toml being mandatory is a real operational fact: no default network
+      configuration is provided, and without it the host containers, containerd
+      and kubelet all fail to start. Metal images also enable no host containers
+      by default.
+
+      No PXE, netboot, ISO or zero-touch provisioning is documented. The metal
+      flow assumes an external provisioning system capable of writing a disk
+      image and then mounting a partition.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/PROVISIONING-METAL.md
+        type: source-repo
+        title: Provisioning on bare metal
+        retrieved: "2026-09-22"
+        quote: >-
+          Since Bottlerocket has a dm-verity-checked boot and root partition, and
+          is immutable at runtime, a user cannot provision an image and directly
+          write configuration files.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/variants/README.md
+        type: source-repo
+        title: Variants README, user data sources
+        retrieved: "2026-09-22"
+        quote: >-
+          All variants first attempt to read user data from
+          /var/lib/bottlerocket/user-data.toml.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/README.md
+        type: source-repo
+        title: Bottlerocket README, early-boot-config
+        retrieved: "2026-09-22"
+        quote: >-
+          If you start a virtual machine, like an EC2 instance, it will read
+          TOML-formatted Bottlerocket configuration from user data and send it
+          to the API server.
+    unknowns:
+      - "PXE, netboot, ISO and zero-touch provisioning are not documented anywhere in the project's own sources."
+
+  d10_security:
+    normalized:
+      boot_trust_chain:
+        level: 3
+        how: default-on
+        route: verity-root-hash-in-signed-artifact
+        artifact: signed GRUB config
+        note: On new variants on UEFI platforms, when the firmware enforces Secure Boot. Firmware measures PCR
+          4 and 7, and Bottlerocket services extend PCR 8, 9 and 11 after boot. No Secure Boot on legacy BIOS
+          or Xen instances
+        evidence: DOCUMENTED
+        sources:
+        - url: https://raw.githubusercontent.com/bottlerocket-os/bottlerocket/develop/SECURITY_FEATURES.md
+          type: official-docs
+          title: Bottlerocket security features
+          retrieved: '2026-10-06'
+          quote: grub verifies that its grub.cfg is signed correctly
+        - url: https://bottlerocket.dev/en/os/1.64.x/concepts/chain-of-trust/
+          type: official-docs
+          title: Bottlerocket chain of trust
+          retrieved: '2026-10-06'
+          quote: The GRUB configuration contains the dm-verity root hash
+      secure_boot: available-own-keys
+      secure_boot_ca: "Bottlerocket self-signed certificate, deliberately not the Microsoft third-party UEFI CA"
+      measured_boot: available
+      tpm: "TPM2, PCRs 8, 9 and 11 extended at defined boot stages"
+      integrity: dm-verity
+      integrity_scope: root-filesystem
+      disk_encryption: "LUKS2 for /local plus fscrypt for the datastore, TPM2-sealed; per-variant opt-in"
+      artifact_verification: tuf-four-role
+      sbom: "tooling and on-host inventory, no per-release artifact"
+      provenance: unknown
+      fips: "FIPS variants exist; AWS names the Amazon Linux 2023 Kernel Crypto API Cryptographic Module, with no certificate number given in the cited sources"
+      mandatory_access_control: "SELinux enforcing, cannot be disabled"
+      kernel_lockdown: "integrity mode by default, set to none on NVIDIA variants"
+      shell_present: false
+      default_on:
+        - dm-verity-read-only-root
+        - selinux-enforcing
+        - ephemeral-etc
+        - no-shell-no-interpreters
+        - kernel-lockdown-integrity
+        - tuf-verified-updates
+        - uefi-secure-boot-where-firmware-supports
+        - compiler-hardening
+      opt_in:
+        - fips-flavour
+        - nvidia-flavour
+        - encrypted-storage
+        - admin-container
+    summary: >-
+      An unusually dense default security posture: verity root, SELinux enforcing
+      with no way to disable it, no shell and no interpreters, kernel lockdown,
+      TUF-verified updates, and Secure Boot on by default where firmware supports
+      it since 1.15.0.
+    notes: >-
+      Secure Boot is the dimension where Bottlerocket differs most sharply from
+      its peers, and the difference is a deliberate documented choice. Many
+      operating systems use a shim signed by the Microsoft third-party UEFI CA.
+      Bottlerocket does not use that certificate. It uses a self-signed
+      certificate, with the stated intent of letting an operator focus the
+      machine's trust on their chosen OS only. The consequence on metal is that
+      the machine's NVRAM must contain Bottlerocket's db certificate, which ships
+      in the EFI partition. Building with your own keys is documented, with an
+      AWS-based profile using private CAs and KMS keys and a local profile the
+      project strongly discourages for production.
+
+      Secure Boot does not apply on legacy BIOS boot, which includes Xen-based
+      EC2 instance types.
+
+      Measured boot and encrypted storage are real but poorly surfaced. They are
+      documented in the core kit rather than in SECURITY_FEATURES.md, which is
+      the document the FAQ and the variants page point readers to. PCR 8 measures
+      canonicalized OS settings before any external configuration or code runs,
+      PCR 9 measures the kernel command line including the verity root hash, and
+      PCR 11 measures boot phases.
+
+      Encrypted storage is per-variant opt-in and, as read on this date, is not
+      enabled on the mainline Kubernetes variants. In the variants tree on
+      develop, the encrypted-storage image feature is set on aws-ecs-4,
+      aws-mantle-1 (with ephemeral encryption keys) and aws-dev, and on none of
+      the aws-k8s or vmware-k8s variants checked. Its documentation is blunt
+      about its own threat model, listing what it does not protect against
+      and stating that if PCR values change unexpectedly there is no built-in
+      recovery mechanism and the result is restore from backup or data loss.
+
+      SELinux cannot be disabled, and the project scopes its own policy honestly:
+      it is currently aimed at hardening the OS against persistent threats, with
+      container-from-container protection named as future work.
+
+      FIPS variants exist across Kubernetes, VMware and ECS, introduced in
+      v1.27.0. AWS states plainly that using them makes nodes FIPS ready but not
+      automatically FIPS compliant. The AWS page names the Amazon Linux 2023
+      Kernel Crypto API Cryptographic Module but gives no CMVP certificate
+      number, and no Bottlerocket source names one. An earlier draft of this
+      profile recorded certificate 4808; NIST lists that certificate as
+      Historical, replaced by certificate 5369, so no number is recorded here.
+
+      SBOM tooling exists (SPDX 2.3 and CycloneDX 1.6 in the SDK, plus a runtime
+      uploader in the control container), and each host carries a build-time
+      package inventory, but no per-release SBOM artifact or build provenance
+      attestation was found. GitHub releases carry no assets.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://bottlerocket.dev/en/os/1.64.x/concepts/chain-of-trust/
+        type: official-docs
+        title: Chain of trust
+        retrieved: "2026-09-22"
+        quote: >-
+          Many operating systems use a version of shim signed by the Microsoft
+          3rd Party UEFI CA certificate. Bottlerocket does not use this
+          certificate.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md
+        type: source-repo
+        title: Security features
+        retrieved: "2026-09-22"
+        quote: >-
+          Bottlerocket enables SELinux by default, sets it to enforcing mode, and
+          loads the policy during boot. There is no way to disable it.
+      - url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/develop/docs/ENCRYPTED_STORAGE.md
+        type: source-repo
+        title: Encrypted storage
+        retrieved: "2026-09-22"
+        quote: >-
+          If TPM PCR values change unexpectedly ... No built-in recovery
+          mechanism. Requires backup/restore or data loss.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/sbkeys/README.md
+        type: source-repo
+        title: Secure Boot keys
+        retrieved: "2026-09-22"
+        quote: >-
+          However, because these local profiles offer direct access to private
+          key materials, they are strongly discouraged for any kind of
+          production use.
+      - url: https://docs.aws.amazon.com/eks/latest/userguide/bottlerocket-fips-amis.html
+        type: vendor-docs
+        title: Bottlerocket FIPS AMIs
+        retrieved: "2026-09-22"
+        quote: >-
+          Using Bottlerocket FIPS AMIs makes your worker nodes 'FIPS ready' but
+          not automatically 'FIPS-compliant'.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/variants/aws-ecs-4/Cargo.toml
+        type: source-repo
+        title: aws-ecs-4 variant definition, image features
+        retrieved: "2026-09-22"
+        quote: "encrypted-storage = true"
+    unknowns:
+      - "No per-release SBOM artifact or SLSA build-provenance attestation was found."
+      - "Two AWS pages disagree on which second module the FIPS AMIs use, naming AWS-LC and Go Cryptographic Module respectively."
+      - "Which NIST CMVP certificate covers the kernel cryptographic module in the FIPS variants is not stated in any Bottlerocket or EKS source; the AL2023 FAQ lists certificate 5369 for kernel 6.1.41, and certificate 4808 is Historical."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: "none in the OS; available through the optional admin container"
+      local_shell: "none in the OS; root shell via admin container and sheltie"
+      api: "HTTP over a local Unix socket; remote access needs an authenticated transport"
+      serial_console: "via the admin container's agetty services, and directly on development variants"
+      debug_container: "admin container and control container"
+      support_bundle: logdog
+      works_without_kubernetes: "yes"
+    summary: >-
+      No SSH server and no shell in the image. Operations run through a settings
+      and update API on a local Unix socket, reached remotely through an
+      authenticated transport, and through two host containers that the operator
+      controls.
+    notes: >-
+      Neither the presence nor the absence of a shell is treated as a virtue
+      here. What the design buys is stated by the project: a shell and
+      interpreters can be exploited by an attacker to pivot from a vulnerability
+      that grants local code execution. What it costs is a dependency on either
+      the orchestrator, SSM, or a pre-enabled host container to reach the machine
+      at all, which is exactly the gap recorded under d05.
+
+      The control container is enabled by default on AWS variants and runs the
+      SSM agent. The admin container is disabled by default, has an SSH server,
+      an unrestricted SELinux label and a mount of the host filesystem, and the
+      documentation says its use should be rare.
+
+      logdog collects a support bundle, retrievable over SSH, over SSM, or
+      through the Kubernetes node proxy. Kernel crash dump collection exists but,
+      as documented, only VMware variants have kdump support enabled.
+
+      Operator hardening guidance is a first-class document with sections on
+      restricting access to the host API socket, limiting host container use,
+      limiting privileged SELinux labels, and designing for host replacement.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/README.md
+        type: source-repo
+        title: Bottlerocket README, access and logdog
+        retrieved: "2026-09-22"
+        quote: >-
+          To improve security, there's no SSH server in a Bottlerocket image, and
+          not even a shell.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md
+        type: source-repo
+        title: Security features, rationale for no shell
+        retrieved: "2026-09-22"
+        quote: >-
+          these properties can also be exploited by an attacker to pivot from a
+          vulnerability that grants local code execution
+      - url: https://bottlerocket.dev/en/os/1.64.x/concepts/shell-less-host/
+        type: official-docs
+        title: Shell-less host
+        retrieved: "2026-09-22"
+        quote: >-
+          Using the admin container should be rare: only used as-needed and by
+          those required.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_GUIDANCE.md
+        type: source-repo
+        title: Security guidance
+        retrieved: "2026-09-22"
+        quote: >-
+          We recommend designing for periodic host replacement even with
+          automated updates enabled.
+
+  d12_fleet_management:
+    normalized:
+      core_project:
+        - "Settings API and apiclient, driven by user data at launch or API calls later"
+        - "Update API with check, prepare, activate and reboot actions"
+        - "Update waves, computed per host from a seed, with version-lock and ignore-waves settings"
+        - "signpost for partition priority and rollback"
+        - "On-host build-time package inventory at /var/lib/bottlerocket/inventory"
+        - "logdog support bundles"
+      oss_companion:
+        - name: Bottlerocket Update Operator (brupop)
+          repo: https://github.com/bottlerocket-os/bottlerocket-update-operator
+          license: Apache-2.0 OR MIT
+          org: bottlerocket-os
+          note: "Kubernetes operator coordinating node updates. Requires cert-manager. Opt-in per node by label. Its own support policy covers only the latest minor version."
+        - name: Bottlerocket ECS updater
+          repo: https://github.com/bottlerocket-os/bottlerocket-ecs-updater
+          license: Apache-2.0 OR MIT
+          org: bottlerocket-os
+          note: "Installed into an ECS cluster via CloudFormation. Queries container instances for available updates and drains tasks during an update."
+        - name: Twoliter
+          repo: https://github.com/bottlerocket-os/twoliter
+          license: Apache-2.0 OR MIT
+          org: bottlerocket-os
+          note: "Out-of-tree variant builds, including bring-your-own signing keys and partition layouts."
+      commercial:
+        - name: AWS Support
+          vendor: AWS
+          license: support-plan
+          self_hostable: false
+          note: "AWS-provided builds of Bottlerocket on EC2 are covered under the same AWS Support plans that cover EC2, EKS and ECR. Scope is AWS-provided builds on EC2."
+        - name: EKS managed node groups and Karpenter
+          vendor: AWS
+          license: managed-service
+          self_hostable: false
+        - name: AWS Systems Manager
+          vendor: AWS
+          license: managed-service
+          self_hostable: false
+          note: "Session Manager and Run Command are the transport the default control container depends on."
+        - name: Amazon Inspector
+          vendor: AWS
+          license: managed-service
+          self_hostable: false
+          note: "The control container uploads a CycloneDX SBOM to Inspector for vulnerability scanning, opt-out by setting."
+      cluster_api:
+        os_specific_provider: "none"
+        maintainer: not-applicable
+        upstream_provider_list: "not listed under any provider type"
+        provisions: not-applicable
+        bootstrap_target: "none upstream. The kubeadm bootstrap provider accepts cloud-config and ignition only, and this system uses neither."
+        image_builder_target: "none"
+        downstream_fork: "AWS carries a patched fork of Cluster API v1.13.2 in eks-anywhere-build-tooling that adds a bottlerocket bootstrap-data format, plus a patched vSphere provider. Consumed only by EKS Anywhere."
+        upstream_attempts: "cluster-api#7840 asked for support in the kubeadm bootstrap provider and was closed in 2024 without implementation. cluster-api-provider-aws#4708 has been open since 2023-12-20."
+    summary: >-
+      An unusual amount of fleet capability lives in the open-source OS itself.
+      Waves, version locking, update state machine and support bundles are all in
+      the image, not in a product. The Kubernetes and ECS coordinators are
+      separate optional repositories.
+    notes: >-
+      Waves deserve emphasis because they are the clearest case in this edition
+      of a rollout control implemented in the OS rather than in a fleet manager.
+      A publisher schedules a release so that a percentage of hosts take it within
+      a time window, and each host decides its own position from a seed. No
+      management plane is involved.
+
+      The dependency on AWS services is real but sits at the transport and
+      convenience layer rather than at the update layer. The default control
+      container needs SSM to be useful, and host containers pull from ECR Public
+      by default, but the TUF repository is self-hostable and the update API is
+      local.
+
+      The Cluster API position is the largest gap between how well something
+      works and how portable it is, anywhere in this edition.
+
+      Nothing upstream supports this system. It has no provider of any type, it
+      is absent from the provider list, and it has no image-builder target. The
+      kubeadm bootstrap provider accepts exactly two bootstrap-data formats,
+      cloud-config and ignition, and this system uses neither, so the standard
+      path does not merely lack a flavor, it cannot produce usable data. The
+      request to add support, cluster-api#7840, was opened in January 2023 and
+      closed in May 2024 without implementation, and the maintainers' stated
+      reasoning was that adding another operating system to the current
+      bootstrapper is not sustainable. The related request on the vendor's own
+      infrastructure provider, #4708, has been open since December 2023.
+
+      What does work is a downstream fork. The vendor vendors Cluster API
+      v1.13.2 in its edge-Kubernetes build tooling and applies a patch that adds
+      a third bootstrap-data format for this system, along with a patched
+      vSphere provider. That stack has shipped in the vendor's own on-premises
+      Kubernetes product since 2021, so the integration is battle-tested in
+      absolute terms. It is simply not upstream and not usable on a stock
+      Cluster API installation, and those are different claims.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/develop/sources/updater/README.md
+        type: source-repo
+        title: Updater, waves
+        retrieved: "2026-09-22"
+        quote: >-
+          Updates may include "wave" information which provides a way for updates
+          to be scheduled over time for groups of Bottlerocket hosts.
+      - url: https://github.com/bottlerocket-os/bottlerocket-ecs-updater
+        type: source-repo
+        title: Bottlerocket ECS updater
+        retrieved: "2026-09-22"
+        quote: >-
+          When installed, the Bottlerocket ECS Updater will periodically query
+          each Bottlerocket container instance to find whether an update is
+          available and drain tasks while an update is in progress.
+      - url: https://github.com/bottlerocket-os/bottlerocket-control-container/blob/develop/README.md
+        type: source-repo
+        title: Bottlerocket control container, Inspector SBOM upload
+        retrieved: "2026-09-22"
+        quote: >-
+          This container includes corgid, a binary that collects the
+          Bottlerocket package inventory, converts it to a CycloneDX SBOM, and
+          sends it to the Amazon Inspector API for vulnerability scanning.
+      - url: https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami-bottlerocket.html
+        type: vendor-docs
+        title: Bottlerocket AMIs for EKS, support coverage
+        retrieved: "2026-09-22"
+        quote: >-
+          AWS provided builds of Bottlerocket on Amazon EC2 is covered under the
+          same AWS Support plans that also cover AWS services
+
+      - url: https://cluster-api.sigs.k8s.io/reference/providers
+        type: official-docs
+        title: Cluster API provider list, searched for this project
+        retrieved: "2026-09-22"
+      - url: https://github.com/kubernetes-sigs/cluster-api/issues/7840
+        type: source-repo
+        title: Bottlerocket OS support in kubeadm bootstrap, closed without implementation
+        retrieved: "2026-09-22"
+        quote: >-
+          adding another OS specific to the current bootstrapper was a no-go as
+          it's not sustainable nor scalable
+      - url: https://github.com/kubernetes-sigs/cluster-api-provider-aws/issues/4708
+        type: source-repo
+        title: Bottlerocket worker node support in the AWS provider, open since 2023-12-20
+        retrieved: "2026-09-22"
+        quote: >-
+          What seems to be missing is a way to configure the Bottlerocket user
+          data.
+      - url: https://anywhere.eks.amazonaws.com/docs/osmgmt/artifacts/
+        type: vendor-docs
+        title: EKS Anywhere operating system artifacts
+        retrieved: "2026-09-22"
+        quote: "Bottlerocket: For vSphere and Bare Metal providers"
+  d13_governance:
+    normalized:
+      license: "Apache-2.0 OR MIT"
+      license_note: "Dual licensed at the user's option. No copyright assignment is required to contribute."
+      open_source: true
+      open_governance: undocumented
+      vendor_neutral_ownership: single-vendor
+      foundation: "none"
+      trademark_holder: "Amazon.com, Inc. or its affiliates"
+      primary_commercial_sponsor: AWS
+      contribution_diversity:
+        method: >-
+          Commit counts from the GitHub contributors API for
+          bottlerocket-os/bottlerocket. This counts individuals, not
+          organizations. No MAINTAINERS file, CODEOWNERS or affiliation data is
+          published, so organizational spread cannot be established from primary
+          sources and is not inferred here.
+        value: >-
+          A deep contributor list with a long tail: the top contributor has 965
+          commits, roughly forty contributors have ten or more, and release notes
+          credit outside contributors by handle. Every governance, security,
+          trademark and code-of-conduct pointer in the repository routes to
+          Amazon.
+    summary: >-
+      Dual licensed Apache-2.0 or MIT, with no copyright assignment required.
+      Amazon owns the trademarks and there is no foundation. There is no
+      governance document, no maintainers file and no CODEOWNERS.
+    notes: >-
+      The four governance properties separate cleanly here and the result is
+      mixed rather than simple. Open source: yes, and unusually permissively,
+      with contributors retaining copyright. Open governance: undocumented.
+      CHARTER.md states values and CONTRIBUTING.md states mechanics; neither says
+      who decides, how maintainers are appointed or removed, or how disputes are
+      resolved. Vendor-neutral ownership: no. Contribution diversity: a broad
+      contributor list, with affiliation unpublished.
+
+      The trademark policy is detailed and permissive in an interesting way. It
+      allows use of the name for an unmodified rebuild provided the distribution
+      is clearly identified as yours and the commit is named, and for a modified
+      version with an added identifier. It even documents the mechanics of
+      complying by modifying the os-release file. The policy text itself is
+      CC BY-SA and is based on Mozilla's.
+
+      The roadmap is public as a GitHub Project and is honest about its own
+      limits, describing itself as a point-in-time snapshot subject to
+      reconsideration.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/COPYRIGHT
+        type: governance-doc
+        title: Copyright and licence
+        retrieved: "2026-09-22"
+        quote: >-
+          Copyrights in Bottlerocket are retained by their contributors. No
+          copyright assignment is required to contribute to Bottlerocket.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/TRADEMARKS.md
+        type: governance-doc
+        title: Trademark policy
+        retrieved: "2026-09-22"
+        quote: >-
+          Amazon ... is the owner of the Bottlerocket Trademarks. As such, the
+          law obligates us to police and protect the trademarks.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/CHARTER.md
+        type: governance-doc
+        title: Charter
+        retrieved: "2026-09-22"
+        quote: >-
+          These tenets guide Bottlerocket's development. They let you know what
+          we value and what we're working toward, even if not every feature is
+          ready yet.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/ROADMAP.md
+        type: governance-doc
+        title: Roadmap
+        retrieved: "2026-09-22"
+        quote: >-
+          The roadmap is best understood as a point-in-time snapshot of what is
+          being worked on and the intentions for upcoming releases.
+    unknowns:
+      - "No GOVERNANCE.md, MAINTAINERS file or CODEOWNERS exists, so who decides and how maintainers are appointed is unpublished."
+      - "Contributor employer affiliation is not published, so the organizational mix cannot be established."
+      - "No foundation affiliation statement of any kind was found in primary sources."
+
+  d14_maturity:
+    normalized:
+      first_release: "2020-01-18"
+      general_availability: "2020-08-31"
+      current_version: "v1.65.0"
+      current_version_date: "2026-09-09"
+      release_cadence: "median roughly 14 to 15 days over the last ten releases, against a stated intent of about six weeks"
+      observed_intervals: "41, 12, 24, 21, 14, 14, 12, 13, 15, 19 days across v1.56.0 to v1.65.0, counting v1.58.0, which GitHub flags as a pre-release and whose notes say its rollout was stopped"
+      support_model: versioned-with-eol
+      support_window: "Kubernetes variants approximately 14 months from first release of the variant, following the EKS support policy including extended support; ECS variants at least one year"
+      commercial_support: available
+    summary: >-
+      Six years old, GA since August 2020, 134 releases. Support windows are
+      expressed per variant rather than per release, which follows from the
+      variant model: a variant pegs to a kernel and GPU driver version and
+      receives security patches for its window.
+    notes: >-
+      The support philosophy is stated directly and is unusual enough to quote in
+      full effect: the right time for an unexpected major version update to the
+      kernel or orchestrator agent is never. New variants introduce newer LTS
+      kernels; existing variants stay pegged unless security patches stop being
+      available for the pegged component.
+
+      Observed cadence is currently much faster than the stated intent. The
+      roadmap describes a loose release train about six weeks apart; the last ten
+      intervals have a median around two weeks. One release in that window,
+      v1.58.0, carries the GitHub pre-release flag and a note that its rollout
+      was stopped for an image-pull regression, with users directed to v1.59.0.
+      It is counted in the intervals because it was published; the
+      version-observed method, which takes the latest non-pre-release, would
+      skip it.
+
+      No per-variant calendar of concrete end-of-support dates is published, only
+      the relative windows. That is a real gap for anyone planning a migration,
+      and it is the same class of gap seen on several other projects in this
+      edition.
+
+      The companion operator has a narrower support policy than the OS: security
+      patches for the latest minor version only.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md
+        type: source-repo
+        title: Security features, update policy
+        retrieved: "2026-09-22"
+        quote: >-
+          Bottlerocket provides updates for each Kubernetes variant for
+          approximately 14 months after the first release of each variant.
+      - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/ROADMAP.md
+        type: governance-doc
+        title: Roadmap, release cadence
+        retrieved: "2026-09-22"
+        quote: >-
+          Releases in Bottlerocket follow a loose release train model with each
+          being spaced out about six weeks apart.
+      - url: https://aws.amazon.com/about-aws/whats-new/2020/08/announcing-general-availability-of-bottlerocket/
+        type: announcement
+        title: Bottlerocket general availability
+        retrieved: "2026-09-22"
+        quote: >-
+          Today, Amazon Web Services (AWS) announced the General Availability of
+          Bottlerocket, a new open source Linux-based Operating System (OS)
+          purpose-built to run containers.
+      - url: https://github.com/bottlerocket-os/bottlerocket/releases
+        type: release-notes
+        title: Bottlerocket releases
+        retrieved: "2026-09-22"
+    unknowns:
+      - "No published calendar of concrete per-variant end-of-support dates, only relative windows."
+
+tradeoffs:
+  buys:
+    - "A whole-root A/B image with dm-verity, an ephemeral /etc and a modelled settings store means the machine's state is determined by its version plus its settings. There is no package database or local file edit that can make an update non-deterministic."
+    - "Fail-closed integrity: the kernel restarts on verity corruption rather than continuing in an unknown state."
+    - "Ships with SELinux enforcing and no way to disable it, no shell, no interpreters, and kernel lockdown on by default."
+    - "Update waves, version locking and the full update state machine live in the open-source OS, so staged rollout across a fleet needs no management product."
+    - "TUF gives hash-pinned, multi-role-signed updates with key rotation, and the repository is documented as self-hostable with your own keys."
+    - "Twoliter makes deep customization possible without forking, including replacing core packages, opting out of the update system and bringing your own signing keys."
+    - "Permissive licensing with contributors retaining copyright, and a trademark policy that explicitly permits naming your own rebuilds and derivatives."
+  costs:
+    - "To use Secure Boot on bare metal, an operator must enrol a certificate, because Secure Boot uses a Bottlerocket-held key rather than the third-party UEFI CA. This is a deliberate design choice. On some firmware, enrolment is not possible."
+    - "The Kubernetes minor version is part of the variant, so changing it is a node replacement, not an upgrade. Teams that cannot replace nodes freely inherit that constraint."
+    - "No recovery environment, no rescue shell and no factory reset. The documented answer is host replacement, which leaves no documented way to recover a single machine in place."
+    - "Access to a production node depends on the orchestrator, SSM, or a host container enabled in advance."
+    - "amd64 and arm64 only, with additional architectures ruled out by written policy. Bare-metal Kubernetes variants were dropped in 2024, and the bare-metal documentation reads as current."
+    - "No governance document, no maintainers file, no CODEOWNERS file and no foundation. Ownership is single-vendor, and decision-making is undocumented."
+    - "NVIDIA variants turn kernel lockdown off and may include precompiled binaries built without the project's hardening flags."
+    - "Encrypted storage is per-variant opt-in and is not enabled on the mainline Kubernetes variants. Its documentation states there is no recovery mechanism if PCR values change unexpectedly."
+    - "The README's variant list, NVIDIA driver versions and bare-metal guidance are all out of date against the repository on the same branch."
+maintainers_fact:
+  text: "Single vendor."
+  evidence: DOCUMENTED
+  sources:
+    - url: "https://github.com/bottlerocket-os/bottlerocket/blob/develop/TRADEMARKS.md"
+      type: "governance-doc"
+      title: "Trademark policy"
+      retrieved: "2026-09-22"
+      quote: "Amazon ... is the owner of the Bottlerocket Trademarks. As such, the law obligates us to police and protect the trademarks."
+known_issues:
+  - text: "The bare-metal provisioning guide and the supported-hardware document read as current, with no deprecation banner, but the metal Kubernetes variants they describe were removed in v1.27.0 in November 2024."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://github.com/bottlerocket-os/bottlerocket/blob/develop/PROVISIONING-METAL.md"
+        type: "source-repo"
+        title: "Provisioning on bare metal"
+        retrieved: "2026-09-22"
+        quote: "Decompress (unlz4) and write the Bottlerocket image to the desired disk"
+      - url: "https://github.com/bottlerocket-os/bottlerocket/blob/develop/CHANGELOG.md"
+        type: "release-notes"
+        title: "Changelog, v1.27.0 metal variant removal"
+        retrieved: "2026-09-22"
+        quote: "Drop k8s 1.28 and k8s 1.29 metal variants"
+open_questions:
+  - "Is there a governance document not in the repository? How are maintainers added and removed, and has any non-Amazon party held a maintainer role?"
+  - "Has a foundation donation been formally considered, and is there a public position? The charter says 'not an Amazon distro' while ownership, trademarks, security reporting and code of conduct route to Amazon."
+  - "Which released variants ship with encrypted-storage enabled, and is there a plan to enable it on the mainline aws-k8s variants?"
+  - "Is the aws-mantle-1 family intended to become a generally supported orchestrator-free variant?"
+  - "What is the supported story for running fully air-gapped, covering both a mirrored TUF repository and mirrored host container images? Is that configuration tested?"
+  - "Are per-variant end-of-support dates published anywhere machine-readable?"
+  - "Is bare metal a supported target going forward? The metal Kubernetes variants were dropped in v1.27.0 but the metal documentation reads as current."
+  - "Is riscv64 categorically out of scope, or is 'no plan to add additional CPU architectures' a statement about core images that an out-of-tree Twoliter build could address?"
+  - "Are per-release SBOMs or SLSA provenance attestations published for official AMIs?"
+  - "What is the intended recovery path for a production node with both host containers disabled, no orchestrator and no network? No offline recovery path is documented for a production variant."
+  - "The EKS docs disagree on the second FIPS-validated module, naming AWS-LC on one page and Go Cryptographic Module on another. Which applies where?"
+  - "Which NIST CMVP certificate covers the kernel cryptographic module in the FIPS variants? No Bottlerocket or EKS source names one. Certificate 4808 is Historical and replaced by 5369, and Bottlerocket ships kernels other than the 6.1.41 build that 5369 covers."
+  - "Observed cadence is a two-week median against a stated six-week release train. Has the target changed, and does it affect default wave schedules?"
+  - "What does the external-kmod-development flag gate, and does the kmod-kit workflow still work on variants where it is false?"
+
+follow_up_research:
+  - FR-01
+  - FR-02
+  - FR-03
+  - FR-05
+  - FR-08
+  - FR-12
+  - FR-13
+  - FR-14
+  - FR-15
+  - FR-16
+
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Cost audit under methodology section 9, rule 15. Cost c3 reworded to the access limit (C1); the undocumented offline recovery path moved to open question q9 (N1). Cost c5: removed 'Licensing is permissive.', which is not a cost. Removed cost 'Measured boot and encrypted storage are documented in the core kit rather than in the canonical security document, so a reader following the project's own pointers will not find them.' (N6, a judgement about where documentation sits)."
+  - date: '2026-10-06'
+    field: dimensions.d04_upgrade.normalized.scope
+    change: Was whole-root (Whole root). Now whole-os-image (Whole OS image), from the independent check of what one update replaces (closed six-value vocabulary).
+    source:
+      url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/develop/sources/updater/signpost/README.md
+      type: source-repo
+      title: Bottlerocket signpost README, partition sets
+      retrieved: '2026-10-06'
+      quote: two partition sets, each containing three partitions
+  - date: "2026-10-05"
+    field: name
+    change: "Use the project's own name. The vendor prefix was added by the Pulse; the project calls itself Bottlerocket. The vendor is shown in d13."
+    source:
+      url: https://bottlerocket.dev/
+      type: official-docs
+      title: Bottlerocket homepage
+      retrieved: "2026-10-06"
+  - date: "2026-09-22"
+    field: dimensions.d10_security.normalized.fips
+    change: >-
+      Said "kernel module holds NIST CMVP certificate 4808". Now says AWS
+      names the Amazon Linux 2023 Kernel Crypto API Cryptographic Module with
+      no certificate number. No cited source gives a number, and NIST lists
+      certificate 4808 as Historical, replaced by 5369
+      (https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4808).
+    source:
+      url: https://docs.aws.amazon.com/eks/latest/userguide/bottlerocket-fips-amis.html
+      type: vendor-docs
+      title: Bottlerocket FIPS AMIs
+      retrieved: "2026-09-22"
+      quote: >-
+        This includes the Amazon Linux 2023 Kernel Crypto API Cryptographic
+        Module and the Go Cryptographic Module.
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.normalized.observed_intervals
+    change: >-
+      Said the ten intervals ran "across v1.55.0 to v1.65.0". The listed
+      intervals match v1.56.0 through v1.65.0 (eleven tags, ten gaps) and
+      include v1.58.0, which GitHub flags as a pre-release with a stopped
+      rollout. The v1.55.0 to v1.56.0 gap (14 days) was not in the list. The
+      span is now stated correctly and the pre-release flag is noted; the
+      median is unchanged.
+    source:
+      url: https://github.com/bottlerocket-os/bottlerocket/releases/tag/v1.58.0
+      type: release-notes
+      title: Bottlerocket v1.58.0
+      retrieved: "2026-09-22"
+      quote: >-
+        This release introduced a regression that causes certain container
+        images to fail during image pull. Please use Bottlerocket 1.59.0
+        instead.
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 17: where a capability is documented is not a cost. Removed the sentence 'The trade is documented once, in the security document, and not surfaced in the GPU documentation.' The security document states the trade. The lockdown and hardening facts stay."
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized
+    change: Added /run to the ephemeral paths (the security guidance names /etc and /run), and added ephemeral_mechanism, read_only_mechanism and configurable_paths for the Mounts row. The read-only, persistent and /etc values were re-read against the sources and stand.
+    source:
+      url: https://github.com/bottlerocket-os/bottlerocket/blob/8db07cb/SECURITY_GUIDANCE.md
+      type: source-repo
+      title: 'Bottlerocket security guidance: system mounts'
+      retrieved: '2026-10-12'
+      quote: Bottlerocket provides a read-only root filesystem, ephemeral mounts for system directories such as `/etc` and `/run`, and persistent storage under `/local`.
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: 'Added the add_software field. It records how an adopter adds software to the OS itself, not workloads. Values: Build-time only. Each value has its sources, read on 2026-10-12.'
+    source:
+      url: https://github.com/bottlerocket-os/twoliter/blob/ff81b1732407cbeb2f6730ec0ce251a762064eb4/docs/design/README.md
+      type: design-doc
+      title: Twoliter design document
+      retrieved: '2026-10-12'
+      quote: Because software cannot be installed on Bottlerocket after the image has been created, it lacks a traditional package manager.

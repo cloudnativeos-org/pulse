@@ -1,0 +1,1336 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: bootc
+name: bootc
+homepage: https://bootc.dev/
+repository: https://github.com/bootc-dev/bootc
+collected_at: "2026-09-15"
+
+entry_kind:
+  - mechanism
+
+category_fit:
+  comparable: partial
+  note: >-
+    bootc is a tool, not a distribution. It implements transactional in-place
+    operating system updates from OCI container images, and distributions and
+    base image sets consume it. It ships no operating system, no hardware
+    support and no release of its own beyond the tool.
+
+    It is a separate entry from Fedora CoreOS precisely because comparing a
+    mechanism's hardware support or release cadence against a distribution's is
+    a category error. Section 3 of this edition's methodology explains the
+    reasoning, and the same entry_kind field is applied to Kairos, NixOS and
+    Unikraft on identical terms.
+
+    Four dimensions do not apply to a mechanism. They are listed below and each
+    carries a note explaining why, rather than being scored as absences.
+  dimensions_not_applicable:
+    - d01_os_model
+    - d08_hardware_platform
+    - d09_provisioning
+    - d11_operations_debugging
+
+self_description:
+  text: >-
+    Transactional, in-place operating system updates using OCI/Docker container
+    images. bootc is the key component in a broader mission of bootable
+    containers.
+  source:
+    url: https://bootc.dev/bootc/
+    type: official-docs
+    title: bootc introduction
+    retrieved: "2026-09-22"
+
+version_observed:
+  version: "v1.16.13"
+  released: "2026-09-15"
+  channel: stable
+  method: >-
+    Latest GitHub release on bootc-dev/bootc. Note the repository moved from the
+    containers organization, which now redirects.
+  source:
+    url: https://github.com/bootc-dev/bootc/releases
+    type: release-notes
+    title: bootc releases
+    retrieved: "2026-09-22"
+
+taxonomy:
+  workload_scope: general-purpose-host
+  construction_model:
+    - framework
+  root_state_substrate:
+    - bootc-container-deployment
+    - ostree-deployment
+  notes: >-
+    The taxonomy axes describe what bootc enables in the systems that adopt it
+    rather than a machine bootc itself ships. Workload scope is
+    general-purpose-host because bootc is deliberately distribution-independent
+    and imposes no workload model. The substrate is a bootc container deployment
+    backed by OSTree.
+
+    The project's own statement of its relationship to the older mechanism is
+    precise: "bootc uses OSTree as a backing model, and so does rpm-ostree.
+    Hence, when using a container source, rpm-ostree upgrade and bootc upgrade
+    are effectively equivalent."
+
+dimensions:
+  d01_os_model:
+    normalized:
+      entry_kind: mechanism
+      ships_an_os: "not-applicable"
+    summary: >-
+      A command-line tool and library, written in Rust, that deploys and updates
+      a system from an OCI container image. It is not an operating system and
+      does not ship one.
+    notes: >-
+      This dimension is marked not-applicable because the question it asks, what
+      kind of operating system is this, has no answer for a mechanism. What bootc
+      has instead is a design stance, stated by the project: "The bootc project
+      currently takes a relatively hard stance that system state should come from
+      a container image." It coexists with the older mechanism rather than
+      replacing it: "It will be supported to use both bootc and rpm-ostree
+      together; they are not exclusive."
+
+      Adopters span multiple distributions and organizations, which is the
+      evidence for the distribution-independence claim: the adopters file lists
+      HeliumOS, the AlmaLinux Atomic special interest group, CIQ and Rocky Linux,
+      Universal Blue, ALT Atomic and others, alongside Red Hat's own products.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/relationships.md
+        type: official-docs
+        title: Relationship to other projects
+        retrieved: "2026-09-22"
+        quote: >-
+          bootc uses OSTree as a backing model, and so does rpm-ostree. Hence,
+          when using a container source, `rpm-ostree upgrade` and `bootc
+          upgrade` are effectively equivalent; you can use either command.
+      - url: https://github.com/bootc-dev/bootc/blob/main/ADOPTERS.md
+        type: source-repo
+        title: bootc adopters
+        retrieved: "2026-09-22"
+
+  d02_immutability:
+    normalized:
+      model: ostree-deployment-backed
+      integrity_mechanism:
+        - ostree-immutable-checkout
+        - composefs
+      fsverity: "enabled by default on the composefs backend where available"
+      etc_merge: three-way
+      read_only:
+        - /
+        - /usr
+        - /opt
+      read_only_mechanism: composefs backend, recommended; the whole of / is a read-only filesystem
+      writable_and_persistent:
+        - /etc (three-way merge on upgrade)
+        - /var
+      configurable_paths:
+        value: 'yes'
+        evidence: DOCUMENTED
+        how: Opt in to a transient root or a transient /etc in prepare-root.conf. Make /var or its subdirectories separate mounts. Mount other filesystems with /etc/fstab or mount units.
+        sources:
+          - url: https://bootc.dev/bootc/bootc-filesystem.7.html
+            type: official-docs
+            title: 'bootc filesystem: transient root'
+            retrieved: '2026-10-12'
+            quote: This feature enables a fully transient writable rootfs by default.
+          - url: https://bootc.dev/bootc/bootc-filesystem.7.html
+            type: official-docs
+            title: 'bootc filesystem: mounting other filesystems'
+            retrieved: '2026-10-12'
+            quote: Mounting separate filesystems there can be done by the usual mechanisms of /etc/fstab, systemd .mount units, etc.
+      mounts_sources:
+        - url: https://bootc.dev/bootc/bootc-filesystem.7.html
+          type: official-docs
+          title: 'bootc filesystem: read-only root'
+          retrieved: '2026-10-12'
+          quote: This will ensure that the entire / is a read-only filesystem which is very important for achieving correct semantics.
+        - url: https://bootc.dev/bootc/bootc-filesystem.7.html
+          type: official-docs
+          title: 'bootc filesystem: /opt'
+          retrieved: '2026-10-12'
+          quote: In the default suggested model of using composefs (per above) the /opt directory will be read-only
+        - url: https://bootc.dev/bootc/bootc-filesystem.7.html
+          type: official-docs
+          title: 'bootc filesystem: /etc'
+          retrieved: '2026-10-12'
+          quote: The /etc directory contains mutable persistent state by default
+        - url: https://bootc.dev/bootc/bootc-filesystem.7.html
+          type: official-docs
+          title: 'bootc filesystem: /var'
+          retrieved: '2026-10-12'
+          quote: Content in /var persists by default; it is however supported to make it or subdirectories mount points (whether network or tmpfs).
+    summary: >-
+      The state model comes from OSTree: an image is deployed as a new
+      checkout, /etc receives a three-way merge preserving local changes, and
+      /var persists untouched.
+    notes: >-
+      The integrity position is documented with unusual precision and is worth
+      quoting because it is the clearest statement in this edition of where
+      container-image integrity actually stops: "The composefs backend enables
+      fsverity by default if available, but does not verify the composefs image
+      (because there's nothing to verify it against by default). The composefs
+      backend with sealed UKIs does verify the composefs mount."
+
+      So integrity of the deployed tree is measurable, but binding it to a
+      signature requires a sealed unified kernel image, which is an emerging
+      rather than default configuration.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://bootc.dev/bootc/security.html
+        type: official-docs
+        title: bootc security
+        retrieved: "2026-09-22"
+        quote: >-
+          The composefs backend enables fsverity by default if available, but
+          does not verify the composefs image (because there's nothing to verify
+          it against by default).
+      - url: https://bootc.dev/bootc/bootc-filesystem.7.html
+        type: official-docs
+        title: bootc filesystem model
+        retrieved: "2026-09-22"
+        quote: >-
+          Content in /var persists by default; it is however supported to make
+          it or subdirectories mount points (whether network or tmpfs).
+
+  d03_artifact:
+    normalized:
+      primary_artifact: oci-image
+      oci_registry_distribution: true
+      content_addressable: true
+      mirrorable: true
+      signed: "supported, permissive by default"
+      air_gapped_capable: true
+      kernel_included: true
+    summary: >-
+      An ordinary OCI container image, containing a Linux kernel, that is
+      deployed as the bootable root. Standard registries, standard mirroring,
+      standard registry configuration.
+    notes: >-
+      Because the artifact is an ordinary container image, the whole registry
+      ecosystem applies unchanged. The documentation says so directly about
+      mirroring and remapping.
+
+      Air-gapped operation is documented concretely: copy the image into an OCI
+      directory, carry it on removable media, and switch the system to that
+      transport.
+
+      The signature default is the notable finding, and the project is candid
+      about it: bootc honours the host's container policy, and the upstream
+      default does not require signatures for generic images. The documentation
+      adds that it "is however a very good idea for bootc users to enable
+      signatures for their images". This is the opposite default to the
+      distribution that consumes it most visibly, Fedora CoreOS, which ships a
+      reject-by-default policy.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/registries-and-offline.md
+        type: official-docs
+        title: Registries and offline operation
+        retrieved: "2026-09-22"
+        quote: >-
+          In a usage scenario where the operating system update is in a fully
+          disconnected environment and you want to perform updates via e.g.
+          inserting a USB drive, one can do this by copying the desired OS
+          container image to e.g. an `oci` directory
+      - url: https://bootc.dev/bootc/security.html
+        type: official-docs
+        title: bootc security, signature policy
+        retrieved: "2026-09-22"
+        quote: >-
+          The upstream default at the time of this writing does not require
+          signatures for generic images ... It is however a very good idea for
+          bootc users to enable signatures for their images.
+      - url: https://bootc.dev/bootc/
+        type: official-docs
+        title: bootc introduction
+        retrieved: "2026-09-22"
+        quote: >-
+          The container image includes a Linux kernel (in e.g. /usr/lib/modules),
+          which is used to boot
+
+  d04_upgrade:
+    normalized:
+      fleet_upgrade:
+        self_update: "The bootc-fetch-apply-updates timer is available upstream for operating systems and distributions to enable. The upstream default is daily."
+        paths:
+          - kind: operator
+            name: "bootc-operator"
+            license: "Apache-2.0"
+            class: open-source
+            reconciliation: in-place
+            status: "pre-release"
+            filter: true
+            note: "Version v0.1.1. The README says the project is in early development."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/bootc-dev/bootc-operator
+                title: "bootc-operator README"
+                retrieved: "2026-10-06"
+                quote: >-
+                  This project is in early development and not yet fully functional. APIs may change.
+          - kind: fleet-server
+            name: "Flight Control"
+            license: "Apache-2.0"
+            class: open-source
+            reconciliation: in-place
+            filter: true
+            note: "A fleet service that rolls out a device specification to every device in a fleet."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/flightctl/flightctl
+                title: "flightctl repository"
+                retrieved: "2026-10-06"
+                quote: >-
+                  The Flight Control service would then roll out this specification to all devices in the fleet
+      version_identity:
+        identifier: "Image digest reported in host status (imageDigest)"
+        condition: "No client-side package layering."
+        evidence: DOCUMENTED
+        sources:
+          - url: https://github.com/bootc-dev/bootc/blob/7702842/docs/src/host-v1.schema.json
+            type: source-code
+            title: "bootc host status schema"
+            retrieved: "2026-10-06"
+            quote: >-
+              The digest of the fetched image (e.g. sha256:a0...);
+          - url: https://github.com/bootc-dev/bootc/blob/7702842/docs/src/bootc-relationships.7.md
+            type: official-docs
+            title: "bootc relationships"
+            retrieved: "2026-10-06"
+            quote: >-
+              as soon as you mutate the system in this way, `bootc upgrade` will error out
+      mechanism:
+        - bootc-container-deployment
+      scope: os-tree-etc-merged
+      scope_note: /etc is merged three ways on upgrade, unless etc.transient is set; one /var is shared.
+      scope_sources:
+        - url: https://github.com/bootc-dev/bootc/blob/7702842/docs/src/bootc-filesystem.7.md
+          type: source-repo
+          title: bootc-filesystem(7), /etc
+          retrieved: '2026-10-06'
+          quote: inherits the OSTree semantics of performing a 3-way merge across upgrades
+      style: "A/B, staged, running system unchanged by default"
+      initiator: "operator command or a systemd timer"
+      requires_kubernetes: false
+      requires_vendor_infrastructure: false
+      self_hostable_update_server: true
+      self_hostable_update_source: "Any OCI registry; there is no update server"
+      self_hostable_update_server_evidence: DOCUMENTED
+      self_hostable_update_server_note: "There is no update server. bootc pulls the next image from any OCI registry. The docs cover private registries, registry mirrors, and an offline USB source."
+      artifact_verification: "policy-based, permissive by default"
+      phased_rollout: "none"
+    summary: >-
+      An upgrade queries the registry for a newer digest and stages it as a new
+      deployment. The running system is not changed by default. Applying it is a
+      separate step.
+    notes: >-
+      The staging split is finer-grained than most: an upgrade can download
+      without applying, the staged state is inspectable, and it can be applied
+      later from what was already downloaded. That is genuinely useful for
+      controlling when a change lands on a fleet.
+
+      What is absent is the orchestration around it, and the project says so.
+      There is no phased rollout, no canary and no per-node wariness of its own.
+      The Fedora bootc default is a plain systemd timer, and its documentation
+      states the intent plainly: "By default, there is a simplistic automatic
+      update timer enabled. At any nontrivial scale, it is intended that this is
+      replaced with something more sophisticated."
+
+      bootc's own documentation records the gap as a goal rather than a feature,
+      aiming to include some of the functionality the Fedora CoreOS update agent
+      already has.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://bootc.dev/bootc/upgrades.html
+        type: official-docs
+        title: bootc upgrades
+        retrieved: "2026-09-22"
+        quote: >-
+          This is backed today by ostree, implementing an A/B style upgrade
+          system. Changes to the base image are staged, and the running system is
+          not changed by default.
+      - url: https://docs.fedoraproject.org/en-US/bootc/management-generic/
+        type: official-docs
+        title: Fedora bootc, generic management
+        retrieved: "2026-09-22"
+        quote: >-
+          By default, there is a simplistic automatic update timer enabled. At
+          any nontrivial scale, it is intended that this is replaced with
+          something more sophisticated.
+      - url: https://bootc.dev/bootc/bootc-registries-and-offline.7.html
+        type: official-docs
+        title: "bootc registries and offline updates"
+        retrieved: "2026-10-05"
+        quote: >-
+          It is common to use a private repository when deploying a fleet of bootc instances.
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: available
+      rollback_mechanism: "reorders existing deployments; does not create a new one"
+      automatic_rollback_on_boot_failure: "backend dependent; documented as boot failure detection, with boot loader entry counting configurable on the OSTree backend and not configured on the composefs backend"
+      retained_versions: 2
+      recovery_environment: "not-applicable"
+      factory_reset: "not-applicable"
+    summary: >-
+      Rollback reorders the bootloader entries so the previous deployment boots
+      next. Boot failure detection exists on the OSTree backend and is
+      documented as missing on the newer composefs backend.
+    notes: >-
+      Recovery environment and factory reset are marked not-applicable because
+      they are properties of a distribution's install media and lifecycle, not of
+      an update mechanism. A system using bootc has whatever recovery environment
+      its distribution ships.
+
+      One documented consequence of the reorder-rather-than-create design is
+      worth recording because it surprises people: changes made to files in /etc
+      do not carry over to the rolled-back deployment, because rollback reorders
+      existing deployments rather than building new ones.
+
+      The backend split matters for anyone evaluating this now. The OSTree
+      backend has finalize and boot-complete services. The composefs backend has
+      a finalize service but the documentation states it lacks the boot-complete
+      equivalent, and that boot entry counting "is likely to be added in the
+      future". That is an honest disclosure of an incomplete safety net on the
+      newer path.
+
+      What the page documents is detection, not reversion. The finalize and
+      boot-complete services record that a staged deployment failed to
+      finalize; they do not by themselves boot the previous entry. Automatic
+      reversion depends on boot loader entry counting, which the page says a
+      recent OSTree makes possible to configure and which the composefs
+      backend does not configure. No trigger, attempt count or success
+      criterion for an automatic rollback is stated in bootc's own
+      documentation, and the rollback manual page itself warns that an active
+      update timer may revert a manual rollback. Re-checked 2026-09-22: the
+      composefs statement is unchanged on the live page and in the repository
+      source, and no open issue or pull request on the boot counting topic was
+      found.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://bootc.dev/bootc/boot-failure-detection.html
+        type: official-docs
+        title: Boot failure detection
+        retrieved: "2026-09-22"
+        quote: >-
+          the composefs backend does not configure boot entry counting, this is
+          likely to be added in the future
+      - url: https://bootc.dev/bootc/man/bootc-rollback.8.html
+        type: official-docs
+        title: bootc rollback manual page
+        retrieved: "2026-09-22"
+        quote: >-
+          any changes made to files in the `/etc` directory won't carry over to
+          the rolled-back deployment
+
+  d06_customization:
+    normalized:
+      model: containerfile-derivation
+      runtime_package_install: "discouraged by the project's stance, not blocked by the tool"
+      customization_points:
+        - build-time
+      add_software:
+      - kind: derive-image
+        how: A Containerfile that starts from a bootc base image. Package installs run at build time with the tools of that base distribution. The docs say systemd-sysext is not currently supported on bootc hosts, and bootc usroverlay gives only a transient writable /usr.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/bootc-dev/bootc/blob/654978a62f5fe50b62d4e8c21c8246bd6409e296/docs/src/bootc-package-managers.7.md
+          type: source-repo
+          title: 'bootc docs: Package manager integration'
+          retrieved: '2026-10-12'
+          quote: the default usage of package managers such as `apt` and `dnf` will be at container build time.
+        - url: https://github.com/bootc-dev/bootc/blob/654978a62f5fe50b62d4e8c21c8246bd6409e296/docs/src/bootc-filesystem.7.md
+          type: source-repo
+          title: 'bootc docs: Filesystem, systemd-confext and systemd-sysext'
+          retrieved: '2026-10-12'
+          quote: are not currently supported on bootc-managed systems.
+        - url: https://github.com/bootc-dev/bootc/blob/654978a62f5fe50b62d4e8c21c8246bd6409e296/docs/src/bootc-package-managers.7.md
+          type: source-repo
+          title: 'bootc docs: Package manager integration'
+          retrieved: '2026-10-12'
+          quote: command that adds a transient writable overlayfs for
+    summary: >-
+      Customization is a Containerfile. The expected workflow is to derive from a
+      base image using ordinary package manager commands in a build, which the
+      documentation says just works.
+    notes: >-
+      This is the whole point of the mechanism and the clearest contrast with the
+      configure-a-prebuilt-image model. An adopter owns the resulting image, and
+      with it the build, test, signing and patching of that image, which is the
+      framework cost this edition's methodology requires be recorded wherever a
+      framework appears.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://bootc.dev/bootc/building/guidance.html
+        type: official-docs
+        title: Building guidance
+        retrieved: "2026-09-22"
+        quote: >-
+          it is very much expected that the pattern of RUN $pkgsystem install
+          somepackage && $pkgsystem clean all ... Just Works here
+
+  d07_kubernetes:
+    normalized:
+      requirement: unrelated
+      bundled: "none"
+      independent_lifecycle: "not-applicable"
+      os_manages_kubernetes: "no"
+      kubernetes_manages_os: "bootc-operator, a Kubernetes operator in the project's own organization; first pre-release v0.1.0 on 2026-09-17, and its README states it is in early development and not yet fully functional"
+      distributions: ["MicroShift, on image mode for RHEL (documented by Red Hat)"]
+      documented_kubernetes_use: "Red Hat documents MicroShift, its Kubernetes distribution, embedded in bootc images through image mode for RHEL. bootc itself neither requires, ships nor manages Kubernetes."
+    summary: >-
+      bootc itself neither requires Kubernetes, ships it, nor manages it. Red Hat
+      documents MicroShift, its Kubernetes distribution, embedded in bootc images
+      through image mode for RHEL. Native Kubernetes integration is a roadmap
+      direction, and a separate operator
+      in the project's organization reached a first pre-release marked early
+      development after this edition's collection date.
+    notes: >-
+      Lifecycle independence is marked not-applicable because there is no
+      operating system release for a Kubernetes version to be coupled to. What
+      the mechanism does is orthogonal to whatever orchestrator the resulting
+      system runs.
+
+      The operator is recorded here on the same terms as the Kairos operator
+      is recorded in that profile: a Kubernetes-side controller that applies an
+      OS image to nodes. Its repository was created 2026-03-18, its first
+      release is a pre-release dated 2026-09-17, and the README carries a
+      warning that the project is in early development and its APIs may
+      change. It is a separate repository from the tool and is not part of a
+      bootc release.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.redhat.com/en/documentation/red_hat_build_of_microshift/4.22/html/installing_with_image_mode_for_rhel/index
+        type: vendor-docs
+        title: "Red Hat build of MicroShift 4.22: Installing with image mode for RHEL"
+        retrieved: "2026-10-05"
+        quote: >-
+          You can embed MicroShift into a bootc image by using image mode for
+          Red Hat Enterprise Linux (RHEL).
+      - url: https://github.com/bootc-dev/bootc/blob/main/ROADMAP.md
+        type: design-doc
+        title: bootc roadmap
+        retrieved: "2026-09-22"
+        quote: >-
+          Develop native Kubernetes integrations to enable cluster-wide OS
+          updates, node lifecycle management, and fleet-wide rollout and
+          rollback strategies.
+      - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/relationships.md
+        type: official-docs
+        title: Relationship with Kubernetes
+        retrieved: "2026-09-22"
+        quote: >-
+          Just as `podman` does not depend on a Kubernetes API server, `bootc`
+          will also not depend on one.
+      - url: https://github.com/bootc-dev/bootc-operator/blob/main/README.md
+        type: source-repo
+        title: bootc operator README
+        retrieved: "2026-09-22"
+        quote: >-
+          This project is in early development and not yet fully functional.
+          APIs may change.
+      - url: https://github.com/bootc-dev/bootc-operator/releases
+        type: release-notes
+        title: bootc operator releases, v0.1.0 pre-release
+        retrieved: "2026-09-22"
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        from_base_distribution:
+          note: "Other accelerators: the drivers your chosen base distribution provides, installed when you build the image. Not documented per accelerator by bootc."
+          evidence: DOCUMENTED
+          sources:
+            - url: https://github.com/bootc-dev/bootc/blob/7702842/docs/src/building/bootc-building-images.7.md
+              title: "bootc: building images"
+              retrieved: "2026-10-06"
+              quote: >-
+                RUN $pkgsystem install somepackage && $pkgsystem clean all
+        items:
+          - vendor: nvidia-gpu
+            what: "NVIDIA CUDA"
+            arch: [amd64, arm64]
+            delivery: vendor-image
+            delivery_note: "RHEL AI 3.4 image bootc-cuda-rhel9:3.4.0"
+            secure_boot: not-documented
+            gpu_operator: not-documented
+            status: supported
+            note: "Vendor images ship in RHEL AI 3.4 with x86_64 and aarch64 ISOs. A do-it-yourself path layers the driver into a derived image (base quay.io/centos-bootc/centos-bootc:stream9) and runs nvidia-ctk cdi generate. Secure Boot is not documented for RHEL AI. The GPU Operator is not documented."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://docs.redhat.com/en/documentation/red_hat_enterprise_linux_ai/3.4
+                title: "RHEL AI 3.4 documentation"
+                retrieved: "2026-10-06"
+              - url: https://gitlab.com/fedora/bootc/examples/-/blob/d6ac3be/nvidia/Containerfile
+                title: "fedora/bootc/examples nvidia/Containerfile at d6ac3be"
+                retrieved: "2026-10-06"
+          - vendor: amd
+            what: "AMD ROCm"
+            arch: [amd64, arm64]
+            delivery: vendor-image
+            delivery_note: "RHEL AI 3.4 image bootc-rocm-rhel9:3.4.0"
+            secure_boot: not-documented
+            status: supported
+            note: "Vendor image in RHEL AI 3.4. The ROCm operator is not documented."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://docs.redhat.com/en/documentation/red_hat_enterprise_linux_ai/3.4
+                title: "RHEL AI 3.4 documentation"
+                retrieved: "2026-10-06"
+          - vendor: intel
+            what: "Intel Gaudi 3"
+            arch: [amd64, arm64]
+            delivery: vendor-image
+            delivery_note: "RHEL AI 3.4 image bootc-gaudi-rhel9:3.4.0"
+            secure_boot: not-documented
+            status: supported
+            note: "Vendor image in RHEL AI 3.4."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://docs.redhat.com/en/documentation/red_hat_enterprise_linux_ai/3.4
+                title: "RHEL AI 3.4 documentation"
+                retrieved: "2026-10-06"
+      architectures_released: "not-applicable"
+      platforms: "not-applicable"
+      architectures_via_base_distribution:
+        - archs:
+            - amd64
+            - arm64
+            - ppc64le
+            - s390x
+          components:
+            - bootc
+            - system-reinstall-bootc
+          evidence: DOCUMENTED
+          note: bootc ships no OS image. The bootc package is built for these architectures in Fedora. The base distribution you pick supplies the rest.
+          sources:
+            - url: https://koji.fedoraproject.org/koji/buildinfo?buildID=3116345
+              type: source-repo
+              title: 'Fedora build bootc-1.17.1-1.fc44: x86_64'
+              retrieved: '2026-10-12'
+              quote: x86_64 bootc-1.17.1-1.fc44.x86_64.rpm
+            - url: https://koji.fedoraproject.org/koji/buildinfo?buildID=3116345
+              type: source-repo
+              title: 'Fedora build bootc-1.17.1-1.fc44: aarch64'
+              retrieved: '2026-10-12'
+              quote: aarch64 bootc-1.17.1-1.fc44.aarch64.rpm
+            - url: https://koji.fedoraproject.org/koji/buildinfo?buildID=3116345
+              type: source-repo
+              title: 'Fedora build bootc-1.17.1-1.fc44: ppc64le'
+              retrieved: '2026-10-12'
+              quote: ppc64le bootc-1.17.1-1.fc44.ppc64le.rpm
+            - url: https://koji.fedoraproject.org/koji/buildinfo?buildID=3116345
+              type: source-repo
+              title: 'Fedora build bootc-1.17.1-1.fc44: s390x'
+              retrieved: '2026-10-12'
+              quote: s390x bootc-1.17.1-1.fc44.s390x.rpm
+            - url: https://src.fedoraproject.org/rpms/bootc/blob/06c498efe4303f0f454557b79553b977e0c9690c/f/bootc.spec
+              type: source-repo
+              title: 'Fedora bootc.spec: excluded architectures'
+              retrieved: '2026-10-12'
+              quote: 'ExcludeArch: %{ix86}'
+    summary: >-
+      Not applicable. bootc ships no operating system and no hardware enablement.
+      The architectures and platforms a bootc system supports are those of the
+      base image it deploys.
+    notes: >-
+      Marked not-applicable rather than unknown or absent. A mechanism has no
+      hardware support of its own to report, and scoring it against a
+      distribution's platform matrix would produce a misleading empty row. This
+      is the case the entry_kind field exists for.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://bootc.dev/bootc/building/guidance.html
+        type: official-docs
+        title: Building guidance, ownership of base images
+        retrieved: "2026-09-22"
+        quote: >-
+          The recommendations for creating bootc-compatible images will in
+          general need to be owned by the OS/distribution - in particular the
+          ones who create the default bootc base image(s).
+
+  d09_provisioning:
+    normalized:
+      config_tools:
+        - name: "None of its own (agnostic)"
+          runs: []
+          reruns: depends
+          runs_note: "Depends on the tool the image uses: cloud-init, Ignition, systemd-firstboot or units baked into the image."
+          early_disk: "At install: bootc install --block-setup tpm2-luks, kickstart --encrypted, or a bootc-image-builder disk layout."
+          change_after_first_boot: "A new image through bootc upgrade or bootc switch"
+          evidence: DOCUMENTED
+          sources:
+            - url: https://github.com/bootc-dev/bootc/blob/7702842/docs/src/bootc-installation.7.md
+              title: "bootc installation"
+              retrieved: "2026-10-06"
+              quote: >-
+                bootc itself is agnostic
+            - url: https://github.com/bootc-dev/bootc/blob/7702842/docs/src/bootc-filesystem-encryption.7.md
+              title: "bootc filesystem encryption"
+              retrieved: "2026-10-06"
+              quote: >-
+                We don't recommend this for new deployments
+      methods: "not-applicable"
+      install_capability: "bootc install to-disk and to-filesystem"
+    summary: >-
+      Not applicable as a provisioning story. bootc provides install commands
+      that write an image to a disk or filesystem, but ISO, PXE, cloud images and
+      first-boot configuration belong to the distribution that adopts it.
+    notes: >-
+      Marked not-applicable because the dimension asks which install media and
+      bootstrap paths a system offers, and those are produced by distributions.
+      What bootc contributes is the install primitive those paths call.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://bootc.dev/bootc/man/bootc-install.8.html
+        type: official-docs
+        title: bootc install manual page
+        retrieved: "2026-09-22"
+        quote: "Install the running container to a target."
+      - url: https://bootc.dev/bootc/man/bootc-install-to-filesystem.8.html
+        type: official-docs
+        title: bootc install to-filesystem manual page
+        retrieved: "2026-09-22"
+        quote: >-
+          In this variant of installation, the root filesystem alongside any
+          necessary platform partitions (such as the EFI system partition) are
+          prepared and mounted by an external tool or script.
+
+  d10_security:
+    normalized:
+      boot_trust_chain:
+        level: 3
+        how: opt-in
+        route: verity-root-hash-in-signed-artifact
+        artifact: sealed UKI
+        modes:
+          Sealed UKI with composefs: 3
+          Default ostree with GRUB and shim: 1
+        note: The composefs root digest is on the command line of a UKI signed for Secure Boot. Measured boot
+          for the sealed path is not documented
+        evidence: DOCUMENTED
+        sources:
+        - url: https://bootc.dev/bootc/bootc-composefs.7.html
+          type: official-docs
+          title: bootc composefs backend
+          retrieved: '2026-10-06'
+          quote: For a sealed deployment fs-verity is enforced and the expected root digest is embedded in a
+            UKI signed for Secure Boot
+        - url: https://bootc.dev/bootc/bootc-bootloaders.7.html
+          type: official-docs
+          title: bootc bootloaders
+          retrieved: '2026-10-06'
+          quote: primarily GRUB+shim
+      artifact_verification: "policy-based, permissive by default"
+      integrity: "composefs with fsverity; signature binding requires a sealed UKI"
+      sbom: unknown
+      provenance: unknown
+      secure_boot: "documented for the sealed UKI path (a UKI signed for Secure Boot); the default ostree path boots through GRUB and shim"
+    summary: >-
+      Security properties are mostly inherited or delegated. The mechanism's own
+      contribution is the integrity model and the container signature policy, and
+      the signature policy is permissive by default.
+    notes: >-
+      The project documents both halves of its integrity story honestly, as
+      recorded in d02: fsverity by default where available, but no verification
+      against a signature unless a sealed unified kernel image is in use.
+
+      The permissive signature default is the single most consequential security
+      fact in this profile for an adopter, because it means an unconfigured bootc
+      system will deploy an unsigned image. The documentation recommends enabling
+      signatures and does not do it for you.
+
+      The fsverity default applies to the composefs backend only. The same page
+      states that the default backend is ostree with a composefs mount, and that
+      fsverity is not enabled by default there. An adopter on the default
+      backend has neither fsverity nor signature binding unless they configure
+      both.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://bootc.dev/bootc/security.html
+        type: official-docs
+        title: bootc security
+        retrieved: "2026-09-22"
+        quote: >-
+          The default backend is ostree (with a composefs mount), but fsverity
+          is not enabled by default.
+    unknowns:
+      - "No SBOM or build provenance publication was established for the tool itself."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: "not-applicable"
+      local_shell: "not-applicable"
+      support_bundle: "none"
+      status_inspection: "bootc status"
+    summary: >-
+      Not applicable. Shell access, console behaviour and debugging tooling are
+      properties of the operating system, not of the update mechanism. bootc
+      contributes a status command that reports the booted, staged and rollback
+      deployments.
+    notes: >-
+      Marked not-applicable for the access questions because a mechanism has no
+      operating surface of its own. The parts that do apply, staged and rollback
+      state inspection, are recorded here rather than left blank.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://bootc.dev/bootc/upgrades.html
+        type: official-docs
+        title: bootc status and staged state
+        retrieved: "2026-09-22"
+        quote: >-
+          In the output, you'll see `Download-only: yes` for deployments in
+          download-only mode or `Download-only: no` for deployments that will
+          apply automatically.
+      - url: https://bootc.dev/bootc/man/bootc-status.8.html
+        type: official-docs
+        title: bootc status manual page
+        retrieved: "2026-09-22"
+        quote: >-
+          If standard output is not a terminal, output a YAML-formatted object
+          using a schema intended to match a Kubernetes resource that describes
+          the state of the booted system.
+
+  d12_fleet_management:
+    normalized:
+      core_project:
+        - "Staged upgrade with separate download and apply steps"
+        - "Rollback by bootloader entry reordering"
+        - "Offline update from an OCI directory"
+      oss_companion:
+        - name: Flight Control
+          repo: https://github.com/flightctl/flightctl
+          license: Apache-2.0
+          org: flightctl
+          note: "Edge device and application fleet management, documented in the Fedora bootc documentation rather than in bootc's own. An agent applies a target configuration and reports progress and health."
+        - name: bootc-operator
+          repo: https://github.com/bootc-dev/bootc-operator
+          license: Apache-2.0
+          org: bootc-dev
+          note: "Kubernetes operator that rolls an OS image out to a pool of nodes, in the project's own organization. First pre-release v0.1.0 on 2026-09-17; the README states early development, not yet fully functional, APIs may change. Recorded in d07 as the Kubernetes-manages-OS mechanism."
+      commercial:
+        - name: Image mode for RHEL
+          vendor: Red Hat
+          license: commercial
+          self_hostable: false
+          note: "Generally available RHEL feature delivered as a container image. Its documentation states bootc is intended to supersede the older mechanism and that using that mechanism under image mode is not supported. That is a product policy statement, not an upstream one."
+        - name: Red Hat Insights tasks for image mode
+          vendor: Red Hat
+          license: commercial
+          self_hostable: false
+      cluster_api:
+        os_specific_provider: not-applicable
+        maintainer: not-applicable
+        upstream_provider_list: "not listed, and a listing would be a category error"
+        provisions: not-applicable
+        in_flight: "bootc-operator#113, open since 2026-07-15, explores a Cluster API in-place upgrade runtime extension. That is a lifecycle hook, not a provider, and no code exists. A commenter said on 2026-09-15 they would create a proof of concept; none was found in bootc-operator or cluster-api as of 2026-09-22."
+    summary: >-
+      The mechanism deliberately provides a low-level primitive and expects
+      higher-level tooling above it. Its own documentation describes the shipped
+      default as simplistic and meant to be replaced at any nontrivial scale.
+    notes: >-
+      This is the honest position of a mechanism rather than a shortfall, and the
+      project states it as such: "The upstream bootc project provides a low-level
+      generic tool that can be driven by multiple higher level management
+      tooling."
+
+      One distinction matters and is easy to get wrong. The statement that bootc
+      is intended to supersede the older mechanism comes from Red Hat's product
+      documentation for image mode, not from upstream. Upstream rpm-ostree's own
+      README says development focus has shifted but that it "continues to be
+      supported". Those are different claims from different parties and this
+      profile keeps them apart.
+
+      Cluster API is recorded as not-applicable here, and the project states the
+      reason in its own words rather than leaving it to be inferred. Its
+      operator's design document has a section on the relationship, which says
+      the two are complementary: Cluster API provisions and deletes nodes and
+      otherwise treats the operating system on them as a black box, while this
+      mechanism knows nothing about provisioning nodes and knows how to manage
+      the operating system once they have joined. Those are different layers, so
+      asking which Cluster API provider implements this mechanism is the same
+      category error the entry kind field exists to prevent.
+
+      One live item is worth recording precisely, because it is easy to
+      overstate. An open issue on the operator explores a Cluster API in-place
+      upgrade extension, where Cluster API keeps the rollout logic and this
+      mechanism acts as an executor. That would be a runtime extension, not a
+      bootstrap, control-plane or infrastructure provider, and no code exists
+      for it yet.
+
+      Flight Control, recorded above as an open-source companion, has no Cluster
+      API involvement at all. Its own description is fleet management for edge
+      devices, and this mechanism's design document states there are no plans to
+      adopt an operator pattern or to manage cluster nodes themselves. The
+      companion entry is a fleet-management fact and carries no Cluster API
+      implication.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.fedoraproject.org/en-US/bootc/management-generic/
+        type: official-docs
+        title: Fedora bootc generic management
+        retrieved: "2026-09-22"
+        quote: >-
+          The upstream bootc project provides a low-level generic tool that can
+          be driven by multiple higher level management tooling
+      - url: https://github.com/coreos/rpm-ostree/blob/main/README.md
+        type: source-repo
+        title: rpm-ostree status
+        retrieved: "2026-09-22"
+        quote: >-
+          rpm-ostree is widely in use today in many upstream projects and
+          downstream products and continues to be supported.
+      - url: https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html-single/using_image_mode_for_rhel_to_build_deploy_and_manage_operating_systems/index
+        type: vendor-docs
+        title: Image mode for RHEL
+        retrieved: "2026-09-22"
+        quote: It is intended to supersede rpm-ostree.
+
+      - url: https://cluster-api.sigs.k8s.io/reference/providers
+        type: official-docs
+        title: Cluster API provider list, searched for this project
+        retrieved: "2026-09-22"
+      - url: https://github.com/bootc-dev/bootc-operator/blob/main/docs/design/PRD.md
+        type: design-doc
+        title: bootc operator design document, relationship to Cluster API
+        retrieved: "2026-09-22"
+        quote: >-
+          The two are complementary. [Cluster API] provides APIs for
+          provisioning and deleting nodes on various infrastructures, but
+          otherwise treats the OS running on those nodes as a black box. The
+          bootc operator knows nothing about provisioning nodes, but knows how
+          to manage the OS once they've joined the cluster.
+      - url: https://github.com/bootc-dev/bootc-operator/issues/113
+        type: source-repo
+        title: Investigate CAPI integration via in-place upgrade hooks, open
+        retrieved: "2026-09-22"
+        quote: "Investigate CAPI integration via in-place upgrade hooks"
+      - url: https://github.com/bootc-dev/bootc-operator/blob/main/README.md
+        type: source-repo
+        title: bootc operator README
+        retrieved: "2026-09-22"
+        quote: >-
+          This project is in early development and not yet fully functional.
+          APIs may change.
+  d13_governance:
+    normalized:
+      license: "MIT OR Apache-2.0"
+      open_source: true
+      open_governance: documented
+      vendor_neutral_ownership: foundation-held
+      foundation:
+        name: CNCF
+        level: Sandbox
+        since: "2025-01-21"
+      primary_commercial_sponsor: "Red Hat"
+      contribution_diversity:
+        method: >-
+          The project publishes a maintainers file listing each maintainer's
+          employer, which is unusual and makes this directly measurable rather
+          than inferred. Adopters are read from the project's own adopters file.
+        value: >-
+          All six approvers list Red Hat as their employer, as do all four
+          community managers. The adopters file records multi-organization
+          downstream use beyond that single company, including AlmaLinux,
+          Universal Blue, CIQ and Rocky Linux, HeliumOS and others.
+    summary: >-
+      Dual licensed MIT or Apache-2.0, CNCF Sandbox since January 2025, with a
+      published governance document and a maintainer council. Every listed
+      maintainer works for one company, and the project publishes that fact
+      itself.
+    notes: >-
+      The four governance properties read cleanly here and illustrate why the
+      survey keeps them separate. Open source: yes. Open governance: documented,
+      with a maintainer council, a requirement that a pull request be reviewed by
+      a maintainer other than its submitter, published nomination criteria
+      covering participation length, review count and merged changes, and a
+      voting mechanism. Vendor-neutral ownership: foundation-held, at CNCF
+      Sandbox level. Contribution diversity: concentrated in one employer at the
+      maintainer level, with genuine multi-organization adoption downstream.
+
+      That combination, a documented path for outside maintainers and an
+      all-one-employer maintainer roster today, is a fact rather than a verdict.
+      Publishing the employer column is what makes it checkable, and several
+      other projects in this edition publish nothing comparable.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bootc-dev/bootc/blob/main/MAINTAINERS.md
+        type: governance-doc
+        title: bootc maintainers
+        retrieved: "2026-09-22"
+      - url: https://github.com/bootc-dev/bootc/blob/main/GOVERNANCE.md
+        type: governance-doc
+        title: bootc governance
+        retrieved: "2026-09-22"
+        quote: >-
+          All pull requests require review by a maintainer *other* than the one
+          submitting it.
+      - url: https://www.cncf.io/projects/bootc/
+        type: foundation-page
+        title: CNCF project page, bootc
+        retrieved: "2026-09-22"
+        quote: "bootc was accepted to CNCF on January 21, 2025 at the Sandbox maturity level."
+      - url: https://github.com/bootc-dev/bootc/blob/main/ADOPTERS.md
+        type: source-repo
+        title: bootc adopters
+        retrieved: "2026-09-22"
+
+  d14_maturity:
+    normalized:
+      current_version: "v1.16.13"
+      current_version_date: "2026-09-15"
+      release_cadence: "weekly, automated, since mid-2026"
+      support_model: "none published"
+      support_window: "none; no release branches and no backporting"
+      commercial_support: "through downstream products only"
+      api_stability: "CLI and API declared stable; semantic versioning adherence began with v1.2.0"
+    summary: >-
+      Weekly releases cut directly from the main branch. The command-line
+      interface and API are declared stable, with a commitment that existing
+      systems upgrade in place across future changes.
+    notes: >-
+      Two maturity questions are open and the project flags both itself, which is
+      the right way to handle them. There is no formal support-duration policy,
+      raised in a community meeting in August 2026 and deferred for broader input.
+      And there are no long-lived release branches: every release is tagged from
+      the main branch and there is no backporting process.
+
+      The stability claim is carefully scoped rather than oversold: it covers the
+      surface interfaces, not the underlying logic, and experimental features are
+      explicitly exempt.
+
+      Aiming for CNCF Incubation is stated in the roadmap and has not happened.
+      Re-checked 2026-09-22: the CNCF page still lists Sandbox.
+
+      One date in the release document does not match the release listing. The
+      document dates the start of the weekly cadence, at v1.16.0, to June 2024.
+      The v1.16.0 release on GitHub is dated 2026-06-10, and the tags before it
+      run weekly from there. This profile records mid-2026 from the release
+      listing, and treats the document's year as an error in the document.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/bootc-dev/bootc/blob/main/RELEASES.md
+        type: governance-doc
+        title: bootc releases
+        retrieved: "2026-09-22"
+        quote: >-
+          A formal support-duration policy has not yet been established ... This
+          was raised in the August 2026 community meeting and deferred for
+          broader maintainer input
+      - url: https://bootc.dev/bootc/
+        type: official-docs
+        title: bootc stability statement
+        retrieved: "2026-09-22"
+        quote: >-
+          The CLI and API for bootc are now considered stable. Every existing
+          system can be upgraded in place seamlessly across any future changes.
+      - url: https://github.com/bootc-dev/bootc/blob/main/ROADMAP.md
+        type: design-doc
+        title: bootc roadmap
+        retrieved: "2026-09-22"
+        quote: >-
+          Establish formal project governance and achieve CNCF Incubation
+          status.
+      - url: https://github.com/bootc-dev/bootc/releases/tag/v1.16.0
+        type: release-notes
+        title: bootc v1.16.0 release, start of the weekly cadence
+        retrieved: "2026-09-22"
+
+tradeoffs:
+  buys:
+    - "One artifact format for the whole stack. If you already build container images, you already know how to build and ship an operating system, and the registry ecosystem for mirroring, signing and distribution applies unchanged."
+    - "Distribution independence. Adopters span several distributions and organizations. The adopter owns image build, test, signing and patching."
+    - "A staged update model: download without applying, inspect the staged state, apply later from what is already downloaded."
+    - "With a sealed unified kernel image, the composefs root is verified: fs-verity is enforced and the expected root digest is embedded in a UKI signed for Secure Boot. This newer backend has no boot entry counting yet."
+    - "Foundation-held under CNCF, with a published governance document, a maintainer council, and a maintainers file that names each maintainer's employer."
+    - "A stability commitment covering the interfaces, with experimental features explicitly exempt."
+  costs:
+    - "To require signed container images, enable signature verification. It ships off, and the project recommends enabling it."
+    - "No phased rollout, canary or per-node rollout control. The shipped default is a timer, and the documentation says it is meant to be replaced at any nontrivial scale."
+    - "Rollback reorders deployments rather than creating them, so /etc changes do not travel with a rollback."
+    - "No formal support-duration policy, no release branches and no backporting. A fix reaches you by moving to the newest release."
+    - "All six listed maintainers work for Red Hat."
+maintainers_fact:
+  text: "All six listed maintainers work for Red Hat."
+  evidence: DOCUMENTED
+  sources:
+    - url: "https://github.com/bootc-dev/bootc/blob/main/MAINTAINERS.md"
+      type: "governance-doc"
+      title: "bootc maintainers"
+      retrieved: "2026-09-22"
+known_issues:
+  - text: "To require signed container images, enable signature verification. It ships off, and the project recommends enabling it."
+    kind: unverified
+    sources:
+      - url: "https://bootc.dev/bootc/security.html"
+        type: "official-docs"
+        title: "bootc security, signature policy"
+        retrieved: "2026-09-22"
+        quote: "The upstream default at the time of this writing does not require signatures for generic images ... It is however a very good idea for bootc users to enable signatures for their images."
+open_questions:
+  - "Is a formal support-duration policy expected, after the question was deferred in August 2026?"
+  - "Will boot entry counting land on the composefs backend, and on what timeline?"
+  - "Is there a plan to make signature verification required by default, or to ship a stricter reference policy?"
+  - "What is the roadmap for the phased rollout and per-node control that the project says it aims to absorb?"
+  - "What would move the project from CNCF Sandbox towards Incubation, and is an application planned?"
+  - "Is an unprivileged or bus-based interface planned, given the tool is root-only today and that is named as a blocker by a downstream distribution?"
+  - "Does automatic reversion on boot failure exist on the OSTree backend once boot loader entry counting is configured, and with what trigger and attempt count? bootc's own documentation describes detection only, and does not state a trigger, an attempt count or a success criterion."
+  - "What does the bootc-operator's first pre-release (v0.1.0, 2026-09-17) actually roll out today, and which of its README's future features (dynamic config overlays, sysexts, live apply) exist? Its README says early development and not yet fully functional; the profile records the release without testing it."
+
+follow_up_research:
+  - FR-01
+  - FR-02
+  - FR-04
+  - FR-06
+  - FR-08
+  - FR-13
+  - FR-14
+  - FR-15
+  - FR-17
+
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs.buys"
+    change: "Cost audit under methodology section 9, rule 15 (buys reviewed with the costs). Buy b1: removed the clause about the project's stated goal, which is an intention, not a capability. Buy b3: was 'A documented integrity model, including a statement of where verification stops without a sealed unified kernel image.' Now states the capability, from the existing d07 source (bootc composefs backend page). The point where verification stops stays in d07. Costs unchanged."
+    source:
+      url: "https://bootc.dev/bootc/bootc-composefs.7.html"
+      type: "official-docs"
+      title: "bootc composefs backend"
+      retrieved: "2026-09-22"
+      quote: "For a sealed deployment fs-verity is enforced and the expected root digest is embedded in a"
+  - date: '2026-10-06'
+    field: dimensions.d04_upgrade.normalized.scope
+    change: Was no scope value (the cell showed the mechanism). Now os-tree-etc-merged (OS tree, /etc merged), from the independent check of what one update replaces (closed six-value vocabulary). Added scope_note.
+    source:
+      url: https://github.com/bootc-dev/bootc/blob/7702842/docs/src/bootc-filesystem.7.md
+      type: source-repo
+      title: bootc-filesystem(7), /etc
+      retrieved: '2026-10-06'
+      quote: inherits the OSTree semantics of performing a 3-way merge across upgrades
+  - date: "2026-10-05"
+    field: dimensions.d07_kubernetes
+    change: "Added documented Kubernetes use: Red Hat documents MicroShift embedded in bootc images through image mode for RHEL. The summary said 'Unrelated to Kubernetes', which holds for bootc itself but missed this documented path (second review, inclusion rule R5)."
+    source:
+      url: https://docs.redhat.com/en/documentation/red_hat_build_of_microshift/4.22/html/installing_with_image_mode_for_rhel/index
+      type: vendor-docs
+      title: "Red Hat build of MicroShift 4.22: Installing with image mode for RHEL"
+      retrieved: "2026-10-05"
+  - date: "2026-09-22"
+    field: version_observed.version
+    change: >-
+      Moved since collection: v1.16.12 (released 2026-09-10) to v1.16.13,
+      published 2026-09-15 21:04 UTC, after the collection pass on the same
+      day. Weekly cadence; no newer tag as of 2026-09-22.
+    source:
+      url: https://github.com/bootc-dev/bootc/releases
+      type: release-notes
+      title: bootc releases
+      retrieved: "2026-09-22"
+      quote: "bootc 1.16.13"
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.normalized.current_version
+    change: >-
+      Moved since collection: v1.16.12 dated 2026-09-10 to v1.16.13 dated
+      2026-09-15, matching version_observed. current_version_date updated with
+      it.
+    source:
+      url: https://github.com/bootc-dev/bootc/releases
+      type: release-notes
+      title: bootc releases
+      retrieved: "2026-09-22"
+      quote: "bootc 1.16.13"
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.normalized.api_stability
+    change: >-
+      Said "CLI and API declared stable since v1.2.0". The release document
+      ties v1.2.0 to the start of semantic versioning adherence, not to the
+      stability declaration, which carries no version. Now says the two things
+      separately.
+    source:
+      url: https://github.com/bootc-dev/bootc/blob/main/RELEASES.md
+      type: governance-doc
+      title: bootc releases
+      retrieved: "2026-09-22"
+      quote: "Semantic versioning adherence began with version 1.2.0."
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.sources[1].quote
+    change: >-
+      The quote attributed to the introduction page was the release document's
+      wording ("The bootc CLI and API are considered stable. We ensure that
+      ..."). The live introduction page reads differently. Replaced with the
+      page's own text; the release document's wording is covered by
+      sources[0].
+    source:
+      url: https://bootc.dev/bootc/
+      type: official-docs
+      title: bootc introduction
+      retrieved: "2026-09-22"
+      quote: >-
+        The CLI and API for bootc are now considered stable. Every existing
+        system can be upgraded in place seamlessly across any future changes.
+  - date: "2026-09-22"
+    field: dimensions.d13_governance.sources[2].quote
+    change: >-
+      The recorded quote ("Accepted 2025-01-21 at the Sandbox maturity level.")
+      was a paraphrase, not the page's text. Replaced with the verbatim
+      sentence. The facts (Sandbox, 2025-01-21) are unchanged and re-verified.
+    source:
+      url: https://www.cncf.io/projects/bootc/
+      type: foundation-page
+      title: CNCF project page, bootc
+      retrieved: "2026-09-22"
+      quote: "bootc was accepted to CNCF on January 21, 2025 at the Sandbox maturity level."
+  - date: "2026-09-22"
+    field: dimensions.d05_rollback_recovery.sources[1].url
+    change: >-
+      Cited https://bootc.dev/, which is the project landing page and does not
+      contain the quoted sentence. Replaced with the bootc-rollback manual page
+      URL, where the sentence appears verbatim. Quote adjusted to include the
+      page's backticks around /etc.
+    source:
+      url: https://bootc.dev/bootc/man/bootc-rollback.8.html
+      type: official-docs
+      title: bootc rollback manual page
+      retrieved: "2026-09-22"
+      quote: "This is because `bootc rollback` just reorders the existing deployments."
+  - date: "2026-09-22"
+    field: dimensions.d05_rollback_recovery.normalized.automatic_rollback_on_boot_failure
+    change: >-
+      Said "backend dependent" with no qualifier. The cited page documents
+      boot failure detection, and says boot loader entry counting is
+      configurable with a recent OSTree and not configured on the composefs
+      backend; it does not document an automatic reversion with a trigger or
+      attempt count. Value now says so, and the notes separate detection from
+      reversion. Composefs statement re-verified unchanged on 2026-09-22.
+    source:
+      url: https://bootc.dev/bootc/boot-failure-detection.html
+      type: official-docs
+      title: Boot failure detection
+      retrieved: "2026-09-22"
+      quote: >-
+        As of a recent OSTree with this commit it is possible to configure the
+        boot loader entry counting.
+  - date: "2026-09-22"
+    field: dimensions.d09_provisioning.sources[0].url
+    change: >-
+      Cited https://bootc.dev/, the landing page, as "bootc install manual
+      pages". Replaced with the bootc-install and bootc-install-to-filesystem
+      manual page URLs, with quotes.
+    source:
+      url: https://bootc.dev/bootc/man/bootc-install.8.html
+      type: official-docs
+      title: bootc install manual page
+      retrieved: "2026-09-22"
+      quote: "Install the running container to a target."
+  - date: "2026-09-22"
+    field: dimensions.d08_hardware_platform.sources[0]
+    change: >-
+      The introduction page was cited for a dimension it says nothing about.
+      Replaced with the building guidance page, which states that base image
+      recommendations are owned by the OS or distribution, which is the basis
+      for marking the dimension not-applicable.
+    source:
+      url: https://bootc.dev/bootc/building/guidance.html
+      type: official-docs
+      title: Building guidance
+      retrieved: "2026-09-22"
+      quote: >-
+        The recommendations for creating bootc-compatible images will in
+        general need to be owned by the OS/distribution
+  - date: "2026-09-22"
+    field: dimensions.d07_kubernetes.normalized.kubernetes_manages_os
+    change: >-
+      Said "none; stated as a roadmap goal". Wrong as of 2026-09-15: a
+      Kubernetes operator repository, bootc-dev/bootc-operator, existed with
+      code since 2026-03-18 and was already cited in d12 for its design
+      document. Moved since collection: it published a v0.1.0 pre-release on
+      2026-09-17. Now names the operator with its status, and d12 lists it as
+      an open-source companion. The Kairos profile records its operator in
+      this field, so recording "none" here was inconsistent.
+    source:
+      url: https://github.com/bootc-dev/bootc-operator/blob/main/README.md
+      type: source-repo
+      title: bootc operator README
+      retrieved: "2026-09-22"
+      quote: >-
+        This project is in early development and not yet fully functional.
+        APIs may change.
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.sources[5].title
+    change: >-
+      The issue title was recorded as "Investigate Cluster API integration via
+      in-place upgrade hooks". The actual title says "CAPI". Corrected, and the
+      in_flight note records that a commenter announced a proof of concept on
+      2026-09-15 and none was found on 2026-09-22.
+    source:
+      url: https://github.com/bootc-dev/bootc-operator/issues/113
+      type: source-repo
+      title: Investigate CAPI integration via in-place upgrade hooks, open
+      retrieved: "2026-09-22"
+      quote: "Investigate CAPI integration via in-place upgrade hooks"
+  - date: "2026-10-05"
+    field: dimensions.d04_upgrade.normalized.self_hostable_update_server
+    change: >-
+      Added a value for the self-hostable update source column, which rendered as Not collected. The value is true. bootc has no update server. The update source is an OCI registry, and the project documents private registries, mirroring and an offline source.
+    source:
+      url: https://bootc.dev/bootc/bootc-registries-and-offline.7.html
+      type: official-docs
+      title: "bootc registries and offline updates"
+      retrieved: "2026-10-05"
+      quote: >-
+        It is common to use a private repository when deploying a fleet of bootc instances.
+  - date: "2026-10-06"
+    field: dimensions.d10_security.normalized.secure_boot
+    change: "The field said Secure Boot is not provided by the mechanism, and the profile called the sealed UKI emerging. Current bootc docs document a sealed deployment whose root digest sits in a UKI signed for Secure Boot. Reworded, and added boot_trust_chain."
+    source:
+      url: https://bootc.dev/bootc/bootc-composefs.7.html
+      type: official-docs
+      title: "bootc composefs backend"
+      retrieved: "2026-10-06"
+      quote: >-
+        For a sealed deployment fs-verity is enforced and the expected root digest is embedded in a UKI signed for Secure Boot
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 16: concentration is stated once, in one shape. Was 'Every listed maintainer works for one company, even though the governance document defines a path for others.' Now 'All six listed maintainers work for Red Hat.' The maintainers file lists six people in the Maintainers Group, each with Red Hat in the employer column (d13 contribution_diversity). The governance path for others is stated in the governance buy."
+    source:
+      url: "https://github.com/bootc-dev/bootc/blob/main/MAINTAINERS.md"
+      type: "governance-doc"
+      title: "bootc maintainers"
+      retrieved: "2026-10-06"
+      quote: "The current Maintainers Group for the bootc Project consists of:"
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Methodology section 9, rule 18: a status goes inside the buy for the capability it describes. Moved cost c2 ('Boot failure detection is incomplete on the newer composefs backend, which has no boot entry counting yet.') into buy b3, which now ends 'This newer backend has no boot entry counting yet.'"
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Methodology section 9, rule 18: build-your-own responsibility is a status of the build-your-own capability. Moved cost c5 ('As a framework, it moves image build, test, signing and patching responsibility to the adopter.') into buy b1, which now ends 'The adopter owns image build, test, signing and patching.'"
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.sources[1].url
+    change: 'Was https://github.com/bootc-dev/bootc/blob/main/docs/src/filesystem.md, which returns 404 on 2026-10-12. The page is now docs/src/bootc-filesystem.7.md in the repository and https://bootc.dev/bootc/bootc-filesystem.7.html on the site. The quoted sentence is on the live page. Also added read_only (/, /usr and /opt, with the composefs backend), read_only_mechanism and configurable_paths (yes: transient root, transient /etc, separate mounts), which the Mounts row needs. The /etc and /var persistence values stand.'
+    source:
+      url: https://bootc.dev/bootc/bootc-filesystem.7.html
+      type: official-docs
+      title: 'bootc filesystem: /etc'
+      retrieved: '2026-10-12'
+      quote: The /etc directory contains mutable persistent state by default
+  - date: '2026-10-12'
+    field: dimensions.d08_hardware_platform.normalized.architectures_via_base_distribution
+    change: Added amd64, arm64, ppc64le and s390x via your base distribution (methodology section 9, rule 21). The Fedora build bootc-1.17.1-1.fc44 has bootc RPMs for x86_64, aarch64, ppc64le and s390x, and the spec excludes only 32-bit x86. architectures_released stays not-applicable, because bootc ships no OS image.
+    source:
+      url: https://koji.fedoraproject.org/koji/buildinfo?buildID=3116345
+      type: source-repo
+      title: 'Fedora build bootc-1.17.1-1.fc44: x86_64'
+      retrieved: '2026-10-12'
+      quote: x86_64 bootc-1.17.1-1.fc44.x86_64.rpm
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: 'Added the add_software field. It records how an adopter adds software to the OS itself, not workloads. Values: Derive the image. Each value has its sources, read on 2026-10-12.'
+    source:
+      url: https://github.com/bootc-dev/bootc/blob/654978a62f5fe50b62d4e8c21c8246bd6409e296/docs/src/bootc-package-managers.7.md
+      type: source-repo
+      title: 'bootc docs: Package manager integration'
+      retrieved: '2026-10-12'
+      quote: the default usage of package managers such as `apt` and `dnf` will be at container build time.

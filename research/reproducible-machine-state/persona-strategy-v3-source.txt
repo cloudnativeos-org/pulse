@@ -1,0 +1,308 @@
+
+
+PUBLIC PERSONA & VISIBILITY STRATEGY — V2
+Mauro Morales
+Build expertise in public. Teach from investigation. Let the public thesis emerge from repeated technical work.
+The goal is not to manufacture a personal brand. The goal is to make rigorous technical work visible, useful, memorable, and eventually valuable enough that the right community seeks Mauro out.
+V2 changes the strategy from a content plan into an investigation → teaching → synthesis → speaking flywheel.
+
+Executive summary
+Revised verdict. The path remains feasible, but the evidence should be described more conservatively than in V1. Mauro has strong evidence of technical credibility, useful relationships, community participation, and repeated access to conference stages. That does not yet prove audience pull. Some selections may be helped by a positive impression on committee members or by existing network capital; public view counts and name recognition can also function as social proof even when reviewers do not deeply inspect prior talks.
+Therefore the 12-month experiment should not try to prove that Mauro can “be a creator.” It should test whether a teacher-practitioner can turn serious technical investigations into a small but valuable audience, stronger topic association, better speaking leverage, and eventually inbound demand.
+The first investigation should be immutable / image-based operating systems for cloud-native infrastructure. The work should compare the relevant projects neutrally, test them rather than summarize marketing, publish useful chunks as findings emerge, and culminate in a concise paper of at most five pages for the CNCF TAG audience. The same work should improve customer guidance at Spectro Cloud and create the basis for a conference talk.
+Most importantly, V2 does not predeclare five personal “content pillars.” The public thesis should emerge after two or three investigations. If recovery, reproducibility, node lifecycle, GPU/edge snowflakes and the OS/platform boundary keep recurring, those become the territory because the work demonstrated it — not because a branding exercise invented it.
+The revised operating principle
+Investigate → build and break → compare → form a falsifiable opinion → teach in small pieces → invite disagreement → synthesize → speak → use the feedback to choose the next investigation.
+1. What changed from V1
+V1 assumption
+V2 correction
+Practical consequence
+Repeated conference selection is strong proof of market demand.
+It proves access and some credibility, but not necessarily audience pull. Network effects and visible social proof can influence selection.
+Measure inbound invitations, repeat organizers, target-audience engagement and audience pull separately from CFP acceptance.
+Define the five ideas Mauro should own now.
+Too early. The durable thesis should emerge from repeated investigations.
+Run 2–3 serious investigations, then identify the ideas that repeatedly survive contact with evidence and audience questions.
+Use prominent technical creators as broad models.
+Separate mechanism from temperament. A successful distribution machine can be useful even if the public personality is not desirable.
+Study specific mechanisms — explanation, packaging, consistency, owned audience, commercial conversion — without imitating tone or persona.
+A content cadence is the starting point.
+The investigation is the starting point; content is exhaust from useful work.
+No generic content calendar. Each artifact must come from a question, experiment, finding, disagreement or synthesis.
+2. A stricter evidence model
+The current position is best described as “credible specialist with network capital, but unproven audience pull.” That is not a negative judgment. It is simply a cleaner baseline for an experiment whose purpose is to create pull.
+Four different signals should not be conflated
+Technical credibility: maintainership, Staff-level work, published engineering, real deployments, demos and peer respect.
+Network capital: people on committees, in CNCF/TAGs, communities and companies who know Mauro and have a positive prior impression.
+Social proof: visible talk history, titles, affiliations, follower/view counts, recognizable collaborators and project adoption.
+Audience pull: people seek out the work, share it without prompting, subscribe, ask for the next piece, invite Mauro specifically, or attend because his name/topic combination is attractive.
+The target is to preserve the first two, increase the third without gaming it, and deliberately create the fourth. A CFP acceptance can be recorded, but it should not be counted as audience pull unless the organizer explicitly invited Mauro, cited demand, or there is other evidence that the name/topic drove the opportunity.
+3. Public persona: teacher-practitioner
+A senior infrastructure engineer who investigates hard systems questions in public, explains what he learns without hiding the trade-offs, and develops strong opinions that remain falsifiable.
+The desirable temperament is curiosity + rigor + generosity + conviction without humiliation. The persona does not need an enemy. A comparison is more credible when the conclusion can be “project B is the better choice here” even though Mauro maintains project A.
+Public behavior to cultivate
+Behavior to avoid
+Ask a concrete systems question and show the evidence used to answer it.
+Posting a strong take first and reverse-engineering evidence afterward.
+Steelman competing architectures and explain what they optimize for.
+Creating status by making another engineer/project look stupid.
+Say when an experiment changed the initial opinion.
+Treating consistency of persona as more important than being correct.
+Make difficult material accessible without flattening the trade-offs.
+Generic beginner content whose only purpose is reach.
+Use humor and personality as texture around the work.
+Turning every post into performance or controversy.
+4. Investigation #1: immutable systems
+Working objective. Develop enough first-hand, neutral expertise in cloud-native immutable/image-based operating systems to teach the architectural choices, publish a ≤5-page CNCF TAG paper, create reusable public explanations, and improve real customer guidance on when Kairos is or is not the right choice.
+Scope must be verified before publication. CNCF currently hosts Kairos as a Sandbox project and Flatcar as an Incubating project. CNCF TAG Runtime’s Special Purpose Operating System working group lists Kairos, Flatcar and Talos among the open-source container-OS projects, while Talos also appears in CNCF educational programming. That makes Kairos/Flatcar/Talos a plausible three-project comparison, but the paper should state precisely whether “CNCF projects,” “CNCF ecosystem projects,” or “projects covered by the TAG working group” is accurate rather than casually calling all three CNCF-hosted projects.
+Research question
+What does “immutable operating system” actually mean across the leading cloud-native approaches, what architectural choices differ, and under which operational constraints is each approach the better fit?
+Comparison dimensions
+Dimension
+Questions to answer
+Evidence
+Immutability model
+What is read-only? What persists? What is regenerated? Where can drift still occur?
+Docs + filesystem inspection + mutation tests
+Build / customization
+Do you consume a fixed OS, extend it, or transform an existing distro? How are drivers/packages added?
+Build same requirement on each system
+Configuration model
+First boot only or continuously managed? API/YAML/ignition/cloud-config? What is machine state?
+Configure equivalent node settings
+Upgrade mechanics
+A/B, image replacement, package/image stream, API action? Atomicity and failure semantics?
+Perform upgrade and intentionally fail one
+Rollback / recovery
+What constitutes known-good state? Automatic/manual rollback? Recovery partition/mode?
+Break boot/update and recover
+Kubernetes coupling
+Is Kubernetes integral, optional, external, or the management API itself?
+Install equivalent K8s scenario
+Fleet management
+How are waves, channels, policies and coordination handled? Built-in vs external tooling?
+Document and exercise available fleet path
+Security / trust
+Secure boot, signatures, measured boot, SSH/shell posture, API authentication, disk encryption.
+Verify supported mechanisms, not marketing labels
+Hardware / edge / GPU
+Drivers, extensions, NVIDIA, unusual hardware, disconnected/remote operations.
+Test at least one non-trivial hardware requirement
+Operational escape hatches
+How do operators debug? What compromises immutability? What is deliberately difficult?
+Incident/debug exercise
+Best-fit / non-fit
+What organizational assumptions does each architecture make?
+Synthesis from evidence + maintainer review
+Fair-comparison protocol
+Use the same scenario wherever the architectures allow it; do not penalize a project for intentionally solving a different problem.
+Distinguish “cannot do this,” “can do this with an extension,” “can do this but it fights the design,” and “first-class workflow.” Those are materially different conclusions.
+For every negative claim, ask the relevant maintainer/community for correction before the final paper. The goal is accuracy, not surprise.
+Publish the test setup and versions so results can be reproduced. Date the conclusions because these projects move quickly.
+Include a “When I would choose it” section for every project. If one project never wins a scenario, the comparison criteria are probably biased or incomplete.
+Disclose Mauro’s Kairos maintainership prominently. Neutrality does not require pretending there is no affiliation; it requires transparent method and fair evidence.
+5. One investigation, multiple useful artifacts
+Do not chop the paper into arbitrary social posts. Publish when a finding is independently useful. The small pieces are field notes from the investigation; the paper is the synthesis.
+Stage
+Artifact
+Example
+Value
+Question
+Short post
+“Immutable OS” describes at least three materially different operational models. Here is the distinction I am testing.
+Frames the investigation; attracts knowledgeable corrections.
+Experiment
+Diagram / 2–5 min video
+Same failed upgrade on three systems: what state exists after reboot?
+Concrete teaching + visible first-hand work.
+Finding
+Technical post
+“Rollback” is not one capability: boot rollback, OS state rollback and workload/data recovery are different.
+Builds vocabulary and thesis.
+Counterexample
+Follow-up post
+A snapshot can restore a known point without naming a version — so what does “known good” actually require?
+Shows falsifiability and improves the argument.
+Synthesis
+≤5-page TAG paper
+Architecture and decision framework for immutable cloud-native operating systems.
+Neutral community contribution + durable authority.
+Canonical teaching
+Article / 8–15 min video
+How to choose an immutable OS for Kubernetes infrastructure.
+Searchable public reference.
+Speaking
+Conference talk
+Three immutable operating systems, three definitions of recovery.
+Converts mature research into stage leverage.
+Professional application
+Internal/customer decision guide
+When Kairos fits; when another architecture is a better fit; what constraints to ask about.
+Immediate value to Spectro Cloud customers and sales/engineering conversations.
+6. Proposed five-page paper structure
+The five-page limit is useful. It forces the output to be a decision framework rather than a catalog of features. Detailed test evidence can live in linked public notes/repositories.
+Page 1 — Problem and definitions
+Why host-level immutability matters; define image-based/immutable/special-purpose OS carefully; explain that architectures optimize different things; disclose affiliation and methodology.
+Page 2 — Architectural models
+A compact diagram for each project showing source/build → machine configuration → runtime state → update path → recovery path. Focus on the model, not feature checkboxes.
+Page 3 — Operational comparison
+One dense table covering customization, configuration, update, rollback/recovery, Kubernetes coupling, fleet management and debugging. Use qualified language and footnotes/links to evidence.
+Page 4 — Decision scenarios
+Three or four scenarios such as managed Kubernetes fleet, heterogeneous enterprise base-distro requirement, remote edge/GPU fleet, and security-minimal appliance. Explain why the preferred model changes.
+Page 5 — Conclusions and open questions
+State the decision framework, unresolved areas, and where the ecosystem could converge. Avoid “winner” language unless a scenario has explicit requirements that create one.
+7. First eight weeks
+Week
+Primary work
+Public output
+1
+Confirm scope, versions, test hardware/VMs and neutral comparison rubric. Contact TAG/WG and maintainers early.
+One post announcing the question and inviting corrections to the rubric.
+2
+Install all systems; map architecture and configuration model.
+Architecture note/diagram: “immutable” does not mean the same operational model.
+3
+Customization exercise: equivalent requirement on each system.
+Short comparison focused on what customization reveals about philosophy.
+4
+Upgrade and failed-upgrade tests.
+Demo/video + recovery vocabulary post.
+5
+Fleet-management and Kubernetes-coupling analysis.
+One diagram or field note; no need to publish if no independent insight emerges.
+6
+Security, debugging and escape-hatch exercise; collect maintainer corrections.
+Post one surprising finding or changed opinion.
+7
+Draft 5-page paper; send relevant sections to project experts for factual review.
+No forced post. Use feedback to improve the synthesis.
+8
+Finalize TAG draft and canonical public article/video; derive talk abstract only now.
+Paper + canonical explanation + conference-ready thesis.
+8. Audience and measurement
+The audience remains concentric, but the learning audience is not merely “top of funnel.” Someone learning platform engineering today can become a staff engineer, adopter, organizer or customer later. The rule is therefore not “avoid beginners”; it is “never abandon the core subject to attract them.”
+Signal
+Count as meaningful
+Do not overvalue
+Technical response
+Maintainers correct/endorse the comparison; senior practitioners debate the actual trade-off.
+Generic praise or reaction count.
+Learning response
+People ask better follow-up questions, save/share the explanation, or reference it later.
+Raw impressions from an unrelated audience.
+Topic association
+Someone tags/recommends Mauro when immutable nodes, recovery or OS lifecycle comes up.
+Follower count without evidence of topic association.
+Speaking leverage
+Direct invitation; organizer cites the paper/work; repeat invitation; talk attracts audience beyond personal contacts.
+A CFP acceptance by itself.
+Owned pull
+Email subscribers, recurring readers/viewers, direct traffic, people waiting for the next investigation.
+Algorithmic spikes that do not recur.
+Commercial leverage
+Customer/advisory/workshop inquiry explicitly caused by the public work.
+Premature attempts to monetize every artifact.
+9. Profiles to study: mechanisms, not personalities
+V2 keeps the original profiles only as mechanism studies. Personal temperament is a separate design choice. A person can have a highly effective distribution or authority mechanism while being a poor behavioral model for Mauro.
+Alex Ellis
+Mechanism: Open source → writing/speaking → owned audience → products/consulting → independence.
+Use: Study the compounding business system most closely.
+Liz Rice
+Mechanism: Deep systems expertise translated into unusually clear demos, code and stage explanations.
+Use: Study explanatory structure and how low-level material becomes accessible.
+Justin Garrison
+Mechanism: Distinct infrastructure opinions + practitioner experience + teaching across multiple surfaces.
+Use: Study topic packaging and evidence of a recognizable point of view; do not treat interpersonal style as a template.
+Viktor Farcic
+Mechanism: High-volume durable media brand + strong titles + repeated conference/content flywheel.
+Use: Study packaging, distribution and consistency; explicitly reject volume as a requirement.
+Mauricio Salatino
+Mechanism: Long-horizon community participation, blogging, books, project roles and evolving technical themes.
+Use: Study compounding consistency and how an engineer remains recognizable while topics evolve.
+10. Do not finalize the “brand” yet
+After Investigation #1, choose #2 based on the intersection of professional usefulness, genuine curiosity and audience signal. Likely candidates include GPU nodes as snowflakes, recovery/rollback semantics, or the OS/Kubernetes management boundary, but these should remain hypotheses until the first investigation reveals where the strongest questions and responses are.
+After 2–3 investigations, perform a retrospective. List the concepts that repeatedly appeared, the questions people associated with Mauro, the artifacts that produced high-quality engagement, and the invitations or professional opportunities that resulted. Only then formalize 3–5 durable themes and update the homepage/bio around them.
+11. The strategic end state
+The end state is not “Mauro has a following.” It is: the right engineers recognize his work; learners use it to become better practitioners; peers trust him to compare systems fairly; organizers expect a useful audience when they put him on stage; customers ask for his judgment; and those relationships are portable beyond one employer or project.
+That creates the leverage originally sought. Paid speaking may become one output, but the more robust independence options are broader: advisory work, workshops/training, technical research, open-source/product opportunities, and collaborations. A trusted niche audience is valuable because it creates several possible businesses rather than forcing one monetization model.
+
+Sources and scope notes
+1. Mauro Morales — homepage
+2. Mauro Morales — public speaking
+3. CNCF — Kairos project page
+4. CNCF — Flatcar Container Linux project page
+5. CNCF TAG Runtime — Special Purpose Operating System Working Group charter
+6. CNCF — Cloud Native Live: Talos Linux for Kubernetes
+7. CNCF — Flatcar brings Container Linux to the CNCF Incubator
+8. CNCF — Building secure Kubernetes Edge images with Kairos and k0s
+9. CNCF — KubeCon schedule selection process
+10. CNCF — How to get your KubeCon talk accepted
+11. Alex Ellis
+12. Liz Rice
+13. Justin Garrison
+14. Viktor Farcic
+15. Mauricio Salatino
+Scope note: The exact project set for the immutable-systems paper should be confirmed with the relevant CNCF TAG/WG before the paper is framed as a comparison of “three CNCF projects.” Current CNCF public pages clearly identify Kairos as Sandbox and Flatcar as Incubating; the TAG Runtime SPOS charter lists Talos in the broader open-source container-OS space.
+
+V3 — Investigation #1: Reproducible Machine State
+The first investigation is no longer a flat comparison of “immutable operating systems.” The stronger question is: how do modern infrastructure systems make machine state reproducible, replaceable and recoverable, and what architectural trade-offs do they make to get there? Immutability is one answer to that problem, not the definition of the problem itself.
+Working hypothesis
+The public thesis to test is broader than “immutable Linux”: machines should be operable as known, versioned state rather than as accumulated configuration history. A useful system should make it possible to identify intended state, reproduce it, transition predictably, understand what persists, and return to a known-good state. Different projects draw the artifact, mutability and control boundaries in very different places.
+Research landscape
+Deep experimental core — Kairos, bootc, Flatcar: Build, provision, extend, update, deliberately break, roll back/recover, and inspect state. These are the systems to understand deeply. bootc is particularly important because its OCI/image-based model is the closest architectural comparison to Kairos; Flatcar represents the Container Linux lineage.
+Competitive / representative experiment — Talos, Bottlerocket: Understand architecture and run representative lifecycle experiments. Talos matters because it is Kairos's largest marketing competitor even though its Kubernetes-appliance philosophy is quite different. Bottlerocket shows the hyperscaler/container-host appliance model.
+Hyperscaler case studies — Azure Linux / Azure container-host offerings, Google Container-Optimized OS: Use primarily to study what changes when the platform provider controls more of the surrounding environment. Do not spend disproportionate time reverse-engineering undocumented internals; explicitly label evidence limitations.
+Challenge the premise — NixOS: Treat NixOS as an alternative route to many of the desired properties: declarative configuration, reproducible generations, atomic transitions and rollback without adopting the same image-based immutability model. Ask whether reproducibility, rather than immutability, is the actual operational objective.
+Different paradigm — Unikraft: Use as a boundary case rather than a direct competitor. It helps ask whether the traditional general-purpose host OS is even the right unit of deployment.
+Watch / emerging — Amutable: Track the project because of the people and systemd/integrity lineage behind it. Do not score it against mature systems until there is enough public implementation to test fairly.
+Architectural taxonomy to teach
+OCI/image-built host: Kairos and bootc — machine state is constructed and distributed using image/artifact workflows.
+Container Linux lineage: Flatcar — a controlled minimal host with an established immutable/update model and container-first purpose.
+Kubernetes appliance: Talos — Kubernetes is central to the machine-management contract and conventional Linux administration is intentionally removed.
+Hyperscaler appliance: Bottlerocket, Azure offerings and Google COS — uniformity and integration can be optimized around a provider-controlled environment.
+Declarative/reproducible system: NixOS — desired system state is described and built as generations; reproducibility and rollback challenge the assumption that image immutability is required.
+Library OS / unikernel: Unikraft — rethink the host/application boundary itself.
+Verifiable/emerging system: Amutable — track whether cryptographic integrity and modern systemd mechanisms produce another distinct model.
+Common questions across systems
+Where is desired machine state defined, and what constitutes a version?
+What is actually immutable, and what remains mutable by design?
+What is the artifact: files, package set, filesystem/image, OCI image, system generation, appliance, or something else?
+How is a machine initially provisioned and configured?
+How is the system extended without destroying its state model?
+What physically changes during an update, and what persists?
+What does rollback mean? Is it an image switch, generation switch, partition switch, reinstall, redeploy, or something else?
+How does the system recover from a failed update or an unknown/broken state?
+Who owns lifecycle orchestration: the node, an external fleet manager, Kubernetes, the cloud provider, or another control plane?
+How tightly is the operating system coupled to Kubernetes?
+What security properties arise from the architecture rather than from add-on controls?
+What assumptions does the design make about hardware, connectivity, scale and operator access?
+The key teaching distinction
+Do not force every project into a feature-scorecard competition. The purpose is to explain the design space. Kairos, bootc and Flatcar can sustain direct experimental comparison; Talos and Bottlerocket illuminate different control assumptions; NixOS deliberately challenges the premise; Unikraft challenges the OS boundary. The most valuable conclusion may be that projects agree on the problem of uncontrolled machine state while disagreeing on where the reproducible artifact and control boundary should live.
+Two artifacts from one investigation
+TAG Workloads Foundation paper (≤5 pages). Keep this intentionally narrow and neutral. Center the CNCF-hosted/relevant approaches—especially Kairos, bootc and Flatcar—and explain architectural patterns and trade-offs rather than producing a vendor ranking. The broader landscape can be mentioned only where it sharpens the model.
+Personal public series. Use the full landscape: Talos, Bottlerocket, hyperscaler systems, NixOS, Unikraft and eventually Amutable. This is where the larger question—what makes machine state reproducible and recoverable—can develop into a recognizable body of work.
+Suggested public sequence
+1. What does “immutable” actually mean for a Linux machine?
+2. The artifact boundary: Kairos vs bootc.
+3. Flatcar and the Container Linux lineage: a different answer to the same operational problem.
+4. Recovery and rollback: when can you actually claim a machine is back in a known-good state?
+5. Talos: what changes when Kubernetes becomes part of the machine-management contract?
+6. Bottlerocket and hyperscaler operating systems: what can you simplify when you own the surrounding platform?
+7. NixOS: do we need immutability, or do we actually need reproducibility?
+8. Unikraft: what if the traditional host OS is the wrong boundary?
+9. Amutable, when testable: does verifiable machine state create a new category?
+Research discipline
+State the comparison question before running experiments; do not choose metrics because they favor Kairos.
+Give maintainers a chance to correct factual descriptions of their architecture before publishing major comparative claims.
+Separate documented behavior from experimentally observed behavior and from personal interpretation.
+Publish cases where another system is a better fit than Kairos. This is essential if the work is to establish domain authority rather than product advocacy.
+Do not give every project equal research time. Depth should follow intellectual relevance and the quality of evidence available.
+Record commands, versions, hardware/VM setup, failure injection and results so demonstrations can be reproduced.
+How this changes the emerging public position
+Do not lock in “the immutable OS guy.” A stronger hypothesis to test is that Mauro becomes known for explaining how machines become reproducible, replaceable and recoverable infrastructure beneath cloud-native platforms. Immutable/image-based systems are the first major investigation because that is where current expertise is deepest; the broader question leaves room for NixOS, GPU nodes, edge fleets, verified boot and future architectures without diluting the core.
+Revised first 90 days
+Weeks 1–2: freeze terminology and test methodology; build a source inventory; define the exact Kairos/bootc/Flatcar experiments.
+Weeks 2–5: run the deep experimental core and publish only small findings that are already well-supported.
+Weeks 4–6: add representative Talos/Bottlerocket work and the NixOS countermodel; seek factual review from relevant maintainers.
+Weeks 6–8: synthesize the CNCF-focused TAG paper while continuing the broader public series.
+Weeks 8–12: publish the canonical landscape piece/video, use disagreements and questions to refine the model, and draft the conference talk only after the research has matured.

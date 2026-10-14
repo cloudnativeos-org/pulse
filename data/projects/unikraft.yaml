@@ -1,0 +1,1290 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: unikraft
+name: Unikraft
+homepage: https://unikraft.org/
+repository: https://github.com/unikraft/unikraft
+collected_at: "2026-09-15"
+
+entry_kind:
+  - framework
+
+category_fit:
+  comparable: adjacent
+  note: >-
+    A boundary case, included because it asks whether the host operating system
+    is the right unit of deployment at all. Unikraft compiles an application and
+    the operating system into a single bootable binary, so there is no host to
+    manage, no multi-process user space, and no separation between kernel and
+    application address spaces.
+
+    Several dimensions are genuinely not applicable rather than absent, and that
+    distinction is the reason this edition's schema has three different kinds of
+    no. They are listed below, each with a note saying why the concept does not
+    exist here.
+
+    Where a concept does exist in a modified form, it is recorded rather than
+    dismissed.
+  dimensions_not_applicable:
+    - d05_rollback_recovery
+    - d09_provisioning
+    - d11_operations_debugging
+    - d12_fleet_management
+
+self_description:
+  text: >-
+    The fast, secure and open-source Unikernel Development Kit. Unikraft powers
+    the next-generation of cloud native, containerless applications by enabling
+    you to radically customize and build custom OS/kernels.
+  source:
+    url: https://github.com/unikraft/unikraft
+    type: source-repo
+    title: Unikraft README
+    retrieved: "2026-09-22"
+
+version_observed:
+  version: "v0.21.0 Ijiraq"
+  released: "2026-05-20"
+  channel: stable
+  method: >-
+    Latest release on unikraft/unikraft via the GitHub releases API. Note the
+    project's own release blog post is dated a month earlier than the release
+    object; the API date is used.
+  source:
+    url: https://github.com/unikraft/unikraft/releases
+    type: release-notes
+    title: Unikraft releases
+    retrieved: "2026-09-22"
+  additional_channels:
+    - channel: "build tooling, released separately"
+      version: "v0.12.16"
+      released: "2026-09-09"
+
+taxonomy:
+  workload_scope: single-application-image
+  construction_model:
+    - framework
+  root_state_substrate:
+    - unikernel-binary
+  notes: >-
+    The only single-application-image entry in this edition. The unit of
+    deployment is one application fused with the operating system it needs, and
+    the project's own words are that the result is "a single-address space binary
+    object: it does not have separation between kernel and user address spaces."
+
+    A pure framework: the project ships no operating system, only the parts and
+    the build system to compose one.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: single-application-image
+      library_os: true
+      shell: "none"
+      multi_process_userspace: "none"
+      linux_binary_compatibility: "x86_64, position-independent executables, one hypervisor"
+      documented_syscalls: "160 or more"
+    summary: >-
+      A library operating system plus a configuration and build system. Every
+      component, including the scheduler and the network stack, is an
+      interchangeable micro-library selected at build time.
+    notes: >-
+      The modularity goes further than the word usually implies, and the project
+      states it: interfaces are themselves removable micro-libraries, so an
+      application can switch off the scheduler entirely to implement a
+      run-to-completion event loop.
+
+      Two routes exist for running existing software. Recompiling links an
+      application's object files against the library operating system. Binary
+      compatibility runs unmodified Linux executables through a system call
+      shim, with documented limits stated plainly: x86_64 only with work ongoing
+      for arm64, position-independent executables only, one hypervisor only, and
+      a slight performance cost.
+
+      The project is honest about the porting cost and quantifies it rather than
+      waving it away: it reports that 42 percent of invoked system calls can be
+      stubbed or faked for test suites and 60 percent for traditional workloads,
+      and concludes that the effort "while non-negligible, is not as
+      insurmountable as past studies relying on static analysis seemed to
+      suggest." Missing system calls return a not-implemented error by default.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://unikraft.org/docs/concepts
+        type: official-docs
+        title: Unikraft concepts
+        retrieved: "2026-09-22"
+        quote: >-
+          a single-address space binary object: it does not have separation
+          between kernel and user address spaces
+      - url: https://unikraft.org/docs/internals/architecture
+        type: official-docs
+        title: Architecture
+        retrieved: "2026-09-22"
+        quote: >-
+          All micro-libraries that implement the same API are interchangeable.
+      - url: https://unikraft.org/docs/concepts/compatibility
+        type: official-docs
+        title: Compatibility
+        retrieved: "2026-09-22"
+        quote: >-
+          Currently, binary-compatibility is available on x86_64 ... Also note
+          that KVM is currently the only supported hypervisor
+
+  d02_immutability:
+    normalized:
+      image_read_only_by_construction: true
+      root_filesystem_options:
+        - "in-memory initial ramdisk, non-persistent"
+        - "embedded initial ramdisk, compiled into the binary"
+        - "external volume, for persistence"
+      persistence: "external volume only"
+      integrity_mechanism:
+        - image-by-construction
+      read_only:
+        - the unikernel image (an embedded initrd is compiled into the binary)
+      read_only_mechanism: read-only by construction
+      ephemeral:
+        - the root filesystem, held in memory (initrd)
+      ephemeral_mechanism: RAM, not persistent
+      writable_and_persistent:
+        - an external volume, the only persistent storage
+      configurable_paths:
+        value: 'yes'
+        evidence: DOCUMENTED
+        how: 'Choose the root filesystem at build time: an initrd, an embedded initrd or an external volume. Volume drivers are selected at compile time.'
+        sources:
+          - url: https://unikraft.org/docs/cli/filesystem
+            type: official-docs
+            title: 'Unikraft filesystems: root filesystem classes'
+            retrieved: '2026-10-12'
+            quote: Unikraft supports essentially two classes of root filesystems
+          - url: https://unikraft.org/docs/cli/filesystem
+            type: official-docs
+            title: 'Unikraft filesystems: volumes'
+            retrieved: '2026-10-12'
+            quote: However, Unikraft supports using volumes as the root filesystem and supports different volume drivers, which are included at compile-time
+      mounts_sources:
+        - url: https://unikraft.org/docs/cli/filesystem
+          type: official-docs
+          title: 'Unikraft filesystems: the in-memory root'
+          retrieved: '2026-10-12'
+          quote: Throughout the lifecycle of the application, this root filesystem is held in memory (via Unikraft's internal library ramfs ) and therefore it is not persistent.
+        - url: https://unikraft.org/docs/cli/filesystem
+          type: official-docs
+          title: 'Unikraft filesystems: embedded initrd'
+          retrieved: '2026-10-12'
+          quote: Unikraft supports embedding the initram archive file within the kernel binary directly
+        - url: https://unikraft.org/docs/cli/filesystem
+          type: official-docs
+          title: 'Unikraft filesystems: volumes'
+          retrieved: '2026-10-12'
+          quote: Traditionally, volumes are typically associated with long-term data storage, not just for boot time operations.
+    summary: >-
+      The default root filesystem is held in memory and is not persistent. An
+      embedded variant compiles the filesystem into the binary itself, which the
+      project frames explicitly as a tamper-resistance measure.
+    notes: >-
+      The embedded variant is the strongest immutability construct here and the
+      rationale is stated: embedding removes "the possibility of injecting a
+      different initrd at boot time", reducing attack surface by shipping one
+      binary rather than a binary plus a separate archive.
+
+      Persistence requires attaching an external volume, and the documentation is
+      clear about the fit: unsuitable for applications that rely on persistent
+      storage such as databases, and well suited to stateless memory-intensive
+      services. Volume drivers are selected at compile time.
+
+      There is no writable-overlay-on-read-only-base construct and none is
+      documented. Read-only enforcement questions in the host-OS sense, such as a
+      verity-protected root or a writable /etc, do not arise: the image is not
+      modifiable because nothing exists to modify it with.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://unikraft.org/docs/cli/filesystem
+        type: official-docs
+        title: Filesystem
+        retrieved: "2026-09-22"
+        quote: >-
+          to prevent corruption or malicious intent by reducing the attack
+          surface by removing the possibility of injecting a different initrd at
+          boot time
+      - url: https://unikraft.org/docs/cli/filesystem
+        type: official-docs
+        title: Filesystem, persistence
+        retrieved: "2026-09-22"
+        quote: >-
+          the longevity of the initram makes it unsuitable for applications which
+          rely on persistent storage
+
+  d03_artifact:
+    normalized:
+      primary_artifact: "a bootable kernel binary per platform and architecture"
+      oci_registry_distribution: true
+      content_addressable: "by inference, as an OCI image"
+      mirrorable: true
+      signed: "none"
+      air_gapped_capable: unknown
+      kernel_and_application_together: true
+    summary: >-
+      One statically linked binary per target, fusing application and operating
+      system. It can also be packaged and pushed as an OCI image, including
+      multi-platform images, to any registry.
+    notes: >-
+      OCI packaging is first class and uses the standard image specification, so
+      ordinary registries work and an alternative registry is a one-line
+      configuration change. A second distribution channel exists for build-time
+      components, served from a published manifest index.
+
+      Content addressing is recorded as an inference rather than a project claim:
+      it follows from being an OCI image, and the documentation never uses the
+      words digest or content-addressable.
+
+      Signing is a documented absence and it is the most consequential gap in
+      this profile. Searches across the documentation corpus for signing,
+      transparency-log and bill-of-materials terminology returned nothing. A
+      search of the build tooling source tree on 2026-09-22 found signing
+      terms only in the tool's own release pipeline (a release configuration
+      that signs the tool's release binaries with cosign) and in an indirect
+      Go module dependency; no code signs, verifies or attests unikernel images,
+      and the packaging documentation never uses the words signature, digest or
+      content-addressable. There is no image signing, no verification on pull,
+      no bill of materials and no provenance attestation.
+
+      Air-gapped building is recorded as unknown rather than supported: a mirror
+      flag and update-suppression flags exist on the build command, and there is
+      no air-gap guide or documented workflow.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://unikraft.org/docs/cli/packaging
+        type: official-docs
+        title: Packaging
+        retrieved: "2026-09-22"
+        quote: >-
+          It is possible to access pre-built and to distribute yourself unikernel
+          images using the OCI Image Specification.
+      - url: https://unikraft.org/docs/internals/architecture
+        type: official-docs
+        title: Architecture, build output
+        retrieved: "2026-09-22"
+        quote: >-
+          The build system then compiles all of the micro-libraries, links them,
+          and produces one binary per selected platform.
+      - url: https://github.com/unikraft/kraftkit
+        type: source-repo
+        title: Build tooling, searched for image signing, verification, bill-of-materials and attestation support
+        retrieved: "2026-09-22"
+    unknowns:
+      - "Air-gapped building is not documented as a supported workflow, though a mirror flag exists."
+
+  d04_upgrade:
+    normalized:
+      mechanism:
+        - image-replacement-redeploy
+      in_place_upgrade: "not-applicable"
+      initiator: "whatever runs the instance"
+      artifact_verification: "none"
+    summary: >-
+      There is no upgrade mechanism and the project documents none. The unit is
+      replaced, not upgraded, which follows directly from the kernel and the
+      application being one statically linked binary.
+    notes: >-
+      In-place upgrade is marked not-applicable because there is no persistent
+      operating system to upgrade: changing either the application or the
+      operating system means relinking the whole image.
+
+      This is recorded as a documentation gap as well as an architectural fact.
+      Searches of the command-line and internals documentation for upgrade,
+      rollback, atomic and A/B terminology returned no occurrences. The only
+      update-adjacent commands refresh the component manifest list or suppress
+      self-update checks. The instance lifecycle verbs are run, start, stop,
+      pause, list, logs and remove, with no update or upgrade verb.
+
+      So the architectural answer is inferable and defensible, and the project
+      never writes it down, not even to say the question does not apply.
+
+      Nothing verifies an artifact at any point between packaging and running,
+      which follows from the absence of signing recorded in d03.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://unikraft.org/docs/cli
+        type: official-docs
+        title: Command reference, the only update verb refreshes the component list
+        retrieved: "2026-09-22"
+        quote: "Retrieve new lists of Unikraft components, libraries and packages"
+      - url: https://unikraft.org/docs/internals/architecture
+        type: official-docs
+        title: Architecture, single linked binary
+        retrieved: "2026-09-22"
+        quote: >-
+          The build system then compiles all of the micro-libraries, links them,
+          and produces one binary per selected platform.
+    unknowns:
+      - "The redeploy model is never stated in the documentation, not even as a statement that in-place upgrade does not apply."
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: "not-applicable"
+      automatic_rollback_on_boot_failure: "not-applicable"
+      recovery_environment: "not-applicable"
+      factory_reset: "not-applicable"
+      crash_handling: "a crash screen and crash management, improved in the current release"
+    summary: >-
+      Not applicable as host-OS concepts. There is no persistent host to roll
+      back, no bootloader slots, no recovery shell to drop into, and no device
+      state to reset.
+    notes: >-
+      Each field is marked not-applicable rather than absent for a specific
+      reason. Rollback in this model means deploying the previous image, which is
+      an orchestrator action outside the project's scope. Automatic rollback on
+      failed boot needs a bootloader tracking attempts across boots of a
+      persistent system, and no such subsystem exists in the source tree.
+      A recovery environment needs a shell, and the project states a production
+      image contains none. Factory reset needs persistent device identity, and
+      there is none.
+
+      What does exist is post-mortem rather than recovery: console output, log
+      retrieval, and debugger attachment, recorded under d11. The current release
+      added an improved crash screen and crash management, which reports rather
+      than recovers.
+
+      Recovering a failed instance is destroy and recreate from an image the
+      operator already holds. If that image is local, no network is needed. That
+      is an inference from the model rather than a documented procedure, because
+      no recovery documentation exists.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://unikraft.org/docs/concepts/security
+        type: official-docs
+        title: Security, no shell in a production image
+        retrieved: "2026-09-22"
+        quote: >-
+          a Unikraft production image contains no shell, no unneeded system
+          services, no unneeded system calls or OS features
+      - url: https://github.com/unikraft/unikraft/releases
+        type: release-notes
+        title: Release notes, crash management
+        retrieved: "2026-09-22"
+        quote: "an improved crash screen and crash management"
+
+  d06_customization:
+    normalized:
+      customization_points:
+        - build-time
+      runtime_customization: "none"
+      mechanisms:
+        - kconfig-configuration
+        - kraftfile-project-descriptor
+        - micro-library-selection
+        - library-ports
+      swappable_components:
+        - "C standard library"
+        - "memory allocator"
+        - "scheduler, per CPU core"
+        - "network stack"
+        - "filesystem"
+        - "boot code"
+        - "language runtime"
+    summary: >-
+      Customization is the core capability and it happens exclusively at build
+      time. A configuration system ported from the Linux kernel selects which
+      micro-libraries compose the image.
+    notes: >-
+      The depth is real and unmatched in this edition. Documented swappable
+      layers include the C library, the memory allocator, the scheduler with
+      different schedulers per CPU core, the network stack with an optional
+      lower-level higher-throughput interface, the filesystem, and even the boot
+      code for anyone optimizing boot time against a defined interface.
+
+      A declarative project descriptor holds the specification, target list,
+      libraries, root filesystem, volumes and inline configuration.
+
+      The cost is the mirror image of the capability, and it is the framework
+      cost this edition records wherever a framework appears. Everything is build
+      time, so there is no runtime configuration of the operating system at all,
+      and the adopter owns the resulting artifact including its testing and
+      patching. Porting an application is real work, quantified by the project
+      itself in d01.
+
+      Analysis tooling exists to support porting decisions, which is a
+      thoughtful inclusion rather than an afterthought.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://unikraft.org/docs/internals/architecture
+        type: official-docs
+        title: Architecture, removable interfaces and pluggable schedulers
+        retrieved: "2026-09-22"
+        quote: >-
+          Schedulers are also pluggable, and each CPU core can run a different
+          scheduler.
+      - url: https://unikraft.org/docs/cli/reference/kraftfile/latest
+        type: official-docs
+        title: Project descriptor reference
+        retrieved: "2026-09-22"
+        quote: >-
+          The Kraftfile is the static configuration file used to programmatically
+          build, run, package and deploy a unikernel using kraft.
+      - url: https://unikraft.org/docs/concepts
+        type: official-docs
+        title: Concepts, configuration system
+        retrieved: "2026-09-22"
+        quote: >-
+          In Unikraft, this system is enabled by a custom port of Linux's KConfig
+          system
+
+  d07_kubernetes:
+    normalized:
+      requirement: unrelated
+      host_os_for_kubernetes: "none"
+      runs_as_kubernetes_workload: "through an OCI runtime shipped in the build tooling"
+      bundled: "none"
+      os_manages_kubernetes: "no"
+      kubernetes_manages_os: "not-applicable"
+    summary: >-
+      Unrelated, and never a host operating system for Kubernetes. A Unikraft
+      image can run as a Kubernetes workload through an OCI runtime shipped in
+      the build tooling, registered as a runtime class.
+    notes: >-
+      Kubernetes managing the operating system is marked not-applicable because
+      there is no host operating system whose lifecycle could be managed.
+
+      The workload path is documented: register the runtime with a container
+      runtime, create a runtime class naming it, and reference that class in a
+      pod specification. A maturity caveat exists on the page but is scoped to
+      the container-engine path rather than the Kubernetes one, which carries no
+      maturity label at all.
+
+      The spectrum position is neither end and that is the informative part.
+      Unikraft is not a Kubernetes appliance, because its primary workflow never
+      mentions Kubernetes. It is not a general infrastructure substrate, because
+      it hosts nothing. It sits one layer below both: an artifact producer whose
+      output an orchestrator may schedule.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://unikraft.org/docs/getting-started/integrations/container-runtimes
+        type: official-docs
+        title: Container runtime integration
+        retrieved: "2026-09-22"
+        quote: >-
+          Inside Kubernetes, register runu as a known runtime using a Runtime
+          Class API object.
+      - url: https://unikraft.org/docs/concepts/virtualization
+        type: official-docs
+        title: Virtualization
+        retrieved: "2026-09-22"
+        quote: >-
+          Unikraft can be run as a virtual machine, using KVM (with QEMU or
+          Firecracker as VMMs) or Xen.
+    unknowns:
+      - "The Kubernetes integration carries no maturity label, and it is not documented whether it is tested against Kubernetes in continuous integration."
+
+  d08_hardware_platform:
+    normalized:
+      architectures_in_tree:
+        - x86
+        - x86_64
+        - arm
+        - arm64
+      architectures_absent:
+        - riscv64
+      platforms:
+        - kvm
+        - xen
+        - native
+      virtual_machine_monitors:
+        - qemu
+        - firecracker
+        - xen
+        - hyperlight
+      bare_metal: "work in progress, documented as such"
+      gpu: "none"
+      tpm: "none"
+      extension_mechanism: "write a platform or driver port as a micro-library"
+    summary: >-
+      Four architecture trees and three platform trees. Devices are
+      virtualization-oriented: virtio and Xen front-end drivers, a few console
+      devices, and firmware interfaces.
+    notes: >-
+      riscv64 is a documented absence with an unusually long history, and it is
+      recorded precisely because the README advertises it as coming soon. There
+      is no architecture directory for it, the tracking issue has been open since
+      2020-09-15, and the implementation change has been open since 2022-05-12
+      and was last updated on 2026-04-22, so it is not abandoned but it is not
+      merged. A second change, opened 2025-08-28 and last updated 2026-06-15,
+      ports that work to the current development branch and is also unmerged.
+      Both changes come from personal forks.
+
+      GPU and TPM support are documented absences established by searching the
+      complete source tree, not assumptions. On 2026-09-22 the only matches were
+      an imported Xen interface header for a TPM front end and a virtio
+      device-identifier constant, neither of which is a driver.
+
+      Bare metal is honestly labelled work in progress by the project's own
+      frequently asked questions, with initial single-board work in a separate
+      repository.
+
+      The current release introduced a platform abstraction layer that the
+      release post describes as the first and largest part of a major platform
+      rearchitecture. In this release the Xen platform is fully adapted to it on
+      x86_64 and arm64, a new native platform implements it, and the KVM platform
+      is described as mid-transition with full adoption anticipated in upcoming
+      releases. A fourth virtual machine monitor, Hyperlight, arrived in the
+      build tooling through a student programme in 2026; the contributor's post
+      reports boot speed figures relative to the other monitors and lists
+      continuous integration as a next step. The core tree has no hyperlight
+      platform directory; the kernels for it are built out of tree.
+
+      Extending hardware support means writing a platform or driver port as a
+      micro-library, and the architecture documentation explicitly lists
+      platforms among the things that can be contributed that way.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/unikraft/unikraft/tree/staging/arch
+        type: source-repo
+        title: Architecture trees (arm, arm64, x86, x86_64; no riscv64)
+        retrieved: "2026-09-22"
+      - url: https://github.com/unikraft/unikraft/issues/60
+        type: source-repo
+        title: RISC-V support tracking issue, open since 2020
+        retrieved: "2026-09-22"
+        quote: "Add support for RISC-V architecture."
+      - url: https://github.com/unikraft/unikraft/pull/461
+        type: source-repo
+        title: Initial riscv64 support change, open since 2022-05-12, last updated 2026-04-22
+        retrieved: "2026-09-22"
+        quote: "Introduce initial riscv64 support"
+      - url: https://unikraft.org/docs/faq
+        type: official-docs
+        title: FAQ, bare metal
+        retrieved: "2026-09-22"
+        quote: We are are working towards having Unikraft run baremetal.
+      - url: https://unikraft.org/docs/internals/architecture
+        type: official-docs
+        title: Architecture, portable platforms
+        retrieved: "2026-09-22"
+        quote: "or even platforms (e.g., Solo5, Firecracker, Raspberry Pi 3)"
+      - url: https://unikraft.org/blog/2026-04-20-unikraft-releases-v0.21.0
+        type: announcement
+        title: v0.21.0 release post, platform abstraction layer
+        retrieved: "2026-09-22"
+        quote: >-
+          the first and largest part of a major platform rearchitecture effort
+          that will continue in upcoming releases
+      - url: https://unikraft.org/blog/2026-06-19-unikraft-gsoc-hyperlight-platform
+        type: announcement
+        title: Student programme post on the Hyperlight driver in the build tooling, contributor authored
+        retrieved: "2026-09-22"
+        quote: "CI / integration tests for the Hyperlight driver"
+
+  d09_provisioning:
+    normalized:
+      methods: "not-applicable"
+      instance_start: "a virtual machine monitor invocation, or a tooling run command that can pull from a registry"
+      iso: "not-applicable"
+      pxe: "not-applicable"
+    summary: >-
+      Not applicable in the install-media sense. Nothing is installed onto a
+      machine: the image is handed to a virtual machine monitor as a kernel, or
+      pulled from a registry and run.
+    notes: >-
+      Marked not-applicable because installer media, network boot and
+      partitioning presuppose installing an operating system onto persistent
+      storage, and this model never does that. Bare-metal boot, where network
+      boot would eventually matter, is itself still work in progress per d08.
+
+      What does exist is recorded: four invocation contexts, including running an
+      OCI image reference directly, which downloads it first if it is not
+      present. Instance state such as environment variables, static network
+      parameters and named volumes is declared rather than discovered.
+
+      The documentation is candid about a real operational cost: emulation
+      fallback carries a significant performance penalty when hardware
+      acceleration is unavailable, and it says so.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://unikraft.org/docs/cli/running
+        type: official-docs
+        title: Running
+        retrieved: "2026-09-22"
+        quote: >-
+          hardware emulation will be used and it should be noted that this has a
+          significant penalty on runtime performance of the application.
+      - url: https://unikraft.org/docs/internals/debugging
+        type: official-docs
+        title: Debugging, direct VMM invocation
+        retrieved: "2026-09-22"
+        quote: >-
+          qemu-system-x86_64 -s -S -cpu host -enable-kvm -m 128 -nodefaults
+          -no-acpi -display none -serial stdio -device isa-debug-exit -kernel
+          build/app-helloworld_kvm-x86_64 -append verbose
+
+  d10_security:
+    normalized:
+      attack_surface_argument: "the project's own, quoted rather than asserted"
+      memory_protections: "a published status table, stale by about four years"
+      single_address_space: true
+      compartmentalization: "a research prototype, not in the shipped core"
+      image_signing: "none"
+      sbom: "none"
+      provenance: "none"
+      measured_boot: "none"
+      encryption: "none in tree; application-level TLS through a library port"
+      security_policy: "none"
+      cve_process: "none"
+    summary: >-
+      The security argument is specialization: an image contains only what the
+      application needs, so there is no shell, no unneeded services and no
+      unneeded system calls. The project states this and also states its limit.
+    notes: >-
+      The project's own hedge is worth quoting because it is more honest than the
+      category usually is: specialization "does not eliminate all attack vectors,
+      it severely reduces them, especially compared to a general-purpose OS." The
+      documentation also cites an external assessment critical of unikernel
+      security rather than ignoring it.
+
+      The single address space is simultaneously the performance argument and the
+      reason intra-image isolation does not exist. System calls are effectively
+      function calls. Cross-application isolation comes from the hypervisor.
+
+      Several protections that do not apply are marked as such by the project
+      itself, explaining that countermeasures assuming a kernel and user split
+      are unnecessary where a virtual machine holds one application.
+
+      Two significant caveats. The published hardening status table still says
+      most core security features were expected by the end of 2022, roughly four
+      years before this snapshot, so every in-progress and planned row is
+      unverifiable as current. And compartmentalization, which would introduce
+      isolation boundaries inside an image, is a research prototype with no
+      corresponding library in the shipped tree.
+
+      The largest gap is process rather than mechanism. There is no security
+      policy file in the repository or the organization, no published
+      vulnerability reporting address, no embargo policy, no supported-version
+      statement, and no published advisories. For a project whose primary claim
+      is security, that is the finding a prospective adopter most needs.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://unikraft.org/docs/concepts/security
+        type: official-docs
+        title: Security
+        retrieved: "2026-09-22"
+        quote: >-
+          While this does not eliminate all attack vectors, it severely reduces
+          them, especially compared to a general-purpose OS.
+      - url: https://unikraft.org/docs/concepts/security
+        type: official-docs
+        title: Security, hardening status and target date
+        retrieved: "2026-09-22"
+        quote: >-
+          we are expecting completion of most core security features by the end
+          of 2022
+      - url: https://github.com/unikraft/unikraft
+        type: source-repo
+        title: Repository and organization .github repository, searched for a security policy file and published advisories; none present on 2026-09-22
+        retrieved: "2026-09-22"
+    unknowns:
+      - "No vulnerability reporting address, embargo policy, supported-version window or advisory history exists."
+      - "The hardening status table is about four years stale, so in-progress and planned entries cannot be verified as current."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: "not-applicable"
+      local_shell: "not-applicable"
+      serial_console: available
+      debugger: "GDB, on both platforms, application and OS together"
+      tracing: "a tracepoint facility exists inside the debug library and is undocumented"
+      support_bundle: "none"
+      log_retrieval: available
+    summary: >-
+      Not applicable for interactive access, and genuinely capable for
+      post-mortem and attached debugging. A debugger can inspect application and
+      operating system code at the same time, because they are one binary.
+    notes: >-
+      Shell and remote access are marked not-applicable rather than absent
+      because there is no process model, no user separation and no session to
+      attach to. Both halves of that are recorded, as the methodology requires.
+      What it costs: an operator cannot enter a misbehaving instance to diagnose
+      it. What it buys: neither can an attacker, and the project's stated
+      reduction of attack surface follows from the same fact.
+
+      The debugging that does exist is not a consolation prize. Debugger support
+      is documented on both platforms with concrete invocations, requires a build
+      configuration change, and produces a separate debug image alongside the
+      stripped one. Serial console output is standard. The current release
+      overhauled the printing subsystem with a kernel-message-style log buffer.
+      For binary-compatible workloads a system-call-tracing image is published for
+      debugging.
+
+      Two facilities exist in the tree and are absent from the debugging
+      documentation: a tracepoint facility, a configuration option inside the
+      debug library rather than a library of its own, and a coverage library.
+      The only mention of tracepoints in the documentation is an external link
+      to the Linux kernel's tracepoint page in a further-reading list. Recorded
+      as a documentation gap.
+
+      A frankly useful piece of documentation records that stopping a running
+      instance differs per virtual machine monitor, including that one has no
+      keyboard shortcut and needs the process killed, and warns that interrupting
+      the tool may leave runtime state and processes behind.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://unikraft.org/docs/internals/debugging
+        type: official-docs
+        title: Debugging
+        retrieved: "2026-09-22"
+        quote: >-
+          debuggers can be used on the running unikernel to debug both
+          application and OS code at the same time.
+      - url: https://unikraft.org/docs/faq
+        type: official-docs
+        title: FAQ, stopping instances
+        retrieved: "2026-09-22"
+        quote: "There's no keyboard shortcut to stop a running Firecracker instance."
+      - url: https://unikraft.org/docs/cli/running
+        type: official-docs
+        title: Running, tracing image for binary compatibility
+        retrieved: "2026-09-22"
+        quote: >-
+          we provide an `strace`-like image which is packaged as an OCI image and
+          available publicly at `loaders.unikraft.org/strace:latest` which is
+          useful for debugging
+    unknowns:
+      - "A tracepoint facility inside the debug library and a coverage library exist in the source tree and appear nowhere in the debugging documentation."
+
+  d12_fleet_management:
+    normalized:
+      core_project: "not-applicable"
+      oss_companion:
+        - name: KraftKit
+          repo: https://github.com/unikraft/kraftkit
+          license: BSD-3-Clause
+          org: unikraft
+          note: "Single-host scope. A daemonless local instance manager with local networks, volumes and multi-service composition. There is no multi-host or cluster-wide capability."
+      commercial:
+        - name: Unikraft Cloud
+          vendor: "Unikraft GmbH"
+          license: proprietary
+          self_hostable: false
+          note: "The control plane is not published. The company's organization publishes clients, software development kits, an interface specification, a Terraform provider and a Kubernetes operator, and no server, scheduler or orchestrator."
+      cluster_api:
+        os_specific_provider: not-applicable
+        maintainer: not-applicable
+        upstream_provider_list: "not listed, and a listing would be a category error"
+        provisions: not-applicable
+    summary: >-
+      Not applicable to the core project, which is a kernel and a build system
+      with no agent, no control plane client and no remote management code. A
+      built image has no way to phone home or be enrolled.
+    notes: >-
+      This is the cleanest example in the edition of why the three buckets exist,
+      and it needs stating carefully because the boundary is easy to misread.
+
+      The open-source command-line tool ships subcommands that deploy to the
+      commercial platform, covering autoscaling, scale-to-zero, persistent
+      volumes, certificates, metrics and multi-instance orchestration. Those
+      subcommands are open source. The capabilities behind them are not: they are
+      features of a hosted platform reached through an open-source client.
+
+      The evidence that the control plane is closed is what the company's
+      organization publishes and what it does not: clients, software development
+      kits, an interface specification, a Terraform provider and a Kubernetes
+      operator are public, and no server, scheduler or orchestrator repository
+      exists.
+
+      The open-source tool's own scope is a single host. Listing instances lists
+      them on the machine the command runs on.
+
+      Cluster API is recorded as not-applicable, and the reason is the same one
+      that makes several other dimensions not-applicable for this entry: a
+      Cluster API bootstrap provider turns a machine into a joined Kubernetes
+      node, and this project produces no nodes. There is no host operating
+      system and no kubelet to configure, so the question is a category error
+      rather than a gap.
+
+      The absence was searched before being recorded. Nothing appears in the
+      provider list under any provider type. The project's own organisation and
+      its commercial organisation contain no Cluster API repository between
+      them. There is no image-builder target.
+
+      One near-miss is worth naming so a later pass does not miscount it. A
+      third-party repository carries this project's name and the word provider,
+      and it is not a Cluster API provider: it declares no dependency on Cluster
+      API and its own description says it watches a company-specific instance
+      resource and creates pods. The name collides and nothing else does.
+
+      The project's real Kubernetes integrations run the other way, placing
+      workloads into an existing cluster rather than building one. A runtime
+      shim lets packaged unikernels run under a standard container runtime, and
+      a virtual kubelet connects an existing cluster to the commercial platform.
+      Neither makes this system a node operating system.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/unikraft/kraftkit
+        type: source-repo
+        title: KraftKit
+        retrieved: "2026-09-22"
+        quote: >-
+          Daemonless unikernel local VM instance manager
+      - url: https://unikraft.org/docs/cli
+        type: official-docs
+        title: Command reference, cloud subcommands
+        retrieved: "2026-09-22"
+        quote: "View your resource quota on Unikraft Cloud"
+      - url: https://github.com/unikraft-cloud
+        type: source-repo
+        title: Commercial organization repositories, listed on 2026-09-22; clients, SDKs, an interface specification, a Terraform provider and an operator, no server or control plane
+        retrieved: "2026-09-22"
+
+      - url: https://cluster-api.sigs.k8s.io/reference/providers
+        type: official-docs
+        title: Cluster API provider list, searched for this project
+        retrieved: "2026-09-22"
+      - url: https://unikraft.org/docs/concepts
+        type: official-docs
+        title: Unikraft concepts, a library operating system build kit
+        retrieved: "2026-09-22"
+        quote: "known as a library OS (libOS)"
+      - url: https://github.com/kubernetes-sigs/image-builder
+        type: source-repo
+        title: image-builder supported operating system targets
+        retrieved: "2026-09-22"
+        quote: >-
+          Image Builder is a tool for building Kubernetes virtual machine images
+          across multiple infrastructure providers.
+  d13_governance:
+    normalized:
+      license: BSD-3-Clause
+      license_note: >-
+        The main licence is BSD-3-Clause with per-component exceptions: imported
+        hypervisor headers under MIT and a build system derived from another
+        project under GPL-2.0, with a documented carve-out that using the build
+        system does not make the output GPL. The licence file states its own
+        tagging may be incomplete or incorrect. GitHub's licence detection finds
+        no licence on 91 of the organization's 181 repositories on 2026-09-22,
+        including both catalog repositories of prebuilt applications; most of
+        the others are application and library ports.
+      open_source: true
+      open_governance: partial
+      vendor_neutral_ownership: mixed
+      foundation:
+        name: "Xen Project, itself a Linux Foundation project"
+        level: "sub-project; no maturity label on the current foundation page"
+        since: "2017-12-05"
+      trademark_holder: "the commercial entity"
+      primary_commercial_sponsor: "Unikraft GmbH"
+      contribution_diversity:
+        method: >-
+          Contributor count derived from GitHub API pagination, and commit counts
+          from the contributors endpoint. Employer affiliation is not published
+          anywhere, so it is not established and not inferred.
+        value: >-
+          111 non-anonymous contributors, with a concentrated commit
+          distribution. The project's own adopters file lists seven
+          organizations, five of them universities and two of them companies,
+          which is an adopters list rather than a contributors-by-employer list
+          and is not conflated with one.
+    summary: >-
+      BSD-3-Clause, hosted under the Xen Project rather than directly by a
+      foundation, with the trademark held by the commercial entity. A governance
+      repository lists maintainers and reviewers per special interest group;
+      no document states who decides project direction or how maintainers are
+      appointed or removed.
+    notes: >-
+      The foundation position needs precision. Unikraft is a sub-project of the
+      Xen Project, which is itself a Linux Foundation project. It is not a
+      directly hosted top-level Linux Foundation project. The incubation label
+      the README uses rests on a 2017 announcement; the current foundation page
+      assigns no status.
+
+      Open governance is partial rather than documented. What exists is a
+      published review process with two roles, automated reviewer assignment by
+      special interest group, and a one-maintainer-approval automatic merge rule,
+      plus a governance repository whose README describes the project as
+      organised into self-governing special interest groups and whose
+      configuration files list the maintainers and reviewers of each group by
+      name (22 groups on 2026-09-22, last pushed 2025-04-23). What does not exist
+      is any statement of who decides project direction, how maintainers are
+      appointed or removed, how disputes escalate, or any steering or technical
+      body. The governance repository's own licence file names the commercial
+      entity and a university as copyright holders.
+
+      Vendor-neutral ownership is mixed rather than foundation-held: the project
+      is hosted under a foundation umbrella while the trademark sits with the
+      commercial entity.
+
+      One inconsistency is recorded without resolving it: the README's trademark
+      line and the site imprint name two different legal forms for that entity,
+      and no live source reconciled them. On 2026-09-22 no imprint page was
+      found on the project site, and the company domains redirect to a site
+      that publishes no imprint, so the second half of that inconsistency could
+      not be re-read.
+
+      The academic pipeline is real and structural, with a student programme
+      whose output lands in shipped tooling, documented university workshops, and
+      continuing publication activity. That is a meaningful contribution model
+      and is recorded as a fact rather than as a weakness.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/unikraft/unikraft/blob/staging/COPYING.md
+        type: governance-doc
+        title: Licence
+        retrieved: "2026-09-22"
+        quote: "aware that this tagging might be incomplete or incorrect"
+      - url: https://unikraft.org/docs/contributing/review-process
+        type: governance-doc
+        title: Review process
+        retrieved: "2026-09-22"
+        quote: >-
+          An approval will unlock the CI/CD system and will automatically merge
+          the PR into the desired repository.
+      - url: https://github.com/unikraft/governance
+        type: governance-doc
+        title: Governance repository, special interest groups with per-group maintainer and reviewer lists
+        retrieved: "2026-09-22"
+        quote: >-
+          the Unikraft OSS project is organised into self-governing Special
+          Interest Groups (SIGs)
+      - url: https://www.linuxfoundation.org/press/press-release/xen-project-introduces-unikraft-unikernel-project
+        type: announcement
+        title: Founding announcement, 2017
+        retrieved: "2026-09-22"
+        quote: "Unikraft is an incubation project under the Xen Project"
+      - url: https://xenproject.org/projects/unikraft/
+        type: foundation-page
+        title: Xen Project page for Unikraft, no maturity label
+        retrieved: "2026-09-22"
+        quote: "Unikraft is an open-source project for building efficient, secure unikernels."
+      - url: https://github.com/unikraft/unikraft/blob/staging/ADOPTERS.md
+        type: source-repo
+        title: Adopters
+        retrieved: "2026-09-22"
+        quote: >-
+          This page contains an alphabetical list of organizations who are users
+          of Unikraft.
+    unknowns:
+      - "No document states who decides project direction, how maintainers are appointed or removed, or how disputes escalate."
+      - "Contributor employer affiliation is not published."
+      - "The project's own sources name two different legal forms for the commercial entity, and no imprint page could be found on 2026-09-22 to re-read the second one."
+      - "GitHub detects no licence on 91 of the organization's 181 repositories, including both catalog repositories of prebuilt applications."
+
+  d14_maturity:
+    normalized:
+      origin: "a research project begun in 2017"
+      first_release: "2020-09-11"
+      current_version: "v0.21.0"
+      current_version_date: "2026-05-20"
+      release_cadence: "stated as every two months; measured minor intervals are much longer"
+      observed_intervals: "197, 154, 112 and 250 days for the last four minor releases (0.17.0 to 0.18.0, 0.18.0 to 0.19.0, 0.19.0 to 0.20.0, 0.20.0 to 0.21.0)"
+      support_model: "none published"
+      support_window: "none; no release branches and no backport policy"
+      commercial_support: unknown
+      production_readiness_statement: "none from the project"
+      version_series: "0.x, never 1.0"
+    summary: >-
+      Nine years from the founding announcement and six from the first release,
+      still on a 0.x version. The design paper won a best-paper award, and the
+      technical foundation is well regarded.
+    notes: >-
+      The cadence divergence is worth stating plainly because it is measurable.
+      The community page states public releases are planned every two months,
+      targeting specific months. The last four minor release intervals were 197,
+      154, 112 and 250 days (the 0.19.1 patch release sits 57 days before 0.20.0
+      and is not a minor interval), and the current release was 118 days old at
+      this snapshot. The stated target has not been met for minor releases since
+      at least 2024. This is a measurement, not a judgement.
+
+      The build tooling is released far more often than the core. Its release
+      listing carries a stable release about monthly (v0.12.15 on 2026-08-05,
+      v0.12.16 on 2026-09-09) and a prerelease snapshot tag every few days
+      between them; four tags in the three weeks before this snapshot, one of
+      them stable. The project is actively developed even while core minor
+      releases are infrequent.
+
+      There is no support policy, no long-term support designation, no release
+      branches and no backporting. A security fix would reach an adopter by
+      moving to the newest release.
+
+      The project publishes no production-readiness statement of its own. It
+      states an aim to target real-world deployments and speaks of a production
+      image as a category. The claim that the technology was considered mature
+      enough for real-world deployment comes from the company, not the project,
+      and the two are kept apart here.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/unikraft/unikraft/releases
+        type: release-notes
+        title: Release history, 23 releases from 2020-09-11 to 2026-05-20
+        retrieved: "2026-09-22"
+      - url: https://github.com/unikraft/kraftkit/releases
+        type: release-notes
+        title: Build tooling release history
+        retrieved: "2026-09-22"
+      - url: https://unikraft.org/community/about
+        type: official-docs
+        title: Community, stated release cadence
+        retrieved: "2026-09-22"
+        quote: "Public releases are planned to happen once every two months"
+      - url: https://unikraft.org/docs/concepts/security
+        type: official-docs
+        title: Aim to target real-world deployments
+        retrieved: "2026-09-22"
+        quote: >-
+          Unikraft has the explicit aim of targeting real-world deployments
+      - url: https://unikraft.org/docs/concepts/performance
+        type: paper
+        title: "EuroSys 2021 paper, cited by the project"
+        retrieved: "2026-09-22"
+        quote: "in the EuroSys'21 paper (best paper award)"
+    unknowns:
+      - "No support-duration policy, long-term support designation, release branches or backport process."
+      - "No commercial support offering for the open-source project itself was found, as distinct from the hosted platform."
+
+tradeoffs:
+  buys:
+    - "A minimal attack surface by construction rather than by hardening: no shell, no unneeded services, no unneeded system calls, and dead code removed by link-time optimization. The project states the claim and also states its limit."
+    - "The C library, memory allocator, scheduler, network stack, filesystem and even boot code are interchangeable, and interfaces themselves can be removed."
+    - "One artifact containing application and operating system, so there is no drift between them and no separate OS lifecycle to manage."
+    - "Debugging that inspects application and operating system code together, because they are the same binary."
+    - "Standard OCI packaging, so ordinary registries and multi-platform images work without project-specific infrastructure."
+  costs:
+    - "No security policy, no vulnerability reporting address, no embargo policy, no supported-version statement and no published advisories."
+    - "No image signing, no verification on pull, no bill of materials and no provenance. Nothing verifies an artifact between packaging and running."
+    - "No support policy, no release branches and no backporting. A fix reaches you by moving to the newest release."
+    - "Stated release cadence and measured cadence diverge substantially, and the last four minor intervals were far longer than the target."
+    - "The published hardening status table is about four years stale, so a reader cannot tell which protections have landed."
+    - "No statement of who decides project direction or how maintainers are appointed or removed. A governance repository holds per-group maintainer lists. The commercial entity holds the trademark, while the project sits under a foundation umbrella."
+    - "riscv64 is advertised as coming soon while the implementation has been unmerged since 2022 and the tracking issue open since 2020."
+    - "Binary compatibility is limited to one architecture, one hypervisor and position-independent executables, and carries a stated performance cost."
+    - "No persistence without an external volume, which the documentation says makes it unsuitable for database-style workloads."
+    - "Fleet capability at any scale means the commercial platform, whose control plane is not published."
+open_questions:
+  - "Which legal entity is correct today? The README trademark line and the site imprint disagree, and who holds the trademark now?"
+  - "Where does one report a security vulnerability, and what happens next? Is there a private channel, an embargo period and a disclosure timeline?"
+  - "Beyond the per-group maintainer and reviewer lists in the governance repository, is there a governance document that is not published? Who decides project direction, and how are maintainers appointed and removed? Is a single maintainer approval genuinely sufficient to auto-merge, including for security-relevant changes? The governance repository was last pushed in April 2025: are its lists current?"
+  - "Which page is the site imprint that names a legal form different from the README's trademark line? On 2026-09-22 no imprint page was found on unikraft.org, and unikraft.io and unikraft.cloud redirect to unikraft.com, whose footer carries no imprint, legal or privacy link."
+  - "Is the Hyperlight platform intended to land in the core tree? The build tooling has a driver for it and the kernels are built from a repository outside the project's organization."
+  - "Is artifact signing or provenance on the roadmap for packaging and for running? Should an adopter today treat every pulled image as unverified?"
+  - "Can the hardening status table be refreshed? Which entries have landed since 2022?"
+  - "What is the intended upgrade and rollback story in the project's own words? A short statement that redeploy is the complete answer would close the largest conceptual gap for operators."
+  - "What is the real state of riscv64, what is the change blocked on, and should the README's 'soon' be revised meanwhile?"
+  - "Has the two-month release cadence been formally revised, or has the project moved to a feature-driven model?"
+  - "Is there any support or maintenance-branch policy, even informal? Would a security fix today be backported?"
+  - "What is the supported maturity of the Kubernetes runtime path, and is it tested against Kubernetes in continuous integration?"
+  - "Which command-line capabilities require a commercial account? A clear split in the documentation would help evaluators."
+  - "Is any part of the commercial control plane intended to be open sourced?"
+  - "Are there production deployments of the open-source project outside the commercial platform, and would the project call the current release production ready?"
+  - "What licences apply to the repositories that carry none, including the catalog of prebuilt applications?"
+  - "Is measured boot or image attestation in scope, given there is a firmware driver but no TPM support?"
+  - "Is compartmentalization intended to land in the core tree, or does that work now live elsewhere?"
+  - "Who employs the maintainers in the governance repository's per-group lists? Contributor and maintainer employer affiliation is not published."
+
+follow_up_research:
+  - FR-01
+  - FR-02
+  - FR-05
+  - FR-06
+  - FR-08
+  - FR-09
+  - FR-11
+  - FR-14
+  - FR-15
+  - FR-16
+  - FR-17
+
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Cost audit under methodology section 9, rule 15. Moved c2 ('Upgrade and rollback are undocumented...') to q7 (N1). Removed c4 ('Version 0.x after nine years, with no production-readiness statement from the project.'), N4; production readiness is q14. Removed buy b5 ('A published, quantified account of the porting cost.'), the same treatment as Fedora CoreOS b9 and Talos b6. Removed buy b6 ('An academic contribution pipeline...'), N6."
+  - date: "2026-09-22"
+    field: dimensions.d03_artifact.notes
+    change: >-
+      Said a search of the build tooling source tree for signing, verification
+      and attestation terms returned no matches. The tree does contain cosign,
+      sigstore and attestation strings: a release configuration signs the tool's
+      own release binaries with cosign, and an in-toto attestation module is an
+      indirect Go dependency. Neither signs or verifies unikernel images, so the
+      normalized values stand; the notes now say what was found.
+    source:
+      url: https://github.com/unikraft/kraftkit/blob/staging/.goreleaser-stable.yaml
+      type: source-repo
+      title: Build tooling release configuration, cosign sign-blob on release artifacts
+      retrieved: "2026-09-22"
+      quote: "sign-blob"
+  - date: "2026-09-22"
+    field: dimensions.d03_artifact.sources[2].quote
+    change: >-
+      Removed. The field held a researcher's finding, not text from the source.
+      The finding stays in notes.
+    source:
+      url: https://github.com/unikraft/kraftkit
+      type: source-repo
+      title: KraftKit
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d04_upgrade.sources[0].quote
+    change: >-
+      Replaced a researcher's finding with verbatim text from the command
+      reference: the description of the only update verb, which refreshes the
+      component list.
+    source:
+      url: https://unikraft.org/docs/cli
+      type: official-docs
+      title: Command reference
+      retrieved: "2026-09-22"
+      quote: "Retrieve new lists of Unikraft components, libraries and packages"
+  - date: "2026-09-22"
+    field: dimensions.d08_hardware_platform.notes
+    change: >-
+      Said the platform abstraction layer covers two architectures across three
+      platforms. The release post says the Xen platform is fully adapted on
+      x86_64 and arm64, a new native platform implements the layer, and the KVM
+      platform is mid-transition with full adoption anticipated in upcoming
+      releases. Notes now state that. Also added the second unmerged riscv64
+      change (opened 2025-08-28) and the exact dates of the first, and named
+      the fourth virtual machine monitor and its source.
+    source:
+      url: https://unikraft.org/blog/2026-04-20-unikraft-releases-v0.21.0
+      type: announcement
+      title: v0.21.0 release post
+      retrieved: "2026-09-22"
+      quote: >-
+        The KVM platform is in the midst of a transition, and full adoption is
+        anticipated in upcoming releases.
+  - date: "2026-09-22"
+    field: dimensions.d08_hardware_platform.sources[3].quote
+    change: >-
+      The recorded quote silently corrected a doubled word in the source. The
+      live page reads "We are are working towards having Unikraft run
+      baremetal." and the quote now matches it verbatim.
+    source:
+      url: https://unikraft.org/docs/faq
+      type: official-docs
+      title: FAQ, bare metal
+      retrieved: "2026-09-22"
+      quote: We are are working towards having Unikraft run baremetal.
+  - date: "2026-09-22"
+    field: dimensions.d09_provisioning.sources[0].quote
+    change: >-
+      The recorded quote ended the sentence early with a period. Extended to
+      the full clause as published.
+    source:
+      url: https://unikraft.org/docs/cli/running
+      type: official-docs
+      title: Running
+      retrieved: "2026-09-22"
+      quote: "significant penalty on runtime performance of the application."
+  - date: "2026-09-22"
+    field: dimensions.d10_security.sources[2].quote
+    change: >-
+      Removed. The field held a researcher's finding, not text from the source.
+      Re-checked on 2026-09-22: no SECURITY.md in the repository or the
+      organization's .github repository, the community profile lists no
+      security policy, and the advisories endpoint returns an empty list. The
+      finding stays in notes and in the source title.
+    source:
+      url: https://github.com/unikraft/unikraft
+      type: source-repo
+      title: Repository community profile
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d11_operations_debugging.normalized.tracing
+    change: >-
+      Said a tracing library exists in tree. Tracepoints are a configuration
+      option inside the debug library (lib/ukdebug), not a library of their own.
+      The coverage library (lib/ukgcov) is a library. Value and notes reworded;
+      the documentation gap stands.
+    source:
+      url: https://github.com/unikraft/unikraft/blob/staging/lib/ukdebug/Config.uk
+      type: source-repo
+      title: Debug library configuration, tracepoints option
+      retrieved: "2026-09-22"
+      quote: "Enable tracepoints"
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.sources[2].quote
+    change: >-
+      Removed. The field held a researcher's finding, not text from the source.
+      The organization listing on 2026-09-22 still shows clients, SDKs, an
+      interface specification, a Terraform provider and an operator and no
+      server or control plane; the finding stays in notes and in the source
+      title.
+    source:
+      url: https://github.com/unikraft-cloud
+      type: source-repo
+      title: Commercial organization repositories
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d13_governance.normalized.license_note
+    change: >-
+      Said two repositories carry no detected licence. GitHub's licence
+      detection finds none on 91 of the organization's 181 repositories on
+      2026-09-22, including both catalog repositories. Corrected to the
+      measured count.
+    source:
+      url: https://github.com/unikraft/catalog
+      type: source-repo
+      title: Catalog repository, no licence detected
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d13_governance.normalized.contribution_diversity.value
+    change: >-
+      Said six of the seven listed adopters are academic institutions. The
+      file lists five universities and two companies (EPAM Systems Inc and NEC
+      Laboratories Europe GmbH). Corrected.
+    source:
+      url: https://github.com/unikraft/unikraft/blob/staging/ADOPTERS.md
+      type: source-repo
+      title: Adopters
+      retrieved: "2026-09-22"
+      quote: "NEC Laboratories Europe GmbH"
+  - date: "2026-09-22"
+    field: dimensions.d13_governance.summary
+    change: >-
+      Said there is no governance document and no maintainers file. A
+      governance repository exists (created 2021, last pushed 2025-04-23) whose
+      README describes self-governing special interest groups and whose
+      configuration lists maintainers and reviewers per group by name. It still
+      states nothing about who decides direction or how maintainers are
+      appointed or removed, so open_governance stays partial. Summary, notes,
+      unknowns[0] and tradeoffs.costs reworded to the narrower absence.
+    source:
+      url: https://github.com/unikraft/governance/tree/main/config/teams
+      type: governance-doc
+      title: Governance repository, per-group team files with maintainers and reviewers
+      retrieved: "2026-09-22"
+      quote: "This means there are dedicated maintainers and dedicated reviewers for each SIG."
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.normalized.observed_intervals
+    change: >-
+      Said 197, 154, 57 and 250 days for the last four minor releases. The 57
+      day figure is the gap from the 0.19.1 patch release to 0.20.0; the minor
+      to minor gap from 0.19.0 (2025-05-23) to 0.20.0 (2025-09-12) is 112 days.
+      Corrected to 197, 154, 112 and 250.
+    source:
+      url: https://github.com/unikraft/unikraft/releases
+      type: release-notes
+      title: Release history
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.notes
+    change: >-
+      Said the build tooling was released seven times in the three weeks before
+      the snapshot. The release listing shows four tags between 2026-08-25 and
+      2026-09-15, three of them prerelease snapshot tags and one stable
+      (v0.12.16 on 2026-09-09). Corrected to the measured count and to say
+      what kind of tag each is.
+    source:
+      url: https://github.com/unikraft/kraftkit/releases
+      type: release-notes
+      title: Build tooling release history
+      retrieved: "2026-09-22"
+  - date: "2026-10-06"
+    field: "open_questions"
+    change: "Methodology section 9, rule 16: an entry whose maintainer affiliations are not published says so as an open question. Added 'Who employs the maintainers in the governance repository's per-group lists? Contributor and maintainer employer affiliation is not published.' From d13 contribution_diversity and unknowns."
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized
+    change: Added read_only, ephemeral, writable_and_persistent and configurable_paths so the Mounts row has all four lines. Before this change the profile had the facts only as prose and in root_filesystem_options.
+    source:
+      url: https://unikraft.org/docs/cli/filesystem
+      type: official-docs
+      title: 'Unikraft filesystems: root filesystem classes'
+      retrieved: '2026-10-12'
+      quote: Unikraft supports essentially two classes of root filesystems

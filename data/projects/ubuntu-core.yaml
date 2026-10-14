@@ -1,0 +1,2109 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: ubuntu-core
+name: Ubuntu Core
+homepage: https://ubuntu.com/core
+repository: https://github.com/snapcore/snapd
+collected_at: "2026-09-15"
+
+entry_kind:
+  - distribution
+  - framework
+
+category_fit:
+  comparable: full
+  note: >-
+    Comparable on all fourteen dimensions. It carries two entry kinds for the same
+    reason Kairos does: Canonical publishes reference images and the individual
+    snaps that compose them, and it also publishes the toolchain and the signed
+    model-assertion mechanism with which a brand builds and owns its own image.
+    A product shipped on Ubuntu Core is normally the second of those, not the first.
+
+    Two framing notes a reader should carry into the dimensions below, because both
+    make this entry's answers look different from its neighbours without making
+    them incomparable.
+
+    **Its target is devices, not datacenter nodes.** Canonical positions it for
+    appliances, IoT and embedded deployment, and names automotive, industrial
+    automation, robotics, signage and smart cities. That shows up most in d07,
+    where Kubernetes is an ordinary optional workload rather than the point, and in
+    d12, where the fleet story is device management rather than node management.
+
+    **Everything is a snap.** The kernel, the root filesystem, the board
+    integration layer and every application are all snaps, which are read-only
+    squashfs images. There is no deb userspace on a production device. That makes
+    d06's answer genuinely different from every other entry here rather than merely
+    more restrictive, and it is why this entry's substrate needed a vocabulary value
+    that did not previously exist.
+
+self_description:
+  text: >-
+    The immutable embedded Linux OS. A minimal, secure, and strictly confined
+    operating system powering devices around the world.
+  source:
+    url: https://ubuntu.com/core
+    type: vendor-docs
+    title: Ubuntu Core
+    retrieved: "2026-09-22"
+
+version_observed:
+  version: "Ubuntu Core 26"
+  released: "2026-05-14"
+  channel: "stable, built on Ubuntu 26.04 LTS"
+  method: >-
+    Read the release list at
+    https://documentation.ubuntu.com/core/reference/release-notes/ and take the
+    highest-numbered release, then open its version-specific page
+    (https://documentation.ubuntu.com/core/uc26/) to confirm. Note that a major
+    version number is not the whole answer: point updates between major releases
+    arrive as refreshes of snapd and of the gadget, base and kernel snaps rather
+    than as a new image version, so a running device's snap revisions are a
+    separate lookup from its Core version.
+  source:
+    url: https://documentation.ubuntu.com/core/reference/release-notes/
+    type: vendor-docs
+    title: Ubuntu Core release notes
+    retrieved: "2026-09-22"
+    quote: >-
+      A new version of Ubuntu Core is released every two years, built on the
+      foundations of a Ubuntu LTS release. Each Ubuntu Core release is considered an
+      LTS release.
+  additional_channels:
+    - channel: "Ubuntu Core 24"
+      version: "24"
+      released: "2024-06-04"
+      eol: "standard security maintenance to June 2034, Legacy add-on to June 2039, per the vendor's support-duration table; the Core 24 release notes separately state 12 years, see d14"
+    - channel: "Ubuntu Core 22"
+      version: "22"
+      released: "2022-06-15"
+      eol: "standard security maintenance to June 2032, Legacy add-on to June 2037, per the vendor's support-duration table"
+
+taxonomy:
+  workload_scope: general-purpose-host
+  construction_model:
+    - vendor-fixed-image
+    - framework
+  root_state_substrate:
+    - snap-image-set
+  notes: >-
+    Kubernetes is neither required nor bundled, and the device runs whatever snaps
+    the model includes, which places this at the general-purpose-host position on
+    axis A. It is the most constrained entry at that position in this edition:
+    general-purpose in the sense that Kubernetes is one optional workload among
+    many, not in the sense of offering a general-purpose package archive.
+
+    Construction is both vendor-fixed and framework, and which one applies depends
+    on who is deploying. Canonical publishes reference images and publishes every
+    composing snap. A vendor shipping a product builds its own image from its own
+    signed model assertion and gadget snap, and therefore owns the result. The
+    framework cost is recorded in `tradeoffs.costs`, as this survey's vocabulary
+    requires of any entry claiming that value.
+
+    `snap-image-set` is a vocabulary value added in this edition for this entry.
+    The OS state is not one root image, not an OSTree deployment and not a package
+    database: it is a set of independently versioned, independently refreshable
+    read-only squashfs snaps, of which the base snap serves as the root filesystem,
+    on a fixed four-partition layout. Forcing it into `ab-partition-image` or
+    `package-repository` would have destroyed the fact that the kernel and the root
+    filesystem update independently of each other.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: general-purpose-host
+      ships_kubernetes: false
+      deb_packages_on_device: false
+      composing_snaps:
+        - "snapd, the system daemon that supervises the other snaps"
+        - "kernel snap, the kernel image and its modules"
+        - "base snap, the execution environment and root filesystem"
+        - "gadget snap, board-specific bootloader, device tree and configuration"
+        - "application snaps"
+      target: "appliances, IoT, embedded and edge devices"
+    summary: >-
+      A device operating system composed entirely of snaps, where the kernel, the
+      root filesystem and the board integration layer are each a separately
+      versioned read-only image. It ships no Kubernetes and no deb userspace.
+    notes: >-
+      The five-part composition is the architecture, not an implementation detail,
+      and it is what makes several later dimensions unusual. The base snap "holds
+      the execution environment inside which applications run. It also serves as
+      the root file system". The gadget snap holds "board-specific binaries and
+      data, such as bootloader, device tree, configuration files", which is where
+      hardware enablement lives. snapd "supervises all other snaps".
+
+      Canonical's own editions page calls it "an all-snap edition designed for
+      appliances and IoT", with "a lightweight, strictly confined architecture".
+      The device framing is consistent across every page found and is not a
+      marketing gloss: the provisioning, fleet and support stories all assume a
+      product built by a brand and shipped to a field population, rather than a
+      node joined to a cluster.
+
+      A reader comparing this against the Kubernetes-oriented hosts in this edition
+      should expect the differences to be real rather than cosmetic. This entry is
+      the only one whose primary deployment story is a manufactured product.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://documentation.ubuntu.com/core/explanation/core-elements/inside-ubuntu-core/
+        type: vendor-docs
+        title: Inside Ubuntu Core
+        retrieved: "2026-09-22"
+        quote: >-
+          base snap holds the execution environment inside which applications run.
+          It also serves as the root file system for Ubuntu Core images.
+      - url: https://ubuntu.com/about/release-cycle
+        type: vendor-docs
+        title: "Ubuntu editions and release cycle"
+        retrieved: "2026-09-22"
+        quote: >-
+          Ubuntu Core is an all-snap edition designed for appliances and IoT. With a
+          lightweight, strictly confined architecture, it's highly secure and
+          reliable
+      - url: https://ubuntu.com/core
+        type: vendor-docs
+        title: Ubuntu Core
+        retrieved: "2026-09-22"
+        quote: "Ubuntu Core is immutable and strictly confined"
+    unknowns:
+      - "Whether any supported path exists for installing deb packages on a production device. No page found describes one."
+
+  d02_immutability:
+    normalized:
+      read_only:
+        - "every snap, including the base snap that serves as the root filesystem"
+        - ubuntu-seed
+        - ubuntu-boot
+      writable_and_persistent:
+        - "ubuntu-data, holding system and user data"
+        - "ubuntu-save, holding device identity and recovery data"
+      integrity_mechanism:
+        - image-by-construction
+      dm_verity: unknown
+      runtime_integrity_verification: "assertion signature checking at install and refresh; TPM key sealing to boot state where FDE is active"
+      confinement: "AppArmor profiles and seccomp filters generated per app, plus mount namespaces per snap"
+      read_only_mechanism: snap images (squashfs), presented read-only
+      ephemeral:
+        - the whole system, in install and recover modes only
+      ephemeral_mechanism: tmpfs
+      immutability_can_be_disabled: only by building a grade:dangerous model, which is documented for development only
+      immutability_disable_where: build time, with a model of grade dangerous (documented for development only)
+      configurable_paths:
+        value: 'yes'
+        evidence: DOCUMENTED
+        how: 'Only to add storage: declare extra partitions in the gadget snap''s volume layout, before ubuntu-boot. The roles and the read-only set stay fixed.'
+        sources:
+          - url: https://documentation.ubuntu.com/core/reference/gadget-snap-format/
+            type: official-docs
+            title: 'Gadget snap format: extra partitions'
+            retrieved: '2026-10-12'
+            quote: If extra partitions are required, they need to be declared and created before ubuntu-boot.
+      mounts_sources:
+        - url: https://documentation.ubuntu.com/core/explanation/core-elements/snaps-in-ubuntu-core/
+          type: official-docs
+          title: 'Ubuntu Core snaps: read-only presentation'
+          retrieved: '2026-10-12'
+          quote: As with the core file system, snaps are presented to the system as read-only
+        - url: https://documentation.ubuntu.com/core/explanation/core-elements/inside-ubuntu-core/
+          type: official-docs
+          title: 'Inside Ubuntu Core: ephemeral modes'
+          retrieved: '2026-10-12'
+          quote: will mount a temporary filesystem for this.
+        - url: https://github.com/canonical/snapd/blob/e1f349c/systemd/systemd.go
+          type: source-repo
+          title: 'snapd: mount unit for a squashfs snap'
+          retrieved: '2026-10-12'
+          quote: if fstype == "squashfs" {
+        - url: https://documentation.ubuntu.com/core/explanation/core-elements/inside-ubuntu-core/
+          type: official-docs
+          title: 'Inside Ubuntu Core: ubuntu-data'
+          retrieved: '2026-10-12'
+          quote: 'ubuntu-data (role: system-data; writable, ext4): stores user and system data.'
+    summary: >-
+      Every component of the OS is a read-only squashfs image, and writable state is
+      confined to two named partitions. Immutability here is a property of the
+      artifact format rather than of a mount option or a verity device.
+    notes: >-
+      The partition layout is fixed and documented by role: ubuntu-seed and
+      ubuntu-boot are read-only and hold the recovery systems and the unpacked
+      kernels; ubuntu-save is writable and holds device identity and recovery data,
+      and is "mandatory on encrypted systems"; ubuntu-data is writable and holds
+      system and user data. So /etc and general system state are writable, on
+      ubuntu-data, while the OS images themselves cannot be modified at all.
+
+      **Strict confinement is a separate property from immutability and the two are
+      easy to conflate.** Immutability says the OS images cannot change.
+      Confinement says an application cannot reach outside its sandbox: strictly
+      confined snaps "run in complete isolation, up to a minimal access level that's
+      deemed always safe" and "can not access files, network, processes or any other
+      system resource without requesting specific access via an interface". snapd
+      generates an AppArmor profile per app and per service and seccomp filters per
+      app, and snaps run in their own mount namespaces. This is on by default rather
+      than a hardening step, and it is the strongest application-level sandbox in
+      this edition.
+
+      The escape hatch is at build time, not at runtime. A model assertion with
+      grade dangerous relaxes the constraints and allows unasserted or devmode
+      snaps, and is documented as "meant only for development purposes". There is no
+      documented runtime toggle that makes a production device mutable.
+
+      dm-verity is recorded as unknown rather than absent. The full disk encryption
+      documentation and the core-elements pages were read and neither uses the term,
+      but squashfs images are hash-verified by the store assertion chain at install
+      and the FDE key is sealed to boot state, so the integrity story is real even
+      though its relationship to verity is undocumented. Missing documentation is not
+      treated as proof of absence here.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://documentation.ubuntu.com/core/explanation/core-elements/storage-layout/
+        type: vendor-docs
+        title: "Ubuntu Core storage layout"
+        retrieved: "2026-09-22"
+        quote: >-
+          Stores device identity backup data and data to facilitate recovery or
+          re-install. This partition is mandatory on encrypted systems
+      - url: https://documentation.ubuntu.com/security/security-features/privilege-restriction/snap-confinement/
+        type: vendor-docs
+        title: "Snap confinement"
+        retrieved: "2026-09-22"
+        quote: >-
+          Snapd generates AppArmor profiles for each app (a particular way of invoking
+          an executable) and service (daemon managed by snapd) defined in a snap
+          package. ... Snapd also generates Seccomp filters for each app in a snap.
+      - url: https://snapcraft.io/docs/explanation/security/snap-confinement/
+        type: official-docs
+        title: "Snap confinement, strict"
+        retrieved: "2026-09-22"
+        quote: >-
+          Strictly confined snaps run in complete isolation, up to a minimal access
+          level that’s deemed always safe.
+      - url: https://documentation.ubuntu.com/core/reference/assertions/model/
+        type: vendor-docs
+        title: "Model assertion, grade"
+        retrieved: "2026-09-22"
+        quote: >-
+          dangerous ... allow for the use of unasserted snaps, devmode snaps, or the
+          presence of extra snaps ... meant only for development purposes
+      - url: https://documentation.ubuntu.com/core/explanation/how-installation-works/
+        type: vendor-docs
+        title: "How installation works, ephemeral modes"
+        retrieved: "2026-09-22"
+        quote: "the system is running from tmpfs in an ephemeral state"
+    unknowns:
+      - "Whether dm-verity is used anywhere in the boot or integrity chain. The FDE and core-elements pages were read and neither mentions it."
+
+  d03_artifact:
+    normalized:
+      primary_artifact: "a flashable device image built from a signed model assertion"
+      composing_artifact: "snap, a squashfs image"
+      build_tool: ubuntu-image
+      oci_registry_distribution: false
+      content_addressable: unknown
+      mirrorable: "through a commercial on-premises proxy, not through a published store implementation"
+      signed: "assertion chain; the model is signed by the brand account"
+      model_grades:
+        - "dangerous: development only, unasserted snaps permitted"
+        - "signed: the default; no unasserted snaps and none outside the model"
+        - "secured: signed, plus full disk encryption and Secure Boot are mandatory"
+      air_gapped: "supported through a commercial on-premises store proxy"
+    summary: >-
+      The deployable artifact is a device image built by ubuntu-image from a signed
+      model assertion plus a set of snaps. The model assertion, not the image, is
+      the thing that defines and authenticates the device.
+    notes: >-
+      The model assertion is the distinguishing artifact of this entry and it has no
+      close equivalent elsewhere in this edition. It is "a text-based document that
+      contains the fundamental definition of a snap-based device" that "describes
+      what the system image includes and is signed by the brand account owning the
+      device definition", and it is used for "first boot verification of the system
+      seed before its snaps are turned into an installed system". The device's
+      identity and its permitted software set are one signed document.
+
+      Its grade field is a genuine security control rather than a label. Under
+      signed, the default, "no unasserted (unsigned) snaps or snaps not mentioned in
+      the model can appear or be used in the recovery system". Under secured, full
+      disk encryption and Secure Boot become mandatory. A separate storage-safety
+      field can require encryption and fail the install if the hardware cannot
+      provide it.
+
+      The OS is not distributed through an OCI registry. Distribution is the Snap
+      Store.
+
+      **Mirroring and air-gapped operation are possible, and they are a commercial
+      product rather than a property of the OS.** Canonical's on-premises proxy,
+      documented as an edge proxy that caches downloads and allows snaps to be used
+      "in air-gapped or restricted networking environments", is part of the paid
+      subscription. Brand stores let a vendor "control exactly what snaps are
+      available, and when". No published implementation of the store server itself
+      was found, so an adopter cannot stand up an independent equivalent from
+      published sources. The commercial terms of brand stores were not stated on any
+      documentation page found.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://documentation.ubuntu.com/core/reference/assertions/model/
+        type: vendor-docs
+        title: "Model assertion"
+        retrieved: "2026-09-22"
+        quote: >-
+          a text-based document that contains the fundamental definition of a
+          snap-based device ... signed by the brand account owning the device
+          definition
+      - url: https://documentation.ubuntu.com/core/reference/assertions/model/
+        type: vendor-docs
+        title: "Model assertion, signed grade"
+        retrieved: "2026-09-22"
+        quote: >-
+          no unasserted (unsigned) snaps or snaps not mentioned in the model can
+          appear or be used in the recovery system
+      - url: https://documentation.ubuntu.com/core/explanation/stores/store-overview/
+        type: vendor-docs
+        title: "Snap store overview"
+        retrieved: "2026-09-22"
+        quote: >-
+          The Enterprise Store is an on-premise edge proxy that creates a local cache
+          of downloaded files. This speeds up subsequent downloads, and allows
+          organizations to use snaps in air-gapped or restricted networking
+          environments.
+      - url: https://documentation.ubuntu.com/core/explanation/stores/dedicated-snap-store/
+        type: vendor-docs
+        title: "Dedicated snap store"
+        retrieved: "2026-09-22"
+        quote: >-
+          can inherit selected packages from other snap stores, and host a set of
+          snaps specific to a brand and device models
+    unknowns:
+      - "Whether an implementation of the Snap Store server is published anywhere. None was found, and the question is left open rather than answered from a non-primary source."
+      - "Whether dedicated brand stores are a paid product, a capability of any publisher account, or something in between. No documentation page states commercial terms."
+
+  d04_upgrade:
+    normalized:
+      fleet_upgrade:
+        self_update: "snapd checks for refreshes 4 times a day."
+        paths:
+          - kind: fleet-server
+            name: "Snap Store or brand store with validation sets"
+            license: "proprietary"
+            class: service
+            reconciliation: in-place
+            filter: true
+            note: "Validation sets are an optional desired-state pin. They are in-place when enforced."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://documentation.ubuntu.com/snapcraft/
+                title: "Snapcraft documentation"
+                retrieved: "2026-10-06"
+          - kind: fleet-server
+            name: "Landscape"
+            license: "proprietary"
+            class: proprietary
+            reconciliation: one-shot
+            filter: true
+            note: "The server is proprietary and comes with Ubuntu Pro. The client is GPL-2.0. Self-hostable. The Core 24 notes mention canary releases. The reconciliation mode is inferred."
+            evidence: INFERRED
+            sources:
+              - url: https://ubuntu.com/landscape
+                title: "Landscape"
+                retrieved: "2026-10-06"
+          - kind: fleet-server
+            name: "Canonical Enterprise Store"
+            license: "proprietary"
+            class: proprietary
+            filter: true
+            note: "An on-premises proxy with revision overrides. The reconciliation mode is inferred."
+            evidence: INFERRED
+            sources:
+              - url: https://ubuntu.com/core/docs
+                title: "Ubuntu Core documentation"
+                retrieved: "2026-10-06"
+      version_identity:
+        identifier: "By default none for the whole OS: the model assertion plus a revision per snap. With a pinning validation set: account-id/name/sequence"
+        condition: "An own-brand model with an enforced validation set that pins the base, kernel, gadget and snapd at fixed revisions."
+        evidence: DOCUMENTED
+        sources:
+          - url: https://github.com/canonical/models/blob/78b94dc/ubuntu-core-24-amd64.json
+            type: source-code
+            title: "Ubuntu Core 24 amd64 model"
+            retrieved: "2026-10-06"
+          - url: https://github.com/canonical/ubuntu-core-docs/blob/9321118/docs/reference/assertions/model.md
+            type: official-docs
+            title: "Ubuntu Core model assertion"
+            retrieved: "2026-10-06"
+            quote: >-
+              If a sequence _is_ specified, then **only** that sequence is permitted for the lifetime of the device
+      mechanism:
+        - snap-revision-refresh
+      scope: per-snap
+      scope_sources:
+        - url: https://documentation.ubuntu.com/core/explanation/core-elements/snaps-in-ubuntu-core/
+          type: official-docs
+          title: Snaps in Ubuntu Core
+          retrieved: '2026-10-06'
+          quote: the kernel snap may be updated at any time
+        - url: https://documentation.ubuntu.com/core/explanation/refresh-control/
+          type: official-docs
+          title: Ubuntu Core refresh control
+          retrieved: '2026-10-06'
+          quote: Refresh control allows specific snaps to be kept at a specified revision, even when a new or different revision of a snap is released.
+      granularity: "kernel, base, gadget, snapd and applications refresh independently"
+      initiator: "snapd, automatically"
+      default_schedule: "four refresh checks per day"
+      can_be_disabled: "no setting turns refreshes off. Auto-refreshes can be held with snap refresh --hold, which defaults to forever."
+      maximum_deferral: "indefinite with snap refresh --hold=forever; the refresh.hold system option is capped at 90 days"
+      requires_kubernetes: false
+      requires_vendor_infrastructure: "yes by default; a commercial on-premises proxy or a brand store can substitute"
+      self_hostable_update_server: commercial-only
+      self_hostable_update_source: "Canonical Enterprise Store, a paid on-premises proxy"
+      self_hostable_update_server_evidence: DOCUMENTED
+      self_hostable_update_server_note: "Yes through Canonical Enterprise Store (formerly Snap Store Proxy), a proprietary on-premises proxy in the paid subscription. No published store server exists."
+      artifact_verification: "assertion chain"
+      metered_connection_handling: "refreshes pause on a connection marked metered"
+    summary: >-
+      Each snap refreshes independently on snapd's own schedule, four checks a day
+      by default. The kernel and the root filesystem are separate updates, so there
+      is no single whole-OS version that moves as one unit.
+    notes: >-
+      **Automatic updates can be deferred for 90 days with the system option, and
+      indefinitely with a per-snap or all-snap hold.** The refresh.hold system option
+      is documented as a delay of up to 90 days: "After a refresh, the next refresh
+      can be delayed by up to 90 days, after which a refresh will be performed
+      regardless of the refresh.hold value". The same page documents a separate
+      command, snap refresh --hold=<duration>, and says "To postpone updates
+      indefinitely, a value of forever is also valid" and "If no duration is
+      specified, the time duration defaults to forever". With no snap named, the hold
+      applies to all installed snaps, and is effective only on auto-refreshes. The
+      page lists no exception for the kernel, base, gadget or snapd snaps, and no Ubuntu
+      Core page was found that confirms or denies a forever hold on them. This is a
+      deliberate design position with a real operational consequence, and it
+      differs from every other entry in this edition by a setting the operator must
+      choose, not by a ceiling.
+
+      Whether that is a benefit or a cost depends entirely on who is asking. For a
+      vendor shipping a field population of devices it guarantees that a security
+      fix eventually lands everywhere without per-device cooperation. For an
+      operator running a change-controlled or certified system it is a constraint
+      that has to be designed around, by controlling what a refresh actually
+      delivers rather than by stopping refreshes.
+
+      Two documented mechanisms do that without a brand store or proxy. Refresh
+      control "allows specific snaps to be kept at a specified revision, even when a
+      new or different revision of a snap is released", through a gating snap whose
+      publisher signs validation assertions naming the permitted revision, or through
+      a validation set. The gating relationship is established once, and the page
+      states that "the Canonical Store team does this initial setup", so the
+      mechanism is in snapd and the assertion format but its enablement passes
+      through the vendor's store. A gated snap without a validation assertion does
+      not refresh at all.
+
+      Moving between major Core versions is a separate operation from the refresh
+      cycle. "Upgrades are performed by remodeling, which is the process of replacing
+      one model assertion with another on a deployed system", and the documented
+      procedure is `snap remodel` with a new signed model whose base and system snaps
+      point at the next release.
+
+      Per-snap granularity is the other structural difference. Because the kernel
+      snap and the base snap are separate, a kernel update and a root filesystem
+      update are separate events with separate rollback state. Most entries here
+      swap kernel and userspace together as one artifact.
+
+      The default trust root and distribution channel is the vendor's store. The
+      documented alternatives, the on-premises proxy and brand stores, are the
+      vendor's products too, so avoiding the public store does not mean avoiding the
+      vendor's infrastructure.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://snapcraft.io/docs/how-to-guides/manage-snaps/manage-updates/
+        type: official-docs
+        title: "Managing updates"
+        retrieved: "2026-09-22"
+        quote: >-
+          After a refresh, the next refresh can be delayed by up to 90 days, after
+          which a refresh will be performed regardless of the refresh.hold value.
+      - url: https://snapcraft.io/docs/how-to-guides/manage-snaps/manage-updates/
+        type: official-docs
+        title: "Managing updates, refresh schedule"
+        retrieved: "2026-09-22"
+        quote: >-
+          the snapd daemon checks for updates 4 times a day. Each update check is
+          called a refresh.
+      - url: https://documentation.ubuntu.com/core/reference/release-notes/
+        type: vendor-docs
+        title: "Release notes, point updates via snaps"
+        retrieved: "2026-09-22"
+        quote: >-
+          snapd, and other essential snaps composing the system (gadget, base and
+          kernel snaps)
+      - url: https://documentation.ubuntu.com/core/explanation/refresh-control/
+        type: vendor-docs
+        title: "Refresh control"
+        retrieved: "2026-09-22"
+        quote: >-
+          Refresh control allows specific snaps to be kept at a specified revision,
+          even when a new or different revision of a snap is released.
+      - url: https://documentation.ubuntu.com/core/how-to-guides/manage-ubuntu-core/upgrade-ubuntu-core/
+        type: vendor-docs
+        title: "Upgrade Ubuntu Core"
+        retrieved: "2026-09-22"
+        quote: >-
+          Upgrades are performed by remodeling, which is the process of replacing one
+          model assertion with another on a deployed system.
+      - url: https://documentation.ubuntu.com/core/explanation/stores/store-overview/
+        type: vendor-docs
+        title: "Snap store overview, on-premises proxy"
+        retrieved: "2026-10-05"
+        quote: >-
+          The Enterprise Store is an on-premise edge proxy that creates a local cache of downloaded files. This speeds up subsequent downloads, and allows organizations to use snaps in air-gapped or restricted networking environments.
+      - url: https://snapcraft.io/docs/how-to-guides/manage-snaps/manage-updates/
+        type: official-docs
+        title: "Managing updates, snap refresh --hold"
+        retrieved: "2026-10-05"
+        quote: >-
+          To postpone updates indefinitely, a value of forever is also valid.
+    unknowns:
+      - "Whether snap refresh --hold=forever is effective for the kernel, base, gadget and snapd snaps on Ubuntu Core. The snapcraft page lists no exception, and no Ubuntu Core page was found that addresses it."
+      - "The verbatim documented statement of signature verification on refresh. The assertion mechanism is documented, but no single sentence stating that a refresh is rejected on a failed signature check was located."
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: available
+      rollback_mechanism: "snap revert, per snap"
+      retained_versions: "3 revisions per snap on Ubuntu Core, via refresh.retain"
+      automatic_rollback_on_boot_failure: available
+      automatic_rollback_trigger: "the bootloader and snapd coordinate to test a new kernel or base snap; a failed boot undoes the change"
+      automatic_rollback_state: "kernel_status in the bootloader environment, and the modeenv file"
+      automatic_rollback_attempts: unknown
+      success_criterion: unknown
+      recovery_environment: "recovery systems on the read-only ubuntu-seed partition"
+      recovery_modes:
+        - "run: boot normally"
+        - "recover: a pristine ephemeral system, with existing data left intact and reachable"
+        - "install: reinitialise from the image, erasing ubuntu-save as well"
+        - "factory-reset: reset to factory state, but ubuntu-save is preserved"
+      recovery_entry: "hold the 1 key at boot, or snap reboot --recover/--install/--factory-reset, or the snapd REST API"
+      factory_reset: available
+      network_independent_recovery: "yes; recovery systems are on local disk and recover mode allows local or SSH login"
+      remote_recovery: "the snapd REST API can select a mode"
+    summary: >-
+      Four named boot modes on a local recovery partition, per-snap revert with three
+      revisions retained, and a bootloader that coordinates with snapd to undo a
+      kernel or base snap that fails to boot.
+    notes: >-
+      **The recovery mode design is the most carefully specified in this edition, and
+      the distinction most likely to be misread is between install and factory
+      reset.** Both sound like erasing everything. Install "will erase all system
+      data and reset the device to its original fresh from the factory state" and
+      also erases ubuntu-save, "reverting the device to its manufactured state".
+      Factory reset erases system data too, but "the contents of the ubuntu-save
+      partition remains intact", so device identity and recovery data survive. For a
+      fielded device with a signed serial assertion, that difference decides whether
+      the device can re-register itself afterwards.
+
+      Recover mode is unusual and worth recording: the device boots "as it would from
+      a pristine initial installation, including its snaps, via a temporary file
+      system" while "the running system data is untouched", so an operator can log in
+      with prior credentials, locally or over SSH, to retrieve data from a system
+      that will not boot normally. That is a genuinely useful failure mode and it does
+      not need a network or external media.
+
+      Entry into any mode is deliberate rather than automatic: holding the 1 key at
+      boot opens a system mode selection menu, or `snap reboot --recover`,
+      `--install` or `--factory-reset` selects one, or the REST API calls the
+      corresponding function. No documentation found describes a device dropping into
+      recovery by itself after repeated failures.
+
+      Automatic rollback does exist for the two snaps that can stop a device booting,
+      and its mechanism is documented while its parameters are not. "The bootloader is
+      configured to coordinate with snapd to test the kernel", snapd "carefully
+      orchestrates the swap to either a new kernel or new base snap in a way that
+      enables either of those snaps to be rolled back if an error is detected", and "a
+      failed boot will result in the cancelation" with "any changes up to that point
+      ... undone", tracked through the bootloader's kernel_status field and the
+      modeenv file. How many attempts are allowed, and what precisely counts as a
+      successful boot, were not found. Those are recorded as unknowns, because they
+      are the two numbers that decide what the mechanism actually catches, and this
+      survey asks the same question of every entry.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://documentation.ubuntu.com/core/explanation/recovery-modes/
+        type: vendor-docs
+        title: "Recovery modes"
+        retrieved: "2026-09-22"
+        quote: >-
+          The factory reset option will erase all system data and reset the device to
+          its original fresh from the factory state. This means that not everything
+          is removed. In particular, the contents of the ubuntu-save partition
+          remains intact.
+      - url: https://documentation.ubuntu.com/core/explanation/recovery-modes/
+        type: vendor-docs
+        title: "Recovery modes, recover mode"
+        retrieved: "2026-09-22"
+        quote: >-
+          the running system data is untouched. This allows you to log in to the
+          system using prior credentials to recover your data, either via SSH or
+          locally after setting up a password for the user.
+      - url: https://documentation.ubuntu.com/core/how-to-guides/manage-ubuntu-core/use-a-recovery-mode/
+        type: vendor-docs
+        title: "Using recovery modes"
+        retrieved: "2026-09-22"
+        quote: >-
+          start or reboot the device with the ‘1’ key held on a connected keyboard
+      - url: https://documentation.ubuntu.com/core/explanation/remodel-essential-snaps/
+        type: vendor-docs
+        title: "Remodelling essential snaps, boot testing"
+        retrieved: "2026-09-22"
+        quote: >-
+          Snapd carefully orchestrates the swap to either a new kernel or new base
+          snap in a way that enables either of those snaps to be rolled back if an
+          error is detected.
+      - url: https://snapcraft.io/docs/how-to-guides/manage-snaps/manage-updates/
+        type: official-docs
+        title: "Managing updates, refresh.retain"
+        retrieved: "2026-09-22"
+        quote: "refresh.retain=3 on Ubuntu Core systems and refresh.retain=2 on classic Ubuntu systems"
+    unknowns:
+      - "How many failed boot attempts are tolerated before a kernel or base snap is rolled back automatically."
+      - "What counts as a successful boot for the purposes of confirming a new kernel or base snap."
+      - "Whether a device can enter a recovery mode automatically after repeated failures, or whether every entry is operator-initiated."
+
+  d06_customization:
+    normalized:
+      runtime_package_install: "snaps only; no deb path documented"
+      mechanisms:
+        - custom-model-assertion
+        - custom-gadget-snap
+        - custom-kernel-snap
+        - brand-store
+        - snap-packaging
+      customization_points:
+        - image-build
+        - runtime
+      signing_requirement: "a brand account and key for any grade above dangerous"
+      documented_limits:
+        - "No documented path for installing arbitrary deb packages on a production device."
+        - "grade:signed permits no snaps outside those named in the model."
+      add_software:
+      - kind: snaps
+        how: Everything on the device is a snap, and snaps can be installed on a running device. The model assertion names the snaps an image holds. In the signed grade, snaps outside the model cannot appear in the recovery system.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://documentation.ubuntu.com/core/explanation/core-elements/inside-ubuntu-core/
+          type: official-docs
+          title: 'Ubuntu Core docs: Inside Ubuntu Core'
+          retrieved: '2026-10-12'
+          quote: The kernel, boot assets, runtime environment, applications and device enablement capabilities are all delivered as snaps that are controlled by snapd
+        - url: https://documentation.ubuntu.com/core/how-to-guides/container-deployment/deploy-docker-from-a-snap/
+          type: official-docs
+          title: 'Ubuntu Core docs: Deploy Docker from a snap'
+          retrieved: '2026-10-12'
+          quote: Ubuntu Core can install and deploy Docker containers from the command line, first by installing the Docker container runtime snap
+        - url: https://documentation.ubuntu.com/core/reference/assertions/model/
+          type: official-docs
+          title: 'Ubuntu Core docs: model assertion'
+          retrieved: '2026-10-12'
+          quote: no unasserted (unsigned) snaps or snaps not mentioned in the model can appear or be used in the recovery system.
+    summary: >-
+      Customization happens by writing and signing your own model assertion and
+      gadget snap and building an image from them. Everything on the running device
+      is a snap, and the model decides which snaps may be present at all.
+    notes: >-
+      The model assertion is both the customization mechanism and its limit, which is
+      an unusually coherent design. A brand decides the kernel, the base, the board
+      integration and the application set, signs that decision, and the device
+      enforces it: under the default grade, nothing outside the model can be
+      installed. An adopter who wants a different trade-off changes the model and
+      reissues, rather than reconfiguring the device.
+
+      **The framework cost applies here and it is concrete.** A brand that builds and
+      signs its own image owns that image: which snap revisions it contains, when the
+      composition is refreshed, and the consequences of a combination Canonical never
+      shipped. Vulnerability response is the one part of that ownership the
+      documentation does assign, per snap rather than per image: base snaps, snapd
+      and certified kernel snaps are "fixed by rebuilding and releasing a new revision
+      of that base snap by Canonical", application snaps "must be addressed by the
+      snap publisher", and for a third-party gadget snap "responsibility for
+      bootloader maintenance (such as U-Boot) and associated CVE remediation lies with
+      the gadget snap publisher". Testing and support for the assembled image are not
+      assigned anywhere found, which is the same gap this survey records against
+      other framework entries.
+
+      Signing above development grade requires a brand account tied to the vendor's
+      single sign-on, so there is no documented purely offline or vendor-independent
+      signing root for a production image. For an adopter whose threat model or
+      procurement rules require holding their own root of trust end to end, that is
+      the fact to establish early.
+
+      Hardware customization is the gadget-and-kernel-snap pair rather than a board
+      list in someone else's source tree, which means adding a board is packaging
+      work an adopter can do without upstream cooperation. That is a genuinely
+      permissive extension model and it is recorded as such.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://documentation.ubuntu.com/core/reference/assertions/model/
+        type: vendor-docs
+        title: "Model assertion, grades and signing"
+        retrieved: "2026-09-22"
+        quote: >-
+          this grade is meant only for development purposes. For example, you could
+          define a my-device-devel or my-device-dangerous model for development
+          images in parallel to a my-device model for production.
+      - url: https://documentation.ubuntu.com/core/explanation/core-elements/inside-ubuntu-core/
+        type: vendor-docs
+        title: "Inside Ubuntu Core, image composition"
+        retrieved: "2026-09-22"
+        quote: >-
+          combined using the ubuntu-image tool to create the Ubuntu Core
+          installation image
+      - url: https://documentation.ubuntu.com/core/explanation/full-disk-encryption/
+        type: vendor-docs
+        title: "Full disk encryption, board-specific enablement"
+        retrieved: "2026-09-22"
+        quote: >-
+          is board-specific and will typically involve creating custom gadget and
+          kernel snaps
+      - url: https://documentation.ubuntu.com/core/explanation/cve-remediation/
+        type: vendor-docs
+        title: "CVE remediation in Ubuntu Core"
+        retrieved: "2026-09-22"
+        quote: >-
+          Application snaps bundle their own dependencies. CVEs affecting those
+          dependencies must be addressed by the snap publisher
+    unknowns:
+      - "Who owns testing and support for an image a brand builds and signs itself. Vulnerability response is assigned per snap by the CVE remediation page; testing and support of the assembled image are not assigned on any page found."
+      - "Whether any offline or vendor-independent signing root exists for a production-grade model assertion."
+
+  d07_kubernetes:
+    normalized:
+      requirement: optional
+      bundled: "none"
+      independent_lifecycle: "yes"
+      os_manages_kubernetes: "no"
+      kubernetes_manages_os: unknown
+      distributions:
+        - "MicroK8s, from its strict-confinement tracks"
+      installation: "as an ordinary strictly confined snap on top of the OS"
+    summary: >-
+      Kubernetes is optional, unbundled, and installed as an ordinary snap. Because
+      it is just another snap, it refreshes on the same per-snap mechanism as the
+      rest of the system and its lifecycle is independent of the OS by construction.
+      Only a strictly confined build can be installed, which narrows the list to
+      MicroK8s.
+    notes: >-
+      MicroK8s is the one Kubernetes distribution documented for this system. The
+      Core 22 release notes list "MicroK8s support for an easily deployed,
+      streamlined, embedded Kubernetes experience", the store describes it as "a
+      small, fast, secure, certified Kubernetes distribution that installs on just
+      about any Linux box", and its own documentation states it "runs in as little as
+      540MB of memory". Its default tracks are classic snaps, which the snap
+      documentation states are not installable on this system, so the applicable
+      builds are the tracks with strict in their name: "Strictly confined MicroK8s is
+      installed via the tracks that include strict in their name."
+
+      Canonical Kubernetes, the newer k8s snap, is not recorded as a documented
+      distribution for this system. Its documentation describes "a performant,
+      lightweight, secure and opinionated distribution of Kubernetes" and does not
+      mention Ubuntu Core, and the store's stable channels for it on amd64 and arm64
+      carried only tracks with the classic suffix on 2026-09-22. That is the same
+      mechanical incompatibility d12 records for the vendor's Cluster API bootstrap
+      provider. It is recorded as unknown rather than as absent, because the store
+      listing is an observation rather than a documented statement.
+
+      Lifecycle independence is a side effect of the packaging model rather than a
+      feature anyone built. Kubernetes is a snap, the OS is other snaps, and they
+      refresh separately. Several entries in this edition had to do deliberate work
+      to achieve what falls out here for free, and several others bake the Kubernetes
+      version into the OS artifact and cannot achieve it at all.
+
+      Nothing found documents Kubernetes managing the OS. There is no OS upgrade
+      controller or node operator in the sources read, so that direction is recorded
+      as unknown rather than as absent.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://documentation.ubuntu.com/core/reference/release-notes/
+        type: vendor-docs
+        title: "Ubuntu Core 22 release notes, MicroK8s"
+        retrieved: "2026-09-22"
+        quote: >-
+          MicroK8s support for an easily deployed, streamlined, embedded Kubernetes
+          experience
+      - url: https://snapcraft.io/microk8s
+        type: official-docs
+        title: MicroK8s
+        retrieved: "2026-09-22"
+        quote: >-
+          MicroK8s is a small, fast, secure, certified Kubernetes distribution that
+          installs on just about any Linux box.
+      - url: https://canonical.com/microk8s/docs/getting-started
+        type: official-docs
+        title: "MicroK8s, getting started"
+        retrieved: "2026-09-22"
+        quote: "MicroK8s runs in as little as 540MB of memory"
+      - url: https://canonical.com/microk8s/docs/install-strict
+        type: official-docs
+        title: "MicroK8s, install strict"
+        retrieved: "2026-09-22"
+        quote: >-
+          Strictly confined MicroK8s is installed via the tracks that include strict
+          in their name.
+      - url: https://documentation.ubuntu.com/canonical-kubernetes/
+        type: vendor-docs
+        title: Canonical Kubernetes
+        retrieved: "2026-09-22"
+        quote: >-
+          a performant, lightweight, secure and opinionated distribution of
+          Kubernetes
+    unknowns:
+      - "Whether any documented mechanism lets Kubernetes drive an OS upgrade or reboot on Ubuntu Core."
+      - "Whether Canonical Kubernetes, the k8s snap, is documented or published for Ubuntu Core. No page found mentions it, and only classic-suffixed stable tracks were observed in the store on 2026-09-22."
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        items:
+          - vendor: nvidia-gpu
+            what: "NVIDIA CUDA on Core 24 (x86_64 path)"
+            arch: [amd64]
+            delivery: vendor-image
+            delivery_note: "kernel snap components pc-kernel+nvidia-*-erd-ko and the mesa-2404 snap"
+            secure_boot: not-documented
+            gpu_operator: not-documented
+            status: supported
+            note: "Secure Boot is not documented for Core 24. A Core 22 sentence sits in a section marked 'This approach is deprecated and unsupported'. The docker snap provides the NVIDIA runtime. The GPU Operator is not documented."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://documentation.ubuntu.com/core/how-to-guides/cuda-workloads/
+                title: "Ubuntu Core: CUDA workloads"
+                retrieved: "2026-10-06"
+          - vendor: nvidia-jetson
+            what: "Jetson AGX Orin, Orin Nano, Orin NX (Ubuntu Core 22)"
+            delivery: platform-build
+            delivery_note: "Ubuntu Core 22 for Jetson image"
+            secure_boot: supported
+            status: supported
+            note: "The release notes state Secure Boot support for this release. Module signing is not stated."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://canonical-ubuntu-for-jetson.readthedocs-hosted.com/latest/reference/release-notes/core-jammy/
+                title: "Ubuntu for Jetson: Core 22 release notes"
+                retrieved: "2026-10-06"
+                quote: >-
+                  General Availability release of Ubuntu Core 22 for Jetson
+              - url: https://canonical-ubuntu-for-jetson.readthedocs-hosted.com/latest/reference/release-notes/core-jammy/
+                title: "Ubuntu for Jetson: Core 22 release notes, Secure Boot"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Full Disk Encryption and Secure Boot support
+      architectures_listed_by_vendor:
+        - amd64
+        - arm64
+        - arm32
+        - riscv
+      architectures_with_confirmed_released_core_images:
+        - amd64
+        - arm64
+        - "armhf, Core 22 and Core 20 Raspberry Pi images only"
+      minimum_requirements: "512 MB RAM, 1 GB storage; NAND flash storage not supported"
+      platforms:
+        - bare-metal
+        - virtual-machines
+        - sbc
+      sbc: "official images: Raspberry Pi 5 (Core 24, 26), Raspberry Pi 4 (Core 20 to 26), Raspberry Pi 3, CM3 and Zero 2 W (Core 20, 22), Raspberry Pi 2 (Core 20, 22, armhf), MediaTek Genio (Core 22), NVIDIA Tegra Jetson (Core 22); install guides for Renesas RZ/G2L, MediaTek Genio, AMD Kria and NVIDIA Jetson Orin"
+      tpm: "TPM 2.0 on x86, or OP-TEE on Arm; external I2C or SPI TPM modules not supported"
+      gpu: "NVIDIA CUDA on Core 24 documented through the mesa-2404 snap and kernel GPU components; a Core 22 Tegra Jetson image is published"
+      extension_mechanism: "the gadget snap and kernel snap pair, built by the adopter"
+      certification: "a hardware certification programme is referenced; no device list was found"
+    summary: >-
+      Canonical lists four architectures, and released Ubuntu Core images were
+      confirmed for three of them, with armhf confined to Core 22 and earlier. The
+      extension mechanism is the gadget and kernel snap pair, which an adopter builds
+      rather than requesting upstream.
+    notes: >-
+      **riscv is listed as a supported architecture and no released Ubuntu Core
+      riscv64 board image was confirmed, and this survey records artifacts rather
+      than intentions.** The download page states support for "amd64, arm64 & arm32,
+      and riscv architectures" without qualifying riscv as experimental, and the
+      system requirements page lists "riscv64 (64-bit RISC-V)" alongside the other
+      three. The vendor's own testing-platforms page lists no riscv64 image, the
+      cdimage directories for Core 22, 24 and 26 held only amd64, arm64 and armhf
+      images on 2026-09-22, and the support-duration table names "amd64, arm64,
+      armhf" as the architectures covered under Legacy support for Core 24 and 26.
+      The riscv64 artifacts that were found belong to classic Ubuntu Server, which is
+      a different product. Recorded as listed but not confirmed released.
+
+      armhf is confirmed released for Core 22 and Core 20 only. The Core 22
+      directory carries an armhf Raspberry Pi image; the Core 24 and Core 26
+      directories carry amd64, arm64 and arm64 Raspberry Pi images and no armhf
+      image, although the support-duration table lists armhf for both releases.
+
+      That rule is applied identically across this edition, and it is worth being
+      explicit that it produces the same kind of finding here as it does for the
+      project the authors of this survey maintain. In both cases an architecture is
+      genuinely present in the tooling and does not yet have a released OS image that
+      could be confirmed from published artifacts. Neither is recorded as support.
+
+      Hardware enablement is the gadget snap and the kernel snap. Because both are
+      snaps a brand builds, adding a board is packaging work rather than a change to
+      a closed enumeration in someone else's repository. Of the entries in this
+      edition that constrain the OS image tightly, this is the most permissive
+      hardware extension story.
+
+      The TPM position is documented with an unusual and practical limit: TPM 2.0 on
+      x86 or OP-TEE on Arm, and "External I2C/SPI-based TPM modules are not currently
+      supported", which rules out a common way of adding a TPM to a board that lacks
+      one.
+
+      The vendor's testing-platforms page enumerates the boards with official
+      images by Core release: generic x86 for Core 20 through 26, Raspberry Pi 5 for
+      Core 24 and 26, Raspberry Pi 4 for Core 20 through 26, Raspberry Pi 3, CM3 and
+      Zero 2 W for Core 20 and 22, Raspberry Pi 2 for Core 20 and 22, MediaTek Genio
+      and NVIDIA Tegra Jetson for Core 22. So the current release has official
+      images for two Raspberry Pi models and generic x86 only; the Genio and Jetson
+      images stop at Core 22, and the Jetson install page defers to a separate
+      "Ubuntu for Jetson" documentation set.
+
+      GPU enablement is documented for NVIDIA CUDA on Core 24, through the
+      mesa-2404 content snap and kernel GPU components, with the note that "Access
+      to Nvidia drivers will be available by Q4 this year due to Nvidia's licensing
+      policy" in the Core 24 release notes. No page found documents GPU enablement
+      for Core 26 specifically, and no accelerator other than NVIDIA is documented.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://ubuntu.com/download/core
+        type: vendor-docs
+        title: "Download Ubuntu Core"
+        retrieved: "2026-09-22"
+        quote: "amd64, arm64 & arm32, and riscv architectures"
+      - url: https://documentation.ubuntu.com/core/explanation/full-disk-encryption/
+        type: vendor-docs
+        title: "Full disk encryption, hardware requirements"
+        retrieved: "2026-09-22"
+        quote: >-
+          External I2C/SPI-based TPM modules are not currently supported.
+      - url: https://documentation.ubuntu.com/core/explanation/core-elements/inside-ubuntu-core/
+        type: vendor-docs
+        title: "Inside Ubuntu Core, the gadget snap"
+        retrieved: "2026-09-22"
+        quote: >-
+          board-specific binaries and data, such as bootloader, device tree,
+          configuration files
+      - url: https://documentation.ubuntu.com/core/reference/system-requirements/
+        type: vendor-docs
+        title: "System requirements"
+        retrieved: "2026-09-22"
+        quote: >-
+          Ubuntu Core supports various 64-bit architectures and 32-bit Arm. amd64
+          (Intel/AMD 64-bit) arm64 (64-bit Arm) armhf (32-bit Arm) riscv64 (64-bit
+          RISC-V)
+      - url: https://documentation.ubuntu.com/core/reference/testing-platforms/
+        type: vendor-docs
+        title: "Testing platforms"
+        retrieved: "2026-09-22"
+        quote: "Canonical produces official images for the following platforms:"
+      - url: https://cdimage.ubuntu.com/ubuntu-core/26/stable/current/
+        type: release-notes
+        title: "Ubuntu Core 26 stable image directory"
+        retrieved: "2026-09-22"
+        quote: "ubuntu-core-26-arm64+raspi.img.xz"
+      - url: https://cdimage.ubuntu.com/ubuntu-core/22/stable/current/
+        type: release-notes
+        title: "Ubuntu Core 22 stable image directory"
+        retrieved: "2026-09-22"
+        quote: "ubuntu-core-22-armhf+raspi.img.xz"
+      - url: https://documentation.ubuntu.com/core/how-to-guides/cuda-workloads/
+        type: vendor-docs
+        title: "Run CUDA workloads on Ubuntu Core"
+        retrieved: "2026-09-22"
+        quote: >-
+          This document will explain the key components of leveraging CUDA cores on
+          NVIDIA GPUs.
+      - url: https://documentation.ubuntu.com/core/reference/support-duration/
+        type: vendor-docs
+        title: "Ubuntu Core support duration, architecture column"
+        retrieved: "2026-09-22"
+        quote: "Ubuntu Core 26 May 2026 May 2036 May 2041 amd64, arm64, armhf"
+    unknowns:
+      - "Whether a released, installable Ubuntu Core riscv64 image exists for any board, or whether riscv is architecture support in the tooling only. No riscv64 image was found on the testing-platforms page or in the cdimage directories for Core 22, 24 or 26."
+      - "Whether an armhf image exists for Core 24 or Core 26. The support-duration table lists armhf for both, and the cdimage directories carry none."
+      - "Whether any GPU or accelerator enablement path is documented for Core 26, and whether any accelerator other than NVIDIA is documented at all."
+      - "Whether a real-time kernel variant is available for Ubuntu Core as distinct from classic Ubuntu."
+
+  d09_provisioning:
+    normalized:
+      config_tools:
+        - name: "snapd install mode with gadget.yaml"
+          license: "GPL-3.0"
+          runs: [install]
+          reruns: any-time
+          runs_note: "Runs in snapd install mode from tmpfs; gadget defaults are only applied during the first boot; system options change at any time through snap set system."
+          early_disk: "snapd creates partitions, encrypts ubuntu-data and ubuntu-save and seals keys in the TPM."
+          change_after_first_boot: "snap set system"
+          evidence: DOCUMENTED
+          sources:
+            - url: https://documentation.ubuntu.com/core/explanation/how-installation-works/
+              title: "Ubuntu Core: how installation works"
+              retrieved: "2026-10-06"
+            - url: https://documentation.ubuntu.com/core/reference/gadget-snap-format/
+              title: "Ubuntu Core: gadget snap format"
+              retrieved: "2026-10-06"
+              quote: >-
+                only applied during the first boot
+      methods:
+        - image-flashing
+        - virtual-machine
+        - factory-provisioning
+      install_flow: "boot ubuntu-seed, run install mode from tmpfs, create partitions, optionally encrypt and seal keys, reboot into run mode, seed the snaps"
+      config_mechanism: "console-conf at first boot (described by the vendor as a development tool), gadget defaults, system-user assertion, cloud-init"
+      factory_support: "a factory-image hint governing factory-only resources, cleared before the first boot into run mode; an install-device gadget hook for early hardware and firmware configuration"
+      config_reapplied: unknown
+    summary: >-
+      Installation runs from an ephemeral system on the read-only seed partition,
+      creates and optionally encrypts the partitions, then reboots into the real
+      system and seeds its snaps. A documented factory mode exists for manufacturing
+      lines.
+    notes: >-
+      The six-step install sequence is documented end to end, and the property worth
+      noting is that the installer itself runs from tmpfs out of a read-only recovery
+      system, so the thing that creates the device has no writable state of its own.
+
+      Factory provisioning is documented as a first-class scenario rather than left
+      to the adopter, which is consistent with the product framing. An image can
+      carry a factory-image hint that governs access to factory-only resources and is
+      "cleared directly before rebooting into run mode", and a gadget install-device
+      hook runs "before rebooting into run mode" for "early hardware and firmware
+      configuration". Very few entries in this edition document a manufacturing step
+      at all.
+
+      First-boot device and user configuration has a mechanism that surprises people
+      coming from server Linux. console-conf presents a text menu over a display or a
+      serial connection, the administrator's "email needs to be registered in
+      Ubuntu", and "console-conf will create a user in the device and pull the ssh
+      keys registered in Ubuntu", so the keys come from the cloud identity. From
+      Core 24 onward console-conf is a separate snap rather than part of the base:
+      it "used to be part of the base snap in UC22 and older versions". The vendor
+      describes it as "a development tool as initial configuration of production
+      devices is expected to happen in different ways", and the documented
+      production alternatives are a system-user assertion baked into the image and
+      gadget defaults.
+
+      cloud-init is documented as supported. The Core 26 release notes state that
+      the bundled Python change "does not affect cloud-init usage, which will remain
+      present and fully supported in this release", with cloud-init moving to a
+      separate core26 track, and the Core 22 notes list "Initial MAAS & cloud-init
+      support". The gadget snap carries "cloud-init configuration for edge
+      virtualisation use cases". How cloud-init, gadget defaults and console-conf
+      interact when more than one is present was not found documented.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://documentation.ubuntu.com/core/explanation/how-installation-works/
+        type: vendor-docs
+        title: "How installation works"
+        retrieved: "2026-09-22"
+        quote: "sealing the disk keys through hardware support."
+      - url: https://documentation.ubuntu.com/core/explanation/how-installation-works/
+        type: vendor-docs
+        title: "How installation works, factory image hint"
+        retrieved: "2026-09-22"
+        quote: "cleared directly before rebooting into run mode"
+      - url: https://documentation.ubuntu.com/core/explanation/system-snaps/console-conf/usage/
+        type: vendor-docs
+        title: "Using console-conf"
+        retrieved: "2026-09-22"
+        quote: >-
+          console-conf will create a user in the device and pull the ssh keys
+          registered in Ubuntu
+      - url: https://documentation.ubuntu.com/core/explanation/system-snaps/console-conf/
+        type: vendor-docs
+        title: console-conf
+        retrieved: "2026-09-22"
+        quote: >-
+          console-conf is considered a development tool as initial configuration of
+          production devices is expected to happen in different ways.
+      - url: https://documentation.ubuntu.com/core/reference/release-notes/
+        type: vendor-docs
+        title: "Ubuntu Core 26 release notes, impact on cloud-init"
+        retrieved: "2026-09-22"
+        quote: >-
+          This change does not affect cloud-init usage, which will remain present and
+          fully supported in this release.
+    unknowns:
+      - "How cloud-init relates to gadget defaults and console-conf when more than one is present in an image. cloud-init itself is documented as supported."
+      - "Whether PXE or network installation is documented for Ubuntu Core."
+      - "Whether any configuration mechanism is reapplied after first boot, or whether all of them are first-boot only."
+
+  d10_security:
+    normalized:
+      boot_trust_chain:
+        level: 2
+        how: default-on
+        note: Needs a device with UEFI Secure Boot and TPM 2.0. kernel.efi is a signed UKI, and
+          disk encryption is sealed to the EFI boot state. The base snap is mounted from disk; snap dm-verity
+          exists in snapd but is not enabled at boot
+        evidence: DOCUMENTED
+        sources:
+        - url: https://documentation.ubuntu.com/core/explanation/full-disk-encryption/
+          type: official-docs
+          title: Ubuntu Core full disk encryption
+          retrieved: '2026-10-06'
+          quote: Built-in FDE support requires both UEFI Secure Boot and TPM 2.0
+        - url: https://github.com/canonical/snapd/blob/e5a0d3605f8c03d6dd51f5d9ad53fd37dab7aa6a/cmd/snap-bootstrap/cmd_initramfs_mounts.go#L1862-L1867
+          type: source-code
+          title: snapd initramfs mounts
+          retrieved: '2026-10-06'
+          quote: getVerityOptions(essentialSnap.Path, nil)
+      secure_boot: "required for the built-in full disk encryption; the shim chain is Canonical's, with a Microsoft-signed shim on classic Ubuntu"
+      measured_boot: "the FDE key is sealed to the full EFI state including the kernel command line"
+      tpm: "TPM 2.0 on x86, OP-TEE on Arm"
+      integrity: image-by-construction
+      dm_verity: unknown
+      disk_encryption: "built in, and activated automatically on capable hardware under the default model grade"
+      artifact_verification: "assertion chain, with the model signed by the brand account"
+      sbom: "published per release on the documentation site for Core 20, 22 and 24; the Core 26 SBOM is listed as under review, pending release"
+      provenance: unknown
+      fips: "available for Ubuntu under a paid subscription; applicability to Ubuntu Core not stated"
+      mandatory_access_control: "AppArmor, generated per app, plus seccomp filters"
+      vulnerability_response: "initial response intended within two business days; CVE details published within a week of update notifications; fixes ship as new snap revisions, by Canonical for base, snapd, certified kernel and Canonical-maintained gadget snaps, and by the publisher for application and third-party gadget snaps"
+      default_on:
+        - strict-confinement
+        - apparmor-and-seccomp-per-app
+        - automatic-updates
+        - full-disk-encryption-on-capable-hardware
+      opt_in:
+        - secured-model-grade
+        - fips
+    summary: >-
+      Full disk encryption bound to the TPM is on by default on hardware that
+      supports it, sealed to the boot state. Application confinement is mandatory
+      and generated automatically. Integrity of the OS rests on read-only images and
+      the assertion chain rather than on a verity device.
+    notes: >-
+      **Default-on TPM-backed encryption is the standout security property in this
+      edition.** The mechanism is specific rather than a claim: "Ubuntu Core uses
+      full disk encryption (FDE) whenever the hardware allows", "TPM-based FDE seals
+      the FDE secret key to the full EFI state, including the kernel command line,
+      which is subsequently unsealed by the initrd code in the secure-boot protected
+      kernel.efi at boot time", and it requires "both UEFI Secure Boot and TPM 2.0".
+      The default is stated as a table rather than a sentence: with hardware
+      support, grade signed with storage-safety unset yields encrypted, and the page
+      notes that "storage-safety:prefer-encrypted is the same as unset". No other
+      entry here encrypts by default without the operator choosing it.
+
+      Secure Boot is therefore a hard dependency of the encryption story rather than
+      an optional extra. Canonical's classic Ubuntu shim is Microsoft-signed and
+      carries "an embedded trust database, which includes Canonical's signing
+      certificate", used to validate GRUB and the kernel. That the same chain applies to
+      Ubuntu Core is an inference from the two facts together rather than a statement
+      found on a Core-specific page, and it is recorded as such, because whose key
+      signs what is exactly the FR-14 question and it deserves a Core-specific
+      source.
+
+      The confinement model is the strongest application sandbox in this edition and
+      it is also its own attack surface, which is worth recording as a dated fact
+      rather than a hypothetical. CVE-2026-8933 is a local privilege escalation in
+      snap-confine, "used internally by Canonical snapd to construct the secure
+      execution environment", rated 7.8, affecting the 22.04, 24.04 and 26.04 bases,
+      with fixed versions published per release. A mechanism that mediates every
+      application's access to the system is a high-value target, and this is what the
+      response to one such finding looked like.
+
+      The published vulnerability response commitment is concrete, which is unusual
+      in this edition: an intended initial response "within two business days", CVE
+      details published "within one week after we provide update notifications or
+      release new versions of software", and a recommended embargo of at least a week
+      after fixes are published.
+
+      Vulnerability handling for a running device is documented per snap rather
+      than per system. A CVE in a base snap, snapd or a certified kernel snap "is
+      fixed by rebuilding and releasing a new revision of that base snap by
+      Canonical", an application snap's dependencies "must be addressed by the snap
+      publisher", and a third-party gadget snap's bootloader is its publisher's
+      responsibility. Fixes arrive as new snap revisions, and the page states that
+      "the version field is informational and may not change for rebuilds that
+      include CVE fixes", so an operator auditing patch state reads revisions, not
+      version strings.
+
+      SBOMs are published per release on the documentation site: Core 20, 22 and 24
+      each have a linked SBOM, and the Core 26 entry read "under review, pending
+      release" on 2026-09-22, four months after the release. The Core 26 release
+      notes list "CRA compliance" as a key update. No provenance attestation for the
+      images or the snaps was found.
+
+      FIPS is a paid subscription feature covering "a set of cryptographic packages"
+      including the kernel and OpenSSL. The page describing it does not mention
+      Ubuntu Core, so whether a snap-based system inherits that validation is
+      recorded as unknown rather than assumed either way.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://documentation.ubuntu.com/core/explanation/full-disk-encryption/
+        type: vendor-docs
+        title: "Full disk encryption"
+        retrieved: "2026-09-22"
+        quote: >-
+          TPM-based FDE seals the FDE secret key to the full EFI state, including the
+          kernel command line, which is subsequently unsealed by the initrd code in
+          the secure-boot protected kernel.efi at boot time.
+      - url: https://documentation.ubuntu.com/core/explanation/full-disk-encryption/
+        type: vendor-docs
+        title: "Full disk encryption, default activation"
+        retrieved: "2026-09-22"
+        quote: >-
+          Ubuntu Core uses full disk encryption (FDE) whenever the hardware allows
+      - url: https://documentation.ubuntu.com/core/explanation/full-disk-encryption/
+        type: vendor-docs
+        title: "Full disk encryption, grade and storage-safety table"
+        retrieved: "2026-09-22"
+        quote: "storage-safety:prefer-encrypted is the same as unset"
+      - url: https://documentation.ubuntu.com/security/security-features/platform-protections/secure-boot/
+        type: vendor-docs
+        title: "Ubuntu Secure Boot"
+        retrieved: "2026-09-22"
+        quote: >-
+          shim works as a pre-bootloader and is signed by Microsoft. Firmware
+          validates the shim signature against the certificates in the firmware. shim
+          contains an embedded trust database, which includes Canonical’s signing
+          certificate.
+      - url: https://ubuntu.com/security/disclosure-policy
+        type: vendor-docs
+        title: "Canonical security disclosure policy"
+        retrieved: "2026-09-22"
+        quote: >-
+          We intend to provide an initial response to reporters within two business
+          days.
+      - url: https://ubuntu.com/security/CVE-2026-8933
+        type: vendor-docs
+        title: "CVE-2026-8933, snap-confine local privilege escalation"
+        retrieved: "2026-09-22"
+        quote: >-
+          A local privilege escalation vulnerability exists in snap-confine ... used
+          internally by Canonical snapd to construct the secure execution
+          environment for snap applications.
+      - url: https://ubuntu.com/security/certifications/docs/fips
+        type: vendor-docs
+        title: "Ubuntu FIPS"
+        retrieved: "2026-09-22"
+        quote: >-
+          Ubuntu supports running Linux FIPS 140 workloads through the Ubuntu Pro
+          subscription
+      - url: https://documentation.ubuntu.com/core/reference/software-bill-of-materials/
+        type: vendor-docs
+        title: "Software bill of materials"
+        retrieved: "2026-09-22"
+        quote: >-
+          SBOMs for each Ubuntu Core release are available from the following links:
+          Ubuntu Core 26 SBOM (under review, pending release) Ubuntu Core 24 SBOM
+          Ubuntu Core 22 SBOM Ubuntu Core 20 SBOM
+      - url: https://documentation.ubuntu.com/core/explanation/cve-remediation/
+        type: vendor-docs
+        title: "CVE remediation in Ubuntu Core"
+        retrieved: "2026-09-22"
+        quote: >-
+          The version field is informational and may not change for rebuilds that
+          include CVE fixes.
+    unknowns:
+      - "Whether Ubuntu Core uses the same Microsoft-signed shim as classic Ubuntu. This is inferred from the general Secure Boot documentation plus Core's stated Secure Boot dependency, and no Core-specific page states it."
+      - "Whether Ubuntu's FIPS validation extends to Ubuntu Core, or covers only the deb-based editions. The FIPS page does not mention Core."
+      - "When the Core 26 SBOM will be published; it was listed as under review, pending release on 2026-09-22. Whether any provenance attestation is published for images or snaps."
+      - "Whether dm-verity is used anywhere in the integrity chain."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: "available; keys pulled from a cloud identity at first boot by console-conf"
+      local_shell: available
+      serial_console: "supported for first-boot configuration"
+      recovery_shell: "recover mode, with login by prior credentials locally or over SSH"
+      api: "snapd REST API, OpenAPI compliant from Core 26"
+      support_bundle: unknown
+      works_without_kubernetes: "yes"
+      package_manager_at_runtime: "snap only"
+    summary: >-
+      A device-shaped operations model: SSH with keys seeded from a cloud identity,
+      a serial console path, a documented recovery login, and a REST API that became
+      OpenAPI compliant at Core 26.
+    notes: >-
+      Getting a shell on a fresh device is genuinely different from every other entry
+      here and it catches people out. There is no local password to set in the usual
+      way: console-conf pulls the SSH public keys already registered against an
+      Ubuntu single sign-on account and creates the user from them. The vendor
+      describes console-conf as "a development tool as initial configuration of
+      production devices is expected to happen in different ways". The alternative,
+      for a product that cannot depend on a cloud account at first boot, is to bake a
+      user in with a system-user assertion at image build time.
+
+      The snapd REST API is the real management surface, and it covers the recovery
+      modes as well as snap operations, so a device can be told to reinstall or
+      factory reset programmatically. Core 26 made it OpenAPI compliant, which
+      matters for anyone generating a client.
+
+      Recover mode doubles as the debugging environment for a device that will not
+      boot, since it leaves existing data intact and allows a normal login. That is a
+      better answer than several entries here manage.
+
+      No support bundle or diagnostic collection tool was found documented for Ubuntu
+      Core, and no logging or monitoring documentation specific to it was located
+      beyond a Core 26 release note mentioning fleet management integration with an
+      observability stack.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://documentation.ubuntu.com/core/uc26/
+        type: vendor-docs
+        title: "Ubuntu Core 26"
+        retrieved: "2026-09-22"
+        quote: "The Snapd REST API is now OpenAPI compliant and includes overhauled Swagger-based documentation."
+      - url: https://documentation.ubuntu.com/core/explanation/system-snaps/console-conf/
+        type: vendor-docs
+        title: "console-conf, first boot access"
+        retrieved: "2026-09-22"
+        quote: >-
+          The console-conf snap is used for the initial configuration of users and
+          networking on Ubuntu Core.
+      - url: https://documentation.ubuntu.com/core/explanation/recovery-modes/
+        type: vendor-docs
+        title: "Recovery modes, login in recover mode"
+        retrieved: "2026-09-22"
+        quote: "either via SSH or locally"
+    unknowns:
+      - "Whether any support bundle or diagnostic collection tool is documented for Ubuntu Core."
+      - "Whether logging and monitoring guidance specific to Ubuntu Core exists."
+
+  d12_fleet_management:
+    normalized:
+      core_project:
+        - "refresh scheduling through refresh.timer"
+        - "refresh holds: the refresh.hold system option is capped at 90 days, and snap refresh --hold accepts forever"
+        - "refresh.retain, revision retention per snap"
+        - "refresh.metered, pausing refreshes on a metered connection"
+        - "refresh control: gating snaps and validation sets hold named snaps at publisher-validated revisions; the gating relationship is set up once by the vendor's store team"
+        - "the snapd REST API, including recovery mode selection"
+      oss_companion: []
+      commercial:
+        - name: "Snap Store Proxy and Enterprise Store"
+          vendor: Canonical
+          license: proprietary
+          self_hostable: true
+          note: "An on-premises edge proxy that caches downloads and enables use in air-gapped or restricted networks. Part of the paid subscription."
+        - name: "Brand and dedicated stores"
+          vendor: Canonical
+          license: proprietary
+          self_hostable: false
+          note: "Lets a vendor control exactly which snaps are available to its devices and when. Commercial terms are not stated on any documentation page found."
+        - name: Landscape
+          vendor: Canonical
+          license: proprietary
+          self_hostable: true
+          note: "Systems management, listed as part of the device subscription. A self-hosted server edition is documented; the Core 24 release notes state Landscape 'supports both well-connected and air-gapped environments' and 'is available for Core customers', with a Landscape Client snap on the device."
+        - name: "Ubuntu Pro for Devices"
+          vendor: Canonical
+          license: subscription
+          self_hostable: false
+          note: "Bundles security maintenance, Landscape, kernel livepatch, security certification and support. Years 11 to 15 need a further paid add-on."
+      cluster_api:
+        os_specific_provider: "none"
+        maintainer: not-applicable
+        upstream_provider_list: "not listed. The vendor's own listed bootstrap and control-plane providers target classic Ubuntu Server, not this product."
+        provisions: not-applicable
+        bootstrap_target: "none. The vendor's Cluster API bootstrap provider installs the Kubernetes snap with classic confinement, and classic snaps are documented as not installable on this system."
+        image_builder_target: "none. image-builder builds classic Ubuntu Server cloud images only."
+    summary: >-
+      The OS itself carries real fleet-relevant controls in snapd: when devices
+      refresh, how long they may defer, how many revisions they keep, what happens
+      on a metered link, and which revision a gated snap may move to. Everything
+      above that, including the store a device trusts, is commercial.
+    notes: >-
+      The split here is unusually consequential, because of how refreshes are held
+      in d04: the system option is capped at 90 days, and a per-snap hold can run
+      forever. Holding every snap forever is possible on paper, so the meaningful
+      control for a certified system is over what an update contains. Two documented paths exist. Refresh
+      control, through gating snaps and validation sets, pins named snaps at
+      publisher-validated revisions using signed assertions, and the page separates
+      it from "the ability for device managers to control the schedule of refreshes
+      and revision control via a snap proxy". Establishing the gating relationship
+      is a one-time step that "can only be performed by a user with permission from
+      the team operating the store controlling the gating snap", so the mechanism is
+      free to use but its enablement passes through the vendor. The second path, a
+      brand store or an on-premises proxy, is commercial. The free path without
+      either gives a device that updates itself from the public store on a schedule
+      the operator can shift, and can hold with snap refresh --hold.
+
+      That is a coherent design for the product's intended audience, a vendor
+      shipping devices it wants to keep patched. It is recorded here without
+      judgement, and both halves of the consequence appear in the tradeoffs.
+
+      No open-source fleet-management companion for Ubuntu Core was found. The
+      Kubernetes distributions are workload orchestration rather than device
+      management and are recorded under d07.
+
+      The subscription is described as payable "annually or as a one-time fee for up
+      to 10 years", bundling security maintenance, systems management, kernel
+      livepatch, security certification, support and trademark use, with a separate
+      add-on for years 11 to 15.
+
+      The Cluster API answer is the one in this edition most likely to be
+      recorded wrong, because the vendor genuinely does maintain Cluster API
+      providers and they are genuinely listed upstream. They do not target this
+      product.
+
+      The vendor's bootstrap and control-plane providers for its Kubernetes
+      platform, and its separate pair for its small-Kubernetes product, appear
+      in the published provider list. Their install path runs snap install for
+      the Kubernetes snap with classic confinement, and the default channel they
+      select carries the classic suffix. Classic snaps are documented as not
+      installable on this product. That is a mechanical incompatibility rather
+      than a preference, so those providers cannot provision a node running this
+      system. Their cluster templates point at classic server images, and their
+      bootstrap data is cloud-init.
+
+      Two further checks came back empty. None of the vendor's Cluster API
+      documentation pages names this product, and image-builder's targets are
+      classic server cloud images with no target for this one.
+
+      One correction worth carrying: the Cluster API infrastructure provider for
+      the vendor's bare-metal provisioning service is maintained by a third-party
+      vendor, not by this project's own vendor, and that vendor's own forum
+      stated in 2025 that no official one exists. So it should not be credited
+      here either.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://ubuntu.com/pricing/devices
+        type: vendor-docs
+        title: "Ubuntu Pro for Devices"
+        retrieved: "2026-09-22"
+        quote: >-
+          a subscription that can be paid annually or as a one-time fee for up to 10
+          years
+      - url: https://documentation.ubuntu.com/core/explanation/stores/store-overview/
+        type: vendor-docs
+        title: "Store overview, on-premises proxy"
+        retrieved: "2026-09-22"
+        quote: >-
+          an on-premise edge proxy that creates a local cache of downloaded files
+      - url: https://snapcraft.io/docs/how-to-guides/manage-snaps/manage-updates/
+        type: official-docs
+        title: "Managing updates, refresh controls"
+        retrieved: "2026-09-22"
+        quote: >-
+          Use refresh.metered to pause and re-enable the refresh process when
+          NetworkManager detects a metered connection, such as an LTE link with a
+          limited data plan.
+      - url: https://documentation.ubuntu.com/core/explanation/refresh-control/
+        type: vendor-docs
+        title: "Refresh control, store setup"
+        retrieved: "2026-09-22"
+        quote: >-
+          Establishing the relationship between a gating and gated snap is required
+          only once and can only be performed by a user with permission from the
+          team operating the store controlling the gating snap.
+      - url: https://documentation.ubuntu.com/core/reference/release-notes/
+        type: vendor-docs
+        title: "Ubuntu Core 24 release notes, Landscape"
+        retrieved: "2026-09-22"
+        quote: >-
+          Landscape supports both well-connected and air-gapped environments. It
+          comes with features like canary releases, remote device remodeling, and
+          system monitoring to streamline device management tasks. Landscape is
+          available for Core customers.
+      - url: https://ubuntu.com/landscape/docs/how-to-guides/landscape-installation-and-set-up/quickstart-installation/
+        type: vendor-docs
+        title: "Landscape quickstart installation, self-hosted"
+        retrieved: "2026-09-22"
+        quote: "ppa:landscape/self-hosted-26.04"
+      - url: https://cluster-api.sigs.k8s.io/reference/providers
+        type: official-docs
+        title: Cluster API provider list, searched for this project
+        retrieved: "2026-09-22"
+      - url: https://github.com/canonical/cluster-api-k8s/blob/main/pkg/cloudinit/scripts/install.sh
+        type: source-repo
+        title: Canonical Cluster API bootstrap provider install script, classic snap
+        retrieved: "2026-09-22"
+        quote: 'retry_snap_install snap install k8s --classic --channel "${snap_channel}"'
+      - url: https://snapcraft.io/docs/reference/administration/reviewing-classic-confinement-snaps/
+        type: official-docs
+        title: Classic confinement caveats
+        retrieved: "2026-09-22"
+        quote: >-
+          they are not installable on Ubuntu Core (all snaps) devices
+      - url: https://github.com/kubernetes-sigs/image-builder
+        type: source-repo
+        title: image-builder supported operating system targets
+        retrieved: "2026-09-22"
+        quote: >-
+          The table below shows the currently provided operating systems for each
+          provider built-in to image builder.
+    unknowns:
+      - "Whether the self-hosted Landscape server edition manages Ubuntu Core devices without a paid subscription. The Core 24 release notes say Landscape 'is available for Core customers' and do not state the terms."
+      - "Whether any open-source fleet-management tool targets Ubuntu Core devices."
+
+  d13_governance:
+    normalized:
+      license: "snapd is GPL-3.0; the composing snaps carry the licences of their contents"
+      open_source: true
+      open_governance: unknown
+      vendor_neutral_ownership: single-vendor
+      foundation: "none"
+      trademark_holder: Canonical
+      store_operator: Canonical
+      store_server_published: unknown
+      primary_commercial_sponsor: Canonical
+      contributor_agreement: "Harmony contributor licence agreement"
+      contribution_diversity:
+        method: >-
+          GitHub contributors API against github.com/snapcore/snapd, the daemon that
+          implements this entry's distinguishing mechanism, queried as
+          `repos/snapcore/snapd/contributors?per_page=100` with pagination and no
+          `anon` parameter, on 2026-09-22. All-time commit counts per individual, not
+          per organization. Employer affiliation is not published for this repository
+          and is therefore not claimed here. This counts snapd only, not the thousands
+          of packages the base snap inherits from the Ubuntu archive, so it measures
+          the mechanism's maintainer base rather than the distribution's. The same
+          query with `anon=1` returned 377 contributors and 63,625 commits, so the
+          figure depends on whether commits without a linked GitHub account are
+          counted.
+        value: >-
+          300 contributors with linked GitHub accounts and 59,005 commits all time,
+          with the top twelve holding 51,914 of them, roughly 88 percent. The
+          contributor count is the largest of any mechanism measured in this edition,
+          and the concentration is high.
+    summary: >-
+      A GPL-3.0 daemon and an open codebase, owned and operated by a single company
+      that also runs the store the OS depends on, under a contributor licence
+      agreement, with no published governance body for the OS or the daemon.
+    notes: >-
+      The four properties separate sharply and the honest reading is mixed. Open
+      source: yes, snapd is GPL-3.0 and developed in public. Open governance:
+      unknown, and the gap is specific. Ubuntu has a Technical Board "responsible for
+      the technical direction of Ubuntu" that meets publicly, but nothing found
+      states that its remit formally covers snapd and Ubuntu Core as opposed to the
+      archive and the classic distribution, and no separate governance charter for
+      snapd was located. Vendor-neutral ownership: no, on every axis at once, since
+      one company holds the trademark, employs the maintainers, and operates the
+      store that is the default trust root.
+
+      Contributions are made under the Harmony contributor licence agreement, under
+      which contributors retain copyright and grant the company a licence. That is a
+      materially different arrangement from the developer certificate of origin used
+      by several other entries here, and it is recorded as a fact rather than as a
+      deficiency.
+
+      **The store is the governance question that matters most for this entry**,
+      because it is not only a distribution channel but the default trust root and
+      the thing an operator must route around to control updates. No published
+      implementation of the store server was found. That absence is recorded as an
+      open question rather than as a finding, because the only statements located
+      asserting that the server is proprietary were community forum posts, which this
+      survey's evidence standard does not accept as a source for any claim.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/snapcore/snapd/blob/master/COPYING
+        type: governance-doc
+        title: "snapd licence"
+        retrieved: "2026-09-22"
+        quote: "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
+      - url: https://canonical.com/legal/contributors
+        type: governance-doc
+        title: "Canonical contributor agreement"
+        retrieved: "2026-09-22"
+        quote: >-
+          We use the Harmony CLA to protect your rights regarding any contribution
+          you make to our open source projects.
+      - url: https://github.com/snapcore/snapd
+        type: source-repo
+        title: snapd
+        retrieved: "2026-09-22"
+        quote: "300 contributors and 59,005 commits recorded by the contributors API on 2026-09-22."
+    unknowns:
+      - "Whether the Ubuntu Technical Board's published remit formally covers snapd and Ubuntu Core, or whether both are governed entirely by the company's internal engineering process."
+      - "Whether any implementation of the Snap Store server is published. None was found, and no primary source states its status either way."
+      - "Employer affiliation of snapd contributors is not published, so the diversity figure counts individuals only."
+
+  d14_maturity:
+    normalized:
+      first_release: "2016-06"
+      current_version: "Ubuntu Core 26"
+      current_version_date: "2026-05-14"
+      release_cadence: "one major release every two years since Core 22, tracking an Ubuntu LTS; the earlier interval was irregular"
+      observed_intervals: "Core 22 2022-06-15 to Core 24 2024-06-04 is 720 days; Core 24 to Core 26 2026-05-14 is 709 days. Earlier, from the support-duration table at month precision: Core 16 June 2016 to Core 18 January 2019 is about 31 months; Core 18 to Core 20 February 2021 is about 25 months; Core 20 to Core 22 June 2022 is about 16 months"
+      support_model: lts-stream
+      support_window: "Core 26: released May 2026, standard security maintenance to May 2036, Legacy add-on to May 2041. Core 24: June 2024 to June 2034, Legacy to June 2039. Core 22: June 2022 to June 2032, Legacy to June 2037. Core 16 standard maintenance ended June 2026. The Core 24 release notes separately state 12 years."
+      commercial_support: available
+    summary: >-
+      A two-year major release cadence tied to the Ubuntu LTS train since Core 22,
+      with the longest stated support horizon in this edition and a published
+      calendar end-of-life table. Two of the vendor's own pages describe Core 24's
+      horizon differently.
+    notes: >-
+      The stated cadence and the observed intervals agree closely for the last three
+      releases, which is rare in this edition: 720 and 709 days against a documented
+      "every two years". The support-duration table extends the lineage back to Core
+      16 in June 2016, and the intervals before Core 22 were roughly 31, 25 and 16
+      months, so the two-year cadence is a property of the recent releases rather
+      than of the project's whole history.
+
+      **The support window is the headline and it needs a caveat.** The vendor's
+      support-duration page states that "Each release includes 10 years of security
+      maintenance" with "an additional 5 years" through a Legacy add-on sold under
+      Ubuntu Pro, and gives a calendar table: Core 26 to May 2036 and May 2041, Core
+      24 to June 2034 and June 2039, Core 22 to June 2032 and June 2037. The Core 24
+      release notes on the same site describe "12 years of Long Term Support", which
+      matches neither the ten nor the fifteen. Both are the vendor's own pages, and
+      the discrepancy is recorded rather than reconciled. Even at the shortest
+      reading, this is the longest support horizon of any entry in this edition by a
+      wide margin, and for a fielded device population that is frequently the
+      deciding dimension.
+
+      What the window covers is narrower than the whole image. The support-duration
+      page states that "Supported Ubuntu Core components include the snap daemon
+      (SnapD), the kernel snap and the base for each respective release", so a
+      brand's gadget snap and application snaps sit outside it, consistent with the
+      per-snap ownership recorded in d06 and d10.
+
+      One thing a reader should not assume from the major version number: the OS on a
+      running device is not pinned by it. Point updates arrive as refreshes of snapd
+      and of the gadget, base and kernel snaps, so two devices on the same Core
+      version can be running materially different software.
+
+      The first release in the vendor's own table is Ubuntu Core 16, June 2016,
+      whose standard security maintenance ended in June 2026, three months before
+      this data was checked. The table does not list anything earlier, and the
+      release-notes page's history stops at Core 22, so whether anything before Core
+      16 counts as a release of this product is not established from these sources.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://documentation.ubuntu.com/core/reference/release-notes/
+        type: vendor-docs
+        title: "Ubuntu Core release notes"
+        retrieved: "2026-09-22"
+        quote: >-
+          A new version of Ubuntu Core is released every two years, built on the
+          foundations of a Ubuntu LTS release.
+      - url: https://ubuntu.com/download/core
+        type: vendor-docs
+        title: "Download Ubuntu Core, support statement"
+        retrieved: "2026-09-22"
+        quote: >-
+          10 years of security and maintenance updates, extended to up to 15 years
+          with Ubuntu Pro
+      - url: https://documentation.ubuntu.com/core/reference/support-duration/
+        type: vendor-docs
+        title: "Ubuntu Core support duration"
+        retrieved: "2026-09-22"
+        quote: >-
+          Each release includes 10 years of security maintenance. A Legacy add-on can
+          be optionally purchased to cover an additional 5 years of security
+          maintenance, resulting in 15 years of coverage overall.
+      - url: https://documentation.ubuntu.com/core/reference/support-duration/
+        type: vendor-docs
+        title: "Ubuntu Core support duration, version table"
+        retrieved: "2026-09-22"
+        quote: "Ubuntu Core 16 Jun 2016 Jun 2026 Jun 2031 amd64, arm64 2.61.x"
+      - url: https://documentation.ubuntu.com/core/reference/release-notes/
+        type: vendor-docs
+        title: "Ubuntu Core 24 release notes, support statement"
+        retrieved: "2026-09-22"
+        quote: "With 12 years of Long Term Support"
+    unknowns:
+      - "Whether any release before Ubuntu Core 16 (June 2016) counts as a release of this product. The vendor's support-duration table starts at Core 16 and the release-notes history stops at Core 22."
+      - "Whether the Core 24 release notes' twelve years and the support-duration table's ten plus five for the same release are a wording error or a difference in terms."
+
+tradeoffs:
+  buys:
+    - "A stated support horizon of ten years, extending to fifteen with a subscription."
+    - "Full disk encryption bound to the TPM and sealed to the full EFI state, active automatically on capable hardware under the default model grade."
+    - "Mandatory per-application confinement, on by default and generated automatically: an AppArmor profile per app and service, seccomp filters per app, and a mount namespace per snap."
+    - "Four named boot modes on a local recovery partition, with a documented and deliberate distinction between reinstalling and factory-resetting: one erases device identity, the other preserves it."
+    - "Recover mode boots a pristine ephemeral system while leaving existing data intact and reachable by an ordinary login, locally or over SSH. It gives a way into a device that will not boot normally, with no network and no external media."
+    - "The kernel, the root filesystem and the board integration layer update independently, so a kernel fix does not require shipping a new root filesystem."
+    - "A signed model assertion makes the device's permitted software set an authenticated document, and the default grade refuses anything outside it."
+    - "Hardware enablement is a gadget and kernel snap an adopter builds, so adding a board is packaging work. The brand owns the assembled image: vulnerability response is per snap, with application and third-party gadget snaps on their publisher, and testing and support for the image are assigned nowhere that was found."
+    - "Factory provisioning is a documented, first-class scenario, with a factory-image hint and an install-device hook for manufacturing lines."
+    - "A published vulnerability response commitment: an intended two business day initial response and CVE details within a week of update notifications."
+  costs:
+    - "The default trust root and distribution channel is the vendor's store, and the documented alternatives, an on-premises proxy and brand stores, are the vendor's commercial products. Refresh control can pin snaps at validated revisions without either, but establishing a gating relationship is a one-time step performed by the vendor's store team. Avoiding the public store does not mean avoiding the vendor's infrastructure."
+    - "Signing anything above development grade requires a brand account tied to the vendor's single sign-on, so there is no documented offline or vendor-independent signing root for a production image."
+    - "The userspace is snap-only, with no documented path for installing arbitrary deb packages on a production device."
+    - "Open source without open governance or vendor-neutral ownership: one company holds the trademark, employs the maintainers and operates the store, and no governance body was found whose published remit covers snapd or Ubuntu Core."
+    - "Contributions require a contributor licence agreement rather than a developer certificate of origin."
+    - "riscv is listed as a supported architecture. On 2026-09-22 the testing-platforms page and the cdimage directories for Core 22, 24 and 26 listed no riscv64 image."
+    - "The vendor's Core 24 release notes state 12 years of support while its support-duration table gives the same release ten years plus five with a paid add-on, and the two pages are not reconciled. The published support window covers snapd, the kernel snap and the base snap, not a brand's gadget or application snaps."
+    - "FIPS, systems management, the air-gap proxy and the last five years of support all sit behind a subscription. The free path does not include them."
+maintainers_fact:
+  text: "Single vendor."
+  evidence: DOCUMENTED
+  sources:
+    - url: "https://canonical.com/legal/contributors"
+      type: "governance-doc"
+      title: "Canonical contributor agreement"
+      retrieved: "2026-09-22"
+      quote: "We use the Harmony CLA to protect your rights regarding any contribution you make to our open source projects."
+known_issues:
+  - text: "riscv is listed as a supported architecture. On 2026-09-22 the testing-platforms page and the cdimage directories for Core 22, 24 and 26 listed no riscv64 image."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://ubuntu.com/download/core"
+        type: "vendor-docs"
+        title: "Download Ubuntu Core"
+        retrieved: "2026-09-22"
+        quote: "amd64, arm64 & arm32, and riscv architectures"
+      - url: "https://documentation.ubuntu.com/core/reference/system-requirements/"
+        type: "vendor-docs"
+        title: "System requirements"
+        retrieved: "2026-09-22"
+        quote: "Ubuntu Core supports various 64-bit architectures and 32-bit Arm. amd64 (Intel/AMD 64-bit) arm64 (64-bit Arm) armhf (32-bit Arm) riscv64 (64-bit RISC-V)"
+      - url: "https://documentation.ubuntu.com/core/reference/testing-platforms/"
+        type: "vendor-docs"
+        title: "Testing platforms"
+        retrieved: "2026-09-22"
+        quote: "Canonical produces official images for the following platforms:"
+      - url: "https://cdimage.ubuntu.com/ubuntu-core/26/stable/current/"
+        type: "release-notes"
+        title: "Ubuntu Core 26 stable image directory"
+        retrieved: "2026-09-22"
+        quote: "ubuntu-core-26-arm64+raspi.img.xz"
+  - text: "The support-duration table lists armhf for Core 24 and Core 26. On 2026-09-22 the Core 24 and Core 26 image directories held no armhf image; armhf images were confirmed for Core 22 and Core 20 only."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://documentation.ubuntu.com/core/reference/support-duration/"
+        type: "vendor-docs"
+        title: "Ubuntu Core support duration, architecture column"
+        retrieved: "2026-09-22"
+        quote: "Ubuntu Core 26 May 2026 May 2036 May 2041 amd64, arm64, armhf"
+      - url: "https://cdimage.ubuntu.com/ubuntu-core/26/stable/current/"
+        type: "release-notes"
+        title: "Ubuntu Core 26 stable image directory"
+        retrieved: "2026-09-22"
+        quote: "ubuntu-core-26-arm64+raspi.img.xz"
+      - url: "https://cdimage.ubuntu.com/ubuntu-core/22/stable/current/"
+        type: "release-notes"
+        title: "Ubuntu Core 22 stable image directory"
+        retrieved: "2026-09-22"
+        quote: "ubuntu-core-22-armhf+raspi.img.xz"
+open_questions:
+  - "Is there a released, installable Ubuntu Core riscv64 image for any board today, or is riscv architecture support in the build tooling only? On 2026-09-22 the vendor's testing-platforms page and the cdimage directories for Core 22, 24 and 26 listed none."
+  - "Is there an armhf image for Core 24 or Core 26? The support-duration table lists armhf for both and the cdimage directories carry only amd64 and arm64 images for them."
+  - "How many consecutive failed boots does Ubuntu Core tolerate before rolling back a kernel or base snap, and what exactly counts as a successful boot?"
+  - "Can a device enter a recovery mode automatically after repeated failures, or is every entry operator-initiated?"
+  - "Does Ubuntu Core use dm-verity anywhere in its boot or integrity chain, or is the integrity story entirely read-only images, the assertion chain and TPM sealing?"
+  - "Does Ubuntu Core use the same Microsoft-signed shim as classic Ubuntu? What should an adopter expect for Secure Boot on stock firmware with an image they signed themselves?"
+  - "Does Ubuntu's FIPS validation extend to Ubuntu Core, or does it cover only the deb-based editions?"
+  - "When will the Core 26 SBOM be published, given it was listed as under review, pending release on 2026-09-22, and is any provenance attestation published for images or snaps?"
+  - "Is any implementation of the Snap Store server published, and is there an official statement on its status?"
+  - "Are dedicated brand stores a paid product, a capability of any publisher account, or something in between?"
+  - "Does the Ubuntu Technical Board's published remit formally cover snapd and Ubuntu Core, or are both governed through internal engineering process only?"
+  - "Are the Core 24 release notes' twelve years and the support-duration table's ten plus five for the same release a wording error or a difference in terms?"
+  - "Does anything before Ubuntu Core 16 (June 2016) count as a release of this product? The vendor's support-duration table starts there."
+  - "Is Canonical Kubernetes, the k8s snap, documented or published for Ubuntu Core? No page found mentions it and only classic-suffixed stable tracks were observed in the store on 2026-09-22."
+  - "Is any GPU or accelerator enablement documented for Core 26, and is any accelerator other than NVIDIA documented at all?"
+  - "Who owns testing and support for an image a brand builds and signs itself? Vulnerability response is assigned per snap; testing and support of the assembled image are not."
+  - "Does the self-hosted Landscape server manage Ubuntu Core devices without a paid subscription?"
+  - "How do cloud-init, gadget defaults and console-conf interact when more than one is present, and is any configuration mechanism reapplied after first boot?"
+  - "Can snap refresh --hold hold the kernel, base, gadget and snapd snaps forever on Ubuntu Core? refresh.hold is capped at 90 days, and no Core page confirms a forever hold for them."
+  - "Does Ubuntu Core ship a support bundle tool, and is there Core-specific logging or monitoring documentation?"
+
+follow_up_research:
+  - FR-01
+  - FR-02
+  - FR-03
+  - FR-05
+  - FR-06
+  - FR-08
+  - FR-09
+  - FR-13
+  - FR-14
+  - FR-15
+  - FR-16
+  - FR-17
+  - FR-18
+  - FR-19
+
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Cost audit under methodology section 9, rule 15. Moved to open questions as unknowns (N1): c0 (a forever hold for the kernel, base, gadget and snapd snaps), now a new question; c2 (no published store server), covered by q8; c9 (the failed-boot count and the success criterion), covered by q2; c13 (support bundle and Core-specific logging or monitoring), now a new question. c8 reworded to the dated observation (C4). Removed c12 ('The confinement mechanism is itself an attack surface: CVE-2026-8933...'), N6: one CVE in a component does not make the mechanism a cost; the CVE stays in the dimensions."
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.normalized.support_window
+    change: >-
+      Said no calendar end-of-life table for Ubuntu Core was found and recorded Core
+      26 as 10 years extending to 15 and Core 24 as 12 years. The vendor's
+      documentation site carries a support-duration reference page, last updated
+      2026-05-06, with a per-release table: Core 26 May 2026 to May 2036, Legacy to
+      May 2041; Core 24 June 2024 to June 2034, Legacy to June 2039; Core 22 June
+      2022 to June 2032, Legacy to June 2037; Core 16 June 2016 to June 2026, Legacy
+      to June 2031. The value now records those dates. The Core 24 release notes'
+      12-year wording still conflicts with the table and remains an open question.
+      The same page was missed for version_observed.additional_channels eol,
+      d14 notes, the d14 unknowns, the tradeoffs cost bullet and two open questions,
+      all corrected.
+    source:
+      url: https://documentation.ubuntu.com/core/reference/support-duration/
+      type: vendor-docs
+      title: "Ubuntu Core support duration"
+      retrieved: "2026-09-22"
+      quote: "Ubuntu Core 26 May 2026 May 2036 May 2041 amd64, arm64, armhf"
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.normalized.first_release
+    change: >-
+      Was unknown. The vendor's support-duration table lists Ubuntu Core 16 with a
+      June 2016 release date as its earliest entry. Now "2016-06". Whether anything
+      earlier counts is an open question; observed_intervals and release_cadence now
+      record that the two-year cadence holds only from Core 22.
+    source:
+      url: https://documentation.ubuntu.com/core/reference/support-duration/
+      type: vendor-docs
+      title: "Ubuntu Core support duration, version table"
+      retrieved: "2026-09-22"
+      quote: "Ubuntu Core 16 Jun 2016 Jun 2026 Jun 2031 amd64, arm64 2.61.x"
+  - date: "2026-09-22"
+    field: dimensions.d10_security.normalized.sbom
+    change: >-
+      Was unknown, with an open question asking where SBOMs are published. The
+      documentation site has a software-bill-of-materials reference page, last
+      updated 2026-05-14, linking SBOMs for Core 20, 22 and 24 and listing the Core
+      26 SBOM as under review, pending release. Now records that.
+    source:
+      url: https://documentation.ubuntu.com/core/reference/software-bill-of-materials/
+      type: vendor-docs
+      title: "Software bill of materials"
+      retrieved: "2026-09-22"
+      quote: "SBOMs for each Ubuntu Core release are available from the following links"
+  - date: "2026-09-22"
+    field: dimensions.d10_security.sources[1].quote
+    change: >-
+      The quote "With grade:signed (the default) and no storage-safety override,
+      devices activate encryption automatically" is not on the full-disk-encryption
+      page. The page states the default as a grade-by-storage-safety table, with
+      signed and unset yielding encrypted when hardware supports it, and the note
+      "storage-safety:prefer-encrypted is the same as unset". The claim stands; the
+      quote was replaced with verbatim text and a second source entry for the table.
+    source:
+      url: https://documentation.ubuntu.com/core/explanation/full-disk-encryption/
+      type: vendor-docs
+      title: "Full disk encryption"
+      retrieved: "2026-09-22"
+      quote: "Ubuntu Core uses full disk encryption (FDE) whenever the hardware allows"
+  - date: "2026-09-22"
+    field: dimensions.d10_security.sources[2].quote
+    change: >-
+      The second half of the Secure Boot quote, "embeds our own certificate (which
+      signs our grub binaries)", is not on the page. Replaced with the page's verbatim
+      wording about shim's embedded trust database containing Canonical's signing
+      certificate. The claim is unchanged.
+    source:
+      url: https://documentation.ubuntu.com/security/security-features/platform-protections/secure-boot/
+      type: vendor-docs
+      title: "Ubuntu Secure Boot"
+      retrieved: "2026-09-22"
+      quote: "shim contains an embedded trust database, which includes Canonical’s signing certificate."
+  - date: "2026-09-22"
+    field: dimensions.d09_provisioning.sources[0].quote
+    change: >-
+      The quote "snapd creates all missing partitions, sets up the run system,
+      optionally encrypts partitions and seals disk keys" is a paraphrase of a
+      bulleted list on the page, not verbatim text. Replaced with one verbatim list
+      item. The install_flow paraphrase in normalized is unchanged.
+    source:
+      url: https://documentation.ubuntu.com/core/explanation/how-installation-works/
+      type: vendor-docs
+      title: "How installation works"
+      retrieved: "2026-09-22"
+      quote: "sealing the disk keys through hardware support."
+  - date: "2026-09-22"
+    field: dimensions.d09_provisioning.sources[2]
+    change: >-
+      The quote "A user is added by entering an Ubuntu SSO registered email address
+      with one or more registered SSH keys" is not on the console-conf page or its
+      usage subpage. Re-pointed to the usage subpage with its verbatim wording, and
+      added the parent page's statement that console-conf "is considered a
+      development tool". The d09 and d11 notes now carry that statement.
+    source:
+      url: https://documentation.ubuntu.com/core/explanation/system-snaps/console-conf/
+      type: vendor-docs
+      title: console-conf
+      retrieved: "2026-09-22"
+      quote: "console-conf is considered a development tool as initial configuration of production devices is expected to happen in different ways."
+  - date: "2026-09-22"
+    field: dimensions.d09_provisioning.normalized.config_mechanism
+    change: >-
+      cloud-init was recorded as unknown. The release-notes page already cited in
+      d04 and d14 states for Core 26 that cloud-init "will remain present and fully
+      supported", the Core 22 notes list initial cloud-init support, and the
+      inside-ubuntu-core page names cloud-init configuration in the gadget snap.
+      cloud-init added to config_mechanism; the unknown narrowed to how the
+      mechanisms interact.
+    source:
+      url: https://documentation.ubuntu.com/core/reference/release-notes/
+      type: vendor-docs
+      title: "Ubuntu Core 26 release notes, impact on cloud-init"
+      retrieved: "2026-09-22"
+      quote: "This change does not affect cloud-init usage, which will remain present and fully supported in this release."
+  - date: "2026-09-22"
+    field: dimensions.d08_hardware_platform.normalized.sbc
+    change: >-
+      Said specific Raspberry Pi models were not enumerated on the pages found. The
+      documentation site's testing-platforms reference page, last updated
+      2026-06-15, lists official images per board and per Core release, including
+      Raspberry Pi 5, 4, 3, CM3, Zero 2 W and 2, MediaTek Genio and NVIDIA Tegra
+      Jetson. Now enumerated.
+    source:
+      url: https://documentation.ubuntu.com/core/reference/testing-platforms/
+      type: vendor-docs
+      title: "Testing platforms"
+      retrieved: "2026-09-22"
+      quote: "Canonical produces official images for the following platforms:"
+  - date: "2026-09-22"
+    field: dimensions.d08_hardware_platform.normalized.gpu
+    change: >-
+      Was unknown. A how-to page "Run CUDA workloads on Ubuntu Core", last updated
+      2026-07-21, documents NVIDIA CUDA on Core 24, and a Core 22 Tegra Jetson image
+      is listed on the testing-platforms page. Now records that, with Core 26 and
+      non-NVIDIA accelerators still unknown.
+    source:
+      url: https://documentation.ubuntu.com/core/how-to-guides/cuda-workloads/
+      type: vendor-docs
+      title: "Run CUDA workloads on Ubuntu Core"
+      retrieved: "2026-09-22"
+      quote: "This document will explain the key components of leveraging CUDA cores on NVIDIA GPUs."
+  - date: "2026-09-22"
+    field: dimensions.d08_hardware_platform.normalized.architectures_with_confirmed_released_core_images
+    change: >-
+      Listed amd64 and arm64. The Core 22 stable image directory carries
+      ubuntu-core-22-armhf+raspi.img.xz, so armhf has a released Core image for
+      Core 22 (and Core 20 per the testing-platforms page). Added with that
+      qualification. No armhf image exists for Core 24 or 26 in their directories,
+      and no riscv64 image exists in any of them.
+    source:
+      url: https://cdimage.ubuntu.com/ubuntu-core/22/stable/current/
+      type: release-notes
+      title: "Ubuntu Core 22 stable image directory"
+      retrieved: "2026-09-22"
+      quote: "ubuntu-core-22-armhf+raspi.img.xz"
+  - date: "2026-09-22"
+    field: dimensions.d07_kubernetes.normalized.distributions
+    change: >-
+      Listed "Canonical Kubernetes, the k8s snap" as a documented distribution on
+      Ubuntu Core, cited to its documentation landing page, which does not mention
+      Ubuntu Core. The store's stable channels for the k8s snap on amd64 and arm64
+      carried only classic-suffixed tracks on 2026-09-22, and this profile's d12
+      already records that classic snaps are not installable on Ubuntu Core.
+      Removed from distributions and recorded as an unknown and an open question.
+      MicroK8s is retained, now sourced to the Core 22 release notes and to its
+      strict-confinement tracks; the quote previously attributed to
+      snapcraft.io/microk8s was not on that page and was replaced with the page's
+      verbatim description; the claim that MicroK8s requires a 64-bit Ubuntu Core
+      version was not found on any page and was dropped.
+    source:
+      url: https://canonical.com/microk8s/docs/install-strict
+      type: official-docs
+      title: "MicroK8s, install strict"
+      retrieved: "2026-09-22"
+      quote: "Strictly confined MicroK8s is installed via the tracks that include strict in their name."
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.normalized.core_project
+    change: >-
+      The summary and notes said the ability to control what a refresh delivers is
+      commercial. The documentation site's refresh-control page, last updated
+      2026-08-21, documents gating snaps and validation sets that hold named snaps
+      at publisher-validated revisions through signed assertions, with a one-time
+      store-side setup. Added to core_project; d04 notes, d12 summary and notes and
+      the tradeoffs cost bullet reworded to record both paths.
+    source:
+      url: https://documentation.ubuntu.com/core/explanation/refresh-control/
+      type: vendor-docs
+      title: "Refresh control"
+      retrieved: "2026-09-22"
+      quote: "Refresh control allows specific snaps to be kept at a specified revision, even when a new or different revision of a snap is released."
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.normalized.commercial[2].self_hostable
+    change: >-
+      Landscape was unknown. Landscape's own documentation carries a self-hosted
+      server installation guide, and the Core 24 release notes state Landscape
+      supports air-gapped environments and is available for Core customers. Now
+      true, with the subscription terms for Core devices left as an unknown.
+    source:
+      url: https://ubuntu.com/landscape/docs/how-to-guides/landscape-installation-and-set-up/quickstart-installation/
+      type: vendor-docs
+      title: "Landscape quickstart installation, self-hosted"
+      retrieved: "2026-09-22"
+      quote: "ppa:landscape/self-hosted-26.04"
+  - date: "2026-09-22"
+    field: dimensions.d06_customization.unknowns
+    change: >-
+      Said no page assigns testing, vulnerability response or support for a
+      brand-built image. The documentation site's CVE remediation page, last updated
+      2026-08-21, assigns vulnerability response per snap: Canonical for base,
+      snapd, certified kernel and Canonical-maintained gadget snaps, the publisher
+      for application and third-party gadget snaps. The unknown, the d06 notes, the
+      d10 vulnerability_response value and the tradeoffs cost bullet now say so;
+      testing and support remain unassigned.
+    source:
+      url: https://documentation.ubuntu.com/core/explanation/cve-remediation/
+      type: vendor-docs
+      title: "CVE remediation in Ubuntu Core"
+      retrieved: "2026-09-22"
+      quote: "CVEs affecting those dependencies must be addressed by the snap publisher"
+  - date: "2026-09-22"
+    field: dimensions.d13_governance.normalized.contribution_diversity.value
+    change: >-
+      Recorded 311 contributors, 60,618 commits and 52,814 for the top twelve. On
+      2026-09-22 the contributors API without the anon parameter returned 300
+      contributors, 59,005 commits and 51,914 for the top twelve, reproducibly across
+      two runs; with anon=1 it returned 377 contributors and 63,625 commits. Neither
+      query reproduces the recorded figures and commit counts cannot fall, so the
+      earlier lookup was not the query the method described. Value and method now
+      state the exact query and both results.
+    source:
+      url: https://github.com/snapcore/snapd
+      type: source-repo
+      title: snapd
+      retrieved: "2026-09-22"
+      quote: "300 contributors and 59,005 commits recorded by the contributors API on 2026-09-22."
+  - date: "2026-09-22"
+    field: dimensions.d01_os_model.sources[0].quote
+    change: >-
+      Quote began "the base snap holds" and ended at "root file system."; the page
+      reads "base snap holds ... the root file system for Ubuntu Core images."
+      Made verbatim. Same class of fix applied to d05 sources[2] (curly quotes
+      around the 1 key) and to the d02 prose, which now cites the snapcraft
+      confinement page the "complete isolation" wording actually comes from.
+    source:
+      url: https://documentation.ubuntu.com/core/explanation/core-elements/inside-ubuntu-core/
+      type: vendor-docs
+      title: Inside Ubuntu Core
+      retrieved: "2026-09-22"
+      quote: "base snap holds the execution environment inside which applications run. It also serves as the root file system for Ubuntu Core images."
+  - date: "2026-10-05"
+    field: dimensions.d04_upgrade.normalized.self_hostable_update_server
+    change: >-
+      Added a value for the self-hostable update source column, which rendered as Not collected. The value is commercial-only. The documented on-premises source is Canonical's proprietary Enterprise Store. No open store server is published.
+    source:
+      url: https://documentation.ubuntu.com/core/explanation/stores/store-overview/
+      type: vendor-docs
+      title: "Snap store overview, on-premises proxy"
+      retrieved: "2026-10-05"
+      quote: >-
+        The Enterprise Store is an on-premise edge proxy that creates a local cache of downloaded files.
+  - date: "2026-10-05"
+    field: dimensions.d04_upgrade.normalized.maximum_deferral
+    change: >-
+      Said a refresh happens after at most 90 days whatever the hold, and that no configuration makes a device never update. The 90 day cap belongs to the refresh.hold system option. The cited page also documents snap refresh --hold, which accepts forever and defaults to forever. Changed maximum_deferral, can_be_disabled, the d04 and d12 notes, the d12 core_project entry and the costs line. The effect on the kernel, base, gadget and snapd snaps is recorded as unknown.
+    source:
+      url: https://snapcraft.io/docs/how-to-guides/manage-snaps/manage-updates/
+      type: official-docs
+      title: "Managing updates, snap refresh --hold"
+      retrieved: "2026-10-05"
+      quote: >-
+        To postpone updates indefinitely, a value of forever is also valid.
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Methodology section 9, rule 18: build-your-own responsibility is a status of the build-your-own capability. Moved cost c3 ('A brand that builds and signs its own image owns the result. Vulnerability response is assigned per snap, with application and third-party gadget snaps on their publisher, and testing and support for the assembled image are assigned nowhere that was found.') into buy b7, which now ends 'The brand owns the assembled image: vulnerability response is per snap, with application and third-party gadget snaps on their publisher, and testing and support for the image are assigned nowhere that was found.' Every fact kept."
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized
+    change: 'Removed ''loop-mounted'' from read_only_mechanism: no source read for this edition states a loop mount, so the value now says squashfs images presented read-only, as the documentation says and as snapd''s mount code treats squashfs. Turned the ephemeral string into a list limited to install and recover modes, as the documentation states. Added ephemeral_mechanism, immutability_disable_where and configurable_paths for the Mounts row.'
+    source:
+      url: https://documentation.ubuntu.com/core/explanation/core-elements/inside-ubuntu-core/
+      type: official-docs
+      title: 'Inside Ubuntu Core: ephemeral modes'
+      retrieved: '2026-10-12'
+      quote: will mount a temporary filesystem for this.
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: 'Added the add_software field. It records how an adopter adds software to the OS itself, not workloads. Values: Snaps. Each value has its sources, read on 2026-10-12.'
+    source:
+      url: https://documentation.ubuntu.com/core/explanation/core-elements/inside-ubuntu-core/
+      type: official-docs
+      title: 'Ubuntu Core docs: Inside Ubuntu Core'
+      retrieved: '2026-10-12'
+      quote: The kernel, boot assets, runtime environment, applications and device enablement capabilities are all delivered as snaps that are controlled by snapd

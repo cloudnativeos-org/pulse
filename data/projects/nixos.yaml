@@ -1,0 +1,1408 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: nixos
+name: NixOS
+homepage: https://nixos.org/
+repository: https://github.com/NixOS/nixpkgs
+collected_at: "2026-09-15"
+
+entry_kind:
+  - distribution
+  - framework
+
+category_fit:
+  comparable: adjacent
+  note: >-
+    NixOS is in this survey because the contrast is informative, not because it
+    is a peer of a Kubernetes node operating system. Its own front page says
+    "Declarative builds and deployments", and its three headline properties are
+    reproducible, declarative and reliable. The word immutable does not appear.
+
+    The honest split. On the package and closure layer NixOS is genuinely
+    immutable and hash-addressed, and that is stronger and older than most
+    systems here. On the running root it is not: / is an ordinary read-write
+    filesystem, /etc is writable, users can be added imperatively by default,
+    and packages can be installed imperatively.
+
+    The sharpest way to put it, and the reason this entry is adjacent: NixOS
+    guarantees that a configuration reproduces a system closure. It does not
+    guarantee that a running machine matches its configuration, and the documented
+    escape hatches are defaults rather than edge cases.
+
+    The project's own manual says the model is not an appliance model, in as many
+    words. That statement is quoted in d04.
+
+self_description:
+  text: >-
+    Nix is a tool that takes a unique approach to package management and system
+    configuration. Learn how to make reproducible, declarative and reliable
+    systems.
+  source:
+    url: https://nixos.org/
+    type: official-docs
+    title: NixOS home page
+    retrieved: "2026-09-22"
+
+version_observed:
+  version: "26.05"
+  released: "2026-05-30"
+  channel: stable
+  method: >-
+    Cross-checked three ways: the download page's current stable version, the
+    stable manual header, and the release notes header in the source repository.
+  source:
+    url: https://nixos.org/blog/announcements/2026/nixos-2605/
+    type: announcement
+    title: NixOS 26.05 release announcement
+    retrieved: "2026-09-22"
+    quote: >-
+      Published on Sat May 30 2026
+  additional_channels:
+    - channel: "previous stable"
+      version: "25.11"
+      released: "2025-11-30"
+      eol: "2026-06-30, already reached"
+
+taxonomy:
+  workload_scope: general-purpose-host
+  construction_model:
+    - framework
+    - package-repository-assembly
+  root_state_substrate:
+    - nix-store-generation
+  notes: >-
+    A general-purpose host in the fullest sense in this edition: it is a desktop
+    distribution, a server distribution and a build system, and Kubernetes is one
+    packaged service among more than 140,000 packages.
+
+    The construction model is a framework, and NixOS is the clearest example of
+    one here. The system is built from a declarative module evaluation rather
+    than assembled from a vendor image, and the adopter's configuration is the
+    artifact.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: general-purpose-host
+      ships_kubernetes: false
+      packages_kubernetes: true
+      core_claim: "reproducibility and declarative configuration, not root immutability"
+    summary: >-
+      A Linux distribution built by a purely functional package manager from a
+      declarative description, implemented inside the same repository as the
+      package collection it draws from.
+    notes: >-
+      The relationship between the three names matters for reading anything else
+      here. Nix is the build and package tool with its own language and store.
+      Nixpkgs is the package collection and also the repository in which NixOS
+      itself is implemented. NixOS is the distribution composed from modules and
+      packages defined there.
+
+      So NixOS is, structurally, a subdirectory of a package collection rather
+      than a separate product. That is unusual enough to be worth stating.
+
+      Scale, from the project's own release announcement: 2,842 contributors and
+      59,703 commits in the 26.05 cycle alone.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://nixos.org/manual/nixos/stable/
+        type: official-docs
+        title: NixOS manual preface
+        retrieved: "2026-09-22"
+        quote: >-
+          a Linux distribution based on the purely functional package management
+          system Nix, that is composed using modules and packages defined in the
+          Nixpkgs project
+      - url: https://github.com/NixOS/nixpkgs
+        type: source-repo
+        title: Nixpkgs README
+        retrieved: "2026-09-22"
+        quote: >-
+          It also implements NixOS, a purely-functional Linux distribution.
+      - url: https://nixos.org/blog/announcements/2026/nixos-2605/
+        type: announcement
+        title: NixOS 26.05 announcement
+        retrieved: "2026-09-22"
+        quote: >-
+          The 26.05 release was made possible due to the efforts of 2842
+          contributors, who authored 59703 commits since the previous release.
+
+  d02_immutability:
+    normalized:
+      read_only:
+        - /nix/store
+      read_only_mechanism: "read-only bind mount, which the build daemon undoes in order to write"
+      writable_and_persistent:
+        - /
+        - /etc
+        - /var
+        - /home
+      integrity_mechanism:
+        - read-only-store
+      dm_verity: "available as an opt-in module, undocumented in the manual"
+      drift_possible: true
+      drift_detection: "none"
+      mutable_users_default: true
+      etc_immutable_option: "opt-in and experimental"
+      configurable_paths:
+        value: 'yes'
+        evidence: DOCUMENTED
+        how: Set system.etc.overlay.mutable to false to mount /etc read-only. The /etc overlay is opt-in and the manual calls it experimental.
+        sources:
+          - url: https://github.com/NixOS/nixpkgs/blob/417538e/nixos/doc/manual/development/etc-overlay.section.md
+            type: source-repo
+            title: 'NixOS manual: /etc via overlay filesystem'
+            retrieved: '2026-10-12'
+            quote: you can also mount `/etc` immutably (i.e. read-only) by setting
+      mounts_sources:
+        - url: https://github.com/NixOS/nixpkgs/blob/417538e/nixos/modules/system/boot/stage-2.nix
+          type: source-repo
+          title: 'NixOS stage 2: the Nix store mount'
+          retrieved: '2026-10-12'
+          quote: '`ro` enforces immutability of the Nix store.'
+    summary: >-
+      The store is read-only, mounted with no-device and no-setuid, and the
+      documentation says that flag is what "enforces immutability of the Nix
+      store". The root filesystem is an ordinary writable ext4.
+    notes: >-
+      Three documented defaults make configuration drift possible, and calling
+      them out is the point of including NixOS in this survey.
+
+      Imperative package installation into a profile works and sits outside the
+      declarative configuration. The manual states the consequence directly:
+      other packages in the profile are not affected by a channel update, and
+      this is "the crucial difference with the declarative style of package
+      management".
+
+      Mutable users default to on, so accounts created with ordinary commands are
+      merged into the generated configuration on activation rather than being
+      replaced.
+
+      /etc is generated at activation but writable. An overlay variant that can
+      be made immutable exists, is opt-in, requires a recent kernel, and the
+      manual labels it experimental with a warning to enable it only if you are
+      confident you can recover the system if it breaks.
+
+      There is no drift detection and no reconciliation loop. The closest tool
+      compares against the new configuration rather than reporting divergence
+      from the declared current one.
+
+      One further caveat on the claim that a configuration identifies a machine:
+      a state-version option records the first NixOS version installed on that
+      particular machine and is deliberately never changed, so two machines with
+      identical configurations but different install histories can evaluate
+      differently.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/system/boot/stage-2.nix
+        type: source-repo
+        title: Nix store mount options
+        retrieved: "2026-09-22"
+        quote: >-
+          Defines the mount options used on a bind mount for the /nix/store ...
+          ro enforces immutability of the Nix store.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/configuration/ad-hoc-packages.section.md
+        type: official-docs
+        title: Ad-hoc packages
+        retrieved: "2026-09-22"
+        quote: >-
+          this is the crucial difference with the declarative style of package
+          management
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/config/users-groups.nix
+        type: source-repo
+        title: Mutable users default
+        retrieved: "2026-09-22"
+        quote: >-
+          If set to `true`, you are free to add new users and groups to the system
+          with the ordinary `useradd` and `groupadd` commands.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/development/etc-overlay.section.md
+        type: official-docs
+        title: /etc overlay
+        retrieved: "2026-09-22"
+        quote: >-
+          This is experimental and requires a kernel version >= 6.6 because it
+          uses new overlay features and relies on the new mount API.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/system/etc/etc.nix
+        type: source-repo
+        title: system.etc.overlay.enable option description
+        retrieved: "2026-09-22"
+        quote: >-
+          Note: This is currently experimental. Only enable this option if you're
+          confident that you can recover your system if it breaks.
+
+  d03_artifact:
+    normalized:
+      primary_artifact: "a closure, addressed by hash"
+      addressing: "input-addressed by default; content-addressing is an experimental feature"
+      oci_registry_distribution: "official tooling to produce OCI images; no path for a system closure"
+      mirrorable: true
+      signed: "required by default"
+      air_gapped_capable: true
+      kernel_initrd_userspace_together: false
+    summary: >-
+      There is no single OS release artifact. The representations are a channel,
+      a generation, a closure, and optionally a built disk image. A store path is
+      a hash of the package's entire build dependency graph.
+    notes: >-
+      Signature verification is required by default, which is a genuine strength
+      and better than several peers: the configuration requires a signature by a
+      trusted key for any non-content-addressed path added to the store, and the
+      default trusted key set is the project's own cache.
+
+      One precision worth getting right, because it is often stated loosely:
+      default store paths are input-addressed, a hash of the build graph, not
+      content-addressed. True content addressing is an experimental feature.
+
+      Air-gapped operation is genuinely well covered, with documented commands to
+      disable substitution, export and import store objects, and copy closures
+      over a network, including a documented removable-media workflow.
+
+      Official image building moved upstream in 2025 and the long-standing
+      community generator was archived in January 2026 as a result.
+
+      There is official tooling to produce OCI container images, which does not
+      use Docker to do it. No official mechanism publishes a NixOS system closure
+      as an OCI artifact.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://nix.dev/manual/nix/stable/command-ref/conf-file
+        type: official-docs
+        title: Nix configuration, require-sigs and trusted keys
+        retrieved: "2026-09-22"
+        quote: >-
+          any non-content-addressed path added or copied to the Nix store must
+          have a signature by a trusted key
+      - url: https://nix.dev/manual/nix/stable/introduction
+        type: official-docs
+        title: Nix introduction, store paths
+        retrieved: "2026-09-22"
+        quote: >-
+          it's a cryptographic hash of the package's build dependency graph
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/installation/building-images-via-nixos-rebuild-build-image.chapter.md
+        type: official-docs
+        title: Building images
+        retrieved: "2026-09-22"
+        quote: >-
+          All of those images can be built via both, their `system.build.image`
+          attribute and the `nixos-rebuild build-image` command.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/doc/build-helpers/images/dockertools.section.md
+        type: official-docs
+        title: dockerTools
+        retrieved: "2026-09-22"
+        quote: >-
+          Docker itself is not used to perform any of the operations done by
+          these functions.
+    unknowns:
+      - "No official mechanism to publish or consume a NixOS system closure as an OCI artifact."
+
+  d04_upgrade:
+    normalized:
+      mechanism:
+        - generation-switch
+      atomicity: "the build and the profile symlink swap are atomic; activation of the running system is not"
+      initiator: "operator, or a scheduled auto-upgrade unit"
+      requires_kubernetes: false
+      requires_vendor_infrastructure: false
+      artifact_verification: "signature required by default"
+      running_filesystem_changed: true
+    summary: >-
+      A new generation is built, the profile symlink is swapped, the bootloader
+      gains an entry, and then an ordered sequence of stops, activation, reloads
+      and restarts brings the running system to the new state.
+    notes: >-
+      What is atomic and what is not deserves precision, because this dimension
+      is often overstated in both directions. Store additions never overwrite, so
+      there is no window in which a package is half-old and half-new. The profile
+      symlink swap is atomic. The activation of a running system is not: it is a
+      documented ordered action list that can leave units failed, and the tool's
+      final step is to report which units failed and which newly started.
+
+      Four actions separate build from activation from boot-default cleanly,
+      which is unusually fine-grained control: build only, build and make the
+      boot default without activating, build and activate without changing the
+      boot default, or all three.
+
+      The manual states plainly that this model is not for appliances: "The
+      generation based update mechanism of NixOS is not suited for appliances.
+      Updates of appliances are usually either performed by replacing the entire
+      image with a new one or by updating partitions via an A/B scheme." That is
+      the project locating itself relative to the rest of this survey, in its own
+      words.
+
+      Upgrades work offline if the closure is already present. Flakes, the newer
+      input-pinning mechanism that most modern tooling assumes, remain an
+      experimental feature that the Nix manual says can be changed or removed at
+      any time.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/development/what-happens-during-a-system-switch.chapter.md
+        type: official-docs
+        title: What happens during a system switch
+        retrieved: "2026-09-22"
+        quote: >-
+          Inspect what changed during these actions and print units that failed
+          and that were newly started
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/installation/building-images-via-systemd-repart.chapter.md
+        type: official-docs
+        title: Building images via systemd-repart
+        retrieved: "2026-09-22"
+        quote: >-
+          The generation based update mechanism of NixOS is not suited for
+          appliances.
+      - url: https://nix.dev/manual/nix/stable/development/experimental-features
+        type: official-docs
+        title: Experimental features
+        retrieved: "2026-09-22"
+        quote: >-
+          Experimental features are considered unstable, which means that they
+          can be changed or removed at any time.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/installation/upgrading.chapter.md
+        type: official-docs
+        title: Upgrading
+        retrieved: "2026-09-22"
+        quote: >-
+          If `allowReboot` is `true`, then the system will automatically reboot
+          if the new generation contains a different kernel, initrd or kernel
+          modules.
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: available
+      rollback_to_arbitrary_version: available
+      automatic_rollback_on_boot_failure: "none by default; opt-in boot counting on one bootloader"
+      retained_versions: "all, until garbage collected"
+      recovery_environment: "boot menu of every retained generation"
+      factory_reset: unknown
+      network_independent_recovery: "yes"
+    summary: >-
+      Every previous generation stays bootable until garbage collected, and they
+      appear in the boot menu. That is the deepest rollback capability in this
+      edition by a wide margin, and it needs no network.
+    notes: >-
+      The contrast with the A/B systems runs in both directions and both halves
+      matter.
+
+      In NixOS's favour: A/B systems retain one previous version and NixOS
+      retains all of them, selectable from the boot menu, with a documented note
+      that this is especially useful if the new configuration fails to boot.
+      Rollback is local, needs no network, and can reach far back rather than one
+      step.
+
+      Against it: there is no automatic rollback by default. Boot counting exists
+      as an opt-in option on the systemd bootloader, defaulting to off with three
+      attempts when enabled. No equivalent was found for the other bootloader,
+      whose documented recovery path is a human selecting an older generation.
+
+      So NixOS gives an operator more to choose from and nothing that chooses for
+      them.
+
+      Retention is unbounded by default, which is its own operational hazard: the
+      systemd bootloader's configuration limit defaults to unlimited and the
+      other defaults to 100 entries, and the manual warns about the boot
+      partition filling up. Ordinary garbage collection deliberately does not
+      remove the ability to roll back; a separate flag does.
+
+      No factory reset facility is documented.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/administration/rollback.section.md
+        type: official-docs
+        title: Rolling back configuration changes
+        retrieved: "2026-09-22"
+        quote: >-
+          the GRUB boot manager allows you to boot into any previous
+          configuration that hasn't been garbage-collected ... This is especially
+          useful if the new configuration fails to boot.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/system/boot/loader/systemd-boot/systemd-boot.nix
+        type: source-repo
+        title: Boot counting option, default off
+        retrieved: "2026-09-22"
+        quote: >-
+          New boot entries are written with a boot counter in the file name. On
+          each boot, systemd-boot decrements the counter
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/administration/cleaning-store.chapter.md
+        type: official-docs
+        title: Cleaning the store
+        retrieved: "2026-09-22"
+        quote: >-
+          The commands above do not remove garbage collector roots ... Thus they
+          do not remove the ability to roll back to previous configurations.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/administration/boot-problems.section.md
+        type: official-docs
+        title: Boot problems
+        retrieved: "2026-09-22"
+        quote: >-
+          If NixOS fails to boot, there are a number of kernel command line
+          parameters that may help you to identify or fix the issue.
+    unknowns:
+      - "No factory reset facility is documented."
+      - "No boot counting or automatic rollback was found for the GRUB path."
+
+  d06_customization:
+    normalized:
+      runtime_package_install: available
+      mechanisms:
+        - module-system
+        - overlays-and-overrides
+        - custom-kernel-and-modules
+        - image-building
+        - imperative-profiles
+      customization_points:
+        - build-time
+        - activation
+        - runtime
+      kernel_modules: "first-class, including out-of-tree and kernel configuration changes"
+      gpu: "proprietary drivers available but unfree, and therefore not built or cached by project CI"
+    summary: >-
+      The most complete customization model in this edition. The module system,
+      overlays and package overrides let an adopter change anything, including
+      the kernel and its configuration, declaratively.
+    notes: >-
+      Kernel work is genuinely first-class rather than an escape hatch: selecting
+      a kernel also swaps packages tied to that kernel version such as video
+      drivers, out-of-tree modules have declared options, kernel configuration
+      can be changed by override, and Rust module support is documented.
+
+      Two documented limits are worth recording because they bite in practice.
+      First, the project maintains only actively supported kernel versions, and
+      non-longterm kernels are removed after upstream abandons them, explicitly
+      including in stable releases. Second, unfree software, which includes
+      proprietary GPU drivers, is not tested or built in the project's continuous
+      integration and therefore is not cached. An adopter builds those locally,
+      which on a GPU driver is a real cost.
+
+      Imperative installation exists and interacts with declarative state in a
+      documented way, covered under d02.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/configuration/linux-kernel.chapter.md
+        type: official-docs
+        title: Linux kernel configuration
+        retrieved: "2026-09-22"
+        quote: >-
+          This means that a non-longterm kernel will be removed after it's
+          abandoned by the kernel developers, even on stable NixOS versions.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/doc/using/configuration.chapter.md
+        type: official-docs
+        title: Nixpkgs configuration, unfree packages
+        retrieved: "2026-09-22"
+        quote: >-
+          Unfree software is not tested or built in Nixpkgs continuous
+          integration, and therefore not cached.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/doc/using/overlays.chapter.md
+        type: official-docs
+        title: Overlays
+        retrieved: "2026-09-22"
+        quote: >-
+          Overlays are used to add layers in the fixed-point used by Nixpkgs to
+          compose the set of all packages.
+
+  d07_kubernetes:
+    normalized:
+      requirement: unrelated
+      bundled: "none"
+      independent_lifecycle: partial
+      os_manages_kubernetes: "no"
+      kubernetes_manages_os: "none"
+      distributions:
+        - "upstream Kubernetes, via an in-tree module"
+        - k3s
+        - rke2
+    summary: >-
+      Unrelated. Kubernetes is packaged as ordinary in-tree service modules,
+      including upstream Kubernetes, k3s and rke2, and nothing in the system
+      requires it.
+    notes: >-
+      The in-tree upstream module builds a cluster from NixOS options with roles
+      and optional automatic certificate setup, rather than wrapping the usual
+      bootstrap tool. No module based on that tool was found.
+
+      Lifecycle independence is partial by inference rather than by statement:
+      Kubernetes arrives as ordinary packages pinned by the same channel or lock
+      as everything else, so advancing the system advances both unless the
+      adopter pins Kubernetes separately through an override. No primary source
+      states a decoupling guarantee either way.
+
+      No official mechanism exists for Kubernetes to manage the NixOS lifecycle.
+      The only official lifecycle drivers are the rebuild tool, locally or
+      against a remote host, and a scheduled auto-upgrade unit.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/cluster/kubernetes/default.nix
+        type: source-repo
+        title: Kubernetes module
+        retrieved: "2026-09-22"
+        quote: >-
+          Kubernetes role that this machine should take.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/cluster/rancher/k3s.nix
+        type: source-repo
+        title: k3s module
+        retrieved: "2026-09-22"
+        quote: >-
+          Whether k3s should run as a server or agent.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/cluster/rancher/rke2.nix
+        type: source-repo
+        title: rke2 module
+        retrieved: "2026-09-22"
+        quote: >-
+          Whether rke2 should run as a server or agent.
+    unknowns:
+      - "No official mechanism for a Kubernetes control plane to drive NixOS node upgrades."
+      - "No primary source states whether the OS and Kubernetes can be upgraded independently."
+
+  d08_hardware_platform:
+    normalized:
+      architectures_tier_1:
+        - x86_64-linux
+      architectures_tier_2:
+        - aarch64-linux
+      architectures_tier_3:
+        - armv6l-linux
+        - armv7l-linux
+        - i686-linux
+      architectures_unmandated:
+        - riscv64-linux
+        - powerpc64le-linux
+      installer_images:
+        - x86_64
+        - aarch64
+      platforms:
+        - bare-metal
+        - virtual-machines
+        - public-cloud
+        - sbc
+      gpu: "proprietary drivers available, unfree, not cached"
+      tpm: "TPM2 LUKS unlock supported; no manual chapter"
+      extension_mechanism: "a hardware module collection in the project's own organization"
+    summary: >-
+      Support is formally tiered by a merged design document, and the live tier
+      assignment lives in a source file. riscv64 and ppc64le are present with
+      working toolchains but sit outside the mandated tiers.
+    notes: >-
+      The tiering is a real strength for anyone planning, because it states what
+      a tier commits to: on tier 1 problems can block updates for as long as
+      needed, on tier 2 updates are expected not to break the build, on tier 3
+      updates might break builds.
+
+      riscv64 is notable in this edition as the only entry where the architecture
+      is genuinely usable rather than absent, with a working toolchain, even
+      though it carries no mandated tier commitment.
+
+      Two currency problems. The design document's own platform table is dated
+      2019 and is stale; the source file is the live truth and the document does
+      not point to it. And the announcement for the current release states it is
+      the last to support Intel macOS.
+
+      The hardware module collection covering Raspberry Pi, single-board
+      computers and many laptops sits in the project's own organization but
+      carries no stated support or stability guarantee, which is worth knowing
+      before relying on it.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/NixOS/nixpkgs/blob/master/lib/systems/flake-systems.nix
+        type: source-repo
+        title: Live platform tier assignment
+        retrieved: "2026-09-22"
+        quote: >-
+          Other platforms with sufficient support in stdenv which is not formally
+          mandated by their platform tier.
+      - url: https://github.com/NixOS/rfcs/blob/master/rfcs/0046-platform-support-tiers.md
+        type: design-doc
+        title: "RFC 46, platform support tiers"
+        retrieved: "2026-09-22"
+        quote: >-
+          Problems on these platforms can block updates for as long as necessary
+          to resolve the issue.
+      - url: https://nixos.org/download/
+        type: official-docs
+        title: Downloads
+        retrieved: "2026-09-22"
+        quote: >-
+          We publish AMIs to all AWS regions for both x86_64 and arm64 on a
+          weekly basis.
+      - url: https://github.com/NixOS/nixos-hardware
+        type: source-repo
+        title: nixos-hardware
+        retrieved: "2026-09-22"
+        quote: >-
+          NixOS profiles to optimize settings for different hardware.
+    unknowns:
+      - "The tier commitment, if any, for riscv64 and ppc64le. They sit outside the mandated tiers in the live source."
+
+  d09_provisioning:
+    normalized:
+      methods:
+        - iso-installer
+        - pxe-netboot
+        - kexec
+        - cloud-image
+        - install-from-another-distribution
+      config_mechanism: "declarative configuration evaluated at build time"
+      config_reapplied: "on every rebuild"
+      zero_touch: unknown
+    summary: >-
+      A broad set of official paths: ISO installer, network boot, kexec, cloud
+      images, and installing from another running distribution. Weekly cloud
+      images are published for two architectures.
+    notes: >-
+      A gap worth recording for anyone planning bare-metal fleet provisioning:
+      network boot artifacts are built rather than published, and the manual says
+      the project may begin making them available as build products in future,
+      which means today there is nothing official to point a boot server at.
+
+      The most widely used remote-install and disk-partitioning tooling is
+      community rather than official, living outside the project's own
+      organization and carrying no stability statement. That community tool's
+      own README states the underlying gap, describing disk partitioning and
+      formatting as the one manual step in an otherwise fully declared system,
+      and the project's manual confirms that the installer does no partitioning
+      or formatting.
+
+      No official zero-touch or auto-enrolment flow was found.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/installation/installing-pxe.section.md
+        type: official-docs
+        title: Installing via PXE
+        retrieved: "2026-09-22"
+        quote: >-
+          In the future we may begin making these files available as build
+          products from hydra
+      - url: https://nixos.org/download/
+        type: official-docs
+        title: Downloads and cloud images
+        retrieved: "2026-09-22"
+        quote: >-
+          We publish AMIs to all AWS regions for both x86_64 and arm64 on a
+          weekly basis.
+      - url: https://github.com/nix-community/disko
+        type: source-repo
+        title: disko, community partitioning tool
+        retrieved: "2026-09-22"
+        quote: >-
+          NixOS is a Linux distribution where everything is described as code,
+          with one exception: during installation, the disk partitioning and
+          formatting are manual steps.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/installation/installing.chapter.md
+        type: official-docs
+        title: Installation, partitioning and formatting
+        retrieved: "2026-09-22"
+        quote: >-
+          The NixOS installer doesn't do any partitioning or formatting
+    unknowns:
+      - "No official published network boot artifacts."
+      - "No official zero-touch provisioning flow."
+
+  d10_security:
+    normalized:
+      secure_boot: "none by default; a community project provides it"
+      measured_boot: "opt-in, through the same community project"
+      tpm: "TPM2 LUKS unlock, options exist but no manual chapter"
+      integrity: read-only-store
+      dm_verity: "an official opt-in module exists, undocumented in the manual"
+      disk_encryption: "LUKS, opt-in, with hardware token options in tree"
+      artifact_verification: "signature required by default"
+      reproducible_builds: "a stated project goal with a dedicated site"
+      sbom: unknown
+      provenance: unknown
+      fips: "none"
+      security_team_size: 2
+      default_on:
+        - signature-required-substitution
+        - read-only-store-nodev-nosuid
+        - build-sandboxing
+      opt_in:
+        - disk-encryption
+        - secure-boot-via-community-project
+        - dm-verity-image-module
+        - boot-counting
+    summary: >-
+      Signature verification of substituted binaries is required by default,
+      builds are sandboxed by default, and the store is mounted read-only with
+      no-device and no-setuid. Secure Boot is not available by default.
+    notes: >-
+      Secure Boot is the clearest gap. Neither bootloader module defines Secure
+      Boot options. The project that provides it, including measured boot, lives
+      in the community organization and its README has long described upstreaming
+      as work in progress, which was still the case at this snapshot.
+
+      An official dm-verity image module exists in the tree in both recent
+      releases and is substantial, building a verity-protected store with the
+      root hash embedded in a unified kernel image. It is undocumented in the
+      manual and discoverable only by reading source, and nothing documents
+      whether the root hash is signed.
+
+      Reproducible builds are a genuine and long-standing strength in ambition,
+      with a dedicated official site stating the goal and four published health
+      check reports. But no percentage figures are published, and the linked
+      dashboard's most recent evaluation at this snapshot was roughly eight
+      months old. The claim is documented; the current measurement is not.
+
+      No SBOM, provenance or attestation documentation exists. FIPS is not
+      available: the request was closed as not planned and the pull request adding
+      it has been open since 2025.
+
+      The security team is two named people with published keys. No response-time
+      commitment, embargo policy or numbering-authority status is published. There
+      is a real vulnerability tracking service run in the project's own
+      organization, which is more infrastructure than most community projects
+      have.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://nix.dev/manual/nix/stable/command-ref/conf-file
+        type: official-docs
+        title: Nix configuration, signatures and sandboxing
+        retrieved: "2026-09-22"
+        quote: >-
+          If set to `true` (the default), any non-content-addressed path added
+          or copied to the Nix store must have a signature by a trusted key.
+      - url: https://github.com/nix-community/lanzaboote
+        type: source-repo
+        title: lanzaboote, community Secure Boot
+        retrieved: "2026-09-22"
+        quote: >-
+          We are currently working on making Lanzaboote work out of the box in
+          upstream Nixpkgs.
+      - url: https://github.com/NixOS/nixpkgs/blob/release-26.05/nixos/modules/image/repart-verity-store.nix
+        type: source-repo
+        title: dm-verity store image module
+        retrieved: "2026-09-22"
+        quote: >-
+          opinionated module that can be used to build nixos images with a
+          dm-verity protected nix store
+      - url: https://nixos.org/community/teams/security/
+        type: governance-doc
+        title: Security team
+        retrieved: "2026-09-22"
+        quote: >-
+          Security is a priority for the NixOS community.
+      - url: https://reproducible.nixos.org/
+        type: official-docs
+        title: Reproducible builds
+        retrieved: "2026-09-22"
+        quote: >-
+          yields bit-by-bit identical results, this gives confidence that the
+          build infrastructure was not compromised
+      - url: https://github.com/NixOS/nixpkgs/issues/324013
+        type: source-repo
+        title: FIPS module request for openssl, closed as not planned 2025-09-18
+        retrieved: "2026-09-22"
+        quote: >-
+          Package request: optional FIPS module support for openssl 3.x
+      - url: https://github.com/NixOS/nixpkgs/pull/453273
+        type: source-repo
+        title: openssl FIPS pull request, open since 2025-10-18
+        retrieved: "2026-09-22"
+        quote: >-
+          openssl: add enableFIPS feature
+    unknowns:
+      - "No published current reproducibility percentage; the linked dashboard's newest evaluation was months old at this snapshot."
+      - "No SBOM, provenance or attestation documentation."
+      - "Whether the dm-verity module's root hash is signed, and whether the module is considered supported."
+      - "No published security response commitment, embargo policy or numbering-authority status."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: available
+      local_shell: available
+      serial_console: "configurable, no manual chapter"
+      package_manager_at_runtime: available
+      remote_deploy: "built in, targeting a remote host"
+      support_bundle: unknown
+      works_without_kubernetes: "yes"
+    summary: >-
+      A conventional systemd userspace with everything present, plus a built-in
+      remote deployment capability: the rebuild tool can build on one host and
+      activate on another.
+    notes: >-
+      Remote deployment being a core capability rather than an add-on is a
+      genuine differentiator here, and it is the foundation most fleet tooling in
+      this ecosystem builds on.
+
+      Debugging build and evaluation failures has real documented tooling: dry
+      build and dry activate to preview, a read-eval-print loop over the
+      configuration, keeping a failed build's directory, an interactive hook that
+      drops a shell at the point of failure, and environment variables that make
+      the switch verbose. An official troubleshooting guide covers six named
+      scenarios including database corruption recovery.
+
+      There is no support bundle or diagnostic collection tool.
+
+      Boot problem recovery is documented, including rescue shells at defined
+      initrd stages and activating the rescue target from the console.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ni/nixos-rebuild-ng/nixos-rebuild.8.scd
+        type: official-docs
+        title: nixos-rebuild manual page
+        retrieved: "2026-09-22"
+        quote: >-
+          By setting this to something other than an empty string, the system
+          activation will happen on the remote host instead of the local
+          machine.
+      - url: https://nix.dev/guides/troubleshooting.html
+        type: official-docs
+        title: Troubleshooting
+        retrieved: "2026-09-22"
+        quote: >-
+          This page is a collection of tips to solve problems you may encounter
+          when using Nix.
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/administration/boot-problems.section.md
+        type: official-docs
+        title: Boot problems
+        retrieved: "2026-09-22"
+        quote: >-
+          If NixOS fails to boot, there are a number of kernel command line
+          parameters that may help you to identify or fix the issue.
+    unknowns:
+      - "No support bundle or diagnostic collection tool."
+      - "No serial console or journald manual chapter, despite both being primary tools on headless hardware."
+
+  d12_fleet_management:
+    normalized:
+      core_project:
+        - "Remote build and remote activation against a target host"
+        - "A scheduled auto-upgrade unit, with optional reboot when the kernel changes"
+        - "Every previous generation retained and bootable"
+      oss_companion:
+        - name: NixOps
+          repo: https://github.com/NixOS/nixops
+          license: LGPL-3.0
+          org: NixOS
+          note: "In the project's own organization. Its README states it is in low-maintenance mode and probably not suited for new projects, and points at a rewrite."
+        - name: NixOps4
+          repo: https://github.com/nixops4/nixops4
+          license: LGPL-2.1
+          org: nixops4
+          note: "A separate organization, not the project's own. Status stated as in development, with no release. Credits external project funding."
+        - name: Colmena
+          repo: https://github.com/nix-community/colmena
+          license: MIT
+          org: nix-community
+          note: "Community organization. Stateless deployment tool. No formal stability declaration."
+        - name: deploy-rs
+          repo: https://github.com/serokell/deploy-rs
+          license: MPL-2.0
+          org: serokell
+          note: "A company's project, not in any Nix-ecosystem organization, and it makes no official-status claim."
+      commercial:
+        - name: Determinate Systems
+          vendor: Determinate Systems
+          license: commercial
+          self_hostable: false
+          note: "Vendor-stated offerings include a validated Nix distribution, a flake platform with binary caching and access control, commercially supported packages with a stated seven-day vulnerability commitment, and enterprise support with guaranteed response times. Vendor claims, not endorsed by the project."
+        - name: Flox
+          vendor: Flox
+          license: commercial
+          self_hostable: false
+          note: "Vendor-stated enterprise platform with single sign-on, private and air-gapped distribution, signed bills of materials, and support with a service level agreement. Vendor claims, not endorsed by the project."
+      cluster_api:
+        os_specific_provider: "none"
+        maintainer: not-applicable
+        upstream_provider_list: "not listed under any provider type"
+        provisions: not-applicable
+        bootstrap_target: "none. The services.kubernetes module configures the control-plane components directly and does not use kubeadm, which the kubeadm bootstrap provider requires."
+        image_builder_target: "none"
+        upstream_interest: "no Cluster API or image-builder issue has ever named this system"
+    summary: >-
+      The core gives remote deployment and a self-upgrade timer. Everything above
+      that is companion tooling, and the notable fact is how scattered it is
+      across four different organizations with differing maturity.
+    notes: >-
+      The organizational spread is the finding here, because it is what an
+      adopter has to navigate. The tool in the project's own organization is
+      self-described as low maintenance and not suited for new projects. Its
+      intended successor is in a different organization and in development with
+      no release. The two most used alternatives sit in a community organization
+      and in a company's organization respectively, neither claiming official
+      status.
+
+      There is no in-tree inventory, orchestration, staged rollout or health
+      gating.
+
+      Both commercial vendors publish concrete enterprise commitments including
+      response times and, in one case, a stated vulnerability response window.
+      Those are vendor claims recorded as such, and neither is endorsed by the
+      project.
+
+      Cluster API has no presence here, and the absence is searched rather than
+      assumed. No provider of any type exists, by the project or by anyone else.
+      Nothing appears in the provider list. No issue on Cluster API or on
+      image-builder has ever named this system, so there is not even a rejected
+      request to record. There is no image-builder target.
+
+      The structural reason is worth stating, because it explains why nobody has
+      tried. The kubeadm bootstrap provider drives kubeadm. This project's own
+      Kubernetes module is a from-scratch implementation that configures the
+      API server, controller manager, scheduler, kubelet, proxy and its own
+      public key infrastructure directly as units, and contains no kubeadm
+      anywhere. So the native Kubernetes story on this system and the mechanism
+      Cluster API's default bootstrap provider needs point in opposite
+      directions.
+
+      The relationship runs the other way instead. The package collection ships
+      clusterctl, so this system consumes Cluster API as a client and supplies
+      nothing to it. Whether a hand-built image works under the kubeadm
+      bootstrap provider is recorded as unknown: third-party write-ups assert it
+      does, no primary source states it either way, and marketing and blog
+      sources are not admissible here.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/NixOS/nixops
+        type: source-repo
+        title: NixOps
+        retrieved: "2026-09-22"
+        quote: >-
+          NixOps is in low-maintenance mode and probably not suited for new
+          projects. Use at your own risks.
+      - url: https://github.com/nixops4/nixops4
+        type: source-repo
+        title: NixOps4
+        retrieved: "2026-09-22"
+        quote: >-
+          Status: in development
+      - url: https://github.com/nix-community/colmena
+        type: source-repo
+        title: Colmena
+        retrieved: "2026-09-22"
+        quote: >-
+          Colmena is a simple, stateless NixOS deployment tool modeled after
+          NixOps and morph, written in Rust.
+      - url: https://github.com/serokell/deploy-rs
+        type: source-repo
+        title: deploy-rs README, licence header
+        retrieved: "2026-09-22"
+        quote: >-
+          SPDX-License-Identifier: MPL-2.0
+      - url: https://determinate.systems/
+        type: vendor-docs
+        title: Determinate Systems
+        retrieved: "2026-09-22"
+        quote: >-
+          a 7-day CVE SLA
+      - url: https://flox.dev/
+        type: vendor-docs
+        title: Flox
+        retrieved: "2026-09-22"
+        quote: >-
+          Every environment carries a signed bill of materials and a full
+          lineage
+
+      - url: https://cluster-api.sigs.k8s.io/reference/providers
+        type: official-docs
+        title: Cluster API provider list, searched for this project
+        retrieved: "2026-09-22"
+      - url: https://wiki.nixos.org/wiki/Kubernetes
+        type: official-docs
+        title: NixOS wiki Kubernetes page, which names neither Cluster API nor kubeadm
+        retrieved: "2026-09-22"
+      - url: https://github.com/kubernetes-sigs/image-builder
+        type: source-repo
+        title: image-builder supported operating system targets
+        retrieved: "2026-09-22"
+  d13_governance:
+    normalized:
+      license: "MIT for Nixpkgs; LGPL-2.1 for Nix"
+      open_source: true
+      open_governance: documented
+      vendor_neutral_ownership: foundation-held
+      foundation:
+        name: "NixOS Foundation"
+        level: "registered non-profit foundation, Netherlands"
+        since: null
+      trademark_holder: "registered European Union trade mark, attributed to the Foundation Board"
+      primary_commercial_sponsor: "none identified"
+      contribution_diversity:
+        method: >-
+          The project's own release announcement publishes a contributor count
+          for the release cycle. Steering committee members' employers are
+          published on the official team page. No maintainer count is published
+          and none is derived here.
+        value: >-
+          2,842 contributors in the 26.05 cycle, the largest figure in this
+          edition by an order of magnitude. The seven steering committee members
+          list seven different employers, including three companies unrelated to
+          each other, an academic institution and a continuous-integration
+          vendor.
+    summary: >-
+      MIT and LGPL licensed, owned by a registered non-profit foundation, with a
+      written constitution establishing an elected steering committee, defined
+      terms, voter eligibility rules and amendment thresholds.
+    notes: >-
+      This is the strongest governance position in the edition on three of the
+      four properties, and it is worth being concrete rather than complimentary.
+
+      Open governance: a written constitution exists, establishing a
+      seven-member elected steering committee with two-year terms, half the
+      seats elected each year, and a two-consecutive-term limit, a foundation board, voter eligibility defined
+      by a contribution threshold with an exceptions process, and amendment
+      thresholds including a ninety percent poll requirement for changes to
+      community values. A separate design-proposal process with defined statuses
+      handles substantial technical changes.
+
+      Vendor-neutral ownership: foundation-held, and the trademark is now a
+      registered European Union mark.
+
+      Contribution diversity: 2,842 contributors in one six-month cycle, and a
+      steering committee whose members work for seven different employers. No
+      single commercial sponsor was identified.
+
+      Two open items are recorded because the project tracks them itself: a
+      trademark policy is an open issue even though the mark is registered, and
+      the constitution carries no ratification date.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/NixOS/org/blob/main/doc/constitution.md
+        type: governance-doc
+        title: NixOS constitution
+        retrieved: "2026-09-22"
+        quote: >-
+          The SC consists of 7 elected members. Regular elections are once a
+          year, with half (alternating rounding every year) of the seats up for
+          election, such that each member holds a seat for one term of at most 2
+          years before it is up for election again. Members can at most serve
+          two consecutive terms.
+      - url: https://nixos.org/community/
+        type: governance-doc
+        title: Community, foundation and board
+        retrieved: "2026-09-22"
+        quote: >-
+          The NixOS Foundation is a registered non-profit organisation at the
+          Chamber of commerce (Kamer van Koophandel) in Utrecht, The
+          Netherlands.
+      - url: https://nixos.org/community/teams/steering-committee/
+        type: governance-doc
+        title: Steering committee and member affiliations
+        retrieved: "2026-09-22"
+        quote: >-
+          The SC is responsible for guiding projects in alignment with Nix
+          Community Values.
+      - url: https://discourse.nixos.org/t/announcing-nixos-trademark/78585
+        type: announcement
+        title: Trademark registration
+        retrieved: "2026-09-22"
+        quote: >-
+          NixOS has officially received its first trademark in community
+          history!
+      - url: https://github.com/NixOS/nixpkgs/blob/master/COPYING
+        type: governance-doc
+        title: Nixpkgs licence
+        retrieved: "2026-09-22"
+        quote: >-
+          Permission is hereby granted, free of charge, to any person obtaining
+          a copy of this software and associated documentation files
+    unknowns:
+      - "A trademark policy remains an open tracked item despite the mark being registered."
+      - "The constitution carries no ratification date."
+      - "No maintainer count is published and none is derivable from the maintainer registry."
+
+  d14_maturity:
+    normalized:
+      first_release: "2013-12-01"
+      current_version: "26.05"
+      current_version_date: "2026-05-30"
+      release_cadence: "twice yearly, May and November, established by a merged design proposal"
+      observed_intervals: "25 releases since 2013, holding the May and November pattern since 2021"
+      support_model: versioned-with-eol
+      support_window: "about seven months, giving roughly one month of overlap after the next release"
+      commercial_support: "none from the project; offered by third parties"
+    summary: >-
+      Thirteen years of releases on a twice-yearly cadence that a merged design
+      proposal established and the history confirms. A release is supported for
+      about seven months, so overlap after the next release is about one month.
+    notes: >-
+      The support window is narrow and it is announced per release rather than
+      codified. The current release's announcement gives both dates concretely:
+      the previous release reached end of life on a stated date, and the current
+      one receives fixes for seven months to a stated date. What does not exist
+      is a standing written policy, and requests for one have been open in the
+      tracker since 2018.
+
+      As at this snapshot, the current release is in support and the previous one
+      is already end of life.
+
+      Channels include a stable channel taking conservative updates only, an
+      unstable channel the documentation says is unsuitable for production, and
+      smaller faster-updating variants aimed at servers.
+
+      No commercial support is offered by the project or the foundation. Third
+      party vendors offer it, recorded under d12 as vendor claims.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://nixos.org/blog/announcements/2026/nixos-2605/
+        type: announcement
+        title: NixOS 26.05 announcement and support dates
+        retrieved: "2026-09-22"
+        quote: >-
+          will receive bugfixes and security updates for seven months (up until
+          2026-12-31)
+      - url: https://github.com/NixOS/rfcs/blob/master/rfcs/0080-nixos-release-schedule.md
+        type: design-doc
+        title: "RFC 80, NixOS release schedule"
+        retrieved: "2026-09-22"
+        quote: >-
+          all subsequent releases will occur six months apart following a YY.05
+          and YY.11 convention.
+      - url: https://nixos.org/blog/announcements/
+        type: announcement
+        title: Release announcement index
+        retrieved: "2026-09-22"
+        quote: >-
+          NixOS 13.10 released Published on Sun Dec 01 2013
+      - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/installation/upgrading.chapter.md
+        type: official-docs
+        title: Channels
+        retrieved: "2026-09-22"
+        quote: >-
+          It's not recommended for production systems.
+    unknowns:
+      - "No standing written support-window policy; windows are announced per release and requests for a policy have been open since 2018."
+
+tradeoffs:
+  buys:
+    - "Every previous generation stays bootable until garbage collected, selectable from the boot menu with no network."
+    - "A configuration that reproduces a system closure, with store paths addressed by a hash of the whole build dependency graph."
+    - "Signature verification of substituted binaries required by default, and build sandboxing on by default."
+    - "A customization model covering the kernel, kernel configuration, out-of-tree modules and any package, all declaratively and without leaving the supported path."
+    - "Remote build and remote activation built into the core tool, which the deployment tooling ecosystem builds on. Most deployment tooling assumes flakes, which the manual calls experimental and says can change or be removed at any time."
+    - "Documented offline operation, with commands to disable substitution and to export, import and copy closures, including over removable media."
+    - "A written constitution, an elected steering committee with term limits, foundation ownership, a registered trademark, and 2,842 contributors in one release cycle across many employers."
+    - "Formally tiered platform support that states what each tier commits to, and a usable riscv64 toolchain."
+  costs:
+    - "The running root is not immutable. / is writable, /etc is writable, users are mutable by default, and imperative package installation works. A configuration does not guarantee that a machine matches it."
+    - "No drift detection or reconciliation."
+    - "Automatic rollback needs boot counting, which is opt-in and is documented for one bootloader only."
+    - "Secure Boot is not in the project; it needs a community-maintained add-on."
+    - "System activation is a sequence of imperative steps that can leave units failed. Only the build and the symlink swap are atomic."
+    - "Generation retention is unbounded by default, and the bootloader limit defaults to unlimited. The documentation notes a risk of filling the boot partition."
+    - "A seven-month support window with about one month of overlap, announced per release rather than codified, with requests for a written policy open since 2018."
+    - "No published network boot artifacts."
+    - "NixOps, the fleet tool in the project's own organization, says it is in low-maintenance mode and probably not suited for new projects; its successor has no release."
+    - "A two-person security team with no published response commitment, no embargo policy and no numbering-authority statement. No FIPS."
+open_questions:
+  - "Is there a written, standing support-window policy planned, given the request has been open since 2018?"
+  - "Is the build daemon the only writer to the store on a running system, and is there a supported way to make it read-only to the daemon too?"
+  - "Is there intent to make the immutable /etc overlay non-experimental, or a supported profile?"
+  - "What is the current reproducibility percentage, and is the dashboard still being fed? Its newest evaluation was months old at this snapshot."
+  - "Does the project publish SBOMs, provenance or attestations, in what format, and can a third party verify one?"
+  - "Is the dm-verity image module considered supported, is its root hash signed, and why is it absent from the manual?"
+  - "Is the image and A/B update path intended to become a documented first-class deployment mode, given the manual says the generation model is not suited for appliances?"
+  - "Is boot counting expected to become the default, and is there any plan for it under the other bootloader?"
+  - "What remains before Secure Boot support lands upstream, and is there a target release?"
+  - "What response-time and embargo expectations apply to a report sent to the two-person security team, and is the project a numbering authority?"
+  - "What is the tier commitment for riscv64 and ppc64le, and will the design document's table be updated or replaced by the source file?"
+  - "Is the hardware module collection covered by any support or continuous-integration guarantee, or is being in the project's organization incidental?"
+  - "What is the intended division of labour between the successor deployment tool, the community alternatives, and remote activation? Will the successor move into the project's organization?"
+  - "When do flakes leave experimental status, and what is the migration commitment if the interface changes?"
+  - "Is there any planned mechanism for a Kubernetes control plane to drive NixOS node upgrades?"
+  - "Is the reproducibility dashboard at reproducibility.nixos.social still served? It returned no content on 2026-09-22, so the age of its newest evaluation could not be re-checked."
+  - "How many maintainers does the project have, and who employs them? No maintainer count or maintainer affiliation is published. The steering committee's employers are published."
+
+follow_up_research:
+  - FR-01
+  - FR-02
+  - FR-03
+  - FR-05
+  - FR-06
+  - FR-08
+  - FR-13
+  - FR-14
+  - FR-15
+  - FR-16
+  - FR-17
+
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Cost audit under methodology section 9, rule 15. c1: removed 'The documented escape hatches are defaults, not edge cases.' (N6); c0 records the writable defaults. c2 and c3 reworded to the limit; the upstreaming timeline in c3 is q8 (N1). c11: SBOM and provenance moved to q4, reworded as an unknown (N1)."
+  - date: "2026-09-22"
+    field: dimensions.d02_immutability.sources[3].quote
+    change: >-
+      The quote attributed to the /etc overlay manual section ("Only enable this
+      option if you're confident that you can recover your system if it
+      breaks") is not in that section, at master or at release-26.05, and the
+      section has not changed since 2025-07-24. It is the option description in
+      etc.nix. The manual section's own note is now quoted, and etc.nix is
+      added as a separate source carrying the original quote.
+    source:
+      url: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/system/etc/etc.nix
+      type: source-repo
+      title: system.etc.overlay.enable option description
+      retrieved: "2026-09-22"
+      quote: >-
+        Note: This is currently experimental. Only enable this option if you're
+        confident that you can recover your system if it breaks.
+  - date: "2026-09-22"
+    field: dimensions.d06_customization.sources[0].quote
+    change: >-
+      The recorded quote was a paraphrase, not the page text. The page has not
+      changed since 2025-08-30. Replaced with the verbatim sentence.
+    source:
+      url: https://github.com/NixOS/nixpkgs/blob/master/nixos/doc/manual/configuration/linux-kernel.chapter.md
+      type: official-docs
+      title: Linux kernel configuration
+      retrieved: "2026-09-22"
+      quote: >-
+        This means that a non-longterm kernel will be removed after it's
+        abandoned by the kernel developers, even on stable NixOS versions.
+  - date: "2026-09-22"
+    field: dimensions.d09_provisioning.notes
+    change: >-
+      The note attributed the "one manual step" statement to the project's own
+      manual. That sentence is in the disko README, a community tool. The note
+      now attributes it to the tool's README and cites the project manual for
+      the narrower fact that the installer does no partitioning or formatting.
+    source:
+      url: https://github.com/nix-community/disko
+      type: source-repo
+      title: disko README
+      retrieved: "2026-09-22"
+      quote: >-
+        during installation, the disk partitioning and formatting are manual
+        steps.
+  - date: "2026-09-22"
+    field: dimensions.d10_security.sources[2].quote
+    change: >-
+      The quote began "an opinionated module"; the source comment reads
+      "opinionated module". The stray word is removed.
+    source:
+      url: https://github.com/NixOS/nixpkgs/blob/release-26.05/nixos/modules/image/repart-verity-store.nix
+      type: source-repo
+      title: dm-verity store image module
+      retrieved: "2026-09-22"
+      quote: >-
+        opinionated module that can be used to build nixos images with a
+        dm-verity protected nix store
+  - date: "2026-09-22"
+    field: dimensions.d10_security.normalized.sbom
+    change: >-
+      Was "none". No primary source states that the project publishes no SBOM;
+      the value rested on not finding documentation. Recorded as unknown, which
+      is what the dimension's own unknowns list already said.
+    source:
+      url: https://reproducible.nixos.org/
+      type: official-docs
+      title: Reproducible builds
+      retrieved: "2026-09-22"
+      quote: >-
+        yields bit-by-bit identical results, this gives confidence that the
+        build infrastructure was not compromised
+  - date: "2026-09-22"
+    field: dimensions.d10_security.normalized.fips
+    change: >-
+      Value unchanged at "none". The claim that the request was closed as not
+      planned and that a pull request has been open since 2025 had no source
+      recorded. Both are now cited: issue 324013 closed as not planned on
+      2025-09-18, and pull request 453273 open since 2025-10-18.
+    source:
+      url: https://github.com/NixOS/nixpkgs/pull/453273
+      type: source-repo
+      title: openssl FIPS pull request
+      retrieved: "2026-09-22"
+      quote: >-
+        openssl: add enableFIPS feature
+  - date: "2026-09-22"
+    field: dimensions.d11_operations_debugging.sources[0].quote
+    change: >-
+      The recorded quote was a paraphrase, not the manual page text. The page
+      has not changed since 2026-07-07. Replaced with the verbatim sentence.
+    source:
+      url: https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ni/nixos-rebuild-ng/nixos-rebuild.8.scd
+      type: official-docs
+      title: nixos-rebuild manual page
+      retrieved: "2026-09-22"
+      quote: >-
+        By setting this to something other than an empty string, the system
+        activation will happen on the remote host instead of the local
+        machine.
+  - date: "2026-09-22"
+    field: dimensions.d11_operations_debugging.normalized.support_bundle
+    change: >-
+      Was "none". No primary source states that no support bundle tool exists;
+      the value rested on not finding one. Recorded as unknown, matching the
+      dimension's unknowns list.
+    source:
+      url: https://nix.dev/guides/troubleshooting.html
+      type: official-docs
+      title: Troubleshooting
+      retrieved: "2026-09-22"
+      quote: >-
+        This page is a collection of tips to solve problems you may encounter
+        when using Nix.
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.normalized.oss_companion[1].license
+    change: >-
+      NixOps4 licence was recorded as unknown. The repository carries an
+      LGPL-2.1 LICENSE file. Now LGPL-2.1.
+    source:
+      url: https://github.com/nixops4/nixops4/blob/main/LICENSE
+      type: governance-doc
+      title: NixOps4 LICENSE
+      retrieved: "2026-09-22"
+      quote: >-
+        GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.normalized.oss_companion[3].license
+    change: >-
+      deploy-rs licence was recorded as MIT. The repository's LICENSE file and
+      README SPDX header say MPL-2.0. Now MPL-2.0.
+    source:
+      url: https://github.com/serokell/deploy-rs
+      type: source-repo
+      title: deploy-rs README, licence header
+      retrieved: "2026-09-22"
+      quote: >-
+        SPDX-License-Identifier: MPL-2.0
+  - date: "2026-09-22"
+    field: dimensions.d13_governance.notes
+    change: >-
+      The note described steering committee terms as "staggered annual terms".
+      The constitution sets terms of at most two years, with half the seats
+      elected each year. Wording corrected.
+    source:
+      url: https://github.com/NixOS/org/blob/main/doc/constitution.md
+      type: governance-doc
+      title: NixOS constitution
+      retrieved: "2026-09-22"
+      quote: >-
+        each member holds a seat for one term of at most 2 years before it is
+        up for election again.
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 17: where a capability is documented is not a cost. Removed cost 'An official dm-verity image module exists and is undocumented in the manual, discoverable only by reading source.' The module exists, and the project documents it in the module's own option descriptions. Whether the module is supported and whether its root hash is signed stay as an open question."
+    source:
+      url: "https://github.com/NixOS/nixpkgs/blob/release-26.05/nixos/modules/image/repart-verity-store.nix"
+      type: "source-repo"
+      title: "dm-verity store image module"
+      retrieved: "2026-10-06"
+      quote: "building images with a dm-verity protected nix store"
+  - date: "2026-10-06"
+    field: "open_questions"
+    change: "Methodology section 9, rule 16: an entry whose maintainer affiliations are not published says so as an open question. Added 'How many maintainers does the project have, and who employs them? No maintainer count or maintainer affiliation is published. The steering committee's employers are published.' From d13 contribution_diversity and unknowns."
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Methodology section 9, rule 18: a status goes inside the buy for the capability it describes, when the project states a consequence in its own words. Moved cost c5 ('Flakes, which most modern tooling and most fleet tools assume, are an experimental feature that the manual says can change or be removed at any time.') into buy b4, which now ends 'Most deployment tooling assumes flakes, which the manual calls experimental and says can change or be removed at any time.'"
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18: a GPU driver rebuild applies to several entries and is costed on none of them. Removed cost c7 'Proprietary GPU drivers are unfree, so they are not built or cached by project infrastructure and the adopter compiles them locally.' The fact stays in d08."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18: where community tooling lives is not assessed for every entry. Cost c9 reworded. Was 'No published network boot artifacts, and the most used remote-install and partitioning tooling is community-maintained outside the project's own organization.' Now 'No published network boot artifacts.' The tooling facts stay in d09."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18: a stated stop of maintenance counts; the spread across organizations is not assessed for every entry. Cost c10 reworded. Was 'Fleet tooling is spread across four organizations: the one in the project's own organization is self-described as low maintenance, its successor is in development elsewhere with no release.' Now 'NixOps, the fleet tool in the project's own organization, says it is in low-maintenance mode and probably not suited for new projects; its successor has no release.' Verified verbatim on 2026-10-06; nixops4/nixops4 has no releases and no tags (gh api)."
+    source:
+      url: "https://github.com/NixOS/nixops"
+      type: "source-repo"
+      title: "NixOps README"
+      retrieved: "2026-10-06"
+      quote: "NixOps is in low-maintenance mode and probably not suited for new projects. Use at your own risks."
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized
+    change: Added configurable_paths (yes, system.etc.overlay.mutable) for the Mounts row. The read-only and persistent values were re-read against the sources and stand.
+    source:
+      url: https://github.com/NixOS/nixpkgs/blob/417538e/nixos/doc/manual/development/etc-overlay.section.md
+      type: source-repo
+      title: 'NixOS manual: /etc via overlay filesystem'
+      retrieved: '2026-10-12'
+      quote: you can also mount `/etc` immutably (i.e. read-only) by setting

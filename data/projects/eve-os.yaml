@@ -1,0 +1,1445 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: eve-os
+name: EVE-OS
+homepage: https://www.lfedge.org/projects/eve/
+repository: https://github.com/lf-edge/eve
+collected_at: "2026-10-05"
+
+entry_kind:
+  - distribution
+
+category_fit:
+  comparable: partial
+  note: >-
+    EVE-OS is a type-1 hypervisor operating system for edge devices, managed
+    by a remote controller. Its unit of work is an Edge Container (a virtual
+    machine, a container or a unikernel), not a Kubernetes node. Kubernetes
+    exists only in the separate EVE-k build flavor (HV=k), which bundles k3s.
+    The default build flavor (HV=kvm) ships no Kubernetes. This profile
+    therefore describes the project as a whole and records the EVE-k
+    differences inside each dimension. Dimensions about the OS lifecycle
+    (immutability, A/B update, rollback, provisioning, security, governance,
+    maturity) compare directly. Dimensions about Kubernetes (d07, d12 Cluster
+    API) apply to the EVE-k flavor only. The entry was approved for the matrix
+    on 2026-10-05 on the basis of EVE-k.
+
+self_description:
+  text: >-
+    Edge Virtualization Engine (EVE) is a secure by design operating system
+    that supports running Edge Containers on compute devices deployed in the
+    field.
+  source:
+    url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+    type: official-docs
+    title: lf-edge/eve docs/README.md
+    retrieved: "2026-10-05"
+    quote: >-
+      Edge Virtualization Engine (EVE) is a secure by design operating system
+      that supports running Edge Containers on compute devices deployed in the
+      field.
+
+version_observed:
+  version: "17.0.0-lts"
+  released: "2026-07-27"
+  channel: lts
+  method: >-
+    The release that GitHub marks as Latest for lf-edge/eve (the releases/latest
+    endpoint of the GitHub API on 2026-10-05), cross-checked against the tag
+    list and the release metadata of newer tags. The project publishes two
+    kinds of tag, long-term support tags (x.y.z-lts) and numbered tags
+    (x.y.0). The numbered tag 17.6.0 is marked as a pre-release on GitHub, so
+    no single "stable" value exists. The next edition should repeat the same lookup and record all
+    three values below. The date is the GitHub publication date. ZEDEDA's
+    release notes for 17.0 LTS carry the date 2026-07-28.
+  source:
+    url: https://github.com/lf-edge/eve/releases/tag/17.0.0-lts
+    type: release-notes
+    title: lf-edge/eve release 17.0.0-lts
+    retrieved: "2026-10-05"
+    quote: amd64.kvm.generic.rootfs.img
+  additional_channels:
+    - channel: numbered release (GitHub pre-release)
+      version: "17.6.0"
+      released: "2026-09-30"
+    - channel: lts maintenance stream 16.0.x
+      version: "16.0.2-lts"
+      released: "2026-09-13"
+    - channel: release candidate
+      version: "17.0.1-rc2"
+      released: "2026-10-01"
+
+taxonomy:
+  workload_scope: general-purpose-host
+  construction_model:
+    - vendor-fixed-image
+  root_state_substrate:
+    - ab-partition-image
+  notes: >-
+    The value general-purpose-host is the closest in the closed vocabulary and
+    is imprecise. EVE is a hypervisor host with no POSIX application
+    environment: its documentation says applications must be Edge Containers.
+    Kubernetes is absent from the default build and present in the EVE-k
+    flavor. The project documents a custom-build path (modify a package, set a
+    kernel tag), but it presents released images as the normal way to consume
+    EVE, so the construction model is recorded as vendor-fixed-image only.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: general-purpose-host
+      ships_kubernetes: "only in the HV=k (EVE-k) build flavor"
+      build_flavors:
+        - "kvm (default; the HV_DEFAULT value in the Makefile)"
+        - "k (EVE-k, adds a k3s based kube service)"
+        - "mini (listed as a supported HV value; documented as the default for riscv64)"
+      workloads_supported:
+        - virtual-machine
+        - container
+        - unikernel
+      management_model: remote-controller
+    summary: >-
+      A type-1 hypervisor operating system for edge devices. Applications run
+      as virtual machines, containers or unikernels, and the device is managed
+      through an API by a remote controller. Kubernetes is a separate build
+      flavor, EVE-k.
+    notes: >-
+      The build flavor is chosen at build time with the HV variable. The
+      Makefile in the repository lists kvm, k and mini as the supported values
+      and sets kvm as the default. The release of 2026-07-27 (17.0.0-lts)
+      publishes two flavors, kvm and k, for amd64 and arm64. Xen is described
+      in docs/HYPERVISORS.md as one of the hypervisors EVE supports, but it is
+      not in the HV_SUPPORTED list of the current Makefile and no Xen artifact
+      is in the 17.0.0-lts release. A statement that default builds are KVM or
+      Xen therefore does not match the current Makefile: the current default
+      is KVM.
+
+      The documentation says EVE does not support traditional POSIX style
+      applications and processes, and that it was inspired by Qubes OS,
+      ChromeOS, CoreOS and SmartOS. The EVE controller is described as
+      relating to EVE the way Kubernetes relates to a container engine.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+        type: official-docs
+        title: lf-edge/eve docs/README.md
+        retrieved: "2026-10-05"
+        quote: >-
+          EVE is based on a type-1 hypervisor and it does not directly support
+          traditional POSIX-like application and processes.
+      - url: https://github.com/lf-edge/eve/blob/master/Makefile
+        type: source-repo
+        title: lf-edge/eve Makefile
+        retrieved: "2026-10-05"
+        quote: HV_SUPPORTED=kvm k mini
+      - url: https://github.com/lf-edge/eve/blob/master/docs/HYPERVISORS.md
+        type: official-docs
+        title: lf-edge/eve docs/HYPERVISORS.md
+        retrieved: "2026-10-05"
+        quote: EVE is using it for all the hypervisors it supports.
+      - url: https://github.com/lf-edge/eve/blob/master/docs/BUILD.md
+        type: official-docs
+        title: lf-edge/eve docs/BUILD.md
+        retrieved: "2026-10-05"
+        quote: "`kvm` (amd64, arm64) or `mini` (riscv64)"
+    unknowns:
+      - "Whether the Xen build is still maintained. docs/HYPERVISORS.md describes it, the Makefile HV_SUPPORTED list omits it, and the repository README lists only kvm and mini."
+
+  d02_immutability:
+    normalized:
+      read_only:
+        - "IMGA and IMGB root filesystem images (squashfs by default)"
+        - "CONFIG partition, from the point of view of EVE"
+        - "EFI System partition, in practice"
+      writable_and_persistent:
+        - "persist partition (P3), holding application volumes and the encrypted vault"
+      integrity_mechanism:
+        - read-only-mount
+      survives_upgrade:
+        - "the persist partition"
+        - "the CONFIG partition"
+      read_only_mechanism: ext4 optional at build; EVE overlays a tmpfs layer at boot
+      configurable_paths:
+        value: 'no'
+        evidence: INFERRED
+        inferred_from: The partition list in docs/README.md and the install options in docs/BOOTING.md name no setting that changes which paths are persistent. The install options set which disk holds the persistent data.
+        how: Install options choose the disk for persistent data (eve_persist_disk) and its ZFS RAID level. No option found changes which paths are persistent.
+        sources:
+          - url: https://github.com/lf-edge/eve/blob/e933b99/docs/BOOTING.md
+            type: source-repo
+            title: 'EVE docs: install options'
+            retrieved: '2026-10-12'
+            quote: '`eve_persist_disk=DISK` - set particular disk to use for persistent data (volumes, logs, etc.).'
+      mounts_sources:
+        - url: https://github.com/lf-edge/eve/blob/e933b99/docs/README.md
+          type: source-repo
+          title: 'EVE docs: the P3 partition'
+          retrieved: '2026-10-12'
+          quote: P3 (read-write filesystem that extends to the rest of the available storage medium)
+        - url: https://github.com/lf-edge/eve/blob/e933b99/docs/BUILD.md
+          type: source-repo
+          title: 'EVE docs: rootfs image format'
+          retrieved: '2026-10-12'
+          quote: a live bootable rootfs filesystem image. This can be either
+        - url: https://github.com/lf-edge/eve/blob/0e1afbf619e8800745d4481b91b6abd4b765d73b/docs/BOOTING.md
+          type: source-repo
+          title: 'EVE docs: BOOTING.md, stacked root filesystem'
+          retrieved: '2026-10-12'
+          quote: EVE leverages Alpine's ability to create an overlayfs-based stacked rootfilesystem by specifying
+    summary: >-
+      The root filesystem is a read-only image, squashfs by default, held in
+      one of two partitions. Writable state sits on a separate persist
+      partition. The documentation describes no dm-verity protection of the
+      root image.
+    notes: >-
+      The partition layout is an EFI System partition, IMGA, IMGB, CONFIG and
+      a read-write partition that takes the rest of the disk. At boot, EVE
+      builds an overlayfs rootfs with a tmpfs layer over the image, so files
+      the installer adds appear without changing the image. The disk layout
+      page says corrupting IMGA or IMGB is hard because EVE treats them as
+      read-only.
+
+      The word integrity needs care here. A read-only mount does not verify
+      the image at runtime. The repository documentation contains no mention
+      of dm-verity, so the profile records read-only-mount only. That is a
+      statement about what was found, not a documented absence. The
+      measured-boot design (d10) measures boot components and the CONFIG
+      partition into TPM registers, which provides detection at boot time but
+      is a different mechanism from block-level verification.
+
+      The rootfs format is configurable at build time. The build document
+      lists squashfs as the default and ext4 as the alternative, and ext4 is
+      used for a development-only live update feature.
+
+      The writable and reset on reboot line is empty on purpose.
+      docs/BOOTING.md (lf-edge/eve at 0e1afbf) says EVE uses Alpine's
+      overlaytmpfs option to build a stacked root filesystem in the
+      initramfs, but no EVE document read says which paths are discarded on
+      reboot.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+        type: official-docs
+        title: lf-edge/eve docs/README.md, partitioning
+        retrieved: "2026-10-05"
+        quote: IMGA (first copy of EVE's read-only root filesystem)
+      - url: https://github.com/lf-edge/eve/blob/master/docs/BUILD.md
+        type: official-docs
+        title: lf-edge/eve docs/BUILD.md
+        retrieved: "2026-10-05"
+        quote: "`imga`/`imgb`: contents of `/parts/rootfs.img`"
+      - url: https://github.com/lf-edge/eve/blob/master/docs/BOOTING.md
+        type: official-docs
+        title: lf-edge/eve docs/BOOTING.md
+        retrieved: "2026-10-05"
+        quote: >-
+          EVE leverages Alpine's ability to create an overlayfs-based stacked
+          rootfilesystem
+    unknowns:
+      - "Whether any integrity check of the root image beyond the read-only mount exists at runtime. Searched all files in docs/ of lf-edge/eve for the strings verity and dm-verity: no match."
+
+  d03_artifact:
+    normalized:
+      primary_artifact: "installer image (raw disk, ISO or network installer) and rootfs image, per hypervisor flavor, architecture and platform"
+      oci_registry_distribution: "partial: the lfedge/eve OCI image is the build tool that produces the artifacts; released artifacts are files on GitHub Releases"
+      content_addressable: unknown
+      mirrorable: true
+      signed: unknown
+      sbom: "SPDX json, one per image variant"
+      reproducible_builds: "functionally identical, not bit-identical"
+      air_gapped_capable: "yes, with a Local Operator Console or a controller on the local network"
+    summary: >-
+      Each release publishes installer images (raw, ISO, network), live
+      images and a rootfs image for every combination of hypervisor flavor,
+      architecture and platform, with checksums, sizes and a source archive.
+      The lfedge/eve container image produces the deployable artifacts.
+    notes: >-
+      The 17.0.0-lts release lists 68 assets (gh api, 2026-10-05). File names follow the pattern
+      architecture.flavor.platform.type, for example amd64.k.generic.installer.iso
+      and arm64.kvm.nvidia-jp6.rootfs.img. Platforms in that release are
+      generic and nvidia-jp5, nvidia-jp6 and nvidia-jp7. Only the generic
+      platform carries an ISO and a network installer tar.
+
+      The documentation says the lfedge/eve Docker container is used to
+      produce the deployment artifacts, and that tags encode the hypervisor
+      and architecture, for example a tag ending in -kvm-arm64.
+
+      The SBOM page says the SBOM is in SPDX format, delivered as a json
+      file, available from the EVE-OS container and from the GitHub release
+      page, with one SBOM per image variant. The sources page describes a
+      gzipped tar of collected sources with a manifest.
+
+      The reproducibility page states that functionally identical images are
+      a requirement and that the build should either produce a functionally
+      identical image or fail. It states that images are not precisely
+      reproducible, because of timestamps and random data.
+
+      Where the device downloads its operating system update from is a
+      datastore chosen by the controller operator (see d04), so an operator
+      can mirror the image on infrastructure they run.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/releases/tag/17.0.0-lts
+        type: release-notes
+        title: lf-edge/eve release 17.0.0-lts, asset list
+        retrieved: "2026-10-05"
+        quote: amd64.k.generic.installer.iso
+      - url: https://github.com/lf-edge/eve/blob/master/README.md
+        type: source-repo
+        title: lf-edge/eve README
+        retrieved: "2026-10-05"
+        quote: >-
+          EVE Docker container `lfedge/eve:<version>` is used to produce these
+          deployment artifacts.
+      - url: https://github.com/lf-edge/eve/blob/master/docs/SBOM-AND-SOURCES.md
+        type: official-docs
+        title: lf-edge/eve SBOM and sources
+        retrieved: "2026-10-05"
+        quote: one SPDX json file per image variant is attached to the release page on github
+      - url: https://github.com/lf-edge/eve/blob/master/docs/EVE-IMAGE-REPRODUCIBILITY.md
+        type: official-docs
+        title: lf-edge/eve image reproducibility
+        retrieved: "2026-10-05"
+        quote: functionally identical images are a requirement for EVE
+      - url: https://github.com/lf-edge/eve/blob/master/docs/BUILD.md
+        type: official-docs
+        title: lf-edge/eve docs/BUILD.md
+        retrieved: "2026-10-05"
+        quote: a final bootable live disk image in raw format
+    unknowns:
+      - "Whether release artifacts carry a detached signature or a container image signature. docs/SBOM-AND-SOURCES.md does not address signing, and a search of docs/ for cosign, sigstore and slsa found no match. Signing may exist outside the repository documentation."
+      - "Whether the rootfs image and installer are addressed by content digest anywhere beyond the sha256sums file in each release."
+      - "The SBOM page says one SPDX json file per image variant is attached to each release page, named architecture.flavor.platform.rootfs.spdx.json. The asset list of 17.0.0-lts, read through the GitHub API on 2026-10-05, holds no spdx.json file. Whether the SBOM is attached to other releases, or published elsewhere for this one, was not determined."
+
+  d04_upgrade:
+    normalized:
+      fleet_upgrade:
+        self_update: "The OS polls its controller. It has no schedule of its own."
+        paths:
+          - kind: fleet-server
+            name: "Adam"
+            license: "Apache-2.0"
+            class: open-source
+            reconciliation: in-place
+            filter: true
+            note: "A reference controller. The reconciliation mode is inferred from the controller model."
+            evidence: INFERRED
+            sources:
+              - url: https://github.com/lf-edge/adam
+                title: "Adam repository"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Adam is a reference implementation ... has not been built or tested to withstand penetration attacks, DDoS
+              - url: https://github.com/lf-edge/eve
+                title: "EVE repository"
+                retrieved: "2026-10-06"
+                quote: >-
+                  How to use EVE with a controller (recommended)
+          - kind: fleet-server
+            name: "ZEDEDA Cloud"
+            license: "proprietary"
+            class: service
+            reconciliation: in-place
+            filter: true
+            note: "A vendor service that acts as the EVE controller. The licence is not published as a file."
+            evidence: INFERRED
+            sources:
+              - url: https://zededa.com
+                title: "ZEDEDA"
+                retrieved: "2026-10-06"
+      version_identity:
+        identifier: "Release string in /etc/eve-release, for example 8.10.0-kvm-amd64"
+        condition: "none for official release builds"
+        evidence: DOCUMENTED
+        sources:
+          - url: https://github.com/lf-edge/eve/blob/master/docs/EVE-IMAGE-SOURCES.md
+            type: official-docs
+            title: "EVE image sources"
+            retrieved: "2026-10-06"
+          - url: https://github.com/lf-edge/eve/blob/master/docs/BUILD.md
+            type: official-docs
+            title: "EVE build"
+            retrieved: "2026-10-06"
+            quote: >-
+              calculated from the git commit
+      mechanism:
+        - ab-partition-switch
+      scope: whole-os-image
+      scope_sources:
+        - url: https://github.com/lf-edge/eve/blob/master/docs/BASEIMAGE-UPDATE.md
+          type: official-docs
+          title: lf-edge/eve baseimage update
+          retrieved: '2026-10-06'
+          quote: dual partitions and priority boot support in grub
+      initiator: node-polls-controller
+      requires_kubernetes: false
+      requires_vendor_infrastructure: false
+      requires_controller: true
+      self_hostable_update_server: true
+      self_hostable_update_source: "Your own controller (Adam) and datastore"
+      self_hostable_update_server_evidence: DOCUMENTED
+      self_hostable_update_server_note: "There is no dedicated update server. The controller tells the device which image to fetch, and the device downloads it from a datastore the controller names. Datastore types in the API include HTTP, HTTPS, S3, SFTP and container registry. An operator can run the controller (Adam is the reference implementation) and the datastore on their own network. Adam is documented as not built for scale or hardened against attack."
+      artifact_verification: "sha256 digest carried in the controller configuration"
+      health_check_seconds_default: 600
+      kubernetes_upgrade_separate: unknown
+    summary: >-
+      The controller sets a base OS image in the device configuration. The
+      device downloads and verifies it, writes it to the unused root
+      partition, reboots, and commits only after the new version stays
+      healthy for 10 minutes.
+    notes: >-
+      The baseimage update document describes the sequence. If the activate
+      flag is false, the image is downloaded and verified. When it becomes
+      true, EVE writes the image to the unused partition, reboots and tests
+      the new image for 10 minutes. The test passes when the device can
+      connect to the controller and no agent crashes or hangs. The timer is a
+      configuration property (timer.test.baseimage.update) with a documented
+      default of 600 seconds, a minimum of 30 and a maximum of 3600. The
+      document says a planned handshake would let a user run their own
+      application tests before the commit, which indicates it was not
+      implemented when the page was written.
+
+      Updating needs the controller connection. The disconnected operation
+      page states that deploying an application, updating the base image and
+      rotating credentials all wait for the connection.
+
+      Where the image comes from. The microservice classification page says
+      the downloader fetches EVE updates and application content from
+      datastores. The datastore definition in the public API lists HTTP,
+      HTTPS, S3, SFTP, container registry, Azure blob and Google storage
+      types. This is the basis for the self-hostable value above. The
+      update source is therefore a file or registry location, not a
+      stateful update service of the kind the Omaha based systems use.
+
+      The controller is required in every case. A device with no controller
+      does not receive updates. Two controller options are documented. The
+      ZEDEDA Cloud controller is a commercial product (d12). Adam is an
+      open-source reference implementation that its own README says was not
+      built or tested to withstand penetration attacks or scale. A Local
+      Operator Console substitutes for the controller in air-gapped
+      deployments, per the disconnected operation page.
+
+      EVE-k. The same mechanism upgrades an HV=k device. The EVE-k document
+      adds constraints: upgrading from another flavor to HV=k is supported
+      only while the device holds no volumes, and upgrading from HV=k to
+      another flavor is not supported.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/blob/master/docs/BASEIMAGE-UPDATE.md
+        type: official-docs
+        title: lf-edge/eve baseimage update
+        retrieved: "2026-10-05"
+        quote: >-
+          using dual partitions and priority boot support in grub
+      - url: https://github.com/lf-edge/eve/blob/master/docs/BASEIMAGE-UPDATE.md
+        type: official-docs
+        title: lf-edge/eve baseimage update, health check
+        retrieved: "2026-10-05"
+        quote: >-
+          can connect to the controller and no agent crashes or hangs) for 10
+          minutes running the new version
+      - url: https://github.com/lf-edge/eve/blob/master/docs/CONFIG-PROPERTIES.md
+        type: official-docs
+        title: lf-edge/eve configuration properties
+        retrieved: "2026-10-05"
+        quote: timer.test.baseimage.update
+      - url: https://github.com/lf-edge/eve/blob/master/docs/MICROSERVICE-CLASSIFICATION.md
+        type: official-docs
+        title: lf-edge/eve microservice classification
+        retrieved: "2026-10-05"
+        quote: Downloads content from datastores (EVE updates and app content)
+      - url: https://github.com/lf-edge/eve-api/blob/main/proto/config/storage.proto
+        type: source-repo
+        title: lf-edge/eve-api storage.proto, DsType
+        retrieved: "2026-10-05"
+        quote: DsContainerRegistry = 5;
+      - url: https://github.com/lf-edge/adam/blob/master/README.md
+        type: source-repo
+        title: lf-edge/adam README
+        retrieved: "2026-10-05"
+        quote: it has not been built with massive scale in mind
+      - url: https://github.com/lf-edge/eve/blob/master/docs/DISCONNECTED-OPERATION.md
+        type: official-docs
+        title: lf-edge/eve disconnected operation
+        retrieved: "2026-10-05"
+        quote: Deploying a new application, updating the base image and rotating credentials all wait for the connection.
+      - url: https://github.com/lf-edge/eve/blob/master/docs/EVE-K.md
+        type: official-docs
+        title: lf-edge/eve EVE-k, upgrades
+        retrieved: "2026-10-05"
+        quote: is not supported in any case
+    unknowns:
+      - "Whether the base OS image is verified against a publisher signature in addition to the digest in the controller configuration. The API carries a siginfo field on image definitions, but the documentation read does not say what it signs for a base OS image."
+      - "Whether the Kubernetes version inside EVE-k can be changed without a full EVE-k image update."
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: available
+      automatic_rollback_on_boot_failure: available
+      automatic_rollback_trigger: "after the new version boots, the device does not stay connected to the controller with all agents running for the test period (default 10 minutes)"
+      automatic_rollback_attempts: "the device remembers a failed version and refuses to retry it while the controller keeps requesting it"
+      retained_versions: 2
+      recovery_environment: unknown
+      factory_reset: unknown
+      network_independent_recovery: partial
+    summary: >-
+      EVE falls back to the previous root partition by itself if the new
+      version fails its post-update test, and reports the failure to the
+      controller. Two root partitions exist, so one previous version is
+      retained.
+    notes: >-
+      The fallback decision is local, but the test includes a connection to
+      the controller. A new version that boots and runs correctly but cannot
+      reach the controller within the test period is treated as failed. That
+      is why network_independent_recovery is recorded as partial: the revert
+      needs no operator or controller action, while the pass condition needs
+      the network.
+
+      The documentation says the dual partition design is robust against power
+      failure during the flash write, a hung boot, bugs in EVE or the dom0
+      kernel, and a broken network driver.
+
+      The retained version count of two is derived from the two root
+      partitions, IMGA and IMGB. No page states the number in those words.
+      A manual rollback is an update to the older image through the same
+      controller interface. That path is not described as a rollback in the
+      pages read.
+
+      The persist partition (applications and encrypted vault) is outside the
+      A/B pair, so a root rollback does not revert application state. The
+      vault key is sealed to TPM registers that change with the boot chain,
+      so the security document describes a controller step after an update
+      to release a backup key (d10).
+
+      EVE-k. Upgrade from HV=k to another flavor is documented as not
+      supported, because the vault layout cannot be converted back. A rollback
+      across flavors is therefore not available.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/blob/master/docs/BASEIMAGE-UPDATE.md
+        type: official-docs
+        title: lf-edge/eve baseimage update
+        retrieved: "2026-10-05"
+        quote: >-
+          EVE will automatically fall back to the old version and report the
+          failure
+      - url: https://github.com/lf-edge/eve/blob/master/docs/BASEIMAGE-UPDATE.md
+        type: official-docs
+        title: lf-edge/eve baseimage update, failed version memory
+        retrieved: "2026-10-05"
+        quote: the device will refuse to try it since it remembers that it tried and failed
+      - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+        type: official-docs
+        title: lf-edge/eve docs/README.md, partitioning
+        retrieved: "2026-10-05"
+        quote: IMGB (second copy of EVE's read-only root filesystem)
+      - url: https://github.com/lf-edge/eve/blob/master/docs/EVE-K.md
+        type: official-docs
+        title: lf-edge/eve EVE-k, upgrades
+        retrieved: "2026-10-05"
+        quote: >-
+          a vault migrated to the `HV=k` zvol layout has no path back to a
+          filesystem dataset the other flavors can read
+    unknowns:
+      - "Recovery environment and factory reset. Searched docs/README.md, docs/FAQ.md, docs/CLEANUP.md, docs/CONFIG.md and docs/BOOT-INSTALLER.md. docs/CONFIG.md mentions that the CONFIG partition can be written in certain debug and recovery scenarios. No page describes a factory reset or a recovery partition. Reinstalling from the installer image is the visible path and is not documented as a recovery procedure."
+      - "Whether a manual rollback to an earlier version than the one in the other partition is documented. The update API takes an arbitrary image version."
+
+  d06_customization:
+    normalized:
+      runtime_package_install: "none"
+      mechanisms:
+        - controller-delivered-configuration
+        - edge-containers
+        - build-time-package-changes
+        - custom-kernel-tag
+        - platform-variants
+      customization_points:
+        - build-time
+        - installer-time
+        - runtime-controller
+      add_software:
+      - kind: build-time-only
+        how: Host software enters through a custom build of the EVE image or its packages. The root filesystem copies are read-only. Applications run as Edge Containers.
+        evidence: INFERRED
+        inferred_from: CUSTOM-BUILD.md documents a build path only, and README.md calls the root filesystem read-only. No page read describes adding host software after install, and none states it is impossible.
+        sources:
+        - url: https://github.com/lf-edge/eve/blob/0e1afbf619e8800745d4481b91b6abd4b765d73b/docs/CUSTOM-BUILD.md
+          type: source-repo
+          title: 'EVE docs: Custom Build'
+          retrieved: '2026-10-12'
+          quote: Modify the eve-os build to include external packages
+        - url: https://github.com/lf-edge/eve/blob/0e1afbf619e8800745d4481b91b6abd4b765d73b/docs/README.md
+          type: source-repo
+          title: 'EVE docs: Design and implementation'
+          retrieved: '2026-10-12'
+          quote: IMGA (first copy of EVE's read-only root filesystem)
+    summary: >-
+      There is no package manager and no general application environment on
+      the host. Behavior changes come from controller configuration, from
+      the Edge Containers that run on top, or from a custom build of the
+      packages and kernel.
+    notes: >-
+      The documentation says applications must be Edge Containers and that
+      EVE does not support traditional POSIX style processes. Customization
+      of the host itself is therefore a build activity. The custom-build
+      page describes two routes: modify a package and rebuild, or include
+      external packages. The kernel lives in a separate repository
+      (lf-edge/eve-kernel) and a custom kernel is selected with a KERNEL_TAG
+      build variable.
+
+      The build supports platform variants selected with the PLATFORM
+      variable, for example generic, rt, nvidia-jp6 and imx8mp_pollux. The
+      porting page describes a six step process for a new CPU architecture.
+
+      Customizing at build time moves the build, test and patch burden to the
+      adopter for the resulting image, which is the general cost of any
+      rebuild path. The custom-build page says the project's CI publishes
+      packages to Docker Hub, so an adopter can rebuild only the packages
+      they change.
+
+      Per-device behavior is controlled by configuration properties set
+      through the controller. The properties page lists the names, types,
+      defaults and limits.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/blob/master/docs/CUSTOM-BUILD.md
+        type: official-docs
+        title: lf-edge/eve custom build
+        retrieved: "2026-10-05"
+        quote: >-
+          This document describes how to modify parts of eve-os so you can
+          build a custom image for your own purposes.
+      - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+        type: official-docs
+        title: lf-edge/eve docs/README.md
+        retrieved: "2026-10-05"
+        quote: All applications running on EVE have to be represented as
+      - url: https://github.com/lf-edge/eve/blob/master/docs/BUILD.md
+        type: official-docs
+        title: lf-edge/eve docs/BUILD.md
+        retrieved: "2026-10-05"
+        quote: Specific platform for which to build
+      - url: https://github.com/lf-edge/eve/blob/master/docs/PORTING.md
+        type: official-docs
+        title: lf-edge/eve porting to a new CPU architecture
+        retrieved: "2026-10-05"
+        quote: Porting Linux kernel to the new CPU
+    unknowns:
+      - "Whether the lfedge/eve image supports adding files or drivers to a released image without a source build."
+
+  d07_kubernetes:
+    normalized:
+      requirement: optional
+      bundled: "HV=k (EVE-k) flavor bundles k3s; HV=kvm flavor bundles none"
+      kubernetes_flavor: "separate build flavor (HV=k), not a runtime option of the default image"
+      independent_lifecycle: unknown
+      os_manages_kubernetes: "yes"
+      kubernetes_manages_os: "none documented; the controller drives OS updates through the EVE API"
+      distributions:
+        - k3s
+      cluster_modes:
+        - "CLUSTER_TYPE_K3S_BASE (k3s and multus; being phased out per the EVE-k page)"
+        - "CLUSTER_TYPE_REPLICATED_STORAGE (k3s, multus, KubeVirt, CDI and Longhorn)"
+      cluster_size_documented: "three-node clusters, each node an etcd member"
+    summary: >-
+      Kubernetes is optional and exists only in the EVE-k build flavor
+      (HV=k), which runs k3s in a kube service container, with KubeVirt and
+      Longhorn in the replicated storage mode. The default build flavor
+      (HV=kvm) ships no Kubernetes.
+    notes: >-
+      The Makefile excludes the kube package from builds other than HV=k, so
+      EVE-k is a different image and not a switch in the default one. The EVE-k
+      page says the EVE API controller configuration defines a cluster type
+      for the k3s instance, so the OS (through its controller configuration)
+      manages the Kubernetes instance. Upgrading from EVE-k to another flavor
+      is not supported in any case, and upgrading to EVE-k is supported only
+      while the device has no volumes.
+
+      The EVE-k page lists a three-node cluster in which each node is an etcd
+      master, with a tie-breaker node option. It states that the VXLAN
+      overlay carries traffic unencrypted and unauthenticated, so the cluster
+      network must be trusted.
+
+      The LF Edge announcement of 2025-03-31 reports edge node clustering
+      with groups of three EVE nodes, and a talk that cited over 10,000
+      single-node Kubernetes clusters and VMs running in production. Those
+      figures come from the announcement and are not independently verified.
+
+      The ZEDEDA 17.0 LTS release notes (a commercial vendor page, found
+      through search and not read directly because the page returned HTTP 403)
+      list strict node affinity for EVE-k applications as a feature of the
+      ZEDEDA Edge Kubernetes Service. That is a vendor service built on
+      EVE-k and is not recorded as a capability of the open-source OS.
+
+      The workload API of EVE is not the Kubernetes API. The docs describe
+      EVE-k as keeping EVE's own application model, with Kubernetes objects
+      used underneath.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/blob/master/docs/EVE-K.md
+        type: official-docs
+        title: lf-edge/eve EVE-k
+        retrieved: "2026-10-05"
+        quote: make HV=k ZARCH=amd64 clean pkgs eve
+      - url: https://github.com/lf-edge/eve/blob/master/docs/EVE-K.md
+        type: official-docs
+        title: lf-edge/eve EVE-k, modes
+        retrieved: "2026-10-05"
+        quote: "CLUSTER_TYPE_REPLICATED_STORAGE : (k3s + multus) and kubevirt, cdi, longhorn."
+      - url: https://github.com/lf-edge/eve/blob/master/Makefile
+        type: source-repo
+        title: lf-edge/eve Makefile
+        retrieved: "2026-10-05"
+        quote: "#kube container will not be in non-k builds"
+      - url: https://www.linuxfoundation.org/press/project-eve-hits-maturity-within-lf-edge-releases-multi-node-support-for-enhanced-edge-computing-resilience
+        type: announcement
+        title: Project EVE hits maturity within LF Edge, releases multi-node support
+        retrieved: "2026-10-05"
+        quote: Edge node clustering enabling groups of three EVE nodes
+    unknowns:
+      - "Whether Kubernetes can be upgraded independently of the EVE image on an EVE-k node."
+      - "Whether the three-node limit is a hard maximum. The page documents three-node clusters and does not discuss larger ones."
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        items:
+          - vendor: nvidia-jetson
+            what: "Jetson Xavier, Orin and Thor"
+            delivery: platform-build
+            delivery_note: "Jetson platform build with a Jetpack-derived kernel"
+            secure_boot: not-documented
+            gpu_operator: not-documented
+            status: supported
+            note: "GPU and Intel iGPU passthrough to VMs with the driver in the guest is inferred. It is recorded here as a note, not as a vendor."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/lf-edge/eve/blob/1f00022/docs/NVIDIA.md
+                title: "lf-edge/eve docs/NVIDIA.md at 1f00022"
+                retrieved: "2026-10-06"
+                quote: >-
+                  EVE supports three versions of the Jetpack: 5.1.3, 6.0, and 7.1
+              - url: https://github.com/lf-edge/eve/blob/1f00022/docs/NVIDIA.md
+                title: "lf-edge/eve docs/NVIDIA.md at 1f00022, CDI"
+                retrieved: "2026-10-06"
+                quote: >-
+                  available for Edge Apps through a CDI (Container Device Interface) mechanism
+      architectures_released:
+        - amd64
+        - arm64
+      architectures_with_tooling_only:
+        - "riscv64 (listed in ZARCH and README, hypervisor mini; no riscv64 artifact in the 17.0.0-lts release)"
+      architectures_absent: []
+      platforms:
+        - bare-metal
+        - virtual-machines
+        - sbc
+      released_hardware_platform_tags:
+        - "generic (amd64 and arm64)"
+        - "nvidia-jp5, nvidia-jp6, nvidia-jp7 (arm64, NVIDIA Jetson)"
+      gpu: "NVIDIA Jetson platform builds; Intel integrated GPU passthrough documented"
+      tpm: "TPM 2.0 only; required for encryption at rest"
+      extension_mechanism: "PLATFORM build variants, eve-kernel repository, and a documented CPU porting process"
+    summary: >-
+      Released images cover amd64 and arm64, in a generic build and in NVIDIA
+      Jetson variants, for both the kvm and k flavors. The README lists
+      Raspberry Pi 4 and 5, HiKey, Jetson, i.MX 8M and x86 boards. riscv64
+      appears in the build system without a release artifact.
+    notes: >-
+      The README says EVE runs on ARM and Intel systems that have hardware
+      assisted virtualization, and gives deployment targets as IoT gateways
+      and industrial PCs. The hardware model page describes how device model
+      files are kept in the eden repository and gives no complete list of
+      supported boards or minimum RAM and disk figures.
+
+      Under the methodology rule that d08 records artifacts, not intentions,
+      riscv64 is recorded as tooling only. The build documentation lists
+      riscv64 as a ZARCH value, with mini as its default hypervisor, and the
+      porting guide exists, but the assets of the 17.0.0-lts release hold
+      only amd64 and arm64 files.
+
+      The 17.0.0-lts release has no assets for the mini hypervisor and none
+      for Xen. The release page lists only kvm and k.
+
+      EVE supports TPM 2.0 and no TPM 1.2. The hardware model page notes that
+      even a TPM 2.0 device may lack some functions EVE needs, such as
+      sealing a vault key.
+
+      Vendor material from ZEDEDA reports support for more than 75 hardware
+      types. That figure was found in a search result for a vendor page and
+      was not read from the page, so it is not used as a value here.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/releases/tag/17.0.0-lts
+        type: release-notes
+        title: lf-edge/eve release 17.0.0-lts, asset list
+        retrieved: "2026-10-05"
+        quote: arm64.k.nvidia-jp7.rootfs.img
+      - url: https://github.com/lf-edge/eve/blob/master/README.md
+        type: source-repo
+        title: lf-edge/eve README
+        retrieved: "2026-10-05"
+        quote: "architecture: `amd64`, `arm64`, `riscv64`"
+      - url: https://github.com/lf-edge/eve/blob/master/docs/BUILD.md
+        type: official-docs
+        title: lf-edge/eve docs/BUILD.md
+        retrieved: "2026-10-05"
+        quote: "`generic`, `rt`, `nvidia-jp6`, `imx8mp_pollux`"
+      - url: https://github.com/lf-edge/eve/blob/master/docs/HARDWARE-MODEL.md
+        type: official-docs
+        title: lf-edge/eve hardware model
+        retrieved: "2026-10-05"
+        quote: Since EVE only supports TPM 2.0
+    unknowns:
+      - "A complete list of supported boards and minimum RAM and disk. docs/HARDWARE-MODEL.md and docs/README.md give examples, not a matrix."
+      - "Whether Raspberry Pi and i.MX 8M builds are released artifacts of the current release. The README names them. The 17.0.0-lts asset list has no platform tag for them."
+
+  d09_provisioning:
+    normalized:
+      config_tools:
+        - name: "Installer grub options, bootstrap-config.pb and controller EdgeDevConfig"
+          license: "Apache-2.0"
+          runs: [install, api]
+          reruns: continuous
+          runs_note: "Installer options apply at install; bootstrap config is applied once; controller config is polled every 60 s by default (timer.config.interval, 5 to 86400)."
+          early_disk: "The installer chooses disks, can wipe them and set ZFS RAID; /persist/vault encryption is automatic (fscrypt or ZFS, TPM-sealed) and not configurable."
+          change_after_first_boot: "Through the controller only"
+          evidence: DOCUMENTED
+          sources:
+            - url: https://github.com/lf-edge/eve/blob/master/docs/BOOTING.md
+              title: "EVE booting"
+              retrieved: "2026-10-06"
+            - url: https://github.com/lf-edge/eve/blob/master/docs/CONFIG.md
+              title: "EVE configuration"
+              retrieved: "2026-10-06"
+              quote: >-
+                used and applied only once
+            - url: https://github.com/lf-edge/eve/blob/master/docs/SECURITY-ARCHITECTURE.md
+              title: "EVE security architecture"
+              retrieved: "2026-10-06"
+      methods:
+        - raw-disk-image
+        - iso-installer
+        - pxe
+        - ipxe
+      config_mechanism: "bootstrap-config.pb (protobuf) for network settings, then controller configuration after registration"
+      config_reapplied: "bootstrap config is applied once; controller configuration is reconciled continuously"
+      identity: "onboarding certificate and serial number, then a device certificate generated on the device (in the TPM when present)"
+      unattended: "yes, after the installer image is prepared"
+    summary: >-
+      EVE is installed from a raw disk image, an ISO or a network boot. The
+      installer can carry a bootstrap configuration with controller
+      connection details. The device then registers with the controller and
+      receives its full configuration from it.
+    notes: >-
+      The installer image writes the live image to local storage and then
+      shuts down the device. The bootstrap-config.pb file is protobuf encoded,
+      is used and applied only once, and a hash is recorded so it is not
+      applied again. At minimum EVE needs the host name, port and certificate
+      of the controller. A legacy override.json for network settings is
+      marked deprecated.
+
+      Registration: the device sends a POST request to the register endpoint
+      with the onboarding certificate, hardware serial and a soft serial, and
+      generates a device certificate, using a TPM when available. The
+      certificate is saved in TPM NVRAM so the identity survives a disk
+      replacement.
+
+      The documented promise is zero touch: after installation no physical
+      access should be needed. In practice the security design restricts the
+      local text user interface to a physical monitor, to prove the presence
+      of an operator.
+
+      This is a declarative model at the controller level: the controller
+      holds the desired state and the documentation describes EVE as
+      eventually consistent. It differs from a first-boot-only model, since
+      configuration is reconciled continuously after registration.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/blob/master/docs/BOOT-INSTALLER.md
+        type: official-docs
+        title: lf-edge/eve installer boot
+        retrieved: "2026-10-05"
+        quote: The EVE installer can boot in one of 3 modes
+      - url: https://github.com/lf-edge/eve/blob/master/docs/CONFIG.md
+        type: official-docs
+        title: lf-edge/eve configuration
+        retrieved: "2026-10-05"
+        quote: At the very minimum EVE has to know host name, port and certificate of the controller
+      - url: https://github.com/lf-edge/eve/blob/master/docs/REGISTRATION.md
+        type: official-docs
+        title: lf-edge/eve registration
+        retrieved: "2026-10-05"
+        quote: >-
+          Device sends a POST request to the register endpoint, using the
+          onboarding certificate for sender authentication
+      - url: https://github.com/lf-edge/eve/blob/master/docs/ECOS.md
+        type: official-docs
+        title: lf-edge/eve Edge Containers
+        retrieved: "2026-10-05"
+        quote: EVE periodically pulls the configuration from the controller.
+      - url: https://github.com/lf-edge/eve/blob/master/docs/DEPLOYMENT.md
+        type: official-docs
+        title: lf-edge/eve deployment
+        retrieved: "2026-10-05"
+        quote: "The installer image is essentially a live image that writes itself, using this extra script."
+    unknowns:
+      - "How often the device polls the controller. docs/CONFIG.md does not state an interval."
+      - "Whether a cloud image path exists for public clouds beyond the README note that EVE can be deployed on virtualized infrastructure such as Google Compute Platform."
+
+  d10_security:
+    normalized:
+      boot_trust_chain:
+        level: 2
+        how: always-on
+        note: Measured boot with remote attestation. GRUB measures the root filesystem into PCR 13 at boot,
+          and the vault key is sealed to PCR 0 to 4 and 6 to 14 by default. Needs a TPM. Secure Boot is not
+          documented
+        evidence: DOCUMENTED
+        sources:
+        - url: https://raw.githubusercontent.com/lf-edge/eve/master/docs/SECURITY-ARCHITECTURE.md
+          type: official-docs
+          title: EVE-OS security architecture
+          retrieved: '2026-10-06'
+          quote: Separately measured boot with remote attestation will ensure that the device is running the expected versions and hashes of firmware and of the EVE software.
+        - url: https://github.com/lf-edge/eve/blob/e10c5710f5ab5781458a8436a43593065d8b35b7/pkg/grub/rootfs.cfg#L125
+          type: source-code
+          title: EVE-OS GRUB rootfs.cfg
+          retrieved: '2026-10-06'
+          quote: measurefs $root --pcr 13
+      secure_boot: unknown
+      measured_boot: available
+      measured_boot_registers: "PCR 1 (boot options), PCR 8 (grub.cfg), PCR 14 (CONFIG partition contents); sealing policy is configurable by the controller"
+      remote_attestation: available
+      tpm: "TPM 2.0 with SHA256 banks required for the minimum hardware security level"
+      integrity: read-only-mount
+      integrity_scope: "root filesystem image"
+      disk_encryption: "fscrypt on ext4 or native ZFS encryption for the persist vault, key sealed to the TPM; no encryption at rest without a working TPM"
+      artifact_verification: "sha256 digest in controller configuration; object signing for configuration"
+      sbom: "SPDX json per image variant"
+      provenance: unknown
+      fips: unknown
+      mandatory_access_control: "AppArmor profiles confine EVE's own components (swtpm, vtpm, vector) and are not applied to edge applications"
+      default_on:
+        - measured-boot
+        - vault-encryption-when-tpm-present
+        - production-builds-without-ssh
+      opt_in:
+        - remote-access-for-debug
+    summary: >-
+      EVE measures its boot chain and CONFIG partition into TPM registers,
+      seals the vault key to them and supports remote attestation through the
+      controller. Without a working TPM there is no encryption at rest.
+      Secure Boot is not described in the repository documentation.
+    notes: >-
+      The security architecture document says measured boot with remote
+      attestation ensures the device runs the expected firmware and software,
+      and describes an integrity token that the controller issues after
+      successful attestation and that the device needs for configuration
+      requests. The vault key is generated on the device, sealed to PCR
+      values and also encrypted with a TPM wrapped key escrowed with the
+      controller. After an update changes the boot chain, the controller
+      validates the new PCR values by attestation and returns the encrypted
+      key. Release 17.0.0-lts adds a flexible PCR policy: the controller can
+      change which registers seal the key, and the device reseals without
+      reinstall.
+
+      The security hardware page states that EVE performs no encryption at
+      rest at all on a device without a working TPM and reports data at rest
+      as disabled.
+
+      A change to the controller address or certificate, or to the remote
+      access status, changes PCR 14 and leaves the vault sealed until the
+      controller releases the backup key. The text user interface that can
+      change the controller address renders only on a locally attached
+      monitor and only before onboarding.
+
+      Remote access: production builds have no way to ssh into the device,
+      per the FAQ. Developer and debug builds can enable ssh with a
+      configuration property. The security document describes building an
+      image with edge-view and ssh disabled, and says re-enabling needs the
+      controller plus physical access.
+
+      Mandatory access control: the security architecture document says the
+      AppArmor profiles shipped with EVE confine EVE's own components, such as
+      swtpm, vtpm and vector, and the document states they are not applied to
+      edge applications. The pages read do not mention SELinux.
+
+      Project security process: the repository has a SECURITY.md that lists
+      supported versions for security fixes (see d14), and the README carries
+      OpenSSF Best Practices and Scorecard badges. A badge is a pointer to
+      another site and is not evidence of its result.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/blob/master/docs/SECURITY-ARCHITECTURE.md
+        type: official-docs
+        title: lf-edge/eve security architecture
+        retrieved: "2026-10-05"
+        quote: >-
+          Separately measured boot with remote attestation will ensure that the
+          device is running the expected versions and hashes of firmware and of
+          the EVE software.
+      - url: https://github.com/lf-edge/eve/blob/master/docs/SECURITY-HARDWARE.md
+        type: official-docs
+        title: lf-edge/eve hardware security recommendation
+        retrieved: "2026-10-05"
+        quote: >-
+          EVE performs no encryption at rest at all on a device without a
+          working TPM
+      - url: https://github.com/lf-edge/eve/blob/master/docs/MEASURED-CONFIG.md
+        type: official-docs
+        title: lf-edge/eve measured config
+        retrieved: "2026-10-05"
+        quote: EVE measures the contents of the CONFIG partition into TPM PCR 14 on every boot
+      - url: https://github.com/lf-edge/eve/blob/master/docs/BOOTING.md
+        type: official-docs
+        title: lf-edge/eve booting
+        retrieved: "2026-10-05"
+        quote: grub.cfg is measured to PCR 8
+      - url: https://github.com/lf-edge/eve/blob/master/docs/FAQ.md
+        type: official-docs
+        title: lf-edge/eve FAQ
+        retrieved: "2026-10-05"
+        quote: >-
+          For developer or debug builds of EVE you can set a debug.enable.ssh
+          property to your ssh public key.
+      - url: https://github.com/lf-edge/eve/blob/master/docs/LOCAL-TUI.md
+        type: official-docs
+        title: lf-edge/eve local text user interface
+        retrieved: "2026-10-05"
+        quote: >-
+          The UI is rendered on a local TTY (/dev/tty2) only i.e. on a physical
+          monitor attached to the system.
+    unknowns:
+      - "Secure Boot. Searched every file in docs/ of lf-edge/eve for secure boot, secureboot and shim (the matches for shim concern the container shim VM). docs/BIOS-FIRMWARE.md lists the firmware options EVE expects (VT-x, VT-d, watchdog, TPM 2.0) and does not list Secure Boot. Not recorded as absent."
+      - "Which PCR set is the default seal policy. SECURITY-ARCHITECTURE.md says typically firmware, bootloader, root filesystem and kernel configuration. The 17.0.0 release makes the policy controller-defined."
+      - "FIPS status. The documentation mentions FIPS only as a citation for a key derivation function. Searched docs/ for fips."
+      - "Provenance and artifact signing, see d03."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: "not available in production builds; configurable in developer builds"
+      local_shell: "console access on debug builds; the documentation describes an eve command line in the dom0 environment"
+      serial_console: unknown
+      debug_container: "eve enter debug"
+      remote_debug_channel: "edge-view (controller-mediated; can be disabled at build time)"
+      support_bundle: unknown
+      works_without_kubernetes: "yes"
+      works_without_controller: "applications keep running; configuration changes and updates wait"
+    summary: >-
+      Production builds have no ssh. Operators work through the controller,
+      through an edge-view remote channel, or on a debug build. Applications
+      and the last applied configuration keep running when the controller is
+      unreachable.
+    notes: >-
+      The debugging page shows commands such as eve app list, eve app enter,
+      eve app console and eve enter debug, and a diagnostic output file that
+      summarizes controller connectivity and device status. These commands run
+      in an environment reached by ssh or edge-view on a device where remote
+      access is enabled.
+
+      The disconnected operation page states that nothing about the loss of
+      the controller stops application instances, that the last applied
+      configuration is checkpointed in /persist/checkpoint/lastconfig and
+      replayed at boot with no age limit, and that the vault unseals locally
+      from the TPM. A Local Profile Server can complement the controller for
+      local operations (select a profile, restart an application, radio
+      silence, graceful shutdown). A Local Operator Console can substitute
+      for the controller in air-gapped deployments.
+
+      The disconnected state limits change: deploying an application,
+      updating the base image and rotating credentials all wait for the
+      connection, and no new configuration, application or base image can be
+      introduced by anyone while the device is disconnected.
+
+      Nothing in this dimension depends on Kubernetes. On EVE-k, the
+      kube service is an addition and the host tools above do not require it.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/blob/master/docs/DEBUGGING.md
+        type: official-docs
+        title: lf-edge/eve debugging
+        retrieved: "2026-10-05"
+        quote: eve enter debug
+      - url: https://github.com/lf-edge/eve/blob/master/docs/DISCONNECTED-OPERATION.md
+        type: official-docs
+        title: lf-edge/eve disconnected operation
+        retrieved: "2026-10-05"
+        quote: >-
+          Nothing about the loss of the controller stops application instances,
+          and nothing expires the configuration they run under.
+      - url: https://github.com/lf-edge/eve/blob/master/docs/FAQ.md
+        type: official-docs
+        title: lf-edge/eve FAQ
+        retrieved: "2026-10-05"
+        quote: How to ssh into a running instance of EVE?
+      - url: https://github.com/lf-edge/eve/blob/master/docs/SECURITY-ARCHITECTURE.md
+        type: official-docs
+        title: lf-edge/eve security architecture, remote access
+        retrieved: "2026-10-05"
+        quote: EVE provides a mechanism to build an image with remote access disabled (edge-view and ssh)
+    unknowns:
+      - "Serial console behavior on production builds."
+      - "A support bundle or log collection command. docs/LOGGING.md and docs/DEBUGGING.md were not read for a named bundle tool. Device logs are sent to the controller."
+
+  d12_fleet_management:
+    normalized:
+      core_project:
+        - "The EVE API (eve-api) and the on-device agents that implement it: registration, eventually consistent configuration, base OS update orchestration, attestation"
+        - "Local Profile Server and Local Operator Console interfaces for local control and air-gapped use"
+        - "Edge node clustering in the EVE-k flavor, configured by the controller"
+      oss_companion:
+        - name: Adam
+          repo: https://github.com/lf-edge/adam
+          license: Apache-2.0
+          org: lf-edge
+          note: "Reference implementation of the EVE API controller. Runs locally, in the cloud or in a container. Its README states it was not built or tested to withstand penetration attacks, DDoS or other major security requirements, and not built for massive scale, and refers to vendor controllers for those."
+        - name: Eden
+          repo: https://github.com/lf-edge/eden
+          license: Apache-2.0
+          org: lf-edge
+          note: "Integration test harness for EVE, listed with the EVE project in MAINTAINERS.md. It holds the hardware model files. Its role as a fleet tool is not documented in the pages read."
+      commercial:
+        - name: ZEDEDA Cloud (zedcloud) edge orchestration
+          vendor: ZEDEDA
+          license: commercial
+          self_hostable: unknown
+          note: "The EVE deployment page names the ZEDEDA Cloud controllers as an enterprise-ready option for onboarding and control. Maintainers listed in MAINTAINERS.md are largely ZEDEDA employees (see d13). ZEDEDA announced an Edge Sync product for disconnected sites in 2024, found through a search result and not read directly, so no self-hosting statement is recorded."
+      cluster_api:
+        os_specific_provider: "none documented"
+        maintainer: "none documented"
+        upstream_provider_list: "not checked against the upstream Cluster API provider list in this edition"
+        provisions: "not applicable: EVE joins its own controller, and EVE-k forms k3s clusters from controller configuration, not through Cluster API"
+        bootstrap_target: "none; the EVE API controller defines the k3s cluster type"
+    summary: >-
+      Fleet management is through the EVE API, which a controller implements.
+      Adam is an open-source reference controller, and ZEDEDA Cloud is the
+      commercial controller named in the project's deployment guide. No
+      Cluster API provider is documented.
+    notes: >-
+      Three buckets are kept apart. The device side of fleet management
+      (registration, configuration reconciliation, update orchestration,
+      attestation) belongs to the open-source project. A controller that
+      operates a fleet is a separate component. The open-source one is a
+      reference implementation with stated limits. The production
+      controllers the documentation points to are commercial.
+
+      Cluster API. No document in the repository mentions Cluster API, and a
+      web search for EVE-OS and Cluster API returned no relevant result. EVE-k
+      is not driven through Cluster API: the EVE API controller sets the
+      cluster type of the k3s instance. The values above therefore say that no
+      provider is documented, and not that none exists. The EVE project
+      wiki describes a Kubernetes compatible API for the EVE controller as a
+      design topic. That page was found through search and not read.
+
+      Edge node clustering: groups of three EVE-k nodes, with an etcd member on
+      each node, per the EVE-k page.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/adam/blob/master/README.md
+        type: source-repo
+        title: lf-edge/adam README
+        retrieved: "2026-10-05"
+        quote: >-
+          You can use Adam to drive one or more
+      - url: https://github.com/lf-edge/eve/blob/master/docs/DEPLOYMENT.md
+        type: official-docs
+        title: lf-edge/eve deployment, controller options
+        retrieved: "2026-10-05"
+        quote: >-
+          An easy way to test onboarding and control over EVE-OS edge nodes is
+          with the enterprise-ready ZEDEDA Cloud controllers.
+      - url: https://github.com/lf-edge/eve/blob/master/docs/README.md
+        type: official-docs
+        title: lf-edge/eve docs/README.md, controller
+        retrieved: "2026-10-05"
+        quote: All interactions that Diane will have are going to be through the EVE Controller.
+      - url: https://github.com/lf-edge/eve/blob/master/MAINTAINERS.md
+        type: governance-doc
+        title: lf-edge/eve MAINTAINERS
+        retrieved: "2026-10-05"
+        quote: lf-edge/adam
+    unknowns:
+      - "Whether ZEDEDA Cloud can be self-hosted. The product page and the Edge Sync announcement were not readable (HTTP 403 on fetch)."
+      - "Whether any Cluster API provider for EVE or EVE-k exists outside the lf-edge organization. Searched the lf-edge/eve docs/ folder and the web."
+      - "A complete list of third-party controllers that implement the EVE API."
+
+  d13_governance:
+    normalized:
+      license: Apache-2.0
+      open_source: true
+      open_governance: documented
+      vendor_neutral_ownership: foundation-held
+      foundation:
+        name: LF Edge (Linux Foundation)
+        level: "Stage 3, Impact"
+        since: "2025-03-31"
+      trademark_holder: unknown
+      primary_commercial_sponsor: ZEDEDA
+      governance_body: "Technical Steering Committee (TSC), modeled on Apache Software Foundation practice"
+      contribution_diversity:
+        method: >-
+          Author email domains and author names of the 500 most recent commits
+          to lf-edge/eve master, read from the GitHub commits API on
+          2026-10-05 (window 2026-07-28 to 2026-10-04). Counting email domains
+          undercounts people who use personal addresses, and gmail.com and
+          users.noreply.github.com cannot be assigned to an employer. The count
+          is of commits, not of reviewers or of effort.
+        value: >-
+          373 of 510 commits (73.1%) have a zededa.com address. The other
+          commits come from gmail.com (52), a personal domain (35),
+          users.noreply.github.com (33, including dependabot) and posteo.de
+          (17). Ten distinct author names appear. The commit count by one
+          author (eriknordmark, 187) is 36.7% of the sample. Re-derived
+          2026-10-05 with the authenticated API over the window above.
+    summary: >-
+      Apache-2.0, hosted by LF Edge at Stage 3 (Impact). A Technical Steering
+      Committee governs the project under published rules. Commit activity in
+      the sampled window is concentrated in one commercial sponsor.
+    notes: >-
+      The four properties are separate. Open source: the repository license
+      is Apache 2.0. Open governance: CONTRIBUTING.md states that governance
+      is conducted by the TSC, names five members and two emeritus members,
+      and gives a mailing list; the process is modeled on Apache PMC
+      practice, and the wiki page for community and governance is linked
+      from MAINTAINERS.md. Vendor-neutral ownership: the LF Edge press
+      release says the project has achieved Impact Stage status, and LF Edge
+      is a Linux Foundation project. The trademark holder was not found in
+      the pages read, so it is recorded as unknown. Contribution diversity:
+      concentrated, per the sample above.
+
+      MAINTAINERS.md lists six maintainers, and the project spans several
+      repositories (eve, eden, adam, edge-containers, runx, rol, eve-tools).
+      Four of the six listed maintainers use zededa.com addresses. The TSC
+      list has five members, with one zededa.com address among them.
+
+      The method sample covers about nine weeks. A different window would
+      change the numbers.
+
+      ZEDEDA is the commercial vendor that sells a controller for EVE. This
+      is a statement of ownership and contribution, not a judgement.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/blob/master/LICENSE
+        type: governance-doc
+        title: lf-edge/eve LICENSE
+        retrieved: "2026-10-05"
+        quote: Apache License
+      - url: https://github.com/lf-edge/eve/blob/master/CONTRIBUTING.md
+        type: governance-doc
+        title: lf-edge/eve CONTRIBUTING
+        retrieved: "2026-10-05"
+        quote: EVE governance is conducted by the TSC
+      - url: https://github.com/lf-edge/eve/blob/master/MAINTAINERS.md
+        type: governance-doc
+        title: lf-edge/eve MAINTAINERS
+        retrieved: "2026-10-05"
+        quote: List of maintainers (in alphabetical order)
+      - url: https://www.linuxfoundation.org/press/project-eve-hits-maturity-within-lf-edge-releases-multi-node-support-for-enhanced-edge-computing-resilience
+        type: foundation-page
+        title: Project EVE hits maturity within LF Edge
+        retrieved: "2026-10-05"
+        quote: >-
+          has achieved Impact Stage status, a designation for the most
+          developed projects within LF Edge
+      - url: https://api.github.com/repos/lf-edge/eve/commits?since=2026-07-05T00:00:00Z&per_page=100
+        type: source-repo
+        title: GitHub commits API, lf-edge/eve, five pages of 100
+        retrieved: "2026-10-05"
+    unknowns:
+      - "Who holds the EVE trademark and project assets. The LF Edge project page and the wiki governance pages were not readable in this edition."
+      - "Employer affiliation of maintainers beyond email domains."
+      - "Contributor diversity measured by reviewers, issue authors or deployments."
+
+  d14_maturity:
+    normalized:
+      first_release: unknown
+      repository_created: "2019-04-19"
+      current_version: "17.0.0-lts"
+      current_version_date: "2026-07-27"
+      channel: lts
+      release_cadence: "numbered releases every 1 to 3 weeks in the sampled period; an LTS release about every 6 months"
+      observed_intervals: "numbered releases 17.1.0 to 17.6.0 tagged 2026-07-09, 07-23, 08-15, 09-08, 09-15 and 09-29 (gaps of 14, 23, 24, 7 and 14 days); LTS tags 14.5.0-lts 2025-06-18, 16.0.0-lts 2026-01-06, 17.0.0-lts 2026-07-27"
+      support_model: lts-stream
+      support_window: "security fixes are documented for the 17.0.x, 16.0.x, 14.5.x, 13.4.x, 12.0.x, 11.0.x and 10.4.x streams; a longer support period figure is unconfirmed (see unknowns)"
+      commercial_support: available
+      commercial_support_vendor: ZEDEDA
+    summary: >-
+      An LF Edge Impact Stage project with a GitHub repository created in
+      2019. It ships numbered releases every one to three weeks and a
+      long-term support release about twice a year. SECURITY.md lists seven
+      release streams as supported.
+    notes: >-
+      Tag dates come from the GitHub git tag objects. The numbered release
+      17.6.0 and the release candidate 17.0.1-rc2 are marked as pre-releases
+      on GitHub. The LTS releases 17.0.0-lts and 16.0.2-lts are not. The release page of 17.0.0-lts is the GitHub Latest
+      release. A newer LTS maintenance tag, 16.0.2-lts (2026-09-13), exists
+      for the older stream. The README states a bi-weekly release schedule.
+      The observed gaps between numbered releases ranged from 7 to 24 days.
+
+      The first release date was not determined. The repository was created
+      on GitHub on 2019-04-19 and the earliest tag read is not dated in
+      the pages used. LF Edge announced EVE as a project at its launch;
+      that source was not retrieved in this edition.
+
+      Commercial support: ZEDEDA offers a commercial controller and support
+      for EVE-OS, per the deployment page naming its controllers. The
+      support terms were not read.
+
+      The ZEDEDA documentation site returned HTTP 403 to automated fetches.
+      A search result summary said that ZEDEDA's long-term support policy gives
+      two years of full support and one year of limited support for each LTS
+      release (36 months in total), with an LTS about every six months. That
+      summary was not verified against the page and the figures are kept out
+      of the normalized fields. SECURITY.md in the repository is the
+      verified source for the supported streams.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/lf-edge/eve/blob/master/SECURITY.md
+        type: governance-doc
+        title: lf-edge/eve SECURITY.md, supported versions
+        retrieved: "2026-10-05"
+        quote: "| 17.0.x | ✅ |"
+      - url: https://github.com/lf-edge/eve/blob/master/README.md
+        type: source-repo
+        title: lf-edge/eve README, release schedule
+        retrieved: "2026-10-05"
+        quote: EVE is an agile software project with bi-weekly release schedule
+      - url: https://github.com/lf-edge/eve/releases/tag/17.0.0-lts
+        type: release-notes
+        title: lf-edge/eve release 17.0.0-lts
+        retrieved: "2026-10-05"
+        quote: amd64.kvm.generic.rootfs.img
+      - url: https://github.com/lf-edge/eve/blob/master/docs/DEPLOYMENT.md
+        type: official-docs
+        title: lf-edge/eve deployment, controller options
+        retrieved: "2026-10-05"
+        quote: enterprise-ready ZEDEDA Cloud controllers
+    unknowns:
+      - "The date of the first release and the first LTS. Searched the tag list (earliest entries not dated) and docs/. The GitHub repository creation date is 2019-04-19."
+      - "The published LTS support duration. The ZEDEDA LTS policy page and the project wiki release policy page were not fully readable; the wiki page read states a backport policy and a yearly kernel update cadence, not a duration."
+      - "The commercial support terms and tiers."
+
+tradeoffs:
+  buys:
+    - "A/B root partitions with a 10 minute post-update health test and automatic fall back, with no operator action, which protects remote devices against a failed update."
+    - "Applications and the last applied configuration keep running, with no age limit, when the controller is unreachable, and the vault unseals locally from the TPM."
+    - "Measured boot, TPM sealed disk encryption, remote attestation and an integrity token tied to the controller form a documented security design aimed at devices in untrusted locations. It needs TPM 2.0; without one there is no encryption at rest."
+    - "One host runs virtual machines, containers and unikernels, with PCI and GPU passthrough documented, so workloads that do not fit a container-only node can share the device."
+    - "An open API and an open-source reference controller (Adam), with the update source any datastore the operator names."
+    - "Hosted by LF Edge at Stage 3 with a TSC and published governance."
+  costs:
+    - "A controller is mandatory. Without one the device receives no configuration or updates. The open-source reference controller states it is not built for scale or attack resistance, and the production controller named in the guide is commercial."
+    - "Kubernetes exists only in the separate EVE-k build flavor. Upgrading from EVE-k to another flavor is not supported, and moving a device to EVE-k needs it to hold no volumes."
+    - "Mandatory access control does not cover workloads: the AppArmor profiles shipped with EVE confine EVE's own components and are not applied to edge applications."
+    - "Production builds have no ssh, so diagnosis depends on the controller, edge-view or a debug build."
+    - "Four of six maintainers use a ZEDEDA email address."
+    - "No application can run as a plain POSIX process on the host, so existing host-level agents and tools must be repackaged as Edge Containers."
+    - "The success test for a new base image includes a controller connection, so a version that runs correctly but cannot reach the controller is rolled back."
+maintainers_fact:
+  text: "Four of six maintainers use a ZEDEDA email address."
+  evidence: DOCUMENTED
+  sources:
+    - url: "https://github.com/lf-edge/eve/blob/master/MAINTAINERS.md"
+      type: "governance-doc"
+      title: "lf-edge/eve MAINTAINERS"
+      retrieved: "2026-10-05"
+      quote: "List of maintainers (in alphabetical order)"
+known_issues:
+  - text: "docs/HYPERVISORS.md describes Xen as one of the hypervisors EVE supports, but Xen is not in the HV_SUPPORTED list of the current Makefile, and no Xen artifact is in the 17.0.0-lts release."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://github.com/lf-edge/eve/blob/master/docs/HYPERVISORS.md"
+        type: "official-docs"
+        title: "lf-edge/eve docs/HYPERVISORS.md"
+        retrieved: "2026-10-05"
+        quote: "EVE is using it for all the hypervisors it supports."
+      - url: "https://github.com/lf-edge/eve/blob/master/Makefile"
+        type: "source-repo"
+        title: "lf-edge/eve Makefile"
+        retrieved: "2026-10-05"
+        quote: "HV_SUPPORTED=kvm k mini"
+open_questions:
+  - "Is Secure Boot supported, and with which key chain? The repository documentation does not describe it."
+  - "Is the root image verified at runtime beyond the read-only mount (dm-verity or similar)?"
+  - "Are release artifacts and installers signed, and is there SLSA style provenance?"
+  - "Who holds the EVE trademark, and where is the LF Edge governance page that states it?"
+  - "Is the Xen build still maintained, given that the Makefile no longer lists it as a supported HV value?"
+  - "What is the published LTS support duration, and is the 36 month figure from the ZEDEDA policy page correct?"
+  - "Can Kubernetes be upgraded without a full EVE-k image update? (17.0.0-lts ships k3s v1.34.2+k3s1 per its release notes.)"
+  - "Can ZEDEDA Cloud be self-hosted, and does Edge Sync act as a local controller?"
+  - "Is there a documented recovery environment or factory reset procedure for a device that cannot boot?"
+  - "Is there any Cluster API integration for EVE-k outside the repository?"
+  - "Is the Raspberry Pi 4 and 5 support a released artifact of the current release, and under which platform tag?"
+  - "When was the first EVE release?"
+
+follow_up_research: []
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Cost audit under methodology section 9, rule 15. Moved cost 'The root image is protected by a read-only mount. No dm-verity or equivalent was found in the documentation, and Secure Boot is not described in the repository documentation.' to open questions (N1); q0 and q1 cover it. Buy b4: removed the conclusion 'the control plane is not tied to one vendor', which cost c0 qualifies; the capability is unchanged."
+  - date: '2026-10-06'
+    field: dimensions.d04_upgrade.normalized.scope
+    change: Was whole-root (Whole root). Now whole-os-image (Whole OS image), from the independent check of what one update replaces (closed six-value vocabulary).
+    source:
+      url: https://github.com/lf-edge/eve/blob/master/docs/BASEIMAGE-UPDATE.md
+      type: official-docs
+      title: lf-edge/eve baseimage update
+      retrieved: '2026-10-06'
+      quote: dual partitions and priority boot support in grub
+  - date: "2026-10-05"
+    field: dimensions.d10_security.normalized.mandatory_access_control
+    change: "Independent fact-check: the security architecture document answers the workload scope. AppArmor profiles are not applied to edge applications. Recorded in d10 and in costs."
+    source:
+      url: https://github.com/lf-edge/eve/blob/master/docs/SECURITY-ARCHITECTURE.md
+      type: official-docs
+      title: EVE security architecture
+      retrieved: "2026-10-05"
+      quote: "The AppArmor profiles shipped with EVE confine EVE's own components, such as swtpm, vtpm and vector. They are not applied to edge applications."
+  - date: "2026-10-05"
+    field: "d13 contribution sample; d07 unknowns; d08 asset count"
+    change: "Independent fact-check: commit sample re-derived over the stated window with the authenticated API (373 of 510, 73.1%; was 364 of 500, 72.8%, from a mismatched window). 17.0.0-lts ships k3s v1.34.2+k3s1 per its release notes, so that unknown is removed. Asset count is 68, not 72."
+    source:
+      url: https://github.com/lf-edge/eve/releases/tag/17.0.0-lts
+      type: release-notes
+      title: EVE 17.0.0-lts release notes
+      retrieved: "2026-10-05"
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 16: concentration is stated once, in one shape. Was 'Commits in the sampled window were concentrated in one commercial sponsor (73.1% from one email domain).' Now 'Four of six maintainers use a ZEDEDA email address.' The profile records a maintainer count from the project's MAINTAINERS.md (d13 notes: four of the six listed maintainers use zededa.com addresses), so the card uses the maintainer shape every foundation-held entry gets. The affiliation is read from email domains, not from a published employer column. The commit share stays in d13 contribution_diversity, because no other entry has a commit share measured the same way."
+    source:
+      url: "https://github.com/lf-edge/eve/blob/master/MAINTAINERS.md"
+      type: "governance-doc"
+      title: "lf-edge/eve MAINTAINERS"
+      retrieved: "2026-10-05"
+      quote: "List of maintainers (in alphabetical order)"
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Methodology section 9, rule 18: a status goes inside the buy for the capability it describes. Moved cost c4 ('The security model depends on a TPM 2.0. Without a working TPM there is no encryption at rest.') into buy b2, which now ends 'It needs TPM 2.0; without one there is no encryption at rest.'"
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized
+    change: Added read_only_mechanism and configurable_paths (no, INFERRED) for the Mounts row. The persistent value stands. Note that docs/README.md calls P3 'a scratch space' while BOOTING.md describes /persist as holding the vault and volumes; the Mounts row follows the profile and BOOTING.md.
+    source:
+      url: https://github.com/lf-edge/eve/blob/e933b99/docs/README.md
+      type: source-repo
+      title: 'EVE docs: the P3 partition'
+      retrieved: '2026-10-12'
+      quote: P3 (read-write filesystem that extends to the rest of the available storage medium)
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized.ephemeral
+    change: "The Writable, reset on reboot line of the Mounts row stays empty. docs/BOOTING.md (lf-edge/eve at 0e1afbf) says EVE uses Alpine's overlaytmpfs option to build a stacked root filesystem in the initramfs, but no EVE document read says which paths are discarded on reboot."
+    source:
+      url: https://github.com/lf-edge/eve/blob/0e1afbf619e8800745d4481b91b6abd4b765d73b/docs/BOOTING.md
+      type: source-repo
+      title: 'EVE docs: BOOTING.md, stacked root filesystem'
+      retrieved: '2026-10-12'
+      quote: EVE leverages Alpine's ability to create an overlayfs-based stacked rootfilesystem by specifying
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: 'Added the add_software field. It records how an adopter adds software to the OS itself, not workloads. Values: Build-time only. Each value has its sources, read on 2026-10-12.'
+    source:
+      url: https://github.com/lf-edge/eve/blob/0e1afbf619e8800745d4481b91b6abd4b765d73b/docs/CUSTOM-BUILD.md
+      type: source-repo
+      title: 'EVE docs: Custom Build'
+      retrieved: '2026-10-12'
+      quote: Modify the eve-os build to include external packages

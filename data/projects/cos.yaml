@@ -1,0 +1,1489 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: cos
+name: Container-Optimized OS
+homepage: https://docs.cloud.google.com/container-optimized-os/docs
+repository: https://cos.googlesource.com/
+collected_at: "2026-09-15"
+
+entry_kind:
+  - platform-os
+
+category_fit:
+  comparable: partial
+  note: >-
+    A vendor platform operating system. It is architecturally comparable to the
+    other image-based systems here, with a read-only integrity-checked root and
+    A/B updates, but two facts limit how far it can be compared.
+
+    It is documented as not supported outside Google Cloud, and it does not
+    accept public contributions to the operating system itself. So dimensions
+    that ask about portability and community participation have answers that
+    reflect a product boundary rather than a technical one.
+
+    Documentation is the only usable evidence for several dimensions, and where
+    it is silent this profile records unknown generously rather than
+    reverse-engineering undocumented internals.
+
+self_description:
+  text: >-
+    Container-Optimized OS is an operating system image for your Compute Engine
+    VMs that is optimized for running Docker containers.
+  source:
+    url: https://docs.cloud.google.com/container-optimized-os/docs
+    type: vendor-docs
+    title: Container-Optimized OS documentation
+    retrieved: "2026-09-22"
+
+version_observed:
+  version: "cos-129-19506-448-36"
+  released: "2026-09-17"
+  channel: "milestone 129 LTS"
+  method: >-
+    Newest build on the current LTS milestone, from the official release notes
+    page. Note that cloud.google.com URLs now redirect to docs.cloud.google.com.
+  source:
+    url: https://docs.cloud.google.com/container-optimized-os/docs/release-notes/m129
+    type: vendor-docs
+    title: COS milestone 129 release notes
+    retrieved: "2026-09-22"
+  additional_channels:
+    - channel: "milestone 125 LTS"
+      version: "cos-125-lts family"
+      eol: "February 2028 per the release notes page; September 2027 per the Compute Engine OS details page"
+    - channel: "milestone 121 LTS"
+      version: "cos-121-lts family"
+      eol: "March 2027"
+    - channel: "milestone 117 LTS"
+      version: "cos-117-lts family"
+      eol: "September 2026"
+
+taxonomy:
+  workload_scope: kubernetes-oriented-host
+  construction_model:
+    - vendor-fixed-image
+  root_state_substrate:
+    - ab-partition-image
+  notes: >-
+    A container host rather than a Kubernetes appliance. It is the default and
+    recommended node image for the vendor's managed Kubernetes service, and it
+    is equally documented as a standalone Compute Engine image for running
+    containers with no Kubernetes involved.
+
+    Construction is vendor-fixed. Customization happens through defined tools
+    that modify a published image, not by rebuilding the distribution, and the
+    operating system does not accept public contributions.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: kubernetes-oriented-host
+      ships_kubernetes: false
+      ships_container_runtimes: true
+      lineage: "fork of the Chromium OS open-source project"
+      open_source: partial
+      runs_outside_vendor_cloud: "not supported"
+    summary: >-
+      A minimal container host derived from Chromium OS, with Docker,
+      containerd and cloud-init preinstalled. It is the default node image for
+      the vendor's managed Kubernetes, and also runs standalone on plain VMs.
+    notes: >-
+      The vendor's own statement about source availability is hedged and the
+      hedge is theirs, not a paraphrase: the majority of the source code is in
+      the public repositories. No document names which parts are not published.
+
+      A third party can build it: the procedure is documented, with two board
+      names for the two architectures, and includes running the result locally
+      under emulation and importing it to the vendor's cloud. What is not
+      supported is running it outside that cloud, which the documentation states
+      plainly.
+
+      The documentation is unusually direct about when not to use it, listing
+      cases including applications that are not containerized, dependence on
+      kernel modules or packages the image does not have, wanting professional
+      support from a Linux vendor, and wanting full support outside the vendor's
+      cloud.
+
+      Kubernetes is recorded as not shipped on the strength of the release
+      notes' per-build component table, which names the kernel, Docker,
+      containerd and GPU drivers and no Kubernetes component. No page states
+      it in words, and the same convention is applied to every other profile
+      in this edition whose image carries no Kubernetes.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/resources/sources
+        type: vendor-docs
+        title: COS sources
+        retrieved: "2026-09-22"
+        quote: >-
+          Container-Optimized OS from Google is a fork of the Chromium OS
+          open-source project.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/features-and-benefits
+        type: vendor-docs
+        title: Features and benefits
+        retrieved: "2026-09-22"
+        quote: >-
+          Container-Optimized OS is not supported outside of the Google Cloud
+          Platform environment.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/building-from-open-source
+        type: vendor-docs
+        title: Building from open source
+        retrieved: "2026-09-22"
+        quote: >-
+          To build Container-Optimized OS, specify lakitu (x86 image) or
+          lakitu-arm64 (Arm image) for the board name as follows:
+    unknowns:
+      - "Which parts of a shipped image are not in the public repositories. The vendor says 'the majority' and names no exclusions."
+      - "Whether a third-party build can reproduce an official image bit for bit. No reproducibility claim is made either way."
+      - "No page states in words that the image carries no kubelet; the value rests on the release notes component table. Searched the features page, the node images page and the run-container page as well."
+
+  d02_immutability:
+    normalized:
+      read_only:
+        - /
+      integrity_mechanism:
+        - read-only-mount
+      integrity_verification: "checksum computed at build time, verified by the kernel at each boot"
+      dm_verity: unknown
+      ephemeral:
+        - /etc
+        - /tmp
+        - /var/lib/cloud
+        - /mnt/disks
+      writable_and_persistent:
+        - /home
+        - /var
+        - /var/lib/docker
+        - /var/lib/toolbox
+        - /var/lib/google
+        - /mnt/stateful_partition
+      ephemeral_mechanism: tmpfs
+      read_only_mechanism: root filesystem mounted read-only, checked by the kernel at boot
+      configurable_paths:
+        value: 'yes'
+        evidence: DOCUMENTED
+        how: 'Only to add storage: mount persistent disks in a subdirectory of /mnt/disks, from cloud-config bootcmd. /etc/fstab does not work because /etc is stateless.'
+        sources:
+          - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/disks-and-filesystem
+            type: official-docs
+            title: 'COS disks and file system: mounting disks'
+            retrieved: '2026-10-12'
+            quote: The disks can be mounted by creating a subdirectory under /mnt/disks directory.
+          - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/disks-and-filesystem
+            type: official-docs
+            title: 'COS disks and file system: fstab'
+            retrieved: '2026-10-12'
+            quote: Since /etc/ is stateless on Container-Optimized OS, you cannot use /etc/fstab to automatically fsck
+      mounts_sources:
+        - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/disks-and-filesystem
+          type: official-docs
+          title: 'COS disks and file system: stateless partitions'
+          retrieved: '2026-10-12'
+          quote: Stateless partitions, which are writable but the contents do not persist across reboots.
+        - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/disks-and-filesystem
+          type: official-docs
+          title: 'COS disks and file system: persistent paths'
+          retrieved: '2026-10-12'
+          quote: However, home directories and /mnt/stateful_partition are persistent and writable.
+        - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/disks-and-filesystem
+          type: official-docs
+          title: 'COS disks and file system: working directories'
+          retrieved: '2026-10-12'
+          quote: These paths are working directories for Compute Engine packages (for example, the accounts manager service), Docker, and Toolbox respectively.
+    summary: >-
+      The root filesystem is always mounted read-only and the kernel refuses to
+      boot if its integrity check fails. /etc is writable but stateless, so
+      changes do not survive a reboot.
+    notes: >-
+      The stateless /etc is the operationally surprising property and the
+      documentation draws out the consequence: enabling or disabling a systemd
+      unit does not persist, and fstab cannot be relied on for boot-time mounts.
+      Configuration must be reapplied on every boot, which is why cloud-init
+      modules that normally run once per instance run on every boot here.
+
+      Whether the integrity mechanism is dm-verity is recorded as unknown, and
+      the distinction matters. The concept pages say only that a checksum is
+      computed at build time and verified by the kernel. dm-verity is named by
+      the vendor in a blog post about compliance scanning and in the
+      documentation for a derived confidential-computing image, but not on the
+      operating system's own concept pages. Rather than infer, this profile
+      records what each source actually supports.
+
+      Persistence across an upgrade is not stated as a guarantee anywhere. It is
+      implied by the separate stateful partition, and it is recorded as an
+      unknown rather than asserted.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/security
+        type: vendor-docs
+        title: COS security
+        retrieved: "2026-09-22"
+        quote: >-
+          The Container-Optimized OS root filesystem is always mounted as
+          read-only ... its checksum is computed at build time and verified by
+          the kernel on each boot.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/disks-and-filesystem
+        type: vendor-docs
+        title: Disks and filesystem
+        retrieved: "2026-09-22"
+        quote: >-
+          The kernel verifies integrity root filesystem during boot up, and
+          refuses to boot in case of errors.
+      - url: https://docs.cloud.google.com/docs/security/confidential-space
+        type: vendor-docs
+        title: Confidential Space, dm-verity on a COS-derived image
+        retrieved: "2026-09-22"
+        quote: >-
+          These partitions are immutable and protected by dm-verity.
+    unknowns:
+      - "Whether the stock operating system uses dm-verity for the root filesystem. It is named for a derived image and in a blog post, not on the OS concept pages."
+      - "Whether the stateful partition survives an A/B upgrade is never stated as a guarantee."
+
+  d03_artifact:
+    normalized:
+      primary_artifact: "cloud disk image"
+      downloadable: unknown
+      oci_registry_distribution: "companion tooling only, not the OS"
+      content_addressable: unknown
+      mirrorable: unknown
+      signed: unknown
+      air_gapped_capable: unknown
+    summary: >-
+      The artifact is a Compute Engine image selected by image family. No
+      documentation offers it as a downloadable file. Kernel sources and
+      headers are published per build in a public storage bucket.
+    notes: >-
+      Four image families exist per architecture: an LTS family per milestone,
+      plus stable, beta and dev.
+
+      Companion tooling is distributed as container images, which is where any
+      OCI involvement sits. The operating system itself is not.
+
+      Whether the image can be obtained as a file is recorded as unknown rather
+      than absent. No documentation page offers a download, and the build page
+      describes importing a self-built image into the platform rather than
+      exporting a published one. The tooling repository does carry an OVA
+      converter whose stated purpose includes exporting a Compute Engine image
+      to OVA, which is source-level evidence that an export path exists for the
+      customizer workflow, not a documented distribution channel.
+
+      Image digests, mirroring, signing and air-gapped installation are all
+      undocumented. Given the product boundary in d01, that is coherent rather
+      than an oversight, but it is recorded as unknown because the questions have
+      no published answers.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/versioning
+        type: vendor-docs
+        title: Versioning and milestones
+        retrieved: "2026-09-22"
+        quote: >-
+          This family follows releases for a particular production-ready
+          milestone. Images on this family receive only security and stability
+          fixes.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/resources/sources
+        type: vendor-docs
+        title: Sources and published build artifacts
+        retrieved: "2026-09-22"
+        quote: >-
+          Additional image artifacts, including archived kernel sources and
+          kernel headers, are also available in a public Google Cloud Storage
+          bucket under gs://cos-tools/<build-number>/.
+      - url: https://cos.googlesource.com/cos/tools/+/refs/heads/master/src/cmd/cos_ova_converter/README.md
+        type: source-repo
+        title: COS OVA converter README
+        retrieved: "2026-09-22"
+        quote: >-
+          COS Ova Converter is a simple interface to convert the OVA images to
+          GCE image in a GCP project and also exports the GCE image to OVA.
+    unknowns:
+      - "No documentation of image digests, mirroring, image signing, or air-gapped installation."
+      - "Whether a published image can be obtained as a file. Searched the concept pages, the sources page and the build page; none documents a download or export path for the published image, and the OVA converter in the tooling repository is the only evidence found either way."
+
+  d04_upgrade:
+    normalized:
+      fleet_upgrade:
+        self_update: "In milestone 117 and later, the automatic updates feature is disabled by default."
+        paths:
+          - kind: managed-service
+            name: "GKE node auto-upgrade"
+            license: "service"
+            class: service
+            reconciliation: replacement
+            filter: true
+            note: "GKE drains nodes and re-creates them on a new image."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://cloud.google.com/kubernetes-engine/docs/concepts/node-auto-upgrades
+                title: "GKE node auto-upgrades"
+                retrieved: "2026-10-06"
+                quote: >-
+                  node auto-upgrade is enabled by default
+      version_identity:
+        identifier: "Milestone (VERSION_ID) plus build number (BUILD_ID), for example 12871.1160.0"
+        condition: "none"
+        evidence: DOCUMENTED
+        sources:
+          - url: https://cloud.google.com/container-optimized-os/docs/concepts/versioning
+            type: official-docs
+            title: "Container-Optimized OS versioning"
+            retrieved: "2026-10-06"
+      mechanism:
+        - ab-partition-switch
+        - image-replacement-redeploy
+      scope_by_mode:
+        In place: whole-os-image
+        GKE: whole-node
+      scope_sources:
+        - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/auto-update
+          type: vendor-docs
+          title: Container-Optimized OS auto update
+          retrieved: '2026-10-06'
+          quote: uses an active-passive root partition scheme. The OS image is updated in its entirety, including the kernel
+        - url: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/node-pool-upgrade-strategies
+          type: vendor-docs
+          title: GKE node pool upgrade strategies (surge, blue-green)
+          retrieved: '2026-10-06'
+          quote: GKE creates a new surge node before removing an existing one
+      initiator: "the instance itself, controlled by metadata"
+      auto_update_default: false
+      auto_update_default_note: "disabled by default from milestone 117 onward; enabled by default before that"
+      requires_kubernetes: false
+      requires_vendor_infrastructure: unknown
+      self_hostable_update_server: unknown
+      self_hostable_update_server_evidence: UNKNOWN
+      self_hostable_update_server_note: "The update server is never named in the docs found. No page documents or denies a self-hosted or mirrored update source."
+      self_hostable_update_server_searched: "Read on 2026-10-05: the COS auto-update page, the features and benefits page, and the COS sources page. None names the update server or describes a way to point an instance at another one. Only the cos-update-strategy metadata switch is documented."
+      artifact_verification: unknown
+    summary: >-
+      An active-passive root partition scheme, with the whole image updated at
+      once including the kernel rather than package by package. The update
+      installs to the passive partition and takes effect on reboot.
+    notes: >-
+      A default changed and it is easy to miss: automatic updates are disabled by
+      default from milestone 117 onward, and were enabled by default before that.
+      The documentation is internally inconsistent on this point, because the
+      features page still describes automatic weekly background updates while the
+      auto-update and platform pages state the newer default. The auto-update
+      page also contradicts itself: its design section still says the image
+      ships with the feature enabled and that a default instance always
+      downloads the latest version, two sections after stating the milestone
+      117 default. Recorded as a documentation conflict.
+
+      Two documented limits on in-place updates matter for anyone planning: they
+      are not supported with UEFI Secure Boot enabled, and they are not supported
+      on Arm images at all. Both are significant, and the first is an unusual
+      interaction between two features a security-minded operator would want
+      together.
+
+      Managed Kubernetes node upgrades are a different mechanism entirely: node
+      pool upgrades provision new nodes, cordon, drain and delete the old ones.
+      That is image replacement, not in-place update, and the two are recorded
+      separately.
+
+      How the payload is authenticated is not documented. The only adjacent
+      evidence is a note that images older than certain builds cannot update due
+      to key rotation, which implies signing keys exist without describing the
+      verification scheme. The update server is never named and no self-hosting
+      path is documented or denied.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/auto-update
+        type: vendor-docs
+        title: Auto update
+        retrieved: "2026-09-22"
+        quote: >-
+          Container-Optimized OS uses an active-passive root partition scheme.
+          The OS image is updated in its entirety, including the kernel ... In
+          milestone 117 and later, the automatic updates feature is disabled by
+          default on all Container-Optimized OS images.
+      - url: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/node-pool-upgrade-strategies
+        type: vendor-docs
+        title: Node pool upgrade strategies
+        retrieved: "2026-09-22"
+        quote: >-
+          maxSurge: GKE creates a new surge node before removing an existing one
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/features-and-benefits
+        type: vendor-docs
+        title: Features and benefits, conflicting update statement
+        retrieved: "2026-09-22"
+        quote: >-
+          Container-Optimized OS instances are configured to automatically
+          download weekly updates in the background; only a reboot is necessary
+          to use the latest updates.
+    unknowns:
+      - "How an update payload is authenticated and verified. Not documented."
+      - "The update server is never named, and no self-hosting or mirroring path is documented either way."
+      - "Two documentation pages disagree on whether automatic updates are on by default, and the auto-update page disagrees with itself between its default section and its design section."
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: unknown
+      automatic_rollback_on_boot_failure: unknown
+      retained_versions: unknown
+      recovery_environment: unknown
+      factory_reset: unknown
+      network_independent_recovery: unknown
+    summary: >-
+      This is the largest documentation gap in the profile. An active-passive
+      partition scheme exists, and nothing in the documentation describes how to
+      use it to roll back, or whether the system does so on its own.
+    notes: >-
+      Every field here is unknown rather than absent, and the distinction is the
+      point. The mechanism for rollback almost certainly exists, because the
+      partition scheme is documented. What is missing is any published procedure
+      to boot the previous partition, any statement about boot attempt tracking
+      or automatic fallback, any recovery or rescue environment, any factory
+      reset, and any statement of how many prior versions are retained.
+
+      Searched: the concept pages, the full documentation index, the how-to
+      pages, the project's own documentation repository, and site-scoped searches
+      for recovery, rescue, factory reset, bootloader, partition priority and
+      successful-boot terminology.
+
+      Equivalent behaviour in the upstream lineage was deliberately not inferred,
+      because that would be reverse-engineering rather than reporting.
+
+      What does exist generically is the platform's interactive serial console,
+      documented for troubleshooting an instance that cannot be reached over the
+      network or is not fully booted, and it is disabled by default.
+    evidence: UNKNOWN
+    searched: >-
+      The COS concept pages (auto-update, disks-and-filesystem, security,
+      versioning, supported-filesystems), the full documentation index and
+      how-to pages, cos.googlesource.com documentation, and site-scoped searches
+      for recovery mode, rescue mode, factory reset, bootloader, GRUB, partition
+      priority and boot success tracking. No COS-specific rollback or recovery
+      documentation was found.
+    sources:
+      - url: https://docs.cloud.google.com/compute/docs/troubleshooting/troubleshooting-using-serial-console
+        type: vendor-docs
+        title: Troubleshooting using the serial console
+        retrieved: "2026-09-22"
+        quote: "By default, interactive serial port access is disabled."
+
+  d06_customization:
+    normalized:
+      runtime_package_install: "none"
+      mechanisms:
+        - cos-customizer
+        - cos-extensions
+        - toolbox
+        - cloud-init-on-every-boot
+        - containers
+      customization_points:
+        - image-build
+        - every-boot
+        - runtime
+      kernel_modules: "third-party modules permitted under a managed-Kubernetes feature; Google-signed only when enforcement is on"
+      gpu: "NVIDIA drivers installed by a first-party extension command"
+      add_software:
+      - kind: vendor-extensions
+        how: The cos-extensions utility installs the NVIDIA GPU driver (cos-extensions install gpu). The page read documents it for the GPU driver only. The docs also state that COS has no package manager, so packages cannot be installed directly on an instance.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/features-and-benefits
+          type: vendor-docs
+          title: 'Container-Optimized OS: features and benefits'
+          retrieved: '2026-10-12'
+          quote: Container-Optimized OS does not include a package manager; as such, you'll be unable to install software packages directly on an instance.
+        - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/run-gpus
+          type: vendor-docs
+          title: Run GPUs on Container-Optimized OS VM instances
+          retrieved: '2026-10-12'
+          quote: Container-Optimized OS provides a built-in utility cos-extensions to simplify the NVIDIA driver installation process.
+      - kind: derive-image
+        how: COS Customizer creates a customized COS image from a COS VM. The GitHub repository is archived and points to cos.googlesource.com.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://cos.googlesource.com/cos/tools/+/refs/heads/master/src/cmd/cos_customizer/README.md
+          type: source-repo
+          title: COS Customizer README, cos.googlesource.com
+          retrieved: '2026-10-12'
+          quote: The COS Customizer is a tool for creating customized Container-Optimized OS images.
+        - url: https://github.com/GoogleCloudPlatform/cos-customizer/blob/master/README.md
+          type: source-repo
+          title: COS Customizer README, GitHub (archived)
+          retrieved: '2026-10-12'
+          quote: '[ARCHIVED repository] COS Customizer has relocated to https://cos.googlesource.com/cos/tools.'
+    summary: >-
+      There is no package manager. Customization is an image-build tool, an
+      extension installer for drivers, a debugging container, and cloud-init
+      reapplied on every boot because /etc does not persist.
+    notes: >-
+      The GPU story is the strongest customization path here: a first-party
+      command installs NVIDIA drivers, with a documented model list, and a
+      version can be pinned. The constraints are stated: the milestone must be
+      LTS and at least 85, and Arm images do not support the feature.
+
+      Out-of-tree kernel modules have a documented path, and it is worth stating
+      precisely because it is unusually restrictive. It is a managed-Kubernetes
+      feature with two policies: enforce Google-signed modules only, or allow any
+      module signed or unsigned. Without the feature, CPU and TPU nodes restrict
+      out-of-tree module loading entirely, while GPU nodes allow it and are
+      described by the vendor as less secure by default. Whether a third party
+      can sign its own modules with its own key is not documented; the documented
+      trust anchor is the vendor's key.
+
+      The features overview page states flatly that the kernel is locked down
+      and third-party kernel modules or drivers cannot be installed. The GPU
+      page and the managed-Kubernetes module-loading page document paths that
+      do exactly that. Recorded as a documentation conflict; this profile
+      records the specific paths the more detailed pages describe.
+
+      The image-build tool's former public GitHub repository is archived, with
+      its last push dated 2021-08-25, and its README points to the vendor's own
+      source host, where the tool carries a note that it is not an official
+      product.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/run-gpus
+        type: vendor-docs
+        title: Running GPUs
+        retrieved: "2026-09-22"
+        quote: >-
+          To run GPUs on Container-Optimized OS VM instances, the
+          Container-Optimized OS release milestone must be a LTS milestone and
+          the milestone number must be 85 or higher.
+      - url: https://docs.cloud.google.com/kubernetes-engine/security/secure-modules-cos
+        type: vendor-docs
+        title: Secure kernel module loading
+        retrieved: "2026-09-22"
+        quote: >-
+          enforces that any out-of-tree kernel modules are signed by Google
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/toolbox
+        type: vendor-docs
+        title: Toolbox
+        retrieved: "2026-09-22"
+        quote: >-
+          toolbox is a debugging utility and not intended for production use.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/osconfig
+        type: vendor-docs
+        title: OS config limitations
+        retrieved: "2026-09-22"
+        quote: >-
+          packages and packageRepositories features of guest policies are not
+          supported on Container-Optimized OS
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/features-and-benefits
+        type: vendor-docs
+        title: Features and benefits, conflicting kernel module statement
+        retrieved: "2026-09-22"
+        quote: >-
+          The Container-Optimized OS kernel is locked down; you'll be unable to
+          install third-party kernel modules or drivers.
+      - url: https://github.com/GoogleCloudPlatform/cos-customizer
+        type: source-repo
+        title: Archived GitHub mirror of cos-customizer
+        retrieved: "2026-09-22"
+        quote: >-
+          This Git repository is archived and is now read-only.
+    unknowns:
+      - "Whether a third party can sign its own out-of-tree kernel modules with its own key."
+      - "Whether the module loading restrictions apply to standalone VMs or only to managed Kubernetes nodes."
+      - "The features page says third-party kernel modules cannot be installed; the GPU and secure-module pages document installing them. Which statement describes a standalone VM is not stated."
+
+  d07_kubernetes:
+    normalized:
+      requirement: optional
+      bundled: "none"
+      independent_lifecycle: unknown
+      os_manages_kubernetes: "no"
+      kubernetes_manages_os: "node auto-upgrade, release channels and node auto-repair, all managed-service features"
+      distributions:
+        - "the vendor's managed Kubernetes"
+      managed_kubernetes_default_node_image: "yes; cos_containerd is the documented default node image of a new Standard cluster's default node pool"
+      managed_kubernetes_sole_node_image: "yes on Autopilot; Autopilot nodes always use cos_containerd and no other node image can be selected"
+      node_image_alternatives_on_standard:
+        - ubuntu_containerd
+        - windows_ltsc_containerd
+    summary: >-
+      Optional. It is the documented default node image for the vendor's managed
+      Kubernetes, the only node image on that service's Autopilot mode, and
+      equally documented for running containers on plain VMs with no Kubernetes
+      at all.
+    notes: >-
+      Two separate facts about the managed Kubernetes service are worth keeping
+      apart, because a reader comparing hyperscalers needs both and a single
+      "supported" or "available" answer destroys the distinction.
+
+      It is the **default**. A new Standard cluster's default node pool is
+      created with the cos_containerd node image, stated in those words on the
+      node pools concept page. An operator who selects nothing gets it. Ubuntu
+      and Windows Server node images remain selectable on Standard.
+
+      It is also the **only** option on Autopilot. Autopilot nodes always use
+      cos_containerd, so on that mode there is no opt-out and no alternative to
+      choose. That is a stronger statement than "default" and the two are
+      recorded separately.
+
+      Of the three hyperscaler platform operating systems in this edition, this
+      is the only one whose managed Kubernetes service defaults to it. See the
+      equivalent fields in bottlerocket.yaml and azure-container-linux.yaml for the
+      contrast, which is a difference in the default, not in capability.
+
+      On the managed service the two are coupled through the node image that
+      ships with a given node version, and node upgrades recreate nodes. Whether
+      the milestone can be pinned independently of the node version is not
+      documented, so lifecycle independence is recorded as unknown rather than
+      claimed either way.
+
+      Off the managed service, the operating system updates through its own
+      mechanism and there is no Kubernetes to couple to.
+
+      Self-managed Kubernetes on this operating system is not documented
+      anywhere.
+
+      Note that the managed Kubernetes release channels version Kubernetes, not
+      the operating system image. Those are two different axes and no published
+      mapping between them was found.
+
+      The bundled value rests on the release notes, which list the kernel,
+      Docker, containerd and GPU drivers per build and no Kubernetes
+      component. No page states in words that the image carries no kubelet.
+      See d01.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/node-images
+        type: vendor-docs
+        title: Node images
+        retrieved: "2026-09-22"
+        quote: >-
+          GKE Autopilot nodes always use Container-Optimized OS with containerd
+          (cos_containerd), which is the recommended node operating system.
+      - url: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/node-pools
+        type: vendor-docs
+        title: About node pools, the default node pool of a Standard cluster
+        retrieved: "2026-09-22"
+        quote: >-
+          By default, this first node pool (known as the default node pool)
+          consists of three nodes in each of the cluster's compute zones, with
+          the default node image cos_containerd, and a general-purpose machine
+          type.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/run-container-instance
+        type: vendor-docs
+        title: Running a container on a VM instance
+        retrieved: "2026-09-22"
+        quote: >-
+          You can run a Docker container on a machine running
+          Container-Optimized OS in much the same way as you would on most
+          other node image distributions, by using the docker run command.
+      - url: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/release-channels
+        type: vendor-docs
+        title: Release channels
+        retrieved: "2026-09-22"
+    unknowns:
+      - "Whether the OS milestone can be pinned independently of the managed Kubernetes node version."
+      - "Self-managed Kubernetes on this operating system is undocumented."
+      - "No page states in words that a standalone VM carries no kubelet; the bundled value rests on the release notes component table."
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        items:
+          - vendor: nvidia-gpu
+            what: "NVIDIA GPU, proprietary driver, LTS milestone 85 or later"
+            arch: [amd64]
+            delivery: project-signed
+            delivery_note: "cos-extensions install gpu, prebuilt drivers, rerun on every boot"
+            secure_boot: signed
+            gpu_operator: host-driver
+            status: supported
+            note: "On GKE the operator runs with driver.enabled=false and the operator toolkit at /home/kubernetes/bin/nvidia. NVIDIA documents this on its GKE page."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/run-gpus
+                title: "COS: run GPUs"
+                retrieved: "2026-10-06"
+                quote: >-
+                  GPU drivers are cryptographically signed and verified by keys that are built into the Container-Optimized OS kernel
+              - url: https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/google-gke.html
+                title: "NVIDIA GPU Operator on Google GKE"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Google Driver Installer: Container-Optimized OS, Ubuntu with containerd
+              - url: https://docs.cloud.google.com/kubernetes-engine/docs/how-to/gpu-operator
+                title: "GKE: GPU Operator"
+                retrieved: "2026-10-06"
+                quote: >-
+                  supported on both Container-Optimized OS (COS) and Ubuntu node images
+          - vendor: google-tpu
+            what: "TPU through GKE"
+            delivery_note: "COS is the node OS on GKE Autopilot"
+            status: supported
+            note: "Inferred from three GKE statements: Autopilot nodes use COS, GKE documents TPU workloads on Autopilot, and Ubuntu nodes are not supported for TPU."
+            evidence: INFERRED
+            sources:
+              - url: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/plan-tpus
+                title: "GKE: plan TPUs"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Ubuntu nodes are not supported.
+              - url: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/plan-tpus
+                title: "GKE: plan TPUs, Autopilot nodes"
+                retrieved: "2026-10-06"
+                quote: >-
+                  GKE Autopilot nodes always use Container-Optimized OS with containerd (cos_containerd)
+      architectures_released:
+        - x86_64
+        - arm64
+      architectures_absent:
+        - riscv64
+      platforms:
+        - "the vendor's compute service"
+        - "the vendor's managed Kubernetes"
+      platforms_not_supported:
+        - other-clouds
+        - bare-metal
+        - on-premises
+        - edge
+      gpu: "NVIDIA, x86 only, LTS milestone 85 or later"
+      tpm: "virtual TPM through the platform's shielded and confidential VM features"
+      extension_mechanism: "first-party extension installer; signed kernel modules under a managed-Kubernetes policy"
+    summary: >-
+      Two architectures, and effectively one platform. It runs on the vendor's
+      compute service and managed Kubernetes, and is documented as not supported
+      anywhere else.
+    notes: >-
+      The Arm images carry a documented list of limitations that materially
+      changes what the product is on that architecture: no automatic updates, no
+      GPU support, and a different logging agent.
+
+      riscv64 is a clean documented absence. Only two board names exist in the
+      build system and the architecture appears nowhere in the documentation.
+
+      The vendor's own on-premises Kubernetes distribution does not use this
+      operating system; its documented node operating systems are other
+      distributions entirely. That is worth recording because it would be a
+      natural assumption otherwise.
+
+      Shielded VM and confidential computing across three processor technologies
+      are marked supported on current LTS milestones, which is a genuine
+      strength.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/arm
+        type: vendor-docs
+        title: Arm-based images
+        retrieved: "2026-09-22"
+        quote: >-
+          Automatic updates are not supported on Container-Optimized OS
+          Arm-based images.
+      - url: https://docs.cloud.google.com/compute/docs/images/os-details
+        type: vendor-docs
+        title: Operating system details, security features table
+        retrieved: "2026-09-22"
+        quote: >-
+          Google Cloud builds and supports the Container-Optimized OS images
+          available for Compute Engine.
+      - url: https://docs.cloud.google.com/kubernetes-engine/distributed-cloud/bare-metal/docs/installing/os-reqs
+        type: vendor-docs
+        title: Distributed cloud node operating system requirements
+        retrieved: "2026-09-22"
+        quote: >-
+          your Google Distributed Cloud environment must run on one of the
+          supported operating system versions listed on this page.
+
+  d09_provisioning:
+    normalized:
+      config_tools:
+        - name: "cloud-init (instance metadata) and startup scripts"
+          license: "GPL-3.0 OR Apache-2.0"
+          runs: [userspace]
+          reruns: every-boot
+          runs_note: "Runs in userspace on every boot."
+          early_disk: "Fixed boot disk; extra disks through bootcmd in userspace; encryption is not documented in the COS docs."
+          change_after_first_boot: "Edit the metadata, applied on the next boot (INFERRED)"
+          evidence: DOCUMENTED
+          sources:
+            - url: https://cloud.google.com/container-optimized-os/docs/how-to/create-configure-instance
+              title: "COS: create and configure an instance"
+              retrieved: "2026-10-06"
+              quote: >-
+                write_files and runcmd ... are run on every boot on Container-Optimized OS
+            - url: https://cloud.google.com/container-optimized-os/docs/concepts/disks-and-filesystem
+              title: "COS: disks and file system"
+              retrieved: "2026-10-06"
+      methods:
+        - cloud-image-launch
+      config_mechanism: "cloud-init through instance metadata, plus startup scripts"
+      config_reapplied: true
+      iso: "none"
+      pxe: "none"
+    summary: >-
+      One path: launch the vendor's image and supply cloud-init or a startup
+      script through instance metadata. There is no ISO, no network boot and no
+      bare-metal install.
+    notes: >-
+      Because /etc is stateless, configuration semantics differ from other
+      systems in a way that matters: cloud-init modules that normally run once
+      per instance run on every boot here. That is a genuine advantage for drift,
+      since configuration is continuously reasserted, and a genuine constraint,
+      since anything not expressed in that configuration is lost on reboot.
+
+      The container deployment agent that used to configure a container at VM
+      creation time is documented as deprecated, with the current guidance being
+      to run containers from a startup script or cloud-init.
+
+      ISO, network boot and bare-metal installation are recorded as absent rather
+      than unknown: the documentation was searched specifically for them and the
+      product is documented as cloud-only.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/create-configure-instance
+        type: vendor-docs
+        title: Creating and configuring instances
+        retrieved: "2026-09-22"
+        quote: >-
+          Container-Optimized OS images include cloud-init as a way to
+          configure your instance when it boots up.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/disks-and-filesystem
+        type: vendor-docs
+        title: Disks and filesystem, cloud-init on every boot
+        retrieved: "2026-09-22"
+        quote: >-
+          It's a good idea to capture the desired state of your instances in
+          cloud-init, as cloud-init is applied when an instance is newly
+          created as well as when an instance is restarted.
+      - url: https://docs.cloud.google.com/compute/docs/containers/deploying-containers
+        type: vendor-docs
+        title: Deploying containers, agent deprecation
+        retrieved: "2026-09-22"
+        quote: >-
+          The container startup agent (konlet) that deploys containers on VMs
+          during VM creation is deprecated.
+
+  d10_security:
+    normalized:
+      boot_trust_chain:
+        level: 2
+        how: platform-provided
+        note: Shielded VM provides a vTPM, integrity monitoring and Secure Boot. The kernel checks a build-time root checksum on each boot, but no source shows that the hash
+          sits in a signed artifact
+        evidence: DOCUMENTED
+        sources:
+        - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/security
+          type: official-docs
+          title: Container-Optimized OS security overview
+          retrieved: '2026-10-06'
+          quote: its checksum is computed at build time and verified by the kernel on each boot
+        - url: https://docs.cloud.google.com/compute/shielded-vm/docs/shielded-vm
+          type: official-docs
+          title: Shielded VM
+          retrieved: '2026-10-06'
+          quote: vTPM and integrity monitoring are enabled by default, and Google recommends enabling Secure Boot if possible.
+      secure_boot: "available through the platform's shielded VM feature, off by default"
+      measured_boot: "available through the platform's shielded VM feature"
+      tpm: "virtual TPM through shielded VM"
+      integrity: "kernel-verified checksum at boot"
+      dm_verity: unknown
+      disk_encryption: "platform-level encryption at rest; no OS-specific mechanism documented"
+      artifact_verification: unknown
+      sbom: unknown
+      provenance: unknown
+      fips: unknown
+      mandatory_access_control: apparmor
+      host_firewall: "default deny inbound except SSH"
+      default_on:
+        - read-only-root
+        - boot-integrity-verification
+        - host-firewall-deny-inbound
+        - apparmor-default-profile-for-containers
+        - kernel-hardening-and-hardened-sysctls
+        - out-of-tree-module-restriction-on-cpu-nodes
+      opt_in:
+        - secure-boot
+        - measured-boot
+        - confidential-computing
+        - signed-module-enforcement
+    summary: >-
+      Strong defaults in the areas the vendor controls: read-only verified root,
+      a deny-inbound host firewall, AppArmor applied automatically to containers,
+      hardened kernel settings, and a minimal userspace with no package manager.
+    notes: >-
+      It ships AppArmor, not SELinux, and applies a default profile automatically
+      when a container starts. That is worth stating because the two are often
+      treated as interchangeable and they are not.
+
+      Secure Boot and measured boot are platform features rather than operating
+      system features, opt-in, and the platform does not enable Secure Boot by
+      default. And as recorded in d04, enabling Secure Boot disables in-place
+      operating system updates, which is an awkward interaction for an operator
+      who wants both.
+
+      Disk encryption has no operating-system-specific documentation. The
+      platform encrypts all data at rest by default with vendor-managed keys,
+      which is a platform property and is kept distinct here.
+
+      No software bill of materials, no build provenance or attestation, and no
+      FIPS validation is documented for this operating system. These are
+      recorded as unknown rather than absent, because no source states either
+      way; the targeted searches are listed in the unknowns below.
+
+      The security patching process is documented concretely, which is a
+      strength: active patching for critical bugs during the support window,
+      regular vulnerability scanning, high-priority fixes released on demand, and
+      medium and low priority fixes every three months. Individual vulnerabilities
+      are named in release notes and in security bulletins for the managed
+      Kubernetes service. No numeric response-time commitment is published.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/security
+        type: vendor-docs
+        title: COS security
+        retrieved: "2026-09-22"
+        quote: >-
+          By default, Container-Optimized OS is configured to drop all incoming
+          TCP/UDP connections except SSH on port 22.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/secure-apparmor
+        type: vendor-docs
+        title: AppArmor
+        retrieved: "2026-09-22"
+        quote: >-
+          When you start a container on your Container-Optimized OS instance,
+          the system automatically applies the docker-default AppArmor security
+          profile.
+      - url: https://docs.cloud.google.com/compute/shielded-vm/docs/shielded-vm
+        type: vendor-docs
+        title: Shielded VM
+        retrieved: "2026-09-22"
+        quote: >-
+          vTPM and integrity monitoring are enabled by default, and Google
+          recommends enabling Secure Boot if possible.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/auto-update
+        type: vendor-docs
+        title: Auto update, Secure Boot default on COS VMs
+        retrieved: "2026-09-22"
+        quote: >-
+          UEFI Secure Boot is not enabled on Container-Optimized OS VMs by
+          default.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/resources/support-policy
+        type: vendor-docs
+        title: Support policy and patching
+        retrieved: "2026-09-22"
+        quote: >-
+          New releases containing medium and low priority bug and security
+          fixes are released every 3 months.
+    unknowns:
+      - "Whether dm-verity is used on the stock image."
+      - "Whether an SBOM, build provenance, attestation or FIPS validation exists for this operating system. Searched the COS security concept page, the support policy, the sources page, and site-scoped searches on cloud.google.com for SBOM, provenance and FIPS with the product name; the SBOM results cover Artifact Registry container images, not this OS, and no FIPS page names it."
+      - "No documented image signing or digest verification for the published image."
+      - "No numeric vulnerability response commitment is published."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: available
+      local_shell: available
+      serial_console: "available, disabled by default"
+      debug_container: toolbox
+      support_bundle: sosreport
+      package_manager_at_runtime: "none"
+      works_without_kubernetes: "yes"
+    summary: >-
+      Conventional access with SSH and a shell, plus two things many peers lack:
+      a preinstalled support-bundle collector and a preinstalled debugging
+      container tool.
+    notes: >-
+      The support-bundle collector is a real operational advantage and is
+      preinstalled, with the vendor stating it may be requested when a support
+      case is opened. Several projects in this edition have nothing equivalent.
+
+      Toolbox is the answer to having no package manager, running a Debian
+      environment with the host root visible, and it persists across reboots. The
+      documentation is careful to say it is a debugging utility and not intended
+      for production.
+
+      A node health monitor runs standalone with no Kubernetes required,
+      reporting instance health metrics, and is enabled by default on managed
+      Kubernetes nodes.
+
+      Everything here is host level and works when Kubernetes is unavailable.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/sosreport
+        type: vendor-docs
+        title: sosreport
+        retrieved: "2026-09-22"
+        quote: >-
+          collects information on demand to help you debug problems in a
+          Container-Optimized OS virtual machine instance.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/toolbox
+        type: vendor-docs
+        title: Toolbox
+        retrieved: "2026-09-22"
+        quote: >-
+          The toolbox environment is created under /var/lib/toolbox and is
+          persistent across reboots.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/monitoring
+        type: vendor-docs
+        title: Node problem detector
+        retrieved: "2026-09-22"
+        quote: >-
+          The Node Problem Detector agent is disabled by default at boot time.
+
+  d12_fleet_management:
+    normalized:
+      core_project:
+        - "A/B auto-updater, controlled per instance or per project by metadata, off by default from milestone 117"
+        - "Configuration reapplied on every boot through cloud-init, because /etc is stateless"
+        - "Built-in logging agent and node health monitor, both metadata-gated"
+        - "A preinstalled compliance scanner from milestone 97"
+      oss_companion:
+        - name: cos-customizer
+          repo: https://cos.googlesource.com/cos/tools
+          license: Apache-2.0
+          org: google
+          note: "Build-time image customization, run as a build step. Its former public mirror is archived and carries a note that it is not an official product."
+        - name: cos-extensions
+          repo: https://cos.googlesource.com/cos/cos-extensions
+          license: unknown
+          org: google
+          note: "The repository root carries no LICENSE file and the entry-point source carries no licence header, checked 2026-09-22. The licence is recorded as unknown rather than assumed from the sibling tooling repository."
+        - name: cos-gpu-installer
+          repo: https://cos.googlesource.com/cos/tools/+/refs/heads/master/src/cmd/cos_gpu_installer/
+          license: Apache-2.0
+          org: google
+          note: "Lives in the cos/tools repository, which carries the Apache-2.0 LICENSE. The former GitHub repository GoogleCloudPlatform/cos-gpu-installer is archived, last pushed 2021-10-01, and its README points to cos/tools."
+      commercial:
+        - name: Managed Kubernetes node auto-upgrade and release channels
+          vendor: Google
+          license: managed-service
+          self_hostable: false
+        - name: Node auto-repair
+          vendor: Google
+          license: managed-service
+          self_hostable: false
+          note: "Drains and recreates a node the service detects as unhealthy, preserving the node name."
+        - name: Managed instance groups
+          vendor: Google
+          license: managed-service
+          self_hostable: false
+          note: "The non-Kubernetes rolling update path for plain VMs."
+      cluster_api:
+        os_specific_provider: "none"
+        maintainer: not-applicable
+        upstream_provider_list: "not listed under any provider type"
+        provisions: not-applicable
+        bootstrap_target: "none. The managed Kubernetes service bootstraps its own nodes, so no Cluster API bootstrap provider is involved."
+        image_builder_target: "none. The Compute Engine targets in image-builder are Ubuntu only."
+        managed_mode_note: "the vendor's Cluster API infrastructure provider exposes an unvalidated image type field on a managed node pool, which passes through to the managed Kubernetes API. No source names a value for this operating system."
+    summary: >-
+      The operating system contributes an auto-updater and boot-time
+      configuration. Every fleet capability beyond that belongs to the cloud
+      platform and the managed Kubernetes service, not to the operating system.
+    notes: >-
+      Node auto-repair is worth calling out because it is the capability that
+      most resembles automatic rollback, and it is not one. It is a control-plane
+      feature that drains and recreates an unhealthy node. The machine does not
+      recover itself; the platform replaces it. That is a different guarantee and
+      is deliberately recorded in the commercial bucket rather than under d05.
+
+      There is no operating-system-native fleet inventory, rollout campaign
+      mechanism or desired-state controller.
+
+      Cluster API does not reach this operating system, and the reason is the
+      product boundary recorded throughout this profile rather than an oversight.
+
+      No provider of any type exists and none is listed. The vendor's own
+      Cluster API infrastructure provider never mentions this operating system
+      anywhere in its source or its documentation, and its prerequisites send a
+      reader to image-builder for a different distribution entirely.
+      image-builder has no target for this system on the vendor's compute
+      platform, which is coherent: the images are not user-buildable, and that
+      is the point of the product.
+
+      There is one indirect path and it should not be overstated. The vendor's
+      infrastructure provider exposes an image-type field on a managed node
+      pool, unvalidated, passed straight through to the managed Kubernetes API.
+      Since that service documents this operating system as its default node
+      image, setting that field would presumably produce nodes running it. No
+      documentation, example or test in the provider asserts this, so it is
+      recorded here and not claimed. It would also not be a Cluster API
+      integration with the operating system in any meaningful sense: in managed
+      mode the service provisions and bootstraps the nodes, and no Cluster API
+      bootstrap provider generates configuration for them.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/kubernetes-engine/docs/how-to/node-auto-repair
+        type: vendor-docs
+        title: Node auto-repair
+        retrieved: "2026-09-22"
+        quote: >-
+          If GKE detects that a node requires repair, the node is drained and
+          re-created.
+      - url: https://docs.cloud.google.com/kubernetes-engine/docs/how-to/node-auto-upgrades
+        type: vendor-docs
+        title: Node auto-upgrades
+        retrieved: "2026-09-22"
+        quote: >-
+          When the upgrade is performed, nodes are drained and re-created to
+          match the current control plane version.
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/auto-update
+        type: vendor-docs
+        title: Auto update and its metadata control
+        retrieved: "2026-09-22"
+        quote: >-
+          You can enable or disable automatic updates by setting the
+          cos-update-strategy metadata on new instances, existing instances,
+          or on all instances in a project
+
+      - url: https://cluster-api.sigs.k8s.io/reference/providers
+        type: official-docs
+        title: Cluster API provider list, searched for this project
+        retrieved: "2026-09-22"
+      - url: https://cluster-api-gcp.sigs.k8s.io/prerequisites
+        type: official-docs
+        title: Cluster API Provider GCP prerequisites, which name a different distribution
+        retrieved: "2026-09-22"
+        quote: >-
+          make build-gce-ubuntu-2004
+      - url: https://github.com/kubernetes-sigs/image-builder/blob/main/docs/book/src/capi/providers/gcp.md
+        type: source-repo
+        title: image-builder GCP targets, Ubuntu only
+        retrieved: "2026-09-22"
+        quote: >-
+          The `gce` sub-directory inside `images/capi/packer` stores JSON
+          configuration files for Ubuntu OS.
+  d13_governance:
+    normalized:
+      license: "per component; Apache-2.0 for the tooling, GPL-2.0 for the kernel, BSD-3-Clause upstream lineage"
+      license_note: "The COS-specific board overlays carry no licence file."
+      open_source: partial
+      open_governance: "none"
+      vendor_neutral_ownership: single-vendor
+      foundation: "none"
+      trademark_holder: Google
+      primary_commercial_sponsor: Google
+      contribution_accepted_os: false
+      contribution_accepted_tooling: true
+      contribution_diversity:
+        method: >-
+          Author email domains across the most recent page of the tooling
+          repository's commit log. A single page of a single repository, and the
+          tooling repository rather than the OS build, so it is a sample and is
+          labelled as one.
+        value: >-
+          Every author in that sample uses the vendor's own email domain. No
+          external contributor evidence was found, and none is claimed as proven
+          absent.
+    summary: >-
+      A vendor-owned product with a two-tier contribution split that the
+      documentation states plainly: the operating system does not accept public
+      contributions, while the companion tooling does, through a code review
+      system and a contributor licence agreement.
+    notes: >-
+      The two-tier split is the defining governance fact and it is published
+      rather than inferred. The sources page says outright that Container-
+      Optimized OS does not accept direct contributions from the public. The
+      tooling repositories carry contributing guides, a live review system and a
+      contributor licence agreement.
+
+      There is no single operating-system-wide licence statement. Components
+      carry their own, and the COS-specific board overlays have no licence file
+      at all. Per-package licence data ships inside each image.
+
+      No governance model, no maintainer list, no roadmap process and no public
+      issue tracker for the operating system were found. Support channels are the
+      vendor's paid support plus community forums.
+
+      Reading the four properties separately: open source, partial and with an
+      unnamed remainder. Open governance, none. Vendor-neutral ownership, none.
+      Contribution diversity, not established, with a sample suggesting it is
+      single-company.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/resources/sources
+        type: vendor-docs
+        title: COS sources and contributions
+        retrieved: "2026-09-22"
+        quote: >-
+          Container-Optimized OS does not accept direct contributions from the
+          public.
+      - url: https://cos.googlesource.com/cos/tools/+/refs/heads/master/CONTRIBUTING.md
+        type: governance-doc
+        title: Tooling contributing guide
+        retrieved: "2026-09-22"
+        quote: >-
+          Contributions to this project must be accompanied by a Contributor
+          License Agreement (CLA)
+      - url: https://cos.googlesource.com/cos/tools/+/refs/heads/master/LICENSE
+        type: governance-doc
+        title: Tooling licence
+        retrieved: "2026-09-22"
+        quote: >-
+          Licensed under the Apache License, Version 2.0 (the "License");
+    unknowns:
+      - "No governance model, maintainer list or roadmap process is published for the operating system."
+      - "No public issue tracker exists for operating system bugs."
+      - "The COS-specific board overlay repository carries no licence file."
+      - "The cos-extensions tooling repository carries no licence file either. See d12."
+
+  d14_maturity:
+    normalized:
+      first_release: "2017-04-05"
+      current_version: "cos-129-19506-448-36"
+      current_version_date: "2026-09-17"
+      release_cadence: "a new LTS milestone approximately three times a year; builds on a supported milestone land weekly or faster"
+      observed_intervals: "5, 7, 8 and 9 days between the last five builds on the current LTS milestone (2026-08-19, 08-24, 08-31, 09-08, 09-17)"
+      support_model: lts-stream
+      support_window: "26 months per LTS milestone"
+      commercial_support: available
+    summary: >-
+      Nine years old, generally available since April 2017. Support is LTS only:
+      a milestone is supported for 26 months and the non-LTS families receive no
+      support at all.
+    notes: >-
+      The lifecycle is documented in detail, with a published table of milestones
+      and end-of-support dates, and documented behaviour at deprecation: images
+      are flagged, drop out of active listings, and family references begin
+      returning errors while the images stay usable by exact name.
+
+      Two problems with the dates are worth recording for anyone depending on
+      them. Two of the vendor's own pages give different end-of-support dates for
+      the same two current milestones, differing by four and five months. And
+      the documented cadence of approximately three LTS milestones a year does
+      not reconcile with the published end-of-life dates, which sit six months
+      apart.
+
+      Commercial support runs through the vendor's standard support channels at
+      no separate licence fee, and the vendor explicitly names the absence of
+      third-party Linux vendor support as a reason this may not fit.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/release-notes
+        type: vendor-docs
+        title: COS release notes and milestone table
+        retrieved: "2026-09-22"
+        quote: >-
+          The following table provides a summary of Container-Optimized OS
+          releases available on Compute Engine:
+      - url: https://docs.cloud.google.com/container-optimized-os/docs/resources/support-policy
+        type: vendor-docs
+        title: Support policy
+        retrieved: "2026-09-22"
+        quote: >-
+          Once a milestone is introduced on the LTS families, it is supported for
+          26 months.
+      - url: https://docs.cloud.google.com/compute/docs/images/os-details
+        type: vendor-docs
+        title: Operating system details, conflicting end-of-support dates
+        retrieved: "2026-09-22"
+        quote: >-
+          There is no license fee for using Container-Optimized OS with Compute
+          Engine.
+      - url: https://cloud.google.com/blog/products/gcp/container-optimized-os-from-google-is-generally-available/
+        type: announcement
+        title: General availability
+        retrieved: "2026-09-22"
+        quote: >-
+          Container-Optimized OS from Google is generally available
+    unknowns:
+      - "Two vendor pages give different end-of-support dates for the two newest LTS milestones: milestone 129 is July 2028 on the release notes page and March 2028 on the OS details page; milestone 125 is February 2028 and September 2027 respectively, both checked 2026-09-22."
+
+tradeoffs:
+  buys:
+    - "A read-only root whose integrity the kernel verifies at every boot, refusing to boot on failure, with no configuration required."
+    - "A stateless /etc, so configuration is reasserted from cloud-init on every boot and drift in system configuration is structurally hard."
+    - "Hardened defaults: deny-inbound host firewall, AppArmor applied automatically to containers, hardened sysctls, a minimal userspace with no package manager."
+    - "A preinstalled support-bundle collector and a preinstalled debugging container."
+    - "A documented 26-month LTS window with a published milestone and end-of-support table, plus a stated patching cadence separating on-demand high-priority fixes from quarterly refreshes."
+    - "Platform integration for shielded and confidential computing across three processor technologies on current milestones."
+    - "A first-party GPU driver installer with pinnable versions."
+    - "The documented default node image on the vendor's managed Kubernetes, and the only node image on that service's Autopilot mode."
+  costs:
+    - "An active-passive partition scheme exists, and no published procedure uses it for rollback."
+    - "Documented as not supported outside the vendor's cloud. The same artifact is not portable to other clouds, bare metal or on-premises, and the vendor's own on-premises Kubernetes uses different operating systems."
+    - "Single vendor. The operating system does not accept public contributions. A third party who finds a defect has no public issue tracker and no path to fix it themselves."
+    - "The majority of the source is published, with no exclusion list and no reproducibility claim, so a third party cannot fully verify what they run."
+    - "Two vendor pages disagree on whether automatic updates are on by default from milestone 117."
+    - "Enabling Secure Boot disables in-place updates, so the two features cannot be used together."
+    - "Arm images have no automatic updates and no GPU support."
+    - "Under the enforced policy, out-of-tree kernel modules must be signed by the vendor."
+    - "Two vendor pages disagree about end-of-support dates for current milestones."
+maintainers_fact:
+  text: "Single vendor."
+  evidence: DOCUMENTED
+  sources:
+    - url: "https://docs.cloud.google.com/container-optimized-os/docs/resources/sources"
+      type: "vendor-docs"
+      title: "COS sources and contributions"
+      retrieved: "2026-09-22"
+      quote: "Container-Optimized OS does not accept direct contributions from the public."
+known_issues: []
+open_questions:
+  - "Which parts of a shipped image are not in the public repositories, and why?"
+  - "Can a third party reproduce an official image bit for bit from the public manifest?"
+  - "How is an update payload authenticated and verified? Which keys, which scheme, and what is the rotation policy?"
+  - "Which update server does the updater contact, and is there any supported way to mirror or self-host it?"
+  - "Does the stock operating system use dm-verity for the root filesystem? If so, why do the concept pages describe it only as a kernel-verified checksum?"
+  - "What happens when an instance fails to boot a newly updated partition? Is there boot attempt tracking and automatic fallback, or is recovery entirely manual?"
+  - "How many previous versions are retained, and is there a supported procedure to boot the previous root partition?"
+  - "Does the stateful partition survive an A/B upgrade as a supported guarantee?"
+  - "Is there a recovery path for an instance with no network and a corrupted stateful partition? Is there a factory reset?"
+  - "Why were automatic updates turned off by default at milestone 117, and what is the expected update mechanism for standalone fleets now?"
+  - "Which page is authoritative for end-of-support dates, the release notes table or the compute image details table?"
+  - "Can a third party sign its own out-of-tree kernel modules, or is the vendor's key the only trust anchor? Do the module restrictions apply to standalone VMs or only to managed Kubernetes nodes?"
+  - "Is an SBOM, provenance or FIPS validation published or planned?"
+  - "Is there a public issue tracker where a non-customer can file a bug?"
+  - "Is the documented cadence of three LTS milestones a year still accurate, given published end-of-life dates six months apart?"
+  - "Does the managed service install the kubelet at node bootstrap, or is it present in the image? No page states it in words; the release notes component table names no Kubernetes component, which is what the bundled value rests on."
+  - "Can a published image be exported as a file through the platform's generic image export, and is that supported? The tooling repository ships an OVA converter that exports a Compute Engine image, and no documentation page describes either path for this OS."
+  - "The features page says third-party kernel modules and drivers cannot be installed, while the GPU page and the managed-Kubernetes module-loading page document installing them. Which statement applies to a standalone VM?"
+  - "Under which licence is the cos-extensions tooling repository published? It carries no LICENSE file."
+
+follow_up_research:
+  - FR-01
+  - FR-03
+  - FR-04
+  - FR-05
+  - FR-08
+  - FR-09
+  - FR-11
+  - FR-12
+  - FR-13
+  - FR-14
+  - FR-15
+  - FR-16
+  - FR-17
+
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Cost audit under methodology section 9, rule 15. Cost c0 was 'Rollback and recovery are undocumented end to end. An active-passive partition scheme exists and no published procedure uses it, no automatic fallback is described, and there is no recovery environment, factory reset or retention statement.' Now keeps the gap (C4); automatic fallback, retention and recovery are unknowns (N1) under q5, q6 and q8, and q8 now also asks about a factory reset. Moved cost 'No documented SBOM, build provenance, attestation, FIPS validation, or signing and verification of the published image...' to open questions (N1); q12 and q2 cover it. Cost c8 reworded to the enforced limit (C1); a third-party signing path is q11."
+  - date: '2026-10-06'
+    field: dimensions.d04_upgrade.normalized.scope_by_mode
+    change: 'Was whole-root (Whole root). Now scope_by_mode In place: whole-os-image (Whole OS image), GKE: whole-node (Whole node (reimaged or replaced)), from the independent check of what one update replaces (closed six-value vocabulary).'
+    source:
+      url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/auto-update
+      type: vendor-docs
+      title: Container-Optimized OS auto update
+      retrieved: '2026-10-06'
+      quote: uses an active-passive root partition scheme. The OS image is updated in its entirety, including the kernel
+  - date: "2026-10-05"
+    field: name
+    change: "Use the project's own name. The vendor prefix was added by the Pulse; the project calls itself Container-Optimized OS. The vendor is shown in d13."
+    source:
+      url: https://cloud.google.com/container-optimized-os/docs
+      type: official-docs
+      title: Container-Optimized OS homepage
+      retrieved: "2026-10-06"
+  - date: "2026-09-22"
+    field: "version_observed.version"
+    change: "Moved since collection: cos-129-19506-448-20 released 2026-09-08 was the newest build on 2026-09-15; cos-129-19506-448-36 released 2026-09-17 is the newest build on 2026-09-22. dimensions.d14_maturity.normalized.current_version, current_version_date and observed_intervals updated to match."
+    source:
+      url: https://docs.cloud.google.com/container-optimized-os/docs/release-notes/m129
+      type: vendor-docs
+      title: COS milestone 129 release notes
+      retrieved: "2026-09-22"
+      quote: "cos-129-19506-448-36"
+  - date: "2026-09-22"
+    field: "dimensions.d03_artifact.normalized.downloadable"
+    change: "Said none; now unknown. No source documents an absence of a download path, and the tooling repository ships an OVA converter that exports a Compute Engine image to OVA. A none rested on missing documentation."
+    source:
+      url: https://cos.googlesource.com/cos/tools/+/refs/heads/master/src/cmd/cos_ova_converter/README.md
+      type: source-repo
+      title: COS OVA converter README
+      retrieved: "2026-09-22"
+      quote: "also exports the GCE image to OVA"
+  - date: "2026-09-22"
+    field: "dimensions.d10_security.normalized.sbom"
+    change: "Said none documented; now unknown. Same change for provenance and fips. The notes described these as documented absences after targeted searches, which is the missing-documentation-as-absence error the methodology forbids. The search record now lives in the dimension's unknowns."
+    source:
+      url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/security
+      type: vendor-docs
+      title: COS security
+      retrieved: "2026-09-22"
+      quote: "the Container-Optimized OS team also takes the software supply chain seriously"
+  - date: "2026-09-22"
+    field: "dimensions.d10_security.sources[2].quote"
+    change: "The quote 'Compute Engine does not enable Secure Boot by default' is no longer on the Shielded VM page as of 2026-09-22. Replaced with the sentence the page carries today, and added the auto-update page, which states the Secure Boot default for this OS's VMs directly."
+    source:
+      url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/auto-update
+      type: vendor-docs
+      title: Auto update
+      retrieved: "2026-09-22"
+      quote: "UEFI Secure Boot is not enabled on Container-Optimized OS VMs by default."
+  - date: "2026-09-22"
+    field: "dimensions.d04_upgrade.notes"
+    change: "Said the auto-update page states the milestone 117 default, implying it is consistent. It states that default and, two sections later, also says the image ships with the feature enabled. Notes and unknowns now record the page's internal contradiction as well as the cross-page one."
+    source:
+      url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/auto-update
+      type: vendor-docs
+      title: Auto update
+      retrieved: "2026-09-22"
+      quote: "The image ships with the automatic updates feature enabled"
+  - date: "2026-09-22"
+    field: "dimensions.d06_customization.notes"
+    change: "Said the image-build tool's public repository was archived in 2022. The archive date is not exposed by the repository API; the verifiable facts are that it is archived, its last push is dated 2021-08-25 and its README points to cos/tools. Rewritten to those facts. Also added the features page's statement that third-party kernel modules cannot be installed, which conflicts with the GPU and secure-module pages."
+    source:
+      url: https://github.com/GoogleCloudPlatform/cos-customizer
+      type: source-repo
+      title: Archived GitHub mirror of cos-customizer
+      retrieved: "2026-09-22"
+      quote: "COS Customizer has relocated to https://cos.googlesource.com/cos/tools."
+  - date: "2026-09-22"
+    field: "dimensions.d12_fleet_management.normalized.oss_companion[2].repo"
+    change: "Pointed at github.com/GoogleCloudPlatform/cos-gpu-installer, which is archived (last push 2021-10-01) and whose README says the installer relocated to cos/tools. Now points at the cos/tools location."
+    source:
+      url: https://github.com/GoogleCloudPlatform/cos-gpu-installer
+      type: source-repo
+      title: Archived GitHub mirror of cos-gpu-installer
+      retrieved: "2026-09-22"
+      quote: "COS GPU installer has relocated to https://cos.googlesource.com/cos/tools."
+  - date: "2026-09-22"
+    field: "dimensions.d12_fleet_management.normalized.oss_companion[1].license"
+    change: "Said Apache-2.0 for cos-extensions; now unknown. The repository root has no LICENSE file (HTTP 404 on 2026-09-22) and the entry-point source has no licence header. The value had been assumed from the sibling cos/tools repository."
+    source:
+      url: https://cos.googlesource.com/cos/cos-extensions/+/refs/heads/master/README.md
+      type: source-repo
+      title: cos-extensions README, the repository's only descriptive file; the root listing has no LICENSE
+      retrieved: "2026-09-22"
+      quote: "It provides utility to manage COS extensions."
+  - date: "2026-09-22"
+    field: "dimensions.d12_fleet_management.sources[1].url"
+    change: "The concepts/node-auto-upgrades URL now redirects to how-to/node-auto-upgrades. Replaced with the URL the redirect lands on. Same page, no content change relied on."
+    source:
+      url: https://docs.cloud.google.com/kubernetes-engine/docs/how-to/node-auto-upgrades
+      type: vendor-docs
+      title: Node auto-upgrades
+      retrieved: "2026-09-22"
+      quote: "node auto-upgrade is enabled by default."
+  - date: "2026-09-22"
+    field: "dimensions.d12_fleet_management.sources[5].url"
+    change: "Pointed at the image-builder repository root. Now points at the file inside it that lists the GCP targets, so the quote is checkable on the page cited."
+    source:
+      url: https://github.com/kubernetes-sigs/image-builder/blob/main/docs/book/src/capi/providers/gcp.md
+      type: source-repo
+      title: image-builder GCP targets
+      retrieved: "2026-09-22"
+      quote: "stores JSON configuration files for Ubuntu OS."
+  - date: "2026-10-05"
+    field: dimensions.d04_upgrade.normalized.self_hostable_update_server
+    change: >-
+      Added a value for the self-hostable update source column, which rendered as Not collected. The value is unknown. Three primary pages were searched. None names the update server or says whether an operator can host one.
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 16: a single-vendor entry says single vendor once. The card did not say it. Added 'Single vendor.' to the contributions cost (d13 vendor_neutral_ownership: single-vendor). No line was added."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18: the default of automatic updates is not assessed for every entry, and the gap between the two pages counts (C4). Cost c4 reworded. Was 'To get automatic updates from milestone 117, an operator must enable them. They ship off, and another documentation page contradicts this.' Now 'Two vendor pages disagree on whether automatic updates are on by default from milestone 117.' Sources as recorded in d04."
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized
+    change: Added /var/lib/google to the persistent paths (the documentation table lists it as writable and stateful), and added ephemeral_mechanism, read_only_mechanism and configurable_paths for the Mounts row. The read-only and ephemeral values were re-read against the page and stand.
+    source:
+      url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/disks-and-filesystem
+      type: official-docs
+      title: 'COS disks and file system: persistent paths'
+      retrieved: '2026-10-12'
+      quote: However, home directories and /mnt/stateful_partition are persistent and writable.
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: 'Added the add_software field. It records how an adopter adds software to the OS itself, not workloads. Values: Not supported, Vendor extensions, Derive the image. Each value has its sources, read on 2026-10-12.'
+    source:
+      url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/features-and-benefits
+      type: vendor-docs
+      title: 'Container-Optimized OS: features and benefits'
+      retrieved: '2026-10-12'
+      quote: Container-Optimized OS does not include a package manager; as such, you'll be unable to install software packages directly on an instance.
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: Removed the not-supported value. Not supported means no way to add host software exists, and this entry documents other ways. The docs' statement about package installs, with its source, moved into the vendor-extensions value.

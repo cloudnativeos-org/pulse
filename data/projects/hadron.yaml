@@ -1,0 +1,1522 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: hadron
+name: Hadron Linux
+homepage: https://hadron-linux.io/
+repository: https://github.com/kairos-io/hadron
+collected_at: "2026-09-22"
+
+entry_kind:
+  - distribution
+  - base-images
+
+category_fit:
+  comparable: partial
+  note: >-
+    Hadron is a from-scratch Linux distribution that publishes versioned base
+    images, and it is the base that the Kairos framework is applied to. It is
+    profiled separately from Kairos for the same reason bootc is profiled
+    separately from Fedora CoreOS: the base and the lifecycle layer are
+    different kinds of object, and one profile that covered both would let each
+    borrow the other's properties.
+
+    The relationship is stated by the project itself, and it decides how this
+    profile is read. The home page says "Topped with Kairos, it becomes
+    immutable and has powerful lifecycle management." The announcement calls it
+    "the purpose-built, optimal flavor for Kairos, a clean, lean, and
+    predictable base OS." The documentation says a raw Hadron image "cannot be
+    used to upgrade a running Kairos node directly" until kairos-init has been
+    applied to it. So Hadron on its own is not an immutable operating system and
+    has no install, upgrade, rollback or recovery mechanism of its own. Those
+    are supplied by Kairos, and every Hadron artifact a person can actually
+    boot today is a Kairos artifact.
+
+    That is why the fit is partial rather than full. Dimensions d02, d04, d05,
+    d09, d11 and d12 are answered here as "provided by the framework layered on
+    top", with the sources that say so, and each of them cross-references
+    kairos.yaml rather than restating it. A comparison table must not count the
+    A/B substrate or the boot-assessment mechanism twice, once for Kairos and
+    once for Hadron, because it is one mechanism. What is Hadron's own is the
+    base: what is in the image, how it is built, what it costs to extend, what
+    hardware the kernel and firmware set reach, the hardening baseline, and the
+    governance of the repository.
+
+    This profile was written by people who work on Kairos, in the same
+    organization and with the same sponsor as Hadron. The research was
+    commissioned with the same instruction as for kairos.yaml: hunt for
+    limitations, thin documentation and responsibilities pushed onto the
+    adopter. The survey's methodology says a base-images entry is applied to
+    the authors' own project on the same terms as to anyone else, and this
+    entry is where that is tested.
+
+self_description:
+  text: >-
+    Hadron is a minimal, from-scratch Linux distro using vanilla components,
+    engineered for trusted and flexible boot environments.
+  source:
+    url: https://github.com/kairos-io/hadron
+    type: source-repo
+    title: kairos-io/hadron repository description
+    retrieved: "2026-09-22"
+    quote: >-
+      Hadron is a minimal, from-scratch Linux distro using vanilla components,
+      engineered for trusted and flexible boot environments.
+
+version_observed:
+  version: "v0.5.3"
+  released: "2026-09-18"
+  channel: stable
+  method: >-
+    Latest non-prerelease GitHub release on kairos-io/hadron via the releases
+    API, cross-checked against the multi-architecture manifest of
+    ghcr.io/kairos-io/hadron:v0.5.3. Nineteen stable releases and six
+    prereleases to date. Note that the Hadron version a Kairos release ships is
+    pinned separately: Kairos v4.3.0 ships Hadron v0.5.1, two releases behind.
+  source:
+    url: https://github.com/kairos-io/hadron/releases/tag/v0.5.3
+    type: release-notes
+    title: Hadron v0.5.3
+    retrieved: "2026-09-22"
+    quote: "Full Changelog: v0.5.2...v0.5.3; shipped components table headed 'Hadron components, v0.5.3'."
+
+taxonomy:
+  workload_scope: general-purpose-host
+  construction_model:
+    - vendor-base-plus-derivation
+  root_state_substrate:
+    - ab-partition-image
+  notes: >-
+    Kubernetes is absent from every Hadron image and optional in the images
+    built from it, which places this at the general-purpose-host position. The
+    hardening baseline is nonetheless tuned for a Kubernetes node: the shipped
+    sysctl file says so in its header, and lists the STIG rules it deliberately
+    omits because they would break a CNI or kubelet.
+
+    The construction model is vendor-base-plus-derivation and nothing else.
+    The project publishes a base image and a toolchain image, and every
+    documented way to use them is to derive: COPY a layer or firmware image on
+    top, or compile a package in the toolchain and copy the result in. Hadron
+    does not publish a fixed bootable image of its own, so vendor-fixed-image
+    does not apply; the fixed images that exist are Kairos releases.
+
+    The substrate is recorded as ab-partition-image because the only
+    documented deployment path is through Kairos, whose A/B layout is described
+    in kairos.yaml. It is the same substrate, not a second one, and the
+    taxonomy axes here describe what a Hadron base becomes when deployed, in
+    the way bootc.yaml's axes describe what bootc enables rather than a
+    machine bootc ships.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: general-purpose-host
+      ships_kubernetes: false
+      built_from: "scratch, via mussel, on an Alpine build container"
+      libc: musl
+      init: systemd
+      kernel: "vanilla upstream, two carried patches"
+      package_manager: "none"
+      image_variants:
+        - "hadron (GRUB, default kernel)"
+        - "hadron-cloud (GRUB, cloud kernel)"
+        - "hadron-trusted (systemd-boot, for UKI)"
+        - "hadron-cloud-trusted"
+        - "hadron-fips, hadron-cloud-fips, hadron-fips-trusted, hadron-cloud-fips-trusted"
+        - "hadron-container (minimal, no kernel)"
+        - "hadron-toolchain (build environment)"
+      lifecycle_provided_by: kairos
+    summary: >-
+      A from-scratch base distribution, musl plus systemd plus an unpatched
+      upstream kernel, with no package manager, published as OCI base images in
+      eight bootloader, kernel and FIPS variants. It becomes an installable,
+      immutable, upgradeable system only after the Kairos toolchain is applied
+      to it.
+    notes: >-
+      The project is consistent about what it is, which is more than can be
+      said for several entries in this edition. The repository description, the
+      README, the home page and the announcement all describe a minimal base
+      built from scratch for image-based systems, and all four name Kairos as
+      the thing that provides the lifecycle. The README lists "Upgrade System:
+      Managed via Kairos agent for A/B style atomic upgrades." The announcement
+      table lists "Lifecycle management: Kairos" in the row where Ubuntu has
+      apt and Snap and the Red Hat families have dnf, bootc and rpm-ostree.
+
+      Two positioning statements deserve to be recorded because a reader might
+      assume the opposite. The announcement says Hadron "is not positioned as a
+      replacement or competitor to established general-purpose distributions
+      like Ubuntu, Debian, or Alpine" but "an alternative base layer". And it
+      is not, on its own, comparable to the whole-system immutable
+      distributions in this survey: the home page's own words are that it
+      becomes immutable when topped with Kairos.
+
+      "From scratch" is accurate in the sense that no upstream distribution's
+      packages are used. The Dockerfile's first line states that it builds "a
+      small LFS system, starting from Alpine Linux" and uses the mussel
+      cross-compiler builder; Alpine is the build container, not the result,
+      and the image-structure test asserts that no glibc is present.
+
+      "Vanilla" and "minimal patches" are checkable and hold, with a precise
+      count: two kernel patches and four userspace patches are carried in the
+      repository at v0.5.3. The kernel is a stock upstream release, 7.2.6 in
+      the v0.5.3 component table, built in a default and a cloud configuration.
+
+      The musl-plus-systemd combination is unusual and the project says so.
+      It is achieved with the OpenEmbedded musl patches for systemd, credited
+      in the README acknowledgements.
+
+      The relationship to Kairos is the point that matters for the taxonomy of
+      this edition, so it is stated exactly. The Kairos build tool recognizes
+      Hadron as one of its base families in code. The Hadron repository's own
+      make build target pulls the published Hadron image, fetches the Kairos
+      Dockerfile at a pinned commit, and applies kairos-init to the Hadron base
+      to produce the image it then turns into an ISO. Hadron's acceptance tests
+      boot that Kairos-on-Hadron image, not a bare Hadron image. Since Kairos
+      v4, Hadron is the only base for which Kairos publishes prebuilt artifacts.
+      Kairos to Hadron is therefore the relationship of a framework to the base
+      it is applied to, and Kairos treats Hadron the same way it treats an
+      Ubuntu base, with one difference: Hadron is built by the same team, in
+      the same organization, and is the default.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://hadron-linux.io/
+        type: official-docs
+        title: Hadron Linux home page
+        retrieved: "2026-09-22"
+        quote: >-
+          Topped with Kairos, it becomes immutable and has powerful lifecycle
+          management
+      - url: https://github.com/kairos-io/hadron/blob/main/README.md
+        type: source-repo
+        title: Hadron README
+        retrieved: "2026-09-22"
+        quote: >-
+          Upgrade System: Managed via Kairos agent for A/B style atomic
+          upgrades
+      - url: https://kairos.io/blog/2025/12/17/introducing-hadron-the-minimal-upstream-first-linux-base-for-kairos
+        type: announcement
+        title: Introducing Hadron, 2025-12-17
+        retrieved: "2026-09-22"
+        quote: >-
+          Hadron is the purpose-built, optimal flavor for Kairos, a clean,
+          lean, and predictable base OS.
+      - url: https://github.com/kairos-io/hadron/blob/main/Dockerfile
+        type: source-repo
+        title: Hadron Dockerfile, header and stage list
+        retrieved: "2026-09-22"
+        quote: >-
+          This is Dockerfile, that at the end of the process it builds a small
+          LFS system, starting from Alpine Linux. It uses mussel to build the
+          system.
+      - url: https://github.com/kairos-io/hadron/blob/main/Makefile
+        type: source-repo
+        title: Hadron Makefile, build-kairos target
+        retrieved: "2026-09-22"
+        quote: >-
+          build: pull-image build-kairos build-iso ... curl -sSL
+          https://raw.githubusercontent.com/kairos-io/kairos/${KAIROS_DOCKERFILE_REF}/images/Dockerfile
+      - url: https://github.com/kairos-io/kairos/blob/master/kairos-init/pkg/values/values.go
+        type: source-repo
+        title: kairos-init recognized distributions
+        retrieved: "2026-09-22"
+        quote: 'Hadron Distro = "hadron" ... HadronFamily Family = "hadron"'
+
+  d02_immutability:
+    normalized:
+      provided_by: kairos
+      read_only_own_image: "none"
+      integrity_mechanism_own_image:
+        - "none"
+      integrity_mechanism_when_deployed:
+        - read-only-mount
+      runtime_integrity_verification: "none"
+      immutability_can_be_disabled: true
+      immutability_disable_where: the kernel command line, through Kairos
+      mount_layout: Set by the lifecycle manager (Kairos); see the Kairos data sheet
+      configurable_paths:
+        value: via-lifecycle-manager
+        evidence: DOCUMENTED
+        how: Set by the lifecycle manager (Kairos); see the Kairos data sheet
+        sources:
+          - url: https://hadron-linux.io/
+            type: official-docs
+            title: Hadron home page
+            retrieved: '2026-10-12'
+            quote: Topped with Kairos, it becomes immutable and has powerful lifecycle management.
+    summary: >-
+      The Hadron image enforces nothing on its own. Immutability, the read-only
+      root, the overlay for writable paths and the persistent bind mounts all
+      come from Kairos once kairos-init has been applied, and are exactly the
+      mechanism recorded in kairos.yaml d02.
+    notes: >-
+      The absence is documented rather than inferred: the home page says
+      Hadron becomes immutable when topped with Kairos, and the Hadron
+      documentation says a derived Hadron image "is just a Hadron rootfs" until
+      it is kairosified. A bare Hadron image is an ordinary root filesystem
+      with a writable everything.
+
+      Everything after that point belongs to Kairos, and the properties travel
+      with it, including the unflattering ones: a read-only loopback-mounted
+      ext2 image rather than dm-verity, no runtime integrity verification of
+      the root, no drift detection, and kernel command-line flags that switch
+      immutability off. None of those are Hadron design decisions, and none of
+      them are fixed by choosing Hadron over another base. See kairos.yaml d02
+      for the full record and its sources.
+
+      What Hadron does contribute to the immutability story is a smaller
+      writable surface by construction: no package manager, no package
+      database, and a filesystem that the build strips of headers, static
+      archives, documentation and locale data. That reduces what there is to
+      drift, but it is a size property, not an enforcement mechanism, and the
+      profile does not record it as one.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://hadron-linux.io/
+        type: official-docs
+        title: Hadron Linux home page
+        retrieved: "2026-09-22"
+        quote: >-
+          Topped with Kairos, it becomes immutable and has powerful lifecycle
+          management
+      - url: https://kairos.io/hadron-docs/linux-firmware
+        type: official-docs
+        title: Adding Linux firmware to Hadron, "not bootable yet" warning
+        retrieved: "2026-09-22"
+        quote: >-
+          The image produced above is not a bootable/upgradeable Kairos image
+          yet, it is just a Hadron rootfs with extra firmware. A raw Hadron
+          image cannot be used to upgrade a running Kairos node directly.
+      - url: https://github.com/kairos-io/hadron/blob/main/Dockerfile
+        type: source-repo
+        title: Hadron Dockerfile, full-image-final stage
+        retrieved: "2026-09-22"
+        quote: >-
+          RUN find / -name '*.a' -delete ... RUN rm -rf /usr/share/man ... RUN
+          rm -rf /usr/share/locale
+
+  d03_artifact:
+    normalized:
+      primary_artifact: oci-image
+      derived_artifacts:
+        - "Kairos OCI image, after kairos-init"
+        - "Kairos ISO, raw disk image and UKI, via AuroraBoot"
+      oci_registry_distribution: true
+      registry: ghcr.io/kairos-io
+      content_addressable: true
+      mirrorable: true
+      signed: "not observed: the build workflow has no signing step and the registry holds no signature tags"
+      provenance: "SLSA v1 provenance attestation attached to the image index"
+      sbom: unknown
+      github_release_assets: "none"
+      bootable_as_published: false
+    summary: >-
+      Ten OCI images per release on GitHub Container Registry, for amd64 and
+      arm64, with a SLSA provenance attestation attached. None of them is
+      bootable or installable as published; the bootable artifacts are Kairos
+      releases built from them.
+    notes: >-
+      The published set was enumerated from the registry rather than from the
+      documentation, because no page enumerates it. At v0.5.3 there are eight
+      bootable-base variants, produced by a matrix of bootloader (GRUB or
+      systemd-boot), kernel (default or cloud) and FIPS, plus the minimal
+      container image and the toolchain image. Every one is a two-architecture
+      index, amd64 and arm64. The GitHub release carries no file assets at all;
+      the release page is a changelog and a shipped-components table.
+
+      Provenance is present and was verified by reading the image index: each
+      architecture manifest has a companion attestation manifest whose single
+      layer carries the https://slsa.dev/provenance/v1 predicate. That is the
+      default output of the build action the workflow uses, not a documented
+      project commitment, and no page mentions it. No SBOM predicate is attached
+      and no SBOM is published anywhere that could be found, so sbom is
+      recorded as unknown rather than none.
+
+      Signing is recorded as not observed. The workflow has no
+      signing step, the registry holds no signature tags for the image
+      repository, and no documentation page says the images are or are not
+      signed. That is different from Kairos's own releases, which are signed
+      with Sigstore and were verified as such in kairos.yaml. An adopter who
+      derives from ghcr.io/kairos-io/hadron today has nothing to verify the
+      base against except the digest.
+
+      The naming is worth a warning because it is easy to misread. Kairos
+      publishes its own Hadron-based images to a different registry under a
+      different naming scheme, for example quay.io/kairos/hadron with a tag that
+      encodes the Hadron version, the Kairos version, the architecture and the
+      bootloader. The ghcr.io/kairos-io/hadron images profiled here are the
+      bases those are built from. No documentation page explains the split, a
+      gap kairos.yaml also records from its side.
+
+      Component transparency is good: the release notes carry a full table of
+      shipped component versions, and each image ships the same data as a JSON
+      manifest at /usr/lib/hadron/components.json, which the image-structure
+      test asserts is present and parseable.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/hadron/pkgs/container/hadron
+        type: source-repo
+        title: ghcr.io/kairos-io/hadron package page
+        retrieved: "2026-09-22"
+        quote: >-
+          Manifest list for v0.5.3 inspected on 2026-09-22: linux/amd64,
+          linux/arm64, plus two attestation manifests carrying
+          https://slsa.dev/provenance/v1. No signature tags in the repository.
+      - url: https://github.com/kairos-io/hadron/blob/main/.github/workflows/build-multiarch-images.yml
+        type: source-repo
+        title: Build main and release images workflow
+        retrieved: "2026-09-22"
+        quote: >-
+          tags: ghcr.io/${{ github.repository }}${{ matrix.kernel == 'cloud'
+          && '-cloud' || '' }}${{ matrix.fips == 'fips' && '-fips' || ''
+          }}-trusted:${{ github.ref_name }}-amd64
+      - url: https://github.com/kairos-io/hadron/releases/tag/v0.5.3
+        type: release-notes
+        title: Hadron v0.5.3, no file assets
+        retrieved: "2026-09-22"
+        quote: "Release asset count via the releases API: 0."
+      - url: https://github.com/kairos-io/hadron/blob/main/tests/image_structure_test.go
+        type: source-repo
+        title: Image structure test, component manifest
+        retrieved: "2026-09-22"
+        quote: It("ships a parseable per-image component manifest"
+    unknowns:
+      - "Whether an SBOM is produced for the base images. Only a provenance attestation is attached."
+
+  d04_upgrade:
+    normalized:
+      provided_by: kairos
+      mechanism:
+        - ab-partition-switch
+      scope: whole-os-image
+      scope_note: Hadron is upgraded through Kairos, so the Kairos entry's note on persistent paths applies.
+      scope_sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/main/docs/architecture/immutable.md
+          type: official-docs
+          title: 'Kairos docs: immutable architecture'
+          retrieved: '2026-10-06'
+          quote: a single layer which gets pulled and swapped atomically during upgrades
+      own_mechanism: "none"
+      requires_kubernetes: false
+      requires_vendor_infrastructure: false
+      base_version_pinning: "the Kairos release pins a Hadron version; Kairos v4.3.0 ships Hadron v0.5.1 while Hadron is at v0.5.3"
+    summary: >-
+      Hadron has no upgrade mechanism of its own. A Hadron-based system
+      upgrades through the Kairos agent's A/B image swap, with every property
+      and every gap recorded in kairos.yaml d04, including the unverified
+      default path and the bootloader that is not refreshed at v4.3.0.
+    notes: >-
+      The README states it in one line: upgrades are managed via the Kairos
+      agent. The announcement's comparison table gives the upgrade model as
+      "Image-based (via Kairos)". Nothing in the Hadron repository installs,
+      swaps or boots an image.
+
+      What is Hadron's own, and matters to an adopter planning upgrades, is
+      the version coupling. A Kairos release pins one Hadron version and builds
+      its artifacts from it, and the documentation site's per-version
+      configuration shows the pairing: Kairos v4.2.0 and v4.3.0 both ship
+      Hadron v0.5.1. Hadron has released v0.5.2 and v0.5.3 since, on 2026-09-09
+      and 2026-09-18. So an adopter consuming project-published Kairos
+      artifacts gets Hadron's kernel, systemd and OpenSSL at whatever versions
+      the pinned Hadron release carried, and moves forward only when Kairos
+      re-pins. An adopter who wants a newer base sooner builds their own image,
+      which is the path the project recommends for every non-default case and
+      whose costs kairos.yaml d06 records.
+
+      The reverse coupling also exists and is pinned deliberately: the Hadron
+      repository's own build fetches the Kairos Dockerfile at a fixed commit,
+      with a comment explaining that tracking the Kairos main branch made
+      Hadron's continuous integration fail on changes that were not Hadron's.
+      Two projects released separately, each pinning the other, is a
+      reasonable engineering arrangement; it is also one that no documentation
+      page describes, so a reader has to reconstruct it from a Makefile comment
+      and a site configuration file.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/hadron/blob/main/README.md
+        type: source-repo
+        title: Hadron README, upgrade system
+        retrieved: "2026-09-22"
+        quote: >-
+          Upgrade System: Managed via Kairos agent for A/B style atomic
+          upgrades
+      - url: https://github.com/kairos-io/kairos-docs/blob/main/docusaurus.config.ts
+        type: source-repo
+        title: Kairos docs site configuration, per-version Hadron pairing
+        retrieved: "2026-09-22"
+        quote: "'v4.3.0': { ... hadronFlavorRelease: 'v0.5.1' ... }"
+      - url: https://github.com/kairos-io/hadron/blob/main/Makefile
+        type: source-repo
+        title: Hadron Makefile, KAIROS_DOCKERFILE_REF pin
+        retrieved: "2026-09-22"
+        quote: >-
+          Pinned commit, not a branch: build-kairos fetches this file live at
+          build time, so leaving it on master means every hadron CI run depends
+          on whatever kairos/master happens to be at the moment it runs
+    unknowns:
+      - "No page states the policy for when a Kairos release re-pins its Hadron version, or whether a Hadron patch release ever triggers a Kairos patch release."
+
+  d05_rollback_recovery:
+    normalized:
+      provided_by: kairos
+      rollback_to_previous: available
+      automatic_rollback_on_boot_failure: available
+      retained_versions: 1
+      recovery_environment: dedicated-partition
+      factory_reset: available
+      network_independent_recovery: "yes"
+      trusted_boot_boot_assessment_tested_in_hadron_ci: true
+    summary: >-
+      Every rollback and recovery property is Kairos's: one retained version,
+      boot assessment with one retry on the GRUB path, a recovery partition and
+      a factory reset, all documented and all with the gaps recorded in
+      kairos.yaml d05. Hadron adds one fact of its own: its acceptance suite
+      tests Trusted Boot boot assessment, which the Kairos documentation says
+      in one place does not exist.
+    notes: >-
+      The values are copied from kairos.yaml d05 so that a table row for
+      Hadron is not blank, and they carry the same caveats: a boot counts as
+      successful on reaching an early configuration stage, the retained-version
+      count is published nowhere, and no rollback procedure page exists. A
+      reader evaluating Hadron for its recovery story is evaluating Kairos.
+
+      The one contribution Hadron makes to this dimension is evidentiary.
+      kairos.yaml records that two Kairos documentation pages disagree on
+      whether boot assessment works under Trusted Boot, one describing it and
+      one saying it is not implemented. Hadron's test suite contains a test
+      labelled acceptance-trusted-boot-assessment whose description is "works
+      and boots in passive as failover from a broken active", run against a
+      Kairos-on-Hadron UKI image. That is source-level evidence that the
+      mechanism exists and is exercised, which supports the first page and
+      contradicts the second. It is recorded here as a test that exists, not as
+      a result this survey reproduced, because this edition runs no
+      experiments.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/hadron/blob/main/tests/uki_test.go
+        type: source-repo
+        title: Hadron UKI acceptance tests
+        retrieved: "2026-09-22"
+        quote: >-
+          Describe("Uki boot assessment tests", Label("acceptance-trusted",
+          "acceptance-trusted-boot-assessment") ... It("works and boots in
+          passive as failover from a broken active"
+      - url: https://github.com/kairos-io/hadron/blob/main/README.md
+        type: source-repo
+        title: Hadron README, upgrade system
+        retrieved: "2026-09-22"
+        quote: >-
+          Upgrade System: Managed via Kairos agent for A/B style atomic
+          upgrades
+
+  d06_customization:
+    normalized:
+      runtime_package_install: "none"
+      mechanisms:
+        - dockerfile-derivation
+        - hadron-layers
+        - hadron-firmware
+        - toolchain-image-source-build
+        - systemd-sysext
+      customization_points:
+        - build-time
+        - runtime
+      published_layers: "git, gpg, fwupd, drbd, tailscale"
+      firmware_delivery: "per-target OCI images and sysexts from a separate repository"
+      sysext_signing: "published sysexts are unsigned; Trusted Boot requires the adopter to re-sign"
+      add_software:
+      - kind: derive-image
+        how: A Dockerfile that starts FROM the Hadron image. Pre-built Hadron layers and firmware images are copied in with COPY --from.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/hadron-docs/layers.md
+          type: official-docs
+          title: 'Hadron docs: Adding Hadron layers'
+          retrieved: '2026-10-12'
+          quote: Start from the Hadron image you already use.
+        - url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/hadron-docs/layers.md
+          type: official-docs
+          title: 'Hadron docs: Adding Hadron layers'
+          retrieved: '2026-10-12'
+          quote: drop them on top of your Hadron base with a
+      - kind: systemd-sysext
+        how: Build a sysext from a container image with AuroraBoot. Only the last image layer is converted, and the result is signed by the adopter.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/hadron-docs/expand-with-sysext.md
+          type: official-docs
+          title: 'Hadron docs: Extending Hadron with extensions'
+          retrieved: '2026-10-12'
+          quote: Notice that when converting a docker image into a system extension, the last layer is the only one converted
+        - url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/hadron-docs/expand-with-sysext.md
+          type: official-docs
+          title: 'Hadron docs: Extending Hadron with extensions'
+          retrieved: '2026-10-12'
+          quote: Private key to sign the system extension.
+    summary: >-
+      There is no package manager, by design, and the project says so. Adding
+      software means deriving an image with a Dockerfile, copying in a
+      published layer or firmware image, compiling from source in the toolchain
+      image, or loading a system extension at runtime through Kairos.
+    notes: >-
+      The no-package-manager position is stated on every surface and is
+      presented as a feature: "no vendor lock-in", "use the package manager you
+      like". The practical meaning is that every addition is a build step, and
+      the project has built real tooling for that. A toolchain image ships the
+      musl cross toolchain, the build flags Hadron itself uses, and the kernel
+      metadata needed to build out-of-tree modules against the shipped kernel.
+      A layers repository compiles common tools from source and publishes them
+      as scratch images to COPY in. A firmware repository splits the upstream
+      linux-firmware tree into per-target images and sysexts.
+
+      The costs are real and mostly documented, which is to the project's
+      credit. Kernel-module layers are tied to the exact kernel of the
+      toolchain they were built with, so the consumer must pin the layer to a
+      matching Hadron release. A driver bump for NVIDIA hardware is an image
+      rebuild, which the documentation says to "plan like OS upgrades". The
+      layers are not sysext-ready, because they may place files outside /usr,
+      and the documentation warns that a direct conversion would silently drop
+      those. The published sysexts are unsigned, so under Trusted Boot the
+      adopter builds and signs their own; the layers README says the same and
+      adds that a default Kairos node downloads an unsigned extension but does
+      not merge it.
+
+      Five layers exist at the collection date. That is the whole catalogue of
+      prebuilt software beyond what the base image contains, and one of the
+      five, git, is temporarily excluded from sysext publication because the
+      current AuroraBoot cannot extract its hardlinks. An adopter needing
+      anything else compiles it. The build-from-source examples show the kind
+      of friction involved: the git example carries a comment explaining why
+      autoconf's cross-compilation detection has to be overridden.
+
+      Two things the documentation does not cover. There is no page that says
+      what a derived image's maintainer now owns, which is the same gap
+      kairos.yaml d06 records for Kairos: rebuilding the base for a CVE in
+      OpenSSL, re-running the toolchain for every layer, and re-signing every
+      sysext are the adopter's, and no page says so. And a package built with
+      the toolchain against one Hadron release has no documented compatibility
+      statement for the next, beyond the kernel-module case.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/hadron/blob/main/README.md
+        type: source-repo
+        title: Hadron README, no package manager
+        retrieved: "2026-09-22"
+        quote: >-
+          Hadron doesn't ship a package manager by default, and it's not based
+          on any other Linux distribution. You can build packages on top of
+          Hadron, or use the package manager you like.
+      - url: https://kairos.io/hadron-docs/layers
+        type: official-docs
+        title: Adding Hadron layers
+        retrieved: "2026-09-22"
+        quote: >-
+          Layers that ship an out-of-tree kernel module (currently drbd) are
+          tied to the exact kernel version of the toolchain image they were
+          built against.
+      - url: https://kairos.io/hadron-docs/toolchain
+        type: official-docs
+        title: Hadron toolchain image
+        retrieved: "2026-09-22"
+        quote: >-
+          intended to be the canonical, reproducible build environment for
+          extending Hadron
+      - url: https://github.com/kairos-io/hadron-layers/blob/main/README.md
+        type: source-repo
+        title: hadron-layers README
+        retrieved: "2026-09-22"
+        quote: >-
+          These public artifacts are unsigned because Trusted Boot requires
+          keys that belong to the target deployment.
+      - url: https://github.com/kairos-io/hadron-firmware/blob/main/README.md
+        type: source-repo
+        title: hadron-firmware README
+        retrieved: "2026-09-22"
+        quote: >-
+          Hadron ships with a deliberately small firmware set to keep the base
+          image lean.
+      - url: https://kairos.io/hadron-docs/nvidia/
+        type: official-docs
+        title: NVIDIA GPU support on Hadron
+        retrieved: "2026-09-22"
+        quote: >-
+          an upgrade to a new NVIDIA driver version is a Hadron image rebuild,
+          not a Kubernetes-side upgrade. Plan driver bumps like OS upgrades.
+    unknowns:
+      - "No page assigns ownership of base rebuilds, layer rebuilds and sysext re-signing for an adopter who derives from Hadron."
+      - "No compatibility statement exists for toolchain-built userspace across Hadron releases."
+
+  d07_kubernetes:
+    normalized:
+      requirement: optional
+      bundled: "none in Hadron images; bundled in Kairos standard images built from Hadron"
+      independent_lifecycle: "no"
+      os_manages_kubernetes: "no"
+      kubernetes_manages_os: "kairos-operator, through Kairos"
+      distributions:
+        - k3s
+        - k0s
+    summary: >-
+      No Hadron image contains Kubernetes. The Hadron build can pass k3s or k0s
+      to kairos-init to produce a Kairos standard image, and the Kairos release
+      pipeline publishes exactly those, so every Kubernetes property of a
+      Hadron-based node is a Kairos property.
+    notes: >-
+      The README documents the KUBERNETES_DISTRO build variable with the
+      choices k3s, k0s "or leave empty for no Kubernetes distribution". The
+      variable is passed through to the Kairos Dockerfile; Hadron itself has no
+      Kubernetes code. Kairos v4.3.0 publishes Hadron-based standard ISOs for
+      both distributions on amd64 and for k3s on arm64, with the Kubernetes
+      version in the artifact name, which is why independent lifecycle is
+      recorded as no, on the same reasoning as kairos.yaml d07.
+
+      The sysctl hardening file is the one place Hadron itself shows awareness
+      of Kubernetes: its header says the baseline is "tuned to be SAFE on a
+      Kubernetes node" and lists the settings it omits because a CNI or the
+      kubelet owns them. That is a design consideration for the base, not a
+      Kubernetes integration.
+
+      The Hetzner example in the repository is a set of Kairos cloud-configs
+      for a single-node k3s cluster with the Hetzner cloud controller manager,
+      and its README describes it as Kairos configuration. It shows what
+      Hadron-plus-Kairos is used for; it is not a Hadron feature.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/hadron/blob/main/README.md
+        type: source-repo
+        title: Hadron README, build variables
+        retrieved: "2026-09-22"
+        quote: >-
+          KUBERNETES_DISTRO: Choose between k3s, k0s or leave empty for no
+          Kubernetes distribution
+      - url: https://github.com/kairos-io/kairos/releases/tag/v4.3.0
+        type: release-notes
+        title: Kairos v4.3.0 release assets
+        retrieved: "2026-09-22"
+        quote: >-
+          kairos-hadron-v0.5.1-standard-amd64-generic-v4.3.0-k3sv1.36.4+k3s1.iso
+      - url: https://github.com/kairos-io/hadron/blob/main/files/sysctl/60-hadron-hardening.conf
+        type: source-repo
+        title: Hadron sysctl hardening baseline
+        retrieved: "2026-09-22"
+        quote: >-
+          tuned to be SAFE on a Kubernetes node (Kairos; Cilium/Calico;
+          k3s/k0s)
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        items:
+          - vendor: nvidia-gpu
+            what: "NVIDIA discrete GPU, open kernel modules"
+            arch: [amd64]
+            delivery: build-yourself
+            delivery_note: "driver built into the OS image; a driver upgrade is an image rebuild"
+            secure_boot: unsigned
+            gpu_operator: host-driver
+            status: supported
+            note: "The example Dockerfile disables module signing. The kernel config has MODULE_SIG=y and IMA_ARCH_POLICY=y, so these modules likely fail to load under x86 Secure Boot (inferred; not documented either way). The docs pin GPU Operator v25.10.1 with the toolkit enabled in the operator."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://kairos.io/hadron-docs/nvidia/
+                title: "Hadron docs: NVIDIA"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Both platforms build the kernel driver into the OS image (open GPU kernel modules on x86, Tegra out-of-tree modules for Thor)
+              - url: https://github.com/kairos-io/hadron/blob/b6b25d3/examples/add-packages/Dockerfile.nvidia
+                title: "hadron examples/add-packages/Dockerfile.nvidia at b6b25d3"
+                retrieved: "2026-10-06"
+                quote: >-
+                  # Disable module signing cleanly
+          - vendor: nvidia-jetson
+            what: "Jetson AGX Thor; Orin image builds"
+            arch: [arm64]
+            delivery: build-yourself
+            delivery_note: "Tegra out-of-tree modules built into the OS image"
+            secure_boot: not-documented
+            gpu_operator: host-driver-and-toolkit
+            status: supported
+            note: "Orin cluster side is not documented. The docs state that the GPU Operator platform-support page lists Jetson as not supported. Host toolkit with nvidia-cdi-refresh."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://kairos.io/hadron-docs/nvidia/
+                title: "Hadron docs: NVIDIA, pinned operator"
+                retrieved: "2026-10-06"
+                quote: >-
+                  GPU Operator `v25.10.1`. Do not upgrade to `v26.x`.
+      architectures_with_released_images:
+        - amd64
+        - arm64
+      architectures_in_progress:
+        - riscv64
+      platforms:
+        - bare-metal
+        - virtual-machines
+        - public-cloud
+      kernel_variants: "default (generic drivers) and cloud (minimal, for virtual machines)"
+      firmware: "deliberately small in-image set; everything else via hadron-firmware"
+      gpu: "NVIDIA discrete on x86_64 and Jetson AGX Thor, driver compiled into the image"
+      sbc: "not documented for Hadron; the Kairos Raspberry Pi page is written for Hadron commands"
+      extension_mechanism: "toolchain image and kernel metadata for out-of-tree modules"
+    summary: >-
+      Released base images exist for amd64 and arm64, in two kernel
+      configurations. riscv64 has kernel configurations, a toolchain stage and
+      a workflow, and the workflow is switched off. Firmware is deliberately
+      minimal in the image and delivered separately.
+    notes: >-
+      The riscv64 position is recorded under the rule that artifacts count and
+      intentions do not. The repository carries riscv64 kernel configurations,
+      the Makefile accepts the architecture, the release workflow contains a
+      complete riscv64 pipeline, and every job in it is gated with a false
+      condition. The pull-request workflow for riscv64 runs a single job that
+      prints "RISC-V64 CI pipeline is temporarily disabled." The registry holds
+      one historical riscv64 tag, v0.1.1-riscv64, on the container image only.
+      The Dockerfile also skips the shim build on riscv64 with the comment that
+      the architecture "doesn't have Secure Boot support yet". Recorded as in
+      progress, not as supported, which is stricter than the Makefile's own
+      error message that lists riscv64 as a valid choice.
+
+      Hardware reach is decided by the kernel configuration and the firmware
+      set, and both are deliberately narrow. The cloud kernel is described as
+      "a minimal kernel built for VM/cloud environments" and the default kernel
+      as "more generic with more drivers included". The in-image firmware set
+      is small by stated design, and the firmware repository exists because
+      "some devices (GPUs, Wi-Fi/Bluetooth chips, NICs, etc.) need extra
+      firmware blobs". An adopter with such hardware derives an image or loads
+      a sysext. Nothing lists which devices work out of the box.
+
+      GPU support is documented in more depth than for any other hardware,
+      and its cost is stated: because Hadron is musl-based and from scratch,
+      NVIDIA's prebuilt driver containers do not apply, the driver is compiled
+      into the image, and the GPU Operator runs driver-less. A driver update
+      is an image rebuild. The documentation pins the GPU Operator to one
+      version and says not to upgrade past it.
+
+      Single-board computers are not documented from the Hadron side. The
+      Kairos Raspberry Pi page states its commands are written for Hadron, and
+      kairos.yaml records the Pi model limits. Cloud images exist as Kairos
+      artifacts, and the Hadron repository's Hetzner example depends on a
+      support ticket to get an ISO onto that provider.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/hadron/blob/main/.github/workflows/build-multiarch-images.yml
+        type: source-repo
+        title: Build workflow, riscv64 pipeline gated off
+        retrieved: "2026-09-22"
+        quote: "stage0-riscv64: if: ${{ false }}"
+      - url: https://github.com/kairos-io/hadron/blob/main/.github/workflows/PR_riscv64.yml
+        type: source-repo
+        title: riscv64 pull-request workflow
+        retrieved: "2026-09-22"
+        quote: 'run: echo "RISC-V64 CI pipeline is temporarily disabled."'
+      - url: https://github.com/kairos-io/hadron/blob/main/README.md
+        type: source-repo
+        title: Hadron README, kernel types and architectures
+        retrieved: "2026-09-22"
+        quote: >-
+          Cloud is a minimal kernel built for VM/cloud environments. Default is
+          a more generic kernel with more drivers included.
+      - url: https://kairos.io/hadron-docs/nvidia/
+        type: official-docs
+        title: NVIDIA GPU support on Hadron
+        retrieved: "2026-09-22"
+        quote: >-
+          Hadron is musl-based and from-scratch, so NVIDIA's pre-built driver
+          containers do not apply
+      - url: https://github.com/kairos-io/hadron/blob/main/Dockerfile
+        type: source-repo
+        title: Hadron Dockerfile, shim stage
+        retrieved: "2026-09-22"
+        quote: "Skip shim build for RISC-V as it doesn't have Secure Boot support yet"
+    unknowns:
+      - "No list of hardware known to work with the in-image firmware set exists."
+      - "Whether riscv64 images are intended to return, and on what timeline."
+
+  d09_provisioning:
+    normalized:
+      provided_by: kairos
+      methods:
+        - "every Kairos path: interactive, unattended cloud-config, ISO, netboot, cloud image, raw image"
+      own_tooling: "make targets that call kairos-init and AuroraBoot"
+      trusted_boot_media: "built with adopter keys; the repository's test keys are labelled insecure"
+    summary: >-
+      Hadron ships no installer and no media. The repository's make targets
+      produce a Kairos image and then call AuroraBoot to produce a GRUB ISO or a
+      Trusted Boot UKI ISO, and every installation path is the Kairos one
+      recorded in kairos.yaml d09.
+    notes: >-
+      The make help text is candid about the test keys: the default KEYS_DIR
+      points at keys "that we use for testing, which are INSECURE and should
+      not be used in production". An adopter building Trusted Boot media
+      supplies a Secure Boot signing key and certificate, a TPM PCR policy key
+      and the enrollment bundles, which is the Kairos key model, and losing them
+      has the consequence kairos.yaml d10 records.
+
+      The Kairos-side documentation for Trusted Boot installation is written
+      for Hadron, states that adapted commands should work on Ubuntu 24.04 and
+      Fedora 40, and names Hadron-based UKI images. The Kairos Raspberry Pi and
+      cloud pages likewise use Hadron as the worked example since v4. There is
+      no Hadron-specific provisioning page and none is needed, but a reader
+      arriving from hadron-linux.io is sent to the Kairos quickstart without
+      being told that this is where installation lives.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/hadron/blob/main/Makefile
+        type: source-repo
+        title: Hadron Makefile, ISO targets and key warning
+        retrieved: "2026-09-22"
+        quote: >-
+          The default is to use the keys that we use for testing, which are
+          INSECURE and should not be used in production.
+      - url: https://kairos.io/docs/installation/trustedboot/
+        type: official-docs
+        title: Kairos Trusted Boot installation
+        retrieved: "2026-09-22"
+        quote: >-
+          Commands in this page are written for Hadron, but if adapted they
+          should work on these other distributions: Ubuntu 24.04 and Fedora 40.
+      - url: https://hadron-linux.io/
+        type: official-docs
+        title: Hadron Linux home page, links
+        retrieved: "2026-09-22"
+        quote: "Links on the page: kairos.io, spectrocloud.com, kairos.io/quickstart/, github.com/kairos-io/hadron, /components/."
+
+  d10_security:
+    normalized:
+      secure_boot: unknown
+      shim: "16.1, compiled from upstream source, no signing step"
+      sbat: "systemd-boot and stub carry sbat-distro Hadron with a stable generation counter"
+      measured_boot: "available under Trusted Boot, through Kairos"
+      tpm: "TPM 2.0, through Kairos"
+      integrity: "provided by Kairos: read-only-mount, no dm-verity on the root"
+      disk_encryption: "through Kairos: opt-in on GRUB installs, automatic under Trusted Boot"
+      artifact_verification_base_images: unknown
+      artifact_verification_kairos_releases: sigstore-keyless-cosign
+      provenance: "SLSA v1 attestation on the base images"
+      sbom: unknown
+      fips: "separate image variants with the OpenSSL 3.1.2 FIPS provider and a kernel HMAC; no validation claimed"
+      hardening_baseline:
+        - "sshd STIG drop-in: root login prohibit-password, no empty passwords, password authentication left enabled"
+        - "sysctl baseline derived from the RHEL 9 STIG, with Kubernetes-breaking rules omitted"
+        - "legacy network protocols blacklisted in modprobe"
+        - "audit userspace tools shipped since v0.5.3"
+      vulnerability_tracking: "organization CVE dashboard; four high findings for Hadron as of 2026-09-10"
+      trusted_boot_issue: "kairos-io/kairos#4885, closed 2026-09-22; fix kairos-io/go-ukify#66 merged 2026-09-22; not yet in a released AuroraBoot (latest v0.27.1, 2026-09-11)"
+    summary: >-
+      Hadron contributes a hardening baseline, a from-source shim and
+      systemd-boot with its own SBAT identity, and FIPS variants. Everything
+      that verifies, measures or encrypts is Kairos's. Secure Boot on stock
+      firmware is unknown for the same reason as in kairos.yaml, and the
+      Trusted Boot path has a documented open defect at the collection date.
+    notes: >-
+      **Secure Boot is unknown, and Hadron is the reason it is unknown for
+      Kairos too.** The shim is built from the upstream 16.1 tarball in the
+      Dockerfile, with one build-system patch, and copied into the image at
+      /usr/share/efi. There is no signing step in the Dockerfile or the
+      workflow, no reference to a shim-review submission, and no page that
+      states whether the shim validates against the Microsoft third-party CA
+      that stock firmware ships. The Kairos Secure Boot architecture page,
+      dated January 2024 in its front matter, describes piggybacking on
+      upstream distributions' signed artifacts, which cannot describe a base
+      that compiles its own shim, and does not mention Hadron. Recorded as
+      unknown rather than none because no primary source says either way, and
+      raised as the first open question below.
+
+      Trusted Boot is the documented high-assurance path and is where the
+      project has invested: a dedicated hadron-trusted variant with
+      systemd-boot and the systemd stub, SBAT metadata identifying the distro
+      as Hadron with a generation counter the Dockerfile says to bump only on
+      a security-relevant revocation, and acceptance tests that boot UKI
+      images under Secure Boot with test keys. The keys are the adopter's,
+      enrollment is the adopter's, and the Kairos documentation says losing
+      them prevents building further upgrades.
+
+      **At the collection date the Trusted Boot path has a live, root-caused
+      defect.** kairos-io/kairos#4885, opened 2026-09-22, documents that the
+      UKI assembler places its appended PE sections at 512-byte rather than
+      page alignment while the stub declares a 4096-byte section alignment;
+      on firmware built with memory-protection asserts, the OVMF Secure Boot
+      build among them, the image dead-loops before the kernel and the boot
+      watchdog resets the machine after five minutes. The same issue states
+      that production firmware without asserts skips the failed protection and
+      boots, so the reported effect on hardware is a delay rather than a
+      failure, and that was not tested. It supersedes kairos-io/kairos#4618,
+      opened 2026-09-11 and closed 2026-09-16 before the cause was found. The
+      fix, kairos-io/go-ukify#66, merged on 2026-09-22 and the issue closed the
+      same day. The latest AuroraBoot release, v0.27.1 of 2026-09-11, predates
+      the fix, so no released media tool carries it yet. Both the issue and
+      the fix were filed by the same team that wrote this survey, which is
+      stated here so the reader can weigh it; the facts are dated and linked,
+      and they are recorded under the same discipline as the Talos provider
+      deprecation in talos.yaml. A future edition should check whether the fix
+      shipped and whether the behaviour on real hardware was measured.
+
+      FIPS is handled candidly in the source. Separate image
+      variants build the OpenSSL FIPS provider and generate the kernel HMAC
+      that dracut checks, and the Dockerfile explicitly declines to build
+      cryptsetup with its FIPS flag because "its not certified" and doing so
+      "will still give you a cryptsetup that reports as FIPS capable while its
+      not". No page claims FIPS validation of anything, and no page explains
+      what the FIPS variants are for. The sshd crypto drop-in is split into a
+      FIPS and a non-FIPS file with a comment explaining that the Kairos
+      hardening drop-in must not override the FIPS-approved list.
+
+      The hardening baseline is the most concrete security contribution and
+      is documented only in file headers. The sshd drop-in references STIG,
+      prohibits root password login, and deliberately leaves password
+      authentication on because "Kairos provisions node users with passwords",
+      inviting downstream deployments to add their own drop-in to disable it.
+      The sysctl file cites RHEL 9 STIG rule identifiers per line and lists the
+      rules it omits and why. Both files carry comments about ordering
+      conflicts with the Kairos hardening drop-in that were found by failing
+      tests, which is the kind of detail that says the two projects are
+      developed together and integrated by trial.
+
+      Vulnerability handling is the organization's, not the repository's.
+      Hadron has no security policy file, no issue tracker of its own, and its
+      README routes bugs to the Kairos repository. The organization's CVE
+      dashboard covers Hadron and on 2026-09-10 listed four high findings, in
+      expat and rsync, both of which the v0.5.3 component table shows at newer
+      versions. kairos.yaml records the limits of the organization-level
+      policy, and they apply here unchanged.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/hadron/blob/main/Dockerfile
+        type: source-repo
+        title: Hadron Dockerfile, shim, SBAT and FIPS stages
+        retrieved: "2026-09-22"
+        quote: >-
+          Still, its not certified and building with the flag AND openssl will
+          still give you a cryptsetupt hat reports as FIPS capable while its
+          not, so we avoid confusion and just build without fips support at
+          all here.
+      - url: https://kairos.io/docs/architecture/secureboot/
+        type: official-docs
+        title: Kairos Secure Boot architecture
+        retrieved: "2026-09-22"
+        quote: >-
+          We piggyback on the upstream artifacts to be properly signed in order
+          to support SecureBoot.
+      - url: https://github.com/kairos-io/kairos/issues/4885
+        type: source-repo
+        title: "Hadron/Kairos UKI Trusted Boot: go-ukify appends PE sections misaligned, open"
+        retrieved: "2026-09-22"
+        quote: >-
+          go-ukify's assemble() places every section it appends to the systemd
+          stub ... at a 512-byte aligned virtual address, while the stub's PE
+          header declares SectionAlignment 0x1000.
+      - url: https://github.com/kairos-io/go-ukify/pull/66
+        type: source-repo
+        title: "fix(uki): align appended sections to the PE SectionAlignment, open"
+        retrieved: "2026-09-22"
+        quote: "State OPEN, not merged, opened 2026-09-22."
+      - url: https://github.com/kairos-io/AuroraBoot/blob/main/go.mod
+        type: source-repo
+        title: AuroraBoot go.mod, go-ukify pin
+        retrieved: "2026-09-22"
+        quote: github.com/kairos-io/go-ukify v0.5.0
+      - url: https://github.com/kairos-io/hadron/blob/main/files/ssh/sshd_config.d/01-hadron-stig.conf
+        type: source-repo
+        title: Hadron sshd STIG drop-in
+        retrieved: "2026-09-22"
+        quote: >-
+          PasswordAuthentication is deliberately left at its default (yes):
+          Kairos provisions node users with passwords.
+      - url: https://github.com/kairos-io/hadron/blob/main/files/sysctl/60-hadron-hardening.conf
+        type: source-repo
+        title: Hadron sysctl hardening baseline
+        retrieved: "2026-09-22"
+        quote: >-
+          Derived from the RHEL 9 STIG sysctl rules + General Purpose OS SRG,
+          tuned to be SAFE on a Kubernetes node
+      - url: https://kairos-io.github.io/security/
+        type: official-docs
+        title: Kairos security dashboard
+        retrieved: "2026-09-22"
+        quote: "Updated 2026-09-10; kairos-io/hadron: 0 critical, 4 high, 0 medium."
+    unknowns:
+      - "Whether the from-source shim validates against the CA in stock firmware, and whether a shim review has been submitted. No primary source says either way."
+      - "Whether an SBOM is produced for the base images."
+      - "What the FIPS variants are intended for, and whether any validation is planned."
+      - "Whether the Trusted Boot section-alignment defect affects boot on production firmware beyond a delay. The issue says it was not tested."
+
+  d11_operations_debugging:
+    normalized:
+      provided_by: kairos
+      ssh: available
+      local_shell: available
+      shell: "bash, with busybox applets for most utilities"
+      debugging_tools_in_image: "procps sysctl, less, getent, nslookup; no strace or gdb"
+      recovery_shell: "through Kairos recovery"
+      works_without_kubernetes: "yes"
+      documentation: "five pages on the Kairos site plus a README; no operations page"
+      issue_tracker: "none; issues go to kairos-io/kairos"
+    summary: >-
+      Operating a Hadron node is operating a Kairos node, with the same
+      command line, the same recovery entry and the same missing debugging
+      story under Trusted Boot. What Hadron adds is a deliberately thin
+      userspace: bash and busybox, sshd, and a short list of tools the release
+      notes added because people missed them.
+    notes: >-
+      The userspace is small enough that what is missing is a design fact
+      rather than an oversight, and the release notes show the project
+      adjusting it by feedback: v0.5.2 added getent and nslookup as "two small
+      but frequently-missed tools for anyone debugging DNS or NSS", and
+      replaced the busybox pager with real less; v0.5.3 added the audit
+      userspace tools. strace and gdb are built in the Dockerfile for the
+      toolchain but not copied into the bootable image. The README notes that
+      the full procps sysctl ships because a downstream consumer relies on it
+      during preflight.
+
+      Documentation is the thin point. The Hadron section of the Kairos site
+      has five pages, on firmware, layers, extensions, NVIDIA and the
+      toolchain, and an index page whose body is empty apart from a last-
+      updated stamp. hadron-linux.io is a landing page and a component list.
+      There is no page about operating, debugging, logging or troubleshooting
+      a Hadron system, and the Kairos troubleshooting page, which kairos.yaml
+      already records as lacking any logging or monitoring guidance, is what an
+      operator gets. The repository has issues, discussions and wiki disabled;
+      the README says every issue goes to kairos-io/kairos "so you never have
+      to work out which repository to file against", which is a reasonable
+      choice that also means there is no Hadron-specific issue history to
+      search.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/hadron/releases/tag/v0.5.2
+        type: release-notes
+        title: Hadron v0.5.2
+        retrieved: "2026-09-22"
+        quote: >-
+          getent and nslookup are in the base image. Two small but
+          frequently-missed tools for anyone debugging DNS or NSS on a running
+          node.
+      - url: https://github.com/kairos-io/hadron/blob/main/README.md
+        type: source-repo
+        title: Hadron README, issues and sysctl
+        retrieved: "2026-09-22"
+        quote: >-
+          Open it on kairos-io/kairos, including issues about this repository.
+          Every Kairos issue lives in one place
+      - url: https://kairos.io/hadron-docs/
+        type: official-docs
+        title: Hadron documentation index
+        retrieved: "2026-09-22"
+        quote: >-
+          Body text is the heading "Hadron" and "Last updated on Mar 12, 2026 by
+          Itxaka"; sidebar lists five further pages.
+    unknowns:
+      - "No operations, logging or troubleshooting page exists for Hadron on any surface."
+
+  d12_fleet_management:
+    normalized:
+      provided_by: kairos
+      core_project:
+        - "none of its own; see kairos.yaml d12"
+      oss_companion:
+        - name: hadron-layers
+          repo: https://github.com/kairos-io/hadron-layers
+          license: "no LICENSE file"
+          org: kairos-io
+          note: "Prebuilt software layers and unsigned sysexts, with a releases index that kairos-agent uses as its default extension catalogue. Created 2026-06-22."
+        - name: hadron-firmware
+          repo: https://github.com/kairos-io/hadron-firmware
+          license: "no LICENSE file"
+          org: kairos-io
+          note: "Per-target linux-firmware images and unsigned sysexts. Created 2025-11-25."
+      commercial:
+        - name: Spectro Cloud Palette Edge
+          vendor: Spectro Cloud
+          license: proprietary
+          self_hostable: false
+          note: "The Hadron README names Stylus, Spectro Cloud's installer, as a consumer that relies on sysctl --system during preflight. Whether Palette Edge ships Hadron-based images is not stated in a primary source found for this profile; kairos.yaml records the vendor's documented use of Kairos images."
+      cluster_api:
+        os_specific_provider: "through Kairos; see kairos.yaml d12"
+        maintainer: not-applicable
+        provisions: not-applicable
+    summary: >-
+      Hadron has no fleet capability of its own and does not claim one. The
+      Kairos operator, the Cluster API providers and the AuroraBoot fleet
+      server apply to a Hadron-based node exactly as kairos.yaml describes
+      them. Hadron's companions are the two content repositories, layers and
+      firmware, and both lack a LICENSE file.
+    notes: >-
+      The Cluster API fields are marked not-applicable for the maintainer and
+      provisioning questions because they are answered by kairos.yaml for the
+      whole stack, and answering them again here would count the Kairos
+      providers twice.
+
+      The two companion repositories are recorded because an adopter will
+      depend on them, and the licence gap is recorded because it is checkable:
+      neither repository has a LICENSE file, and the GitHub API reports no
+      licence for either. The artifacts they publish are built from upstream
+      software with its own licences, but the build recipes and the index
+      pages are unlicensed as published. kairos.yaml records three unlicensed
+      repositories in the organization; these are two of them.
+
+      The commercial line is recorded conservatively. The only primary source
+      linking Hadron to a Spectro Cloud product is a README sentence naming
+      Stylus as a consumer. That is enough to record that the sponsor's
+      installer runs on Hadron images and not enough to describe the product,
+      so the vendor's own documentation is cited through kairos.yaml rather
+      than characterised here.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/hadron/blob/main/README.md
+        type: source-repo
+        title: Hadron README, sysctl and Stylus
+        retrieved: "2026-09-22"
+        quote: >-
+          consumers such as Stylus rely on sysctl --system during preflight
+      - url: https://github.com/kairos-io/hadron-layers
+        type: source-repo
+        title: hadron-layers repository
+        retrieved: "2026-09-22"
+        quote: "GitHub API on 2026-09-22: license null, created 2026-06-22."
+      - url: https://github.com/kairos-io/hadron-firmware
+        type: source-repo
+        title: hadron-firmware repository
+        retrieved: "2026-09-22"
+        quote: "GitHub API on 2026-09-22: license null, created 2025-11-25."
+      - url: https://github.com/kairos-io/hadron-layers/blob/main/README.md
+        type: source-repo
+        title: hadron-layers README, default catalogue
+        retrieved: "2026-09-22"
+        quote: >-
+          releases.json is the extension catalog Kairos searches by default
+
+  d13_governance:
+    normalized:
+      license: Apache-2.0
+      open_source: true
+      open_governance: partial
+      vendor_neutral_ownership: unknown
+      foundation:
+        name: "CNCF, claimed through the Kairos project"
+        level: "not separately listed"
+      trademark_holder: unknown
+      primary_commercial_sponsor: Spectro Cloud
+      contributor_agreement: "DCO, through the Kairos organization conventions"
+      governance_document: "none in the repository; CODEOWNERS assigns kairos-io/maintainers"
+      contribution_diversity:
+        method: >-
+          git log against a freshly fetched origin/main of kairos-io/hadron for
+          the twelve months to 2026-09-22, grouped by author name, with bot,
+          agent and assistant accounts excluded by name pattern. Author names
+          were cross-referenced against the Kairos MAINTAINERS.md affiliation
+          column. Author email domains were also grouped and give the same
+          picture, but 266 of 497 commits use GitHub no-reply addresses, so
+          names are the more useful key here.
+        value: >-
+          497 commits in twelve months, of which 245 are from human accounts
+          and 252 from dependency bots, a project bot, a code assistant and the
+          maintainers' agent accounts. Of the 245 human commits, 242 are from
+          four authors who are all listed as Spectro Cloud maintainers in the
+          Kairos maintainers file, and 3 are from two other individuals. The
+          organization's contributors file credits one of those two with a
+          Hadron pull request.
+    summary: >-
+      Apache-2.0, in the CNCF-hosted Kairos organization, governed by the
+      Kairos maintainers through CODEOWNERS. No governance document names
+      Hadron, no primary source says who holds the Hadron name and domain, and
+      99 percent of human commits in the last year come from four employees
+      of one company.
+    notes: >-
+      The four governance readings separate as sharply here as anywhere in
+      the edition. Open source: yes, Apache-2.0 in the LICENSE file and in the
+      image labels. Open governance: partial, inherited. The repository has no
+      governance, maintainers, contributing or security file of its own. Its
+      CODEOWNERS assigns every path to the kairos-io/maintainers team, so the
+      Kairos governance document, with the limits kairos.yaml records, is the
+      governance that applies, by implication rather than by statement. The
+      Kairos governance document does not enumerate the repositories it
+      covers.
+
+      Vendor-neutral ownership is recorded as unknown, and the reasoning is
+      the important part. The announcement states that "As part of the CNCF
+      project Kairos, Hadron guarantees vendor neutrality and a clear
+      governance model." No primary source found for this profile establishes
+      that: the CNCF project page for Kairos does not list Hadron, the site
+      footer at hadron-linux.io says "Kairos authors" rather than naming LF
+      Projects as kairos.io's footer does, and no page says who registered the
+      hadron-linux.io domain or holds the Hadron name. The README says Hadron
+      "is Engineered by Spectro Cloud from the Kairos team". Those are
+      compatible with the announcement's claim and do not prove it. kairos.yaml
+      already carries this as an open question from the Kairos side; it is
+      recorded here from Hadron's side with the same wording.
+
+      Contribution diversity is lower than Kairos's, which is itself recorded
+      as low. The commit history is roughly half automation by count: a
+      dependency bot, a project bot that opens version bumps, a code assistant
+      credited as co-author, and agent accounts operated by the maintainers.
+      The organization publishes conventions for those agents, and this is
+      recorded, as in kairos.yaml, as a fact about how the history is produced
+      rather than as a judgement. Among human authors, one maintainer accounts
+      for 154 of 245 commits.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/hadron/blob/main/LICENSE
+        type: governance-doc
+        title: Hadron LICENSE
+        retrieved: "2026-09-22"
+        quote: "Apache License, Version 2.0; GitHub API spdx_id Apache-2.0."
+      - url: https://github.com/kairos-io/hadron/blob/main/.github/CODEOWNERS
+        type: governance-doc
+        title: Hadron CODEOWNERS
+        retrieved: "2026-09-22"
+        quote: "* @kairos-io/maintainers"
+      - url: https://github.com/kairos-io/community/blob/main/MAINTAINERS.md
+        type: governance-doc
+        title: Kairos maintainers
+        retrieved: "2026-09-22"
+        quote: >-
+          Ettore Di Giacinto ... Spectro Cloud ... Dimitris Karakasilis ...
+          Spectro Cloud ... Itxaka Serrano Garcia ... Spectro Cloud ... Mauro
+          Morales ... Spectro Cloud
+      - url: https://kairos.io/blog/2025/12/17/introducing-hadron-the-minimal-upstream-first-linux-base-for-kairos
+        type: announcement
+        title: Introducing Hadron, governance claim
+        retrieved: "2026-09-22"
+        quote: >-
+          As part of the CNCF project Kairos, Hadron guarantees vendor
+          neutrality and a clear governance model.
+      - url: https://github.com/kairos-io/hadron/blob/main/README.md
+        type: source-repo
+        title: Hadron README, sponsor
+        retrieved: "2026-09-22"
+        quote: Hadron is Engineered by Spectro Cloud from the Kairos team.
+      - url: https://github.com/kairos-io/community/blob/main/CONTRIBUTORS.md
+        type: governance-doc
+        title: Kairos contributors
+        retrieved: "2026-09-22"
+        quote: "Ludea ... This half-year ... kairos-io/hadron/pull/171"
+    unknowns:
+      - "Whether Hadron is within the scope of the CNCF Kairos project, and who holds the Hadron name and the hadron-linux.io domain."
+      - "No governance, maintainers, contributing or security file exists in the repository; the applicable governance is inferred from CODEOWNERS."
+
+  d14_maturity:
+    normalized:
+      first_release: "2026-01-29"
+      first_prerelease: "2025-11-28"
+      repository_created: "2025-06-28"
+      current_version: "v0.5.3"
+      current_version_date: "2026-09-18"
+      release_cadence: "nineteen stable releases in under eight months; bursty, from same-week patches to a two-month gap"
+      observed_intervals: "3, 3, 5, 2, 1, 4, 21, 2, 62, 9 days across v0.3.0 to v0.5.3"
+      support_model: "none published"
+      support_window: "none published"
+      version_shipped_by_kairos: "v0.5.1, in Kairos v4.2.0 and v4.3.0"
+      commercial_support: "through Kairos commercial support; Hadron is not named on that page"
+      self_declared_maturity: "the announcement calls it mature and production-ready for its core purpose; the version is pre-1.0"
+    summary: >-
+      Fifteen months old as a repository, nine months since the first stable
+      tag, and at v0.5.3. There is no support policy, no end-of-life statement
+      and no statement of what a version number promises, and the version an
+      adopter gets from Kairos artifacts is two releases behind Hadron's own.
+    notes: >-
+      The cadence is fast and irregular, and it is a young project's cadence.
+      Six stable releases shipped in the twelve days from v0.3.0 to v0.3.5 in
+      late May and June 2026, then one in each of July, September and again
+      September, with a 62-day gap between v0.5.1 and v0.5.2. Release notes
+      since v0.5.2 are substantial and well organized, with highlights,
+      per-area changes and a full component table, which is better than the
+      Kairos release notes kairos.yaml describes.
+
+      Two statements about maturity sit side by side. The announcement says
+      "Hadron is mature and production-ready for its core purpose: to be a
+      minimal, predictable base for Kairos." The version numbers are pre-1.0,
+      no page says what a minor or patch increment means, and the Kairos
+      release that ships it pins a version two releases old. A reader should
+      take the first statement as the project's assessment of fitness for its
+      narrow purpose and not as a semantic-versioning stability promise, which
+      the project has not made.
+
+      There is no support lifecycle. The Kairos statement that only the latest
+      release branch receives patches is written about Kairos; nothing says
+      whether a Hadron release receives patches once Kairos pins a newer one,
+      and the Kairos commercial support page, which is the only long-term
+      maintenance offering in the organization, does not mention Hadron. The
+      practical support window is therefore whichever Hadron version the
+      current Kairos release pins, for as long as that Kairos release is the
+      latest.
+
+      Every version since v0.3.0 has been paired with a Kairos release in the
+      documentation site's configuration, and that pairing is the most useful
+      maturity signal available: the base has been the default for
+      project-published Kairos artifacts since v4.0.0 in February 2026, so it
+      has seven months of being the thing Kairos ships.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/hadron/releases
+        type: release-notes
+        title: Hadron releases
+        retrieved: "2026-09-22"
+        quote: >-
+          Stable tags and dates from the releases API: v0.0.1 2026-01-29,
+          v0.3.0 2026-05-29, v0.4.0 2026-06-16, v0.5.0 2026-07-07, v0.5.1
+          2026-07-09, v0.5.2 2026-09-09, v0.5.3 2026-09-18; first prerelease
+          v0.0.1-alpha 2025-11-28.
+      - url: https://kairos.io/blog/2025/12/17/introducing-hadron-the-minimal-upstream-first-linux-base-for-kairos
+        type: announcement
+        title: Introducing Hadron, maturity statement
+        retrieved: "2026-09-22"
+        quote: >-
+          Hadron is mature and production-ready for its core purpose: to be a
+          minimal, predictable base for Kairos.
+      - url: https://kairos.io/blog/2026/02/25/kairos-v4-hadron-artifacts-and-distro-flexibility
+        type: announcement
+        title: Hadron-only artifacts with ongoing distro support
+        retrieved: "2026-09-22"
+        quote: >-
+          Starting with Kairos v4, the Kairos project will publish
+          Hadron-based artifacts only.
+      - url: https://www.spectrocloud.com/solutions/kairos-support
+        type: vendor-docs
+        title: Kairos commercial support
+        retrieved: "2026-09-22"
+        quote: "Page searched for Hadron on 2026-09-22: no mention."
+      - url: https://github.com/kairos-io/kairos-docs/blob/main/docusaurus.config.ts
+        type: source-repo
+        title: Kairos docs site configuration, Hadron pairing per version
+        retrieved: "2026-09-22"
+        quote: "'v4.2.0': { ... hadronFlavorRelease: 'v0.5.1' ... }, 'v4.3.0': { ... hadronFlavorRelease: 'v0.5.1' ... }"
+    unknowns:
+      - "No support lifecycle, end-of-life or versioning policy is published for Hadron."
+      - "Whether a Hadron release keeps receiving fixes after Kairos pins a newer one."
+
+tradeoffs:
+  buys:
+    - "A base with no inherited distribution state. No package manager, no package database, no downstream patches, and a component list that fits in one table with every version named. What is in the image is exactly what the Dockerfile built."
+    - "Upstream alignment that is checkable: a stock kernel with two carried patches, systemd and musl at current upstream versions, and a per-image component manifest shipped inside the image."
+    - "A reproducible build environment for extending it: a published toolchain image with the same flags, triplets and kernel metadata the base was built with, so out-of-tree modules and compiled additions match the shipped kernel exactly."
+    - "Provenance attached to every published image index, and a component table in every release."
+    - "A hardening baseline shipped in the image, with each rule attributed to a STIG identifier and each omission explained, and a Trusted Boot variant with its own SBAT identity. Under Trusted Boot, extensions are signed with the adopter's keys."
+  costs:
+    - "Software beyond the base and the officially published layers and extensions (the hadron-layers catalogue of five layers: drbd, fwupd, git, gpg and tailscale, all but git also as system extensions; and per-target linux-firmware images and extensions from hadron-firmware) is compiled by the adopter in the toolchain image, and rebuilt for each base release."
+    - "No riscv64 images are released: the architecture is in the source, and every riscv64 pipeline job is switched off."
+    - "The base-image workflow has no signing step and the registry holds no signature tags, so an adopter who derives from the base can verify it by digest only."
+    - "kairos-io/hadron-layers and kairos-io/hadron-firmware, which provide layers and firmware, have no LICENSE file."
+maintainers_fact:
+  text: "Maintained by the Kairos maintainers (CODEOWNERS), five of six of whom work for Spectro Cloud."
+  evidence: DOCUMENTED
+  sources:
+    - url: "https://github.com/kairos-io/hadron/blob/main/.github/CODEOWNERS"
+      type: "governance-doc"
+      title: "Hadron CODEOWNERS"
+      retrieved: "2026-09-22"
+      quote: "* @kairos-io/maintainers"
+    - url: "https://github.com/kairos-io/community/blob/main/MAINTAINERS.md"
+      type: "governance-doc"
+      title: "Kairos maintainers"
+      retrieved: "2026-09-22"
+      quote: "Ettore Di Giacinto ... Spectro Cloud ... Dimitris Karakasilis ... Spectro Cloud ... Itxaka Serrano Garcia ... Spectro Cloud ... Mauro Morales ... Spectro Cloud"
+known_issues: []
+open_questions:
+  - "Is the shim compiled in the Hadron image signed by any CA present in stock firmware, and has a shim review been submitted? The shim is compiled from source with no signing step, and no page states whether it validates against the firmware CA. This is the same question kairos.yaml asks, and Hadron is where the answer lives."
+  - "Is an SBOM produced for the ghcr.io/kairos-io/hadron base images? Only a provenance attestation is attached, and no SBOM was found."
+  - "Is Hadron within the scope of the CNCF Kairos project, and who holds the Hadron name and the hadron-linux.io domain? The announcement claims vendor neutrality through the CNCF project and no primary source establishes it."
+  - "What is the support policy for a Hadron release after Kairos pins a newer one, and when does a Kairos release re-pin?"
+  - "What do the FIPS image variants promise, and is any validation planned?"
+  - "Is riscv64 intended to return as a released architecture?"
+  - "Should hadron-layers and hadron-firmware carry a LICENSE file?"
+  - "Has kairos-io/go-ukify#66 shipped in a released AuroraBoot, and was the Trusted Boot behaviour on production firmware measured?"
+  - "Should Hadron carry its own SECURITY.md, or should the Kairos security policy state that it covers the organization's repositories?"
+  - "Do the NVIDIA modules built by the Hadron example load with Secure Boot or Trusted Boot on? The example disables module signing."
+
+follow_up_research:
+  - FR-13
+  - FR-14
+
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Cost audit under methodology section 9, rule 15, with the author's rulings. Removed cost c0 (Hadron ships to be used with Kairos; lifecycle limits counted under Kairos), N5: the limits are on the Kairos card. Cost c1 reworded; every fact kept. Moved cost c2 ('Secure Boot on stock firmware is unknown...') to open question q0, which now carries the shim facts (N1). Moved the Trusted Boot section-alignment defect (c3) to the Kairos card, where the release that carries it is profiled (N5). Removed cost c4 ('Documentation is five pages...') and cost c7 ('Governance is inherited by CODEOWNERS...'), N5: Hadron's documentation lives in the Kairos documentation, and Hadron is in the kairos-io organization under the CNCF Kairos project's governance, which kairos.yaml d13 profiles (CNCF Sandbox since 2024-04-13, trademark holder LF Projects, LLC). q2 on the Hadron name and domain is kept. Cost c5 reworded to the two hardware limits (C1). Cost c6 reworded to the observed fact (no signing step, no signature tags); the SBOM part moved to q1 (N1). Buy b5 reworded; the Kairos relationship is in category_fit."
+  - date: "2026-10-06"
+    field: "dimensions.d03_artifact.normalized.signed"
+    change: "Was unknown. Now records the observed fact from the existing d03 sources: the build workflow has no signing step and the registry holds no signature tags for v0.5.3. The value is a description of what was observed, not 'none', because no page states the absence."
+    source:
+      url: "https://github.com/kairos-io/hadron/pkgs/container/hadron"
+      type: "source-repo"
+      title: "ghcr.io/kairos-io/hadron package page"
+      retrieved: "2026-09-22"
+      quote: "No signature tags in the repository."
+  - date: '2026-10-06'
+    field: dimensions.d04_upgrade.normalized.scope
+    change: Was no scope value (the cell showed the mechanism). Now whole-os-image (Whole OS image), from the independent check of what one update replaces (closed six-value vocabulary). Added scope_note.
+    source:
+      url: https://github.com/kairos-io/kairos-docs/blob/main/docs/architecture/immutable.md
+      type: official-docs
+      title: 'Kairos docs: immutable architecture'
+      retrieved: '2026-10-06'
+      quote: a single layer which gets pulled and swapped atomically during upgrades
+  - date: "2026-10-06"
+    field: tradeoffs.costs
+    change: "Two card lines reworded. The first described Hadron by what it lacks on its own; Hadron ships to be used with Kairos, and its site says so. The Trusted Boot line said the fix was unmerged; it merged on 2026-09-22, and no released AuroraBoot carries it yet (see the trusted_boot_issue correction)."
+    source:
+      url: https://hadron-linux.io/
+      type: official-docs
+      title: "Hadron Linux"
+      retrieved: "2026-10-06"
+      quote: >-
+        Topped with Kairos , it becomes immutable and has powerful lifecycle management. It's the foundation for image-based systems.
+  - date: "2026-10-06"
+    field: tradeoffs.costs
+    change: "Removed the cost line on the Hadron version Kairos pins. A release pinning a component is how every OS ships, and an adopter who wants another Hadron version can build their own image (methodology section 9, rule 14)."
+    source:
+      url: https://kairos.io/docs/reference/kairos-factory/
+      type: official-docs
+      title: "Kairos Factory"
+      retrieved: "2026-10-06"
+      quote: >-
+        The primary purpose of kairos-init is to convert an existing base image into a Kairos-ready image.
+  - date: "2026-10-06"
+    field: tradeoffs.costs
+    change: "Removed the line on Hadron's support lifecycle and version numbers. Hadron ships to be used with Kairos, so its lifecycle is the Kairos one, and the Kairos card already lists the missing support lifecycle; counting it again on Hadron counted it twice. A pre-1.0 version number says nothing about stability on its own."
+    source:
+      url: https://hadron-linux.io/
+      type: official-docs
+      title: "Hadron Linux"
+      retrieved: "2026-10-06"
+      quote: >-
+        Topped with Kairos , it becomes immutable and has powerful lifecycle management.
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Author's note (2026-10-06): 'there's also a list of extensions that are published officially so it's not all or nothing'. Cost c0 reworded to name the official lists. Was 'Software beyond the base and the five prebuilt layers is compiled by the adopter in the toolchain image. The adopter rebuilds it for each base release and, under Trusted Boot, re-signs every extension.' Now 'Software beyond the base and the officially published layers and extensions (the hadron-layers catalogue of five layers: drbd, fwupd, git, gpg and tailscale, all but git also as system extensions; and per-target linux-firmware images and extensions from hadron-firmware) is compiled by the adopter in the toolchain image, and rebuilt for each base release.' The hadron-layers README and its releases.json (generated 2026-09-29) list five layers, and the README says the git layer is excluded from sysext publication; the hadron-firmware project publishes per-target firmware images and sysexts. Methodology section 9, rule 18: re-signing under Trusted Boot is a status of the Trusted Boot variant, so it moved into buy b4 as 'Under Trusted Boot, extensions are signed with the adopter's keys.'"
+    source:
+      url: "https://github.com/kairos-io/hadron-layers/blob/23312b6e6edec6bf0d6394b0570e3750d34752c2/README.md"
+      type: "source-repo"
+      title: "hadron-layers README, Available layers (git, gpg, fwupd, drbd, tailscale)"
+      retrieved: "2026-10-06"
+      quote: "The Git layer is temporarily excluded because its exported OCI layer contains hardlink entries that AuroraBoot v0.26.2 cannot extract."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18: a GPU driver rebuild applies to Bottlerocket, Talos, Kairos and bootc too and is costed on none of them, so it is not a cost here. Cost c1 reworded to the riscv64 sentence only. Was 'No riscv64 images are released: the architecture is in the source, and every riscv64 pipeline job is switched off. GPU drivers are compiled into the image, so a driver update is an image rebuild.' Now 'No riscv64 images are released: the architecture is in the source, and every riscv64 pipeline job is switched off.' The GPU fact stays in d08."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Cost c3 reworded to name the repositories. Was 'The two companion repositories an adopter will depend on for layers and firmware have no LICENSE file.' Now 'kairos-io/hadron-layers and kairos-io/hadron-firmware, which provide layers and firmware, have no LICENSE file.' Source: kairos.yaml d13 license_note (2026-09-22). Re-checked on 2026-10-06: gh api repos/kairos-io/hadron-layers/license and repos/kairos-io/hadron-firmware/license both return 404 Not Found, and neither repository root lists a LICENSE file."
+    source:
+      url: "https://github.com/kairos-io/hadron-layers"
+      type: "source-repo"
+      title: "hadron-layers repository root (no LICENSE file; license API returns 404)"
+      retrieved: "2026-10-06"
+  - date: "2026-10-06"
+    field: "tradeoffs.buys"
+    change: "Author's note (2026-10-06): the relationship to Kairos is not an adopter benefit. Removed buy b5 'Every Kairos-published artifact since v4 is built on it.' The fact stays in category_fit ('every Hadron artifact a person can actually boot today is a Kairos artifact') and in d14 notes."
+  - date: "2026-10-06"
+    field: "open_questions"
+    change: "Added open question 'Do the NVIDIA modules built by the Hadron example load with Secure Boot or Trusted Boot on? The example disables module signing.' From d08 (nvidia-gpu note, INFERRED): the example Dockerfile disables module signing, and the kernel config has MODULE_SIG=y and IMA_ARCH_POLICY=y."
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized
+    change: 'Added mount_layout and configurable_paths for the Mounts row. Hadron documents no mount layout of its own: the Hadron site says it becomes immutable when topped with Kairos, and the Hadron documentation lists no read-only, ephemeral or persistent paths. The row therefore points to the Kairos data sheet.'
+    source:
+      url: https://hadron-linux.io/
+      type: official-docs
+      title: Hadron home page
+      retrieved: '2026-10-12'
+      quote: Topped with Kairos, it becomes immutable and has powerful lifecycle management.
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: 'Added the add_software field. It records how an adopter adds software to the OS itself, not workloads. Values: Derive the image, systemd-sysext. Each value has its sources, read on 2026-10-12.'
+    source:
+      url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/hadron-docs/layers.md
+      type: official-docs
+      title: 'Hadron docs: Adding Hadron layers'
+      retrieved: '2026-10-12'
+      quote: Start from the Hadron image you already use.

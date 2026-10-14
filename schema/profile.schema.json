@@ -1,0 +1,397 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cloudnativeos-org/pulse/blob/main/schema/profile.schema.json",
+  "title": "Cloud Native OS Pulse project profile",
+  "description": "One profile per project per edition. See schema/vocabularies.md for the meaning of every enumerated value.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "edition",
+    "id",
+    "name",
+    "collected_at",
+    "entry_kind",
+    "category_fit",
+    "self_description",
+    "version_observed",
+    "taxonomy",
+    "dimensions",
+    "tradeoffs"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "edition": { "type": "string", "pattern": "^[0-9]{4}(-H[12])?$" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "name": { "type": "string" },
+    "homepage": { "type": "string" },
+    "repository": { "type": "string" },
+    "collected_at": { "type": "string", "format": "date" },
+
+    "entry_kind": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "enum": ["distribution", "framework", "mechanism", "base-images", "platform-os", "build-system"]
+      }
+    },
+
+    "category_fit": {
+      "type": "object",
+      "required": ["comparable", "note"],
+      "additionalProperties": false,
+      "properties": {
+        "comparable": { "enum": ["full", "partial", "adjacent"] },
+        "note": { "type": "string" },
+        "dimensions_not_applicable": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/dimensionId" }
+        }
+      }
+    },
+
+    "self_description": {
+      "type": "object",
+      "required": ["text", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string", "description": "Verbatim, from the project's own words." },
+        "source": { "$ref": "#/$defs/source" }
+      }
+    },
+
+    "version_observed": {
+      "type": "object",
+      "required": ["version", "source", "method"],
+      "additionalProperties": false,
+      "properties": {
+        "version": { "type": "string" },
+        "released": { "type": ["string", "null"] },
+        "channel": { "type": ["string", "null"] },
+        "method": { "type": "string", "description": "How this version was determined, so the next edition repeats it identically." },
+        "source": { "$ref": "#/$defs/source" },
+        "additional_channels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["channel", "version"],
+            "properties": {
+              "channel": { "type": "string" },
+              "version": { "type": "string" },
+              "released": { "type": ["string", "null"] },
+              "eol": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+
+    "taxonomy": {
+      "type": "object",
+      "required": ["workload_scope", "construction_model", "root_state_substrate"],
+      "additionalProperties": false,
+      "properties": {
+        "workload_scope": {
+          "enum": [
+            "kubernetes-appliance",
+            "kubernetes-oriented-host",
+            "general-purpose-host",
+            "single-application-image"
+          ]
+        },
+        "construction_model": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "vendor-fixed-image",
+              "vendor-base-plus-derivation",
+              "framework",
+              "package-repository-assembly"
+            ]
+          }
+        },
+        "root_state_substrate": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "ab-partition-image",
+              "ostree-deployment",
+              "bootc-container-deployment",
+              "nix-store-generation",
+              "unikernel-binary",
+              "package-repository",
+              "transactional-snapshot",
+              "snap-image-set",
+              "not-applicable"
+            ]
+          }
+        },
+        "notes": { "type": "string" }
+      }
+    },
+
+    "dimensions": {
+      "type": "object",
+      "required": [
+        "d01_os_model",
+        "d02_immutability",
+        "d03_artifact",
+        "d04_upgrade",
+        "d05_rollback_recovery",
+        "d06_customization",
+        "d07_kubernetes",
+        "d08_hardware_platform",
+        "d09_provisioning",
+        "d10_security",
+        "d11_operations_debugging",
+        "d12_fleet_management",
+        "d13_governance",
+        "d14_maturity"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^d(0[1-9]|1[0-4])_[a-z_]+$": { "$ref": "#/$defs/dimension" }
+      }
+    },
+
+    "tradeoffs": {
+      "description": "Required on every profile. A profile is not complete until both sides are filled in. This is the structural bias control: no project, including the one the authors maintain, gets to have only upsides.",
+      "type": "object",
+      "required": ["buys", "costs"],
+      "additionalProperties": false,
+      "properties": {
+        "buys": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "costs": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      }
+    },
+
+    "maintainers_fact": {
+      "description": "The one concentration fact the data sheet shows (methodology section 9, rule 16): N of M maintainers work for a company, single vendor, or maintainer affiliation not published.",
+      "type": "object",
+      "required": ["text", "sources"],
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string" },
+        "evidence": { "$ref": "#/$defs/evidence" },
+        "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/citation" } }
+      }
+    },
+
+    "known_issues": {
+      "description": "Shown at the bottom of the data sheet (methodology section 9, rule 19). Only four kinds count: a documented defect, an install or update artifact that runs unchecked unless the adopter changes a setting, a stated stop of maintenance of a capability the matrix shows, and a checked gap between what the project states and what it delivers.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["text", "kind", "sources"],
+        "additionalProperties": false,
+        "properties": {
+          "text": { "type": "string" },
+          "kind": { "enum": ["defect", "unverified", "maintenance-stopped", "stated-vs-delivered"] },
+          "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/citation" } }
+        }
+      }
+    },
+
+    "open_questions": {
+      "description": "Factual questions this edition could not settle from primary sources. Feeds maintainer-review.md.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "follow_up_research": {
+      "description": "Identifiers into docs/follow-up-research.md.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "corrections": {
+      "description": "Transparent log of post-publication corrections.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "field", "change"],
+        "properties": {
+          "date": { "type": "string" },
+          "field": { "type": "string" },
+          "change": { "type": "string" },
+          "submitted_by": { "type": "string" },
+          "source": { "$ref": "#/$defs/source" },
+          "pr": { "type": "string" }
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "configurablePaths": {
+      "description": "d02 only. Can the adopter change which paths are writable or persistent? Shown on the Mounts row of the data sheet (methodology section 9, rule 21's companion row). 'via-lifecycle-manager' is for a base distribution whose mount layout is set by the framework that manages it.",
+      "type": "object",
+      "required": ["value", "how", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "value": { "enum": ["yes", "no", "unknown", "via-lifecycle-manager"] },
+        "how": { "type": "string", "minLength": 1, "description": "One line: what the adopter can change, and how." },
+        "evidence": { "$ref": "#/$defs/evidence" },
+        "inferred_from": { "type": "string" },
+        "searched": { "type": "string" },
+        "sources": { "type": "array", "items": { "$ref": "#/$defs/source" } }
+      }
+    },
+
+    "viaBaseDistribution": {
+      "description": "d08 only. Architectures the entry's own components are built for, credited 'via your base distribution' (methodology section 9, rule 21). Only for an entry that builds the OS from a base distribution the adopter picks.",
+      "type": "object",
+      "required": ["archs", "components", "evidence", "sources"],
+      "additionalProperties": false,
+      "properties": {
+        "archs": { "type": "array", "minItems": 1, "items": { "enum": ["amd64", "arm64", "riscv64", "ppc64le", "s390x"] } },
+        "components": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "note": { "type": "string" },
+        "evidence": { "$ref": "#/$defs/evidence" },
+        "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/source" } }
+      }
+    },
+
+    "addSoftware": {
+      "description": "d06 only. One way to add software to the OS itself. kind 'unknown' stands alone, with evidence UNKNOWN and 'searched'. Methodology rule 21: an entry that builds from a base distribution gets the base's package manager only if its own documentation says so.",
+      "type": "object",
+      "required": ["kind", "how", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "systemd-sysext",
+            "vendor-extensions",
+            "derive-image",
+            "package-layering",
+            "transactional-packages",
+            "snaps",
+            "build-time-only",
+            "not-supported",
+            "unknown"
+          ]
+        },
+        "how": { "type": "string", "minLength": 1, "description": "One or two short sentences: how it is done, with its limits." },
+        "evidence": { "$ref": "#/$defs/evidence" },
+        "inferred_from": { "type": "string" },
+        "searched": { "type": "string" },
+        "sources": { "type": "array", "items": { "$ref": "#/$defs/source" } }
+      }
+    },
+
+    "dimensionId": {
+      "type": "string",
+      "pattern": "^d(0[1-9]|1[0-4])_[a-z_]+$"
+    },
+
+    "evidence": {
+      "enum": ["DOCUMENTED", "REPRODUCED", "OBSERVED", "INFERRED", "UNKNOWN", "NOT_TESTED"]
+    },
+
+    "source": {
+      "type": "object",
+      "required": ["url", "type", "retrieved"],
+      "additionalProperties": false,
+      "properties": {
+        "url": { "type": "string", "pattern": "^https?://" },
+        "type": {
+          "enum": [
+            "official-docs",
+            "source-repo",
+            "design-doc",
+            "governance-doc",
+            "release-notes",
+            "announcement",
+            "maintainer-statement",
+            "foundation-page",
+            "vendor-docs",
+            "paper"
+          ]
+        },
+        "title": { "type": "string" },
+        "retrieved": { "type": "string", "format": "date" },
+        "quote": { "type": "string", "description": "Short verbatim excerpt supporting the claim." },
+        "version": { "type": "string", "description": "Documentation version, where the source is versioned." }
+      }
+    },
+
+    "citation": {
+      "description": "A source copied from a dimension field, as recorded there.",
+      "type": "object",
+      "required": ["url", "retrieved"],
+      "properties": {
+        "url": { "type": "string", "pattern": "^https?://" },
+        "retrieved": { "type": "string" }
+      }
+    },
+
+    "dimension": {
+      "type": "object",
+      "required": ["summary", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "normalized": {
+          "type": "object",
+          "description": "Closed-vocabulary values, table-ready. Shape varies per dimension; see vocabularies.md.",
+          "properties": {
+            "configurable_paths": { "$ref": "#/$defs/configurablePaths" },
+            "mounts_sources": {
+              "description": "d02 only. The sources behind the read-only, reset-on-reboot and persistent lines of the Mounts row.",
+              "type": "array",
+              "items": { "$ref": "#/$defs/source" }
+            },
+            "architectures_via_base_distribution": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/viaBaseDistribution" }
+            },
+            "add_software": {
+              "description": "d06 only. How an adopter adds software to the OS itself (host-level software, not workloads). One entry per way, from a closed vocabulary (schema/vocabularies.md). Shown in the matrix column 'Adding software to the OS' and in the data sheet.",
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/addSoftware" }
+            }
+          }
+        },
+        "summary": {
+          "type": "string",
+          "description": "One to three sentences. This is what appears in a comparison table. Never a bare yes/no."
+        },
+        "notes": { "type": "string" },
+        "evidence": { "$ref": "#/$defs/evidence" },
+        "inferred_from": {
+          "type": "string",
+          "description": "Required when evidence is INFERRED. Names the evidence the inference rests on."
+        },
+        "searched": {
+          "type": "string",
+          "description": "Required when evidence is UNKNOWN. Says where we looked, so the next edition does not repeat the search blindly."
+        },
+        "sources": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/source" }
+        },
+        "unknowns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Specific sub-questions inside this dimension that stayed unresolved, even when the dimension as a whole is DOCUMENTED."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "evidence": { "const": "DOCUMENTED" } }, "required": ["evidence"] },
+          "then": { "required": ["sources"], "properties": { "sources": { "minItems": 1 } } }
+        },
+        {
+          "if": { "properties": { "evidence": { "const": "INFERRED" } }, "required": ["evidence"] },
+          "then": { "required": ["inferred_from"] }
+        },
+        {
+          "if": { "properties": { "evidence": { "const": "UNKNOWN" } }, "required": ["evidence"] },
+          "then": { "required": ["searched"] }
+        }
+      ]
+    }
+  }
+}
