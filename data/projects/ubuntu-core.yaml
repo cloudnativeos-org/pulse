@@ -416,13 +416,21 @@ dimensions:
                 retrieved: "2026-10-06"
       version_identity:
         identifier: "By default none for the whole OS: the model assertion plus a revision per snap. With a pinning validation set: account-id/name/sequence"
-        condition: "An own-brand model with an enforced validation set that pins the base, kernel, gadget and snapd at fixed revisions."
+        condition: "The fleet's OS version is the own-brand model assertion plus an enforced validation set that pins the base, kernel, gadget and snapd snaps at fixed revisions. This works on the public Snap Store, and a brand store is not required: the store header of a model is optional, and a device without it uses the main Ubuntu store. Without an enforced validation set, each device refreshes its snaps on its own, and R1 is not met."
         evidence: DOCUMENTED
         sources:
           - url: https://github.com/canonical/models/blob/78b94dc/ubuntu-core-24-amd64.json
             type: source-code
             title: "Ubuntu Core 24 amd64 model"
             retrieved: "2026-10-06"
+          - url: https://documentation.ubuntu.com/core/reference/assertions/model/
+            type: vendor-docs
+            title: "Ubuntu Core model assertion"
+            retrieved: "2026-10-14"
+          - url: https://snapcraft.io/docs/manage-validation-sets
+            type: vendor-docs
+            title: "Manage validation sets"
+            retrieved: "2026-10-14"
           - url: https://github.com/canonical/ubuntu-core-docs/blob/9321118/docs/reference/assertions/model.md
             type: official-docs
             title: "Ubuntu Core model assertion"
@@ -1810,6 +1818,14 @@ follow_up_research:
   - FR-19
 
 corrections:
+  - date: "2026-10-14"
+    field: "dimensions.d04_upgrade.normalized.version_identity.condition"
+    change: "R1 now asks for one OS artifact, built once, that every node in a fleet runs. Ubuntu Core meets it with a condition: the fleet's OS version is the own-brand model assertion plus an enforced validation set that pins the snap revisions. The condition was reworded from 'an own-brand model with an enforced validation set' to name that version, and to say the public Snap Store is enough. The same condition applies to R3, because the previous snap revisions are kept per device. Reason: methodology note of 2026-10-14, section 11, item 13."
+    source:
+      url: https://documentation.ubuntu.com/core/reference/assertions/model/
+      type: vendor-docs
+      title: "Ubuntu Core model assertion"
+      retrieved: "2026-10-14"
   - date: "2026-10-06"
     field: "tradeoffs.costs"
     change: "Cost audit under methodology section 9, rule 15. Moved to open questions as unknowns (N1): c0 (a forever hold for the kernel, base, gadget and snapd snaps), now a new question; c2 (no published store server), covered by q8; c9 (the failed-boot count and the success criterion), covered by q2; c13 (support bundle and Core-specific logging or monitoring), now a new question. c8 reworded to the dated observation (C4). Removed c12 ('The confinement mechanism is itself an attack surface: CVE-2026-8933...'), N6: one CVE in a component does not make the mechanism a cost; the CVE stays in the dimensions."
