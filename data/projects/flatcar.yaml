@@ -1,0 +1,1559 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: flatcar
+name: Flatcar Container Linux
+homepage: https://www.flatcar.org/
+repository: https://github.com/flatcar/Flatcar
+collected_at: "2026-09-15"
+
+entry_kind:
+  - distribution
+
+category_fit:
+  comparable: full
+  note: >-
+    A released distribution with channels, an update service and an
+    upgrade mechanism. Comparable on all fourteen dimensions.
+
+self_description:
+  text: >-
+    Flatcar Container Linux is a fully open source, minimal-footprint, secure by
+    default and always up-to-date Linux distribution for running containers at
+    scale.
+  source:
+    url: https://github.com/flatcar/Flatcar/blob/main/README.md
+    type: source-repo
+    title: flatcar/Flatcar README
+    retrieved: "2026-09-22"
+
+version_observed:
+  version: "4757.2.0"
+  released: "2026-09-14"
+  channel: stable
+  method: >-
+    Stable channel entry on the official releases page, cross-checked against
+    version.txt on the stable release server. Re-checked 2026-09-22 on all
+    four release servers: no channel had moved since collection.
+  source:
+    url: https://www.flatcar.org/releases
+    type: release-notes
+    title: Flatcar releases
+    retrieved: "2026-09-22"
+    quote: 'version.txt: FLATCAR_VERSION=4757.2.0, FLATCAR_BUILD_ID="2026-09-11-1651"'
+  additional_channels:
+    - channel: beta
+      version: "4790.1.0"
+      released: "2026-09-14"
+    - channel: alpha
+      version: "4820.0.0"
+      released: "2026-09-14"
+    - channel: lts
+      version: "4081.3.10"
+      released: "2026-08-13"
+      eol: "see d14 unknowns; the published LTS policy and the live channel state do not reconcile"
+
+taxonomy:
+  workload_scope: kubernetes-oriented-host
+  construction_model:
+    - vendor-fixed-image
+    - vendor-base-plus-derivation
+  root_state_substrate:
+    - ab-partition-image
+  notes: >-
+    A container host rather than a Kubernetes appliance. Kubernetes is not
+    shipped and the docs treat it as one orchestrator among several, alongside
+    Docker and Incus. The A/B pair covers /usr only, not the whole root,
+    which is what separates Flatcar from whole-root A/B systems.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: kubernetes-oriented-host
+      ships_kubernetes: false
+    summary: >-
+      A minimal container host in the CoreOS Container Linux lineage, built from
+      a ChromiumOS and Gentoo base. It ships no package manager and no
+      Kubernetes. Orchestration is the operator's choice.
+    notes: >-
+      Started in 2018 as what its announcement called "a friendly fork of CoreOS'
+      Container Linux", after the CoreOS acquisition, with the stated goals of
+      controlling the build and signing pipeline and raising the project bus
+      factor.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.flatcar.org/docs/latest/
+        type: official-docs
+        title: Flatcar documentation
+        retrieved: "2026-09-22"
+        quote: >-
+          a minimal, immutable, container-optimized Linux operating system and
+          the active successor to CoreOS Container Linux
+      - url: https://www.flatcar.org/blog/2018/03/announcing-the-flatcar-linux-project/
+        type: announcement
+        title: Announcing the Flatcar Linux project
+        retrieved: "2026-09-22"
+        quote: >-
+          Flatcar Linux is a friendly fork of CoreOS' Container Linux and as
+          such, compatible with it.
+      - url: https://www.flatcar.org/docs/latest/devguide/sdk-modifying-flatcar/
+        type: official-docs
+        title: Modifying Flatcar
+        retrieved: "2026-09-22"
+        quote: Flatcar Container Linux is based on ChromiumOS, which is based on Gentoo.
+
+  d02_immutability:
+    normalized:
+      read_only:
+        - /usr
+      writable_and_persistent:
+        - /
+        - /etc
+        - /opt
+        - /var
+      integrity_mechanism:
+        - dm-verity
+      survives_upgrade:
+        - "the writable root partition, including container images"
+      read_only_mechanism: separate partition, protected by dm-verity
+      configurable_paths:
+        value: 'yes'
+        evidence: DOCUMENTED
+        how: 'Only to add storage: format and attach additional filesystems with a Butane config and systemd mount units, for example at /var/lib/docker. The read-only /usr is fixed.'
+        sources:
+          - url: https://www.flatcar.org/docs/latest/os-config/storage/mounting-storage/
+            type: official-docs
+            title: 'Flatcar: mounting storage'
+            retrieved: '2026-10-12'
+            quote: Butane Configs can be used to format and attach additional filesystems to Flatcar Container Linux nodes
+      mounts_sources:
+        - url: https://www.flatcar.org/docs/latest/devguide/sdk-disk-partitions/
+          type: official-docs
+          title: 'Flatcar disk partitions: read-only /usr, stateful /'
+          retrieved: '2026-10-12'
+          quote: Flatcar Container Linux is divided into two main filesystems, a read-only /usr and a stateful read/write /.
+    summary: >-
+      Only /usr is read-only, on its own partition, protected by dm-verity with
+      the root hash held in the kernel. The root filesystem is writable and
+      persistent, and holds /etc, /opt and /var. There is no ephemeral-root
+      model.
+    notes: >-
+      The update process rewrites only the passive /usr partition, so everything
+      on the writable root survives an upgrade untouched. /bin, /sbin, /lib and
+      /lib64 are symlinks into /usr. A verity reference file
+      (flatcar_production_image_verity.txt) ships with each release.
+
+      Two official statements disagree. The repository README says the root
+      filesystem is read-only, while the disk-partitions page describes "a
+      read-only /usr and a stateful read/write /" and the learning-series page
+      says only /usr is strictly read-only. The disk-partitions description
+      matches the published layout and is recorded here as the accurate one.
+      Raised with maintainers, see open_questions.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.flatcar.org/docs/latest/getting-started/learning-series/immutability-updates-rollbacks/
+        type: official-docs
+        title: "Learning series: immutability, updates and rollbacks"
+        retrieved: "2026-09-22"
+        quote: /usr is on a separate partition, and that partition is strictly read-only.
+      - url: https://www.flatcar.org/docs/latest/devguide/sdk-disk-partitions/
+        type: official-docs
+        title: Disk partitions
+        retrieved: "2026-09-22"
+        quote: >-
+          Flatcar Container Linux is divided into two main filesystems, a
+          read-only /usr and a stateful read/write /.
+      - url: https://www.flatcar.org/docs/latest/security/supply-chain/
+        type: official-docs
+        title: Supply chain security
+        retrieved: "2026-09-22"
+        quote: >-
+          All operating system binaries are contained in a separate, immutable
+          (read-only) partition which is mounted to /usr at system boot
+      - url: https://github.com/flatcar/Flatcar/blob/main/README.md
+        type: source-repo
+        title: flatcar/Flatcar README
+        retrieved: "2026-09-22"
+        quote: its root filesystem is read-only
+    unknowns:
+      - "No single reference page defines what immutability means in Flatcar. The two statements that come closest contradict each other."
+
+  d03_artifact:
+    normalized:
+      primary_artifact: disk-image-plus-update-payload
+      oci_registry_distribution: "none"
+      content_addressable: "none"
+      mirrorable: true
+      signed: gpg-detached-4096-bit-rsa
+      air_gapped_capable: true
+    summary: >-
+      Releases are HTTP-served files: a full disk image, a separate update
+      payload, per-platform images, kernel and initrd, and signed shim and GRUB.
+      Every artifact carries a detached GPG signature. The OS is not distributed
+      through an OCI registry.
+    notes: >-
+      Each release also publishes an SBOM, a licence manifest, a package list, a
+      kernel config, a verity reference and a PCR policy bundle. A
+      flatcar-container.tar.gz exists, but the documentation describes no
+      OCI-registry distribution path for the OS itself. Nebraska, the update
+      server, is published as an OCI image; the OS is not.
+
+      Air-gapped operation is documented on two paths: flatcar-install, which
+      can fetch from a mirror (-b) with a local signing key (-k) or install a
+      local image file (-f) that the tool itself labels unverified, and
+      Nebraska self-hosting the payloads.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://stable.release.flatcar-linux.net/amd64-usr/current/
+        type: release-notes
+        title: Stable release artifact listing
+        retrieved: "2026-09-22"
+      - url: https://www.flatcar.org/docs/latest/security/supply-chain/
+        type: official-docs
+        title: Supply chain security
+        retrieved: "2026-09-22"
+        quote: >-
+          Flatcar release images and related artifacts are automatically signed
+          at build time (on the secure build infrastructure) with a 4096 bit GPG
+          RSA key.
+      - url: https://www.flatcar.org/docs/latest/deploy/virt-options/notes-for-distributors/
+        type: official-docs
+        title: Notes for distributors
+        retrieved: "2026-09-22"
+        quote: >-
+          If you are importing images for use inside your environment it is
+          recommended that you fetch version.txt from the current directory and
+          use its contents to compute the path to the other artifacts.
+      - url: https://www.flatcar.org/docs/latest/deploy/bare-metal/installing-to-disk/
+        type: official-docs
+        title: Installing to disk
+        retrieved: "2026-09-22"
+        quote: "-f IMAGE Install unverified local image file to disk instead of fetching"
+    unknowns:
+      - "The internal format of the update payload is not specified in the documentation."
+      - "Which key signs the update payload, and whether it is the same as the image signing key."
+
+  d04_upgrade:
+    normalized:
+      fleet_upgrade:
+        self_update: "Each machine should check in about 10 minutes after boot and roughly every hour after that."
+        paths:
+          - kind: fleet-server
+            name: "Nebraska"
+            license: "Apache-2.0"
+            class: open-source
+            reconciliation: in-place
+            filter: true
+            note: "A self-hostable Omaha update server with groups and rollout control."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/flatcar/nebraska
+                title: "Nebraska repository"
+                retrieved: "2026-10-06"
+          - kind: cluster-api
+            name: "Cluster API providers for Flatcar"
+            license: "Apache-2.0"
+            class: open-source
+            reconciliation: replacement
+            filter: true
+            note: "The Flatcar docs list six providers: AWS, Linode, Azure, KubeVirt, Proxmox and vSphere. The licence shown is not checked per provider."
+            evidence: INFERRED
+            sources:
+              - url: https://www.flatcar.org/docs/latest/container-runtimes/getting-started-with-kubernetes/
+                title: "Flatcar: getting started with Kubernetes"
+                retrieved: "2026-10-06"
+          - kind: reboot-coordination
+            name: "FLUO (Flatcar Linux Update Operator)"
+            license: "Apache-2.0"
+            class: open-source
+            filter: true
+            note: "A node reboot controller."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/flatcar/flatcar-linux-update-operator
+                title: "FLUO repository"
+                retrieved: "2026-10-06"
+                quote: >-
+                  a node reboot controller
+              - url: https://www.flatcar.org/docs/latest/setup/releases/update-strategies/
+                title: "Flatcar update strategies"
+                retrieved: "2026-10-06"
+          - kind: reboot-coordination
+            name: "kured"
+            license: "Apache-2.0"
+            class: open-source
+            filter: true
+            note: "Listed on the Flatcar update strategies page."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/kubereboot/kured
+                title: "kured repository"
+                retrieved: "2026-10-06"
+          - kind: reboot-coordination
+            name: "locksmith"
+            license: "Apache-2.0"
+            class: open-source
+            filter: true
+            note: "Reboot lock held in etcd. Listed on the update strategies page. The licence was not checked."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://www.flatcar.org/docs/latest/setup/releases/update-strategies/
+                title: "Flatcar update strategies"
+                retrieved: "2026-10-06"
+      version_identity:
+        identifier: "FLATCAR_VERSION in os-release, for example 4757.2.1"
+        condition: "No system extensions beyond the default set, no default ones disabled, and no writable module overlay."
+        evidence: DOCUMENTED
+        sources:
+          - url: https://www.flatcar.org/docs/latest/sys-ext
+            type: official-docs
+            title: "Flatcar system extensions"
+            retrieved: "2026-10-06"
+            quote: >-
+              are covered by the Flatcar A/B update mechanism because they are bound to the OS version
+          - url: https://www.flatcar.org/docs/latest/sys-ext
+            type: official-docs
+            title: "Flatcar system extensions (writable overlay)"
+            retrieved: "2026-10-06"
+            quote: >-
+              A writable overlay can be mounted over it to allow installing new modules.
+      mechanism:
+        - ab-partition-switch
+      scope: usr-only
+      scope_note: The update also copies that slot's kernel to the EFI partition.
+      scope_sources:
+        - url: https://www.flatcar.org/docs/latest/devguide/sdk-disk-partitions/
+          type: official-docs
+          title: Flatcar disk partitions, stateful root
+          retrieved: '2026-10-06'
+          quote: The data stored on the root partition isn’t manipulated by the update process.
+        - url: https://github.com/flatcar/update_engine/blob/f23d6ea/src/update_engine/omaha_response_handler_action.h
+          type: source-code
+          title: flatcar/update_engine, kernel path for the target slot (coreos-postinst is no longer on main)
+          retrieved: '2026-10-06'
+          quote: Selects the kernel path associated with the given partition path. ... E.g., /dev/sda4 -> /boot/flatcar/vmlinuz-a
+      initiator: node-polls
+      requires_kubernetes: false
+      requires_vendor_infrastructure: false
+      self_hostable_update_server: true
+      self_hostable_update_source: "Your own Nebraska update server"
+      artifact_verification: signature-against-update-signing-key
+    summary: >-
+      update_engine polls an Omaha endpoint, downloads the payload to the passive
+      /usr partition, verifies it against the update signing key, then flips the
+      GPT priority so the bootloader selects it. Reboot timing is a separate,
+      configurable decision.
+    notes: >-
+      Reboot strategy is set in /etc/flatcar/update.conf and executed by
+      locksmithd. Documented values are etcd-lock (reboot after taking a
+      distributed lock), reboot (immediately, within a reboot window), and off.
+      FLUO and kured are the Kubernetes-side alternatives.
+
+      The update server is replaceable. Pointing SERVER= at a self-hosted
+      Nebraska instance removes the dependency on project-hosted infrastructure
+      entirely, and Nebraska can host the payloads as well as the metadata.
+      Nothing in the update path requires Kubernetes.
+
+      Because the A/B pair covers /usr and not the whole root, an upgrade does
+      not roll back changes made to /etc, /opt or /var.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.flatcar.org/docs/latest/updates-releases/releases/update-strategies/
+        type: official-docs
+        title: Update strategies
+        retrieved: "2026-09-22"
+        quote: >-
+          It's important to note that updates are always downloaded to the
+          passive partition when they become available.
+      - url: https://www.flatcar.org/docs/latest/devguide/sdk-disk-partitions/
+        type: official-docs
+        title: Disk partitions
+        retrieved: "2026-09-22"
+        quote: >-
+          After an update, Flatcar Container Linux will re-configure the GPT
+          priority attribute, instructing the bootloader to boot from the passive
+          (newly updated) partition.
+      - url: https://www.flatcar.org/docs/latest/updates-releases/nebraska/managing-updates/
+        type: official-docs
+        title: Managing updates with Nebraska
+        retrieved: "2026-09-22"
+        quote: >-
+          by default Nebraska only stores metadata about the Flatcar Container
+          Linux updates, not the updates payload.
+      - url: https://www.flatcar.org/docs/latest/security/supply-chain/
+        type: official-docs
+        title: Supply chain security
+        retrieved: "2026-09-22"
+        quote: Before installation, update images are validated against the update signing key
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: available
+      automatic_rollback_on_boot_failure: available
+      automatic_rollback_trigger: "new version not marked successful by update_engine, roughly two minutes after boot"
+      automatic_rollback_attempts: "GPT tries attribute"
+      retained_versions: 2
+      recovery_environment: live-media
+      factory_reset: unknown
+      network_independent_recovery: partial
+    summary: >-
+      The bootloader tracks boot attempts through GPT priority, tries and
+      successful attributes, and reverts to the previous /usr partition if the
+      new one is not marked successful. Exactly two versions are kept, so there
+      is no rollback to an arbitrary older version.
+    notes: >-
+      Two manual paths exist. flatcar-update --to-version installs a chosen known
+      good version and can disable further updates, but it downloads a payload
+      and so needs a reachable server. The cgpt prioritize path switches back to
+      the retained partition and needs no network at all. That is the split
+      behind the partial value for network-independent recovery.
+
+      Recovery beyond that is the live ISO. The ISO page records two limits on
+      that environment: UEFI boot from the ISO is not supported, and the ISO
+      console starts a shell without a password. Rollback here reverts /usr
+      only; it does not revert state written to the root partition, which is a
+      direct consequence of the A/B scope recorded in d02.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.flatcar.org/docs/latest/diagnostics/manual-rollbacks/
+        type: official-docs
+        title: Manual rollbacks
+        retrieved: "2026-09-22"
+        quote: There is no method to downgrade to an arbitrary version number
+      - url: https://www.flatcar.org/docs/latest/devguide/sdk-disk-partitions/
+        type: official-docs
+        title: Disk partitions
+        retrieved: "2026-09-22"
+        quote: >-
+          These partitions each include three flags that affect the boot
+          process, priority, tries, and successful.
+      - url: https://www.flatcar.org/docs/latest/deploy/bare-metal/booting-with-iso/
+        type: official-docs
+        title: Booting with ISO
+        retrieved: "2026-09-22"
+        quote: UEFI boot is not currently supported. Boot the system in BIOS compatibility mode.
+    unknowns:
+      - "No factory-reset command or page appears anywhere in the documentation sitemap."
+      - "No project-level remote recovery mechanism is documented."
+
+  d06_customization:
+    normalized:
+      runtime_package_install: "none"
+      mechanisms:
+        - systemd-sysext
+        - ignition-at-first-boot
+        - image-partition-customization
+        - sdk-rebuild
+        - kernel-module-overlay
+      customization_points:
+        - build-time
+        - image-time
+        - first-boot
+        - runtime-extension
+      add_software:
+      - kind: systemd-sysext
+        how: Sysext images merge over /usr. Flatcar ships some in the image or its release servers. The sysext-bakery releases community ones.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://www.flatcar.org/docs/latest/sys-ext/
+          type: official-docs
+          title: 'Flatcar docs: systemd-sysext'
+          retrieved: '2026-10-12'
+          quote: The systemd-sysext feature finally provides a way to extend the base OS with a /usr overlay, thereby making custom binaries available to the user.
+        - url: https://www.flatcar.org/docs/latest/sys-ext/
+          type: official-docs
+          title: 'Flatcar docs: systemd-sysext'
+          retrieved: '2026-10-12'
+          quote: 'Community supported: These are extensions from the Flatcar sysext-bakery releases and they are not tested in CI.'
+      - kind: derive-image
+        how: Mount the partitions of a Flatcar image before the first boot and add files to the boot, OEM or root partition. The /usr partition cannot be modified.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://www.flatcar.org/docs/latest/fb-provision/customize-image/customize-the-image/
+          type: official-docs
+          title: 'Flatcar docs: Customizing a Flatcar image'
+          retrieved: '2026-10-12'
+          quote: the root partition can hold the OS configuration and additional binaries.
+        - url: https://www.flatcar.org/docs/latest/fb-provision/customize-image/customize-the-image/
+          type: official-docs
+          title: 'Flatcar docs: Customizing a Flatcar image'
+          retrieved: '2026-10-12'
+          quote: The partition with the OS /usr filesystem can’t be modified because it is signed and gets auto-updated.
+    summary: >-
+      There is no package manager. Customization happens through systemd-sysext
+      overlays on /usr, Ignition at first boot, pre-boot edits to the boot, OEM
+      and root partitions, or a full rebuild with the Gentoo-based Flatcar SDK.
+    notes: >-
+      The Sysext Bakery publishes ready-made extensions for Docker, Kubernetes,
+      k3s, rke2, containerd, CRI-O, Cilium, Nomad, the NVIDIA container runtime
+      and others, updated by systemd-sysupdate on a timer and staged until
+      restart. The ZFS and NVIDIA driver sysexts ship from the Flatcar release
+      server alongside each release rather than from the bakery.
+
+      The documented limit is real and specific. An extension whose binaries link
+      against Flatcar's libraries must pin VERSION_ID, and then it stops loading
+      after an OS update. Statically linked binaries can use SYSEXT_LEVEL
+      instead and survive.
+
+      torcx, the previous extension mechanism, is deprecated and removed in
+      favour of systemd-sysext.
+
+      Out-of-tree kernel modules are built in the developer container over an
+      overlay on /usr/lib/modules. Under Secure Boot only a prebuilt, signed
+      sysext works, because modules are signed with the ephemeral kernel module
+      signing key. NVIDIA drivers are shipped this way, built with every release,
+      amd64 only.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.flatcar.org/docs/latest/sys-ext/
+        type: official-docs
+        title: System extensions
+        retrieved: "2026-09-22"
+        quote: >-
+          systemd-sysext feature finally provides a way to extend the base OS
+          with a /usr overlay, thereby making custom binaries available to the
+          user.
+      - url: https://www.flatcar.org/blog/2023/12/extending-flatcar-say-goodbye-to-torcx-and-hello-to-systemd-sysext/
+        type: announcement
+        title: "Extending Flatcar: goodbye torcx, hello systemd-sysext"
+        retrieved: "2026-09-22"
+        quote: >-
+          With the advent of systemd-sysext, we will deprecate torcx and remove
+          it from Flatcar in early 2024.
+      - url: https://www.flatcar.org/docs/latest/os-config/host-config/using-nvidia/
+        type: official-docs
+        title: Using NVIDIA drivers
+        retrieved: "2026-09-22"
+        quote: >-
+          only the prebuilt sysext will work, as the modules are signed
+      - url: https://www.flatcar.org/docs/latest/devguide/kernel-modules/
+        type: official-docs
+        title: Kernel modules
+        retrieved: "2026-09-22"
+        quote: >-
+          The kernel modules directory /usr/lib/modules is read-only on Flatcar
+          Container Linux. A writable overlay can be mounted over it to allow
+          installing new modules.
+      - url: https://www.flatcar.org/docs/latest/devguide/sdk-modifying-flatcar/
+        type: official-docs
+        title: Modifying Flatcar with the SDK
+        retrieved: "2026-09-22"
+        quote: >-
+          The guides in this document aim to enable engineers to update, and to
+          extend, packages in both the Flatcar OS image as well as the SDK, to
+          suit their own needs.
+      - url: https://github.com/flatcar/sysext-bakery
+        type: source-repo
+        title: flatcar/sysext-bakery
+        retrieved: "2026-09-22"
+        quote: >-
+          Each individual release in the Bakery serves one extension in one
+          specific version; e.g. `docker-24.0.1` or `kubernetes-1.22.0`.
+    unknowns:
+      - "Whether the ephemeral kernel module signing key can be used by third parties to sign their own sysext modules for Secure Boot nodes."
+
+  d07_kubernetes:
+    normalized:
+      requirement: optional
+      bundled: "none"
+      independent_lifecycle: "yes"
+      os_manages_kubernetes: "no"
+      kubernetes_manages_os: "FLUO (flatcar-linux-update-operator), optional; kured also supported"
+      distributions:
+        - kubeadm
+        - Cluster API
+        - Kubespray
+        - Typhoon
+        - k3s (via Sysext Bakery)
+    summary: >-
+      Kubernetes is optional and not shipped. It is installed through Ignition or
+      a sysext, which gives the OS and Kubernetes fully separate update paths and
+      version streams.
+    notes: >-
+      Three reboot-coordination mechanisms exist and are distinct. locksmithd is
+      the OS-level reboot manager and is not Kubernetes-aware except through its
+      etcd lock. FLUO is Kubernetes-native: it drains a node before rebooting it
+      and reboots one node at a time. kured is third party, supported since
+      3067.0.0. FLUO and locksmithd are mutually exclusive.
+
+      Non-Kubernetes orchestration is documented as a first-class option for
+      Docker and Incus, which have their own pages under Orchestration and
+      Container Runtimes. Nomad has no documentation page: it is available as
+      a Sysext Bakery extension, and the flatcar/nomad-on-flatcar repository is
+      archived, last pushed 2023-07-25.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.flatcar.org/docs/latest/orchestrate/kubernetes/getting-started-with-kubernetes/
+        type: official-docs
+        title: Getting started with Kubernetes
+        retrieved: "2026-09-22"
+        quote: >-
+          It's possible to install the tools (kubeadm, kubelet, etc.) using
+          Ignition or directly with the Kubernetes sysext image distributed from
+          the flatcar/sysext-bakery release page.
+      - url: https://github.com/flatcar/flatcar-linux-update-operator
+        type: source-repo
+        title: flatcar-linux-update-operator
+        retrieved: "2026-09-22"
+        quote: >-
+          a node reboot controller for Kubernetes running Flatcar Container Linux
+          images. When a reboot is needed after updating the system via
+          update_engine, the operator will drain the node before rebooting it.
+      - url: https://github.com/flatcar/locksmith
+        type: source-repo
+        title: locksmith
+        retrieved: "2026-09-22"
+        quote: >-
+          locksmith is a reboot manager for the Flatcar update engine which is
+          able to use etcd to ensure that only a subset of a cluster of machines
+          are rebooting at any given time.
+      - url: https://www.flatcar.org/docs/latest/updates-releases/releases/update-strategies/
+        type: official-docs
+        title: Update strategies
+        retrieved: "2026-09-22"
+        quote: >-
+          The kured reboot manager will be supported as well starting from
+          Flatcar versions with a release number greater than 3067.0.0.
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        items:
+          - vendor: nvidia-gpu
+            what: "NVIDIA GPU, open and non-open drivers"
+            arch: [amd64]
+            delivery: project-signed
+            delivery_note: "prebuilt nvidia-drivers sysext per release"
+            secure_boot: signed
+            gpu_operator: host-driver-and-toolkit
+            status: supported
+            note: "The toolkit comes from the nvidia-runtime sysext. CDI is not stated. Microsoft says Flatcar for AKS is not supported with NVIDIA GPU on AKS."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://www.flatcar.org/docs/latest/os-config/host-config/using-nvidia/
+                title: "Flatcar: using NVIDIA"
+                retrieved: "2026-10-06"
+                quote: >-
+                  When using secure boot, only the prebuilt sysext will work, as the modules are signed.
+              - url: https://www.flatcar.org/docs/latest/os-config/host-config/using-nvidia/
+                title: "Flatcar: using NVIDIA, flavours"
+                retrieved: "2026-10-06"
+                quote: >-
+                  The drivers come in two flavours: open and non-open for amd64 architecture.
+      architectures_released:
+        - amd64
+        - arm64
+      architectures_absent:
+        - riscv64
+      platforms:
+        - bare-metal
+        - virtual-machines
+        - public-cloud
+        - sbc-experimental
+      gpu: "NVIDIA, amd64 only, prebuilt signed sysext per release"
+      tpm: "see d10"
+      extension_mechanism: "Flatcar SDK for board and kernel changes; sysext for prebuilt modules"
+    summary: >-
+      amd64 and arm64 only, on all four channels. Eleven clouds are documented as
+      officially supported, plus a wide set of virtualization platforms and bare
+      metal. Raspberry Pi 4 is explicitly experimental.
+    notes: >-
+      riscv64 is not supported. The request has been open since April 2024 and
+      remains open as of 2026-09-22, with no activity on the issue since
+      2025-02-13. Recorded as documented absence, not as unknown.
+
+      Officially supported clouds: Akamai Connected Cloud, AWS EC2, Brightbox,
+      DigitalOcean, Exoscale, Google Compute Engine, Hetzner, Azure, OracleCloud,
+      STACKIT, VMware. Community supported: OVHcloud, Scaleway, Vultr.
+
+      The Raspberry Pi 4 page says support "is still in its early stages and is
+      not thoroughly tested" and depends on third-party UEFI firmware the docs
+      label unofficial.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.flatcar.org/releases
+        type: release-notes
+        title: Flatcar releases, architecture selectors
+        retrieved: "2026-09-22"
+        quote: amd64 (x86_64) arm64 (AArch64)
+      - url: https://github.com/flatcar/Flatcar/issues/1420
+        type: source-repo
+        title: "[RFE] Add RISC-V support for Flatcar Container Linux (open, created 2024-04-09)"
+        retrieved: "2026-09-22"
+        quote: Flatcar cannot be built for the RISC-V architecture
+      - url: https://www.flatcar.org/docs/latest/deploy/cloud/
+        type: official-docs
+        title: Cloud deployment
+        retrieved: "2026-09-22"
+        quote: Officially supported providers are covered by the Flatcar test suite.
+      - url: https://www.flatcar.org/docs/latest/deploy/bare-metal/raspberry-pi/
+        type: official-docs
+        title: Raspberry Pi
+        retrieved: "2026-09-22"
+        quote: >-
+          Flatcar Container Linux support for Raspberry Pi is still in its early
+          stages and is not thoroughly tested
+
+  d09_provisioning:
+    normalized:
+      config_tools:
+        - name: "Ignition"
+          license: "Apache-2.0"
+          runs: [initramfs-before-root]
+          reruns: first-boot
+          runs_note: "Runs in the initramfs on first boot; it re-runs only through flatcar-reset."
+          early_disk: "Partitions, filesystems and LUKS with Clevis or systemd-cryptenroll; TPM2 root encryption from 3913.0.1."
+          change_after_first_boot: "flatcar-reset"
+          evidence: DOCUMENTED
+          sources:
+            - url: https://www.flatcar.org/docs/latest/fb-provision/ignition/boot-process/
+              title: "Flatcar: Ignition boot process"
+              retrieved: "2026-10-06"
+            - url: https://www.flatcar.org/docs/latest/security/encryption/luks/
+              title: "Flatcar: LUKS encryption"
+              retrieved: "2026-10-06"
+        - name: "coreos-cloudinit (legacy, not Canonical cloud-init)"
+          license: "Apache-2.0"
+          runs: [userspace]
+          reruns: every-boot
+          runs_note: "Runs in userspace after the machine has fully booted, on every boot."
+          early_disk: "None documented beyond what Ignition does earlier."
+          change_after_first_boot: "Change the cloud-config; it applies on each boot"
+          evidence: DOCUMENTED
+          sources:
+            - url: https://www.flatcar.org/docs/latest/fb-provision/cl-config/from-cloud-config/
+              title: "Flatcar: from cloud-config"
+              retrieved: "2026-10-06"
+              quote: >-
+                runs after the machine has fully booted
+            - url: https://www.flatcar.org/docs/latest/deploy/virt-options/notes-for-distributors/
+              title: "Flatcar: notes for distributors"
+              retrieved: "2026-10-06"
+              quote: >-
+                runs every time a machine boots
+      methods:
+        - iso-live
+        - pxe
+        - ipxe
+        - cloud-image
+        - install-to-disk
+        - oem-partition-embedded-config
+      config_mechanism: ignition
+      config_reapplied: false
+    summary: >-
+      Every install route ends in Ignition, which runs once in the initramfs on
+      first boot and never again. Delivery is by live ISO, PXE or iPXE, a
+      per-provider cloud image, or flatcar-install to a disk.
+    notes: >-
+      Butane transpiles human-written YAML into the Ignition JSON the system
+      consumes. The OEM partition can carry mandatory or fallback Ignition
+      configurations and kernel arguments, which is the documented route closest
+      to zero-touch provisioning, though the docs do not use that term.
+
+      The image customization page carries a hard warning: never boot a
+      customized image before distributing it, because first-boot initialization
+      would make every instance identical, break the update server, skip SSH host
+      key regeneration and stop Ignition from running.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.flatcar.org/docs/latest/fb-provision/ignition/
+        type: official-docs
+        title: Ignition
+        retrieved: "2026-09-22"
+        quote: Ignition only runs once, during the first boot of the system
+      - url: https://www.flatcar.org/docs/latest/deploy/bare-metal/installing-to-disk/
+        type: official-docs
+        title: Installing to disk
+        retrieved: "2026-09-22"
+        quote: >-
+          If you boot Flatcar Container Linux via PXE, the install script is
+          already installed.
+      - url: https://www.flatcar.org/docs/latest/fb-provision/customize-image/customize-the-image/
+        type: official-docs
+        title: Customize the image
+        retrieved: "2026-09-22"
+        quote: >-
+          Important is that you never boot the image because the first-boot
+          initialization would make all your instances identical, causing
+          problems with the update server, skips the regeneration of SSH host
+          keys, and prevents Ignition from running.
+
+  d10_security:
+    normalized:
+      boot_trust_chain:
+        level: 3
+        how: opt-in
+        route: verity-root-hash-in-signed-artifact
+        artifact: signed kernel
+        note: 'Flatcar signs with its own key, which you enrol. The /usr root hash is written into the kernel
+          before it is signed. Caveat from the code: GRUB always reads an unsigned OEM grub.cfg that can add
+          kernel arguments, so the code does not show that /usr verity cannot be bypassed'
+        evidence: INFERRED
+        inferred_from: flatcar/scripts build_image_util.sh writes the hash into the kernel image before signing;
+          build_library/grub.cfg line 27 sets secure_boot="0" and sources the OEM grub.cfg
+        sources:
+        - url: https://github.com/flatcar/scripts/blob/2bda3aa36db92f282ecb1981d6191fc97d8e7608/build_library/build_image_util.sh#L786-L798
+          type: source-code
+          title: flatcar/scripts build_image_util.sh
+          retrieved: '2026-10-06'
+          quote: Root hash injection works by writing the hash value to a known unused SHA256-sized location in the kernel image.
+        - url: https://github.com/flatcar/scripts/blob/2bda3aa36db92f282ecb1981d6191fc97d8e7608/build_library/grub.cfg#L27
+          type: source-code
+          title: flatcar/scripts grub.cfg
+          retrieved: '2026-10-06'
+          quote: set secure_boot="0"
+      secure_boot: partial
+      measured_boot: available
+      tpm: available
+      integrity: dm-verity
+      integrity_scope: /usr
+      disk_encryption: luks-opt-in
+      artifact_verification: gpg-detached-signature
+      sbom: published-per-release
+      provenance: slsa-level-3-claimed
+      fips: compliance-configuration-not-certified
+      mandatory_access_control: selinux-available
+      default_on:
+        - dm-verity
+        - update-payload-verification
+        - release-artifact-signing
+      opt_in:
+        - luks-disk-encryption
+        - fips-mode
+    summary: >-
+      dm-verity on /usr, signed release artifacts and verified update payloads
+      are on by default. Secure Boot is the incomplete part: signed shim and GRUB
+      ship, but under a Flatcar-held key rather than the third-party UEFI CA, so
+      an operator must enrol it.
+    notes: >-
+      The Secure Boot position needs stating precisely. Signed shim and GRUB
+      artifacts are published with every release, kernel lockdown in integrity
+      mode is enabled when Secure Boot is on, and NVIDIA and ZFS sysext modules
+      are signed so they load under it. What is missing is a shim signed by the
+      Microsoft third-party UEFI CA. A maintainer stated in June 2025 that the
+      shim-review submission was blocked on a legal or procedural issue. The
+      tracking request has been open since September 2021. There is no Secure
+      Boot page anywhere in the security documentation.
+
+      Measured boot records PCRs 9 to 13 and a PCR policy bundle ships per
+      release. The documentation is internally inconsistent on TPM: the
+      trusted-computing page still says TPM 1.2 with TPM 2.0 "to be added", while
+      the LUKS page says TPM2-backed root encryption is supported from 3913.0.1.
+      The LUKS page is the current one.
+
+      LUKS supports systemd-cryptenroll (PCR 7 by default) and Clevis with TPM or
+      Tang. The documented caveats are substantial: GRUB PCR values are not
+      predictable for a given version and must be observed locally, full PCR
+      binding works reliably only with auto-updates disabled, OEM extensions
+      are read from the OEM partition without creating measurements, and the
+      strongest binding is labelled experimental.
+
+      FIPS is honestly scoped by the project: not certified, but deployable in
+      compliance with FIPS 200 and 140-2 from 3185.0.0, with named caveats
+      (argon2id LUKS KDF, some SSH ciphers).
+
+      SLSA Level 3 is claimed, with per-package provenance for most image
+      packages, and the same page openly lists the remaining gaps: hermetic
+      builds, TPM integration for secure boot chains, and multi-administrator
+      approval.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.flatcar.org/docs/latest/security/supply-chain/
+        type: official-docs
+        title: Supply chain security
+        retrieved: "2026-09-22"
+        quote: Our assessment is that Flatcar complies with SLSA Level 3.
+      - url: https://github.com/flatcar/Flatcar/issues/501
+        type: maintainer-statement
+        title: "[RFE] Support Secure Boot"
+        retrieved: "2026-09-22"
+        quote: >-
+          I believe images in the alpha channel have secure boot signatures but
+          with a shim that is not signed by the official 3rdparty UEFI CA (our
+          shim-review submission is blocked on a legal/procedural issue).
+      - url: https://www.flatcar.org/docs/latest/security/encryption/luks/
+        type: official-docs
+        title: LUKS disk encryption
+        retrieved: "2026-09-22"
+        quote: TPM2-backed rootfs encryption in Flatcar is supported from version 3913.0.1 onwards.
+      - url: https://www.flatcar.org/docs/latest/security/hardening/trusted-computing-hardware-requirements/
+        type: official-docs
+        title: Trusted computing hardware requirements
+        retrieved: "2026-09-22"
+        quote: >-
+          Support for version 2.0 TPMs identified with the MSFT0101 string will
+          be added in a future Flatcar Container Linux release.
+      - url: https://www.flatcar.org/docs/latest/security/hardening/fips/
+        type: official-docs
+        title: FIPS
+        retrieved: "2026-09-22"
+        quote: >-
+          Flatcar is not officially FIPS certified, it is possible to deploy it
+          so that it is compliant with two of these standards
+      - url: https://www.flatcar.org/docs/latest/updates-releases/releases/verify-images/
+        type: official-docs
+        title: Verifying images
+        retrieved: "2026-09-22"
+        quote: >-
+          Along with each image, a signature is generated from the Flatcar
+          Container Linux Image Signing Key and posted.
+    unknowns:
+      - "Whether SELinux is enforcing by default on a current stable release. The docs describe how to configure it but do not state the default."
+      - "Which channels currently ship Secure Boot signed images, and what exactly an operator must enrol."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: available-no-default-credential
+      local_shell: available
+      serial_console: available
+      debug_container: toolbox
+      support_bundle: "tool exists, undocumented"
+      works_without_kubernetes: "yes"
+    summary: >-
+      A conventional systemd userspace with SSH, a local shell and systemctl. The
+      answer to having no package manager is toolbox, which runs a Fedora
+      container under systemd-nspawn so tools like tcpdump and strace are
+      available.
+    notes: >-
+      SSH is present but unusable until keys arrive through Ignition or
+      update-ssh-keys. There is no default credential.
+
+      Crash logs go through pstore, moved into /var/lib/systemd/pstore by
+      systemd-pstore.service, with serial console as the fallback where pstore is
+      unavailable.
+
+      Everything in this dimension is host-level and works with Kubernetes down
+      or absent.
+
+      A support-bundle tool, flatcar/mayday, exists and is not archived (last
+      pushed 2026-07-28, with documentation-only commits in 2026), but it is
+      not referenced anywhere in the documentation. Recorded as a
+      documentation gap rather than as a capability.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.flatcar.org/docs/latest/diagnostics/install-debugging-tools/
+        type: official-docs
+        title: Installing debugging tools
+        retrieved: "2026-09-22"
+        quote: You can use common debugging tools like tcpdump or strace with Toolbox.
+      - url: https://www.flatcar.org/docs/latest/os-config/host-config/adding-users/
+        type: official-docs
+        title: Adding users
+        retrieved: "2026-09-22"
+        quote: >-
+          You can create user accounts on a Flatcar Container Linux machine
+          manually with useradd or via a Butane Config when the machine is
+          created.
+      - url: https://www.flatcar.org/docs/latest/diagnostics/collecting-crash-logs/
+        type: official-docs
+        title: Collecting crash logs
+        retrieved: "2026-09-22"
+        quote: >-
+          Flatcar Container Linux relies on pstore, a persistent storage
+          abstraction provided by the Linux kernel, to store logs in the event
+          of a kernel panic.
+      - url: https://github.com/flatcar/mayday
+        type: source-repo
+        title: flatcar/mayday
+        retrieved: "2026-09-22"
+        quote: utility for gathering support information
+
+  d12_fleet_management:
+    normalized:
+      core_project:
+        - "update_engine, the Omaha client that applies A/B payloads"
+        - "locksmithd, reboot manager with an etcd-based distributed lock"
+        - "/etc/flatcar/update.conf, the per-node GROUP and SERVER policy surface"
+      oss_companion:
+        - name: Nebraska
+          repo: https://github.com/flatcar/nebraska
+          license: Apache-2.0
+          org: flatcar
+          note: "Self-hostable Omaha update server. Groups, channels, rollout control, pause and resume, per-version instance statistics. Can also host the payloads."
+        - name: FLUO (flatcar-linux-update-operator)
+          repo: https://github.com/flatcar/flatcar-linux-update-operator
+          license: Apache-2.0
+          org: flatcar
+          note: "Kubernetes-native reboot coordination. Drains a node before rebooting, one node at a time. Mutually exclusive with locksmithd."
+        - name: Cluster API support, through upstream components rather than a Flatcar provider
+          repo: https://github.com/kubernetes-sigs/image-builder
+          license: Apache-2.0
+          org: kubernetes-sigs
+          note: "No Flatcar-specific provider exists. The mechanism is the kubeadm bootstrap provider emitting Ignition instead of cloud-init, plus image-builder Flatcar targets on ten platforms, plus Flatcar cluster flavors shipped by CAPA, CAPZ, CAPO and CAPV. Flatcar maintains flatcar/ignition, whose description states it exists for development and ClusterAPI."
+      commercial:
+        - name: Flatcar Pro images (Azure Marketplace, discontinued)
+          vendor: Microsoft
+          license: proprietary-listing
+          self_hostable: false
+          note: "The Flatcar Azure documentation describes Flatcar Pro images in the past tense: paid marketplace images that came with commercial support and extra features, whose features are now in the standard free marketplace images published under the kinvolk publisher. No current commercial offering for Flatcar is documented on flatcar.org."
+      cluster_api:
+        os_specific_provider: "none"
+        maintainer: not-applicable
+        upstream_provider_list: "not listed, and no Flatcar provider is expected, because the mechanism lives inside the kubeadm bootstrap provider"
+        provisions: "OS configuration and bootstrap through the kubeadm bootstrap provider emitting Ignition; machine lifecycle through whichever infrastructure provider is used"
+        bootstrap_target: "kubeadm, with bootstrap data rendered as Ignition rather than cloud-init"
+        bootstrap_maturity: "alpha and behind a feature gate since Cluster API v1.1, still alpha at v1.14.2"
+        image_builder_target: "ten platforms: AWS AMI including arm64, Azure including gen2, Hetzner including arm64, OpenStack, Nutanix, Outscale, OVA for vSphere, Proxmox, QEMU, raw"
+        infrastructure_provider_flavors:
+          - CAPA
+          - CAPZ
+          - CAPO
+          - CAPV
+    summary: >-
+      Fleet update management is fully self-hostable open source. Nebraska
+      replaces any project-hosted update service, and FLUO or kured coordinate
+      reboots on the Kubernetes side. No commercial product is required for any
+      of it.
+    notes: >-
+      One documented vendor-platform fact belongs here, and its scope should be
+      read carefully. Microsoft's AKS documentation states that from 2026-06-08
+      AKS no longer supports Flatcar Container Linux for AKS (preview), stops
+      producing node images and security patches, and will remove existing
+      Flatcar node images on 2026-09-08. As of 2026-09-22 the page still
+      carries that removal in the future tense. The same page notes that on
+      AKS, Flatcar's built-in A/B update was disabled in favour of full node
+      image updates.
+
+      That is a statement about one vendor's managed-Kubernetes offering. It is
+      recorded here because it is a documented fact about commercial availability
+      on that platform. It says nothing documented about the upstream CNCF
+      project, which is Incubating with active releases across four channels
+      (d14). No inference beyond what the page states is drawn here.
+
+      The Cluster API position is the one place in this edition where counting
+      providers gives exactly the wrong answer. This project has no provider of
+      any kind and the deepest practical Cluster API integration of any entry
+      here. The mechanism is that the kubeadm bootstrap provider can emit
+      Ignition instead of cloud-init, and the upstream documentation states
+      that the implementation uses Ignition v2 and was tested with Flatcar
+      Container Linux only. Around that sit image-builder targets on ten
+      platforms, with dedicated Ansible roles and Ignition and CLC bootstrap
+      files, and Flatcar cluster flavors shipped by four infrastructure
+      providers. The project also maintains flatcar/ignition, whose repository
+      description says it exists for development and for ClusterAPI.
+
+      Two qualifications keep this honest. That bootstrap path is an alpha
+      feature behind a gate, introduced at Cluster API v1.1 and still marked
+      alpha at v1.14.2, so a reader should not read depth of integration as
+      stability of contract. And flatcar/cluster-api-bootstrap-provider-kubeadm-ignition
+      exists as a repository name with governance files and no source code, two
+      commits, no release, and nothing pushed since March 2025. Anyone testing
+      "does a provider repository exist" will score this project wrong in both
+      directions at once.
+
+      The same vendor's replacement offering is downstream of Flatcar, and
+      leaving that out would make the fact above one-sided. Azure Container Linux
+      (ACL), generally available as an AKS OS option from AKS v1.34, is
+      documented by Microsoft as "derived from the Flatcar Container Linux
+      project". Its repository's architecture document states that the Flatcar
+      update model, the USR-A/USR-B A/B partition layout and the OEM package
+      model are retained, with Azure Linux RPMs replacing the Portage build.
+      The repository's top-level README thanks "the Flatcar Container Linux
+      Project for providing us with a strong foundation of an immutable container
+      host and community." Read together, the two facts describe a change of
+      packaging and support arrangement rather than a departure from Flatcar's
+      architecture. See the azure-container-linux profile.
+
+      Kinvolk, which started Flatcar, was acquired by Microsoft in 2021. The
+      project was donated to the CNCF in 2024. Both are recorded as dated facts
+      with no speculation attached.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/flatcar/nebraska
+        type: source-repo
+        title: flatcar/nebraska
+        retrieved: "2026-09-22"
+        quote: Store and serve Flatcar Container Linux payloads (optional);
+      - url: https://www.flatcar.org/docs/latest/updates-releases/nebraska/managing-updates/
+        type: official-docs
+        title: Managing updates with Nebraska
+        retrieved: "2026-09-22"
+        quote: >-
+          By default, your Flatcar Container Linux instances use the public
+          servers to get updates, so you have to point them to your Nebraska
+          deployment for it to manage their updates.
+      - url: https://learn.microsoft.com/en-us/azure/aks/flatcar-container-linux-for-aks
+        type: vendor-docs
+        title: Flatcar Container Linux for AKS
+        retrieved: "2026-09-22"
+        quote: >-
+          Starting on June 8, 2026, AKS no longer supports Flatcar Container
+          Linux for Azure Kubernetes Service (AKS) (preview).
+      - url: https://kinvolk.io/blog/2021/04/microsoft-acquires-kinvolk/
+        type: announcement
+        title: Microsoft acquires Kinvolk
+        retrieved: "2026-09-22"
+        quote: Today, we are excited to announce that Kinvolk has been acquired by Microsoft.
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+        type: vendor-docs
+        title: Azure Container Linux overview
+        retrieved: "2026-09-22"
+        quote: >-
+          ACL is derived from the Flatcar Container Linux project, building on
+          Flatcar's proven, container-first immutable design while layering in
+          Azure Linux packages, servicing, and platform integration.
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/README.md
+        type: source-repo
+        title: Azure Container Linux README
+        retrieved: "2026-09-22"
+        quote: >-
+          It replaces the traditional Portage-based build system with Azure Linux
+          3.0 RPM packages ... ACL currently tracks Flatcar Linux stable as its
+          upstream base.
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/architecture.md
+        type: design-doc
+        title: Azure Container Linux architecture
+        retrieved: "2026-09-22"
+        quote: >-
+          The Flatcar update model, partition layout (USR-A/USR-B A/B scheme,
+          OEM, ROOT), and OEM package model are retained.
+      - url: https://www.flatcar.org/docs/latest/deploy/cloud/azure/
+        type: official-docs
+        title: Running Flatcar on Microsoft Azure
+        retrieved: "2026-09-22"
+        quote: >-
+          Flatcar Pro images were paid marketplace images that came with
+          commercial support and extra features.
+      - url: https://cluster-api.sigs.k8s.io/tasks/experimental-features/ignition.html
+        type: official-docs
+        title: Cluster API Ignition bootstrap config, alpha
+        retrieved: "2026-09-22"
+        quote: >-
+          This initial implementation uses Ignition v2 and was tested with
+          Flatcar Container Linux only. Future releases are expected to add
+          Ignition v3 support and cover more Linux distributions.
+      - url: https://github.com/kubernetes-sigs/cluster-api-provider-azure/blob/main/docs/book/src/self-managed/flatcar.md
+        type: official-docs
+        title: CAPZ Flatcar documentation
+        retrieved: "2026-09-22"
+        quote: >-
+          CAPZ enables you to create Kubernetes clusters using Flatcar Container
+          Linux on Microsoft Azure.
+      - url: https://github.com/kubernetes-sigs/image-builder/blob/main/images/capi/packer/files/flatcar/README.md
+        type: source-repo
+        title: image-builder Flatcar build files
+        retrieved: "2026-09-22"
+        quote: >-
+          This directory contains files needed for building Flatcar Container
+          Linux CAPI images.
+      - url: https://github.com/flatcar/cluster-api-bootstrap-provider-kubeadm-ignition
+        type: source-repo
+        title: The empty Flatcar bootstrap provider repository
+        retrieved: "2026-09-22"
+        quote: Kubeadm ignition bootstrap provider for ClusterAPI.
+    unknowns:
+      - "No support vendors or support tiers are named on flatcar.org itself."
+      - "Whether flatcar/cluster-api-bootstrap-provider-kubeadm-ignition is intended to become a real provider. It carries governance files and no code, and nothing has been pushed to it since 2025-03-21."
+
+  d13_governance:
+    normalized:
+      license: Apache-2.0
+      license_note: "Polyglot by component: update_engine and scripts are BSD-3-Clause, bootengine BSD-2-Clause."
+      open_source: true
+      open_governance: documented
+      vendor_neutral_ownership: foundation-held
+      foundation:
+        name: CNCF
+        level: Incubating
+        since: "2024-08-02"
+      trademark_holder: "LF Projects, LLC (site states Flatcar is a Series of LF Projects, LLC)"
+      primary_commercial_sponsor: Microsoft
+      primary_commercial_sponsor_evidence: INFERRED
+      maintainer_affiliation:
+        value: "9 of the 16 maintainers listed in flatcar/.project maintainers.yaml show Microsoft as their company on their public GitHub profile. The others show NVIDIA, Amutable, Cloudbase (two) and STACKIT; two state no company."
+        method: "Self-reported company field on each listed maintainer's public GitHub profile, read 2026-10-06 with gh api users/<login>. Self-reported, so a count may be stale. The governance document states that each contributor participates as an individual."
+        evidence: INFERRED
+      contribution_diversity:
+        method: >-
+          The project publishes automated monthly contribution reports as issues
+          in flatcar/Flatcar. Figures below are from the report covering
+          2026-06-22 to 2026-07-21 across 45 repositories. This counts
+          individuals, not organizations; MAINTAINERS.md records no employer
+          affiliations, so organizational spread cannot be derived from project
+          files.
+        value: >-
+          15 contributors, 8,579 contributions, 26.67% new contributors in that
+          window. A small long-tenured core (top four contributors hold the large
+          majority of all-time commits) with a steady trickle of new
+          contributors, mostly on the website and the sysext bakery.
+    summary: >-
+      Apache-2.0, CNCF Incubating since August 2024, assets under LF Projects.
+      Governance is published and specific: a Maintainer Council, lazy consensus,
+      simple majority for most votes, two-thirds for charter changes and
+      maintainer removal.
+    notes: >-
+      The governance document states "Community over Product or Company" and that
+      "Each contributor participates in the project as an individual". Maintainer
+      nomination is by an existing maintainer via pull request on consensus.
+      Removal paths include inactivity of a year or more and a two-thirds vote.
+      There is an emeritus list. Developer syncs are public, every fourth
+      Wednesday.
+
+      Sixteen maintainers are listed, plus a seven-member security team that
+      meets fortnightly with a rotating primary and secondary and a daily
+      advisory runbook.
+
+      The four governance properties are worth reading separately here. Open
+      source: yes. Open governance: documented and detailed. Vendor-neutral
+      ownership: yes, foundation-held. Contribution diversity: concentrated in a
+      small core, with the dominant commercial sponsor employing a significant
+      part of it. Those are four different readings and this dataset does not sum
+      them.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/flatcar/.project/blob/main/maintainers.yaml
+        type: governance-doc
+        title: Flatcar maintainer roster (.project, commit 026ea0f, 2026-08-31)
+        retrieved: "2026-10-06"
+        quote: "maintainers: project_id: flatcar-container-linux, team maintainers, 16 members"
+      - url: https://github.com/flatcar/Flatcar/blob/main/governance.md
+        type: governance-doc
+        title: Flatcar governance
+        retrieved: "2026-09-22"
+        quote: >-
+          The collective team of all Maintainers is known as the Maintainer
+          Council, which is the governing body for the project.
+      - url: https://www.cncf.io/projects/flatcar/
+        type: foundation-page
+        title: CNCF project page, Flatcar
+        retrieved: "2026-09-22"
+        quote: >-
+          Flatcar Container Linux was accepted to CNCF on August 2, 2024 at the
+          Incubating maturity level.
+      - url: https://github.com/flatcar/Flatcar/blob/main/MAINTAINERS.md
+        type: governance-doc
+        title: Flatcar maintainers
+        retrieved: "2026-09-22"
+        quote: Everybody listed in this file is a maintainer as per governance definition.
+      - url: https://github.com/flatcar/Flatcar/blob/main/SECURITY.md
+        type: governance-doc
+        title: Flatcar security policy
+        retrieved: "2026-09-22"
+        quote: The Security team meets on a fortnightly cadence, in a private video call.
+      - url: https://github.com/flatcar/Flatcar/issues/2218
+        type: source-repo
+        title: "Monthly contribution report, 2026-06-22 to 2026-07-21"
+        retrieved: "2026-09-22"
+        quote: "| 15 | 8579 | 26.67% |"
+      - url: https://www.flatcar.org/license/
+        type: governance-doc
+        title: Licence and project policies
+        retrieved: "2026-09-22"
+        quote: Copyright © Flatcar a Series of LF Projects, LLC.
+    unknowns:
+      - "MAINTAINERS.md records no organizational affiliation for any maintainer, so maintainer diversity across employers cannot be established from project files."
+      - "No published trademark assignment document naming the transferring party was found."
+
+  d14_maturity:
+    normalized:
+      first_release: "2018-03"
+      current_version: "4757.2.0"
+      current_version_date: "2026-09-14"
+      release_cadence: "14 days within a channel; new major alpha monthly; alpha to beta every 2 months; beta to stable every 3 to 4 months; new LTS yearly"
+      observed_intervals: "stable, beta and alpha all published 2026-09-14; LTS last published 2026-08-13"
+      support_model: lts-stream
+      support_window: "LTS streams maintained 18 months, with a 6-month overlap between yearly streams"
+      commercial_support: unknown
+    summary: >-
+      Eight years old, four channels, a documented 14-day cadence within a
+      channel and an 18-month LTS window. Stable, beta and alpha are all current.
+      The LTS channel is the part that does not currently reconcile with its own
+      published policy.
+    notes: >-
+      The LTS situation is recorded as a fact about documentation legibility, not
+      as a judgement. The releases page announces that the LTS-2024 stream
+      (4081 series) hits end of life in mid-2026, yet the lts channel still
+      served 4081.3.10 on 2026-08-13. No LTS-2025 stream is visible as a channel.
+      The project's own forward release plan issues for October to December 2026
+      point LTS at a 4593.x series. A user issue titled "Is LTS channel dead?"
+      opened in March 2026 remains open; a maintainer replied that LTS is not
+      dead and had been missed in recent releases. A later comment asks for a
+      single source of truth on which channels are currently available, and the
+      documentation does not provide one.
+
+      Re-checked on 2026-09-22: version.txt on all four release servers was
+      unchanged since collection, the lts channel still served 4081.3.10, the
+      releases page still announced mid-2026 end of life for the 4081 series,
+      and the "Is LTS channel dead?" issue remained open with no new comment
+      since 2026-06-21. The September 2026 release plan issue lists no LTS
+      release; the October to December plans list LTS 4593.3.1 to 4593.3.3.
+
+      Commercial support is recorded as unknown. The only commercial offering
+      this survey found documented, the Flatcar Pro Azure Marketplace images,
+      is described in the past tense by the project's own Azure page (d12), and
+      flatcar.org names no support vendor.
+
+      Release tracking is otherwise public, with a project board and kind/release
+      issues, and the repositories show daily activity.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/flatcar/Flatcar/blob/main/RELEASES.md
+        type: release-notes
+        title: Flatcar release process
+        retrieved: "2026-09-22"
+        quote: Within each channel, updates are planned on a 14-day cadence.
+      - url: https://www.flatcar.org/releases
+        type: release-notes
+        title: Flatcar releases
+        retrieved: "2026-09-22"
+        quote: >-
+          LTS release streams will be maintained for an extended lifetime of 18
+          months. The yearly LTS streams have an overlap of 6 months.
+      - url: https://github.com/flatcar/Flatcar/issues/2040
+        type: maintainer-statement
+        title: "Is LTS channel dead?"
+        retrieved: "2026-09-22"
+        quote: >-
+          Apologies @networkhell - LTS is not dead and seems like it got missed
+          in the last couple releases. We will try push LTS more often.
+      - url: https://www.flatcar.org/blog/2018/03/announcing-the-flatcar-linux-project/
+        type: announcement
+        title: Announcing the Flatcar Linux project
+        retrieved: "2026-09-22"
+        quote: >-
+          Today Kinvolk announces Flatcar Linux, an immutable Linux
+          distribution for containers.
+      - url: https://www.flatcar.org/docs/latest/deploy/cloud/azure/
+        type: official-docs
+        title: Running Flatcar on Microsoft Azure
+        retrieved: "2026-09-22"
+        quote: >-
+          Flatcar Pro images were paid marketplace images that came with
+          commercial support and extra features.
+    unknowns:
+      - "Which LTS stream is current, and the definitive list of valid GROUP values for /etc/flatcar/update.conf."
+      - "Whether any commercial support offering for Flatcar is currently available from any vendor. Searched flatcar.org (homepage, FAQ, licence page, Azure deployment page) and the AKS and Azure Container Linux vendor pages."
+
+tradeoffs:
+  buys:
+    - "A/B on /usr with dm-verity and bootloader-tracked boot attempts gives automatic, local, network-independent rollback of the OS without a management plane."
+    - "The update path is fully self-hostable. Nebraska removes any dependency on project-hosted infrastructure, including the payloads, and air-gapped fleet operation is a supported configuration."
+    - "A conventional systemd userspace with SSH, a shell and toolbox means existing Linux operational knowledge transfers directly, and debugging does not depend on Kubernetes being healthy."
+    - "Foundation-held assets, a published governance document with defined voting thresholds, and a public maintainer council."
+    - "Per-release SBOM, licence manifest, package list and kernel config, plus signed artifacts and a stated SLSA Level 3 position with its remaining gaps listed."
+    - "Cluster API support through upstream components (Apache-2.0), with no Flatcar-specific provider: the kubeadm bootstrap provider renders Ignition for it, as an alpha feature behind a gate, image-builder has Flatcar targets on ten platforms, and CAPA, CAPZ, CAPO and CAPV ship Flatcar cluster flavors."
+  costs:
+    - "A/B covers /usr only. The writable root holding /etc, /opt and /var is not rolled back, so a bad configuration change survives an OS rollback."
+    - "Secure Boot is incomplete: the shim is not signed by the third-party UEFI CA, and the documentation has no Secure Boot page. The work has been tracked for four years."
+    - "Sysexts that link against Flatcar libraries must pin VERSION_ID and then stop loading after an OS update, which pushes rebuild-and-revalidate work onto the adopter on every OS bump."
+    - "amd64 and arm64 only. No riscv64, with the request open since 2024."
+    - "The LTS channel's live state does not match its published policy, and the documentation offers no single source of truth for which channels are currently available."
+    - "Documentation contradicts itself in at least three places: what is read-only, whether TPM 2.0 is supported, and whether a support-bundle tool exists."
+    - "Nine of sixteen maintainers list Microsoft."
+maintainers_fact:
+  text: "Nine of sixteen maintainers list Microsoft."
+  evidence: INFERRED
+  sources:
+    - url: "https://github.com/flatcar/.project/blob/main/maintainers.yaml"
+      type: "governance-doc"
+      title: "Flatcar maintainer roster (.project, commit 026ea0f, 2026-08-31)"
+      retrieved: "2026-10-06"
+      quote: "maintainers: project_id: flatcar-container-linux, team maintainers, 16 members"
+known_issues:
+  - text: "The LTS channel's live state does not match its published policy. The policy states that LTS streams are maintained for 18 months and that yearly streams overlap by 6 months. The releases page announces end of life in mid-2026 for the LTS-2024 stream (4081 series). On 2026-09-22 the lts channel still served 4081.3.10, and no LTS-2025 stream was visible as a channel."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://www.flatcar.org/releases"
+        type: "release-notes"
+        title: "Flatcar releases"
+        retrieved: "2026-09-22"
+        quote: "LTS release streams will be maintained for an extended lifetime of 18 months. The yearly LTS streams have an overlap of 6 months."
+      - url: "https://github.com/flatcar/Flatcar/issues/2040"
+        type: "maintainer-statement"
+        title: "Is LTS channel dead?"
+        retrieved: "2026-09-22"
+        quote: "Apologies @networkhell - LTS is not dead and seems like it got missed in the last couple releases. We will try push LTS more often."
+open_questions:
+  - "What is the current LTS stream, and what is the definitive list of valid GROUP values for /etc/flatcar/update.conf and Nebraska?"
+  - "What is the state of the shim-review submission, and what must an operator enrol for Secure Boot to work on stock UEFI CA firmware today? Which channels ship signed images?"
+  - "Is TPM 2.0 supported on current releases, and should the trusted-computing hardware-requirements page be updated? Which PCRs are measured, and what is flatcar_production_image_pcr_policy.zip for?"
+  - "What is the format of the update payload, which key signs it, and can an operator pin or rotate that key?"
+  - "Is there any plan to distribute the OS image or update payloads through an OCI registry with content-addressable digests?"
+  - "Is flatcar/mayday still the supported support-bundle tool? If so, why is it undocumented?"
+  - "Is there a documented factory-reset or reprovision-in-place path, or is reinstall the only answer?"
+  - "Is SELinux enforcing by default on a current stable release?"
+  - "Can a third party use the ephemeral kernel module signing key to ship signed sysext modules for Secure Boot nodes?"
+  - "Is there an intent to record maintainer organizational affiliations in MAINTAINERS.md, as several CNCF projects do?"
+  - "Is RISC-V support on any roadmap, and what would adding a third SDK board require?"
+  - "What is the supported upgrade path for a sysext when the OS major version changes, given that VERSION_ID-pinned extensions stop loading?"
+  - "Is any commercial support offering for Flatcar currently available, now that the project's Azure page describes the Flatcar Pro images in the past tense and flatcar.org names no support vendor?"
+  - "Is Exoscale officially supported or community supported? The cloud deployment page lists it among the officially supported providers, while the releases page download selector marks it Community."
+
+follow_up_research:
+  - FR-01
+  - FR-02
+  - FR-03
+  - FR-07
+  - FR-10
+
+corrections:
+  - date: '2026-10-06'
+    field: dimensions.d04_upgrade.normalized.scope
+    change: Was usr-partition-only (/usr only). Now usr-only (/usr only), from the independent check of what one update replaces (closed six-value vocabulary). Added scope_note.
+    source:
+      url: https://www.flatcar.org/docs/latest/devguide/sdk-disk-partitions/
+      type: official-docs
+      title: Flatcar disk partitions, stateful root
+      retrieved: '2026-10-06'
+      quote: The data stored on the root partition isn’t manipulated by the update process.
+  - date: "2026-10-06"
+    field: dimensions.d13_governance.normalized.primary_commercial_sponsor
+    change: "The field had no source. Added maintainer_affiliation from the .project maintainer roster and each maintainer's public GitHub profile: 9 of 16 show Microsoft. Labelled INFERRED, because profile companies are self-reported."
+    source:
+      url: https://github.com/flatcar/.project/blob/main/maintainers.yaml
+      type: governance-doc
+      title: Flatcar maintainer roster
+      retrieved: "2026-10-06"
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.normalized.commercial
+    change: >-
+      Said Flatcar Container Linux Pro was an Azure Marketplace listing
+      offering an Azure-optimized edition with enterprise support alongside a
+      free BYOL listing. Now records the Pro images as discontinued: the
+      project's own Azure page describes them in the past tense and says their
+      features moved into the standard free marketplace images. The original
+      entry cited no source.
+    source:
+      url: https://www.flatcar.org/docs/latest/deploy/cloud/azure/
+      type: official-docs
+      title: Running Flatcar on Microsoft Azure
+      retrieved: "2026-09-22"
+      quote: >-
+        All the previous features of Flatcar Pro images, such as support for
+        NVIDIA GPUs, are now available to all users in standard Flatcar
+        marketplace images.
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.normalized.commercial_support
+    change: >-
+      Said available. Now unknown. The only offering the profile pointed at,
+      Flatcar Pro, is documented as past, and no other commercial support
+      offering was found on flatcar.org or in the cited vendor pages. Not
+      recorded as none, because no source states that no offering exists.
+    source:
+      url: https://www.flatcar.org/docs/latest/deploy/cloud/azure/
+      type: official-docs
+      title: Running Flatcar on Microsoft Azure
+      retrieved: "2026-09-22"
+      quote: >-
+        Flatcar Pro images were paid marketplace images that came with
+        commercial support and extra features.
+  - date: "2026-09-22"
+    field: dimensions.d07_kubernetes.notes
+    change: >-
+      Said Docker, Incus and Nomad all have their own documentation pages. Only
+      Docker and Incus do; no Nomad page exists in the documentation sitemap or
+      navigation, and the flatcar/nomad-on-flatcar repository is archived
+      (last pushed 2023-07-25). Nomad is available as a Sysext Bakery
+      extension. taxonomy.notes carried the same claim and was corrected too.
+    source:
+      url: https://www.flatcar.org/docs/latest/
+      type: official-docs
+      title: Flatcar documentation navigation
+      retrieved: "2026-09-22"
+      quote: "Container Runtimes Overview Getting started with Docker Incus Switching to unified cgroups"
+  - date: "2026-09-22"
+    field: dimensions.d02_immutability.notes
+    change: >-
+      Attributed the "root filesystem is writable" statement to the
+      learning-series page, which does not say so in those words. The explicit
+      statement is on the disk-partitions page. Attribution corrected and the
+      README's contrary sentence added as a source so the contradiction is
+      checkable.
+    source:
+      url: https://www.flatcar.org/docs/latest/devguide/sdk-disk-partitions/
+      type: official-docs
+      title: Disk partitions
+      retrieved: "2026-09-22"
+      quote: >-
+        Flatcar Container Linux is divided into two main filesystems, a
+        read-only /usr and a stateful read/write /.
+  - date: "2026-09-22"
+    field: dimensions.d03_artifact.notes
+    change: >-
+      Said flatcar-install supports a local image and a local key. The tool's
+      documented options are -b (mirror URL) with -k (local key) for a fetched
+      image, and -f for a local image file that the tool labels unverified.
+      Wording corrected and the installing-to-disk page added as a source.
+    source:
+      url: https://www.flatcar.org/docs/latest/deploy/bare-metal/installing-to-disk/
+      type: official-docs
+      title: Installing to disk
+      retrieved: "2026-09-22"
+      quote: "-f IMAGE Install unverified local image file to disk instead of fetching"
+  - date: "2026-09-22"
+    field: dimensions.d10_security.notes
+    change: >-
+      Said sysexts create no TPM measurements. The LUKS page says this of
+      Flatcar OEM extensions read from the OEM partition, not of sysexts in
+      general. Wording narrowed to what the page states.
+    source:
+      url: https://www.flatcar.org/docs/latest/security/encryption/luks/
+      type: official-docs
+      title: LUKS disk encryption
+      retrieved: "2026-09-22"
+      quote: >-
+        Flatcar OEM extensions are also read from the OEM partition without
+        creating measurements nor with pre-checking their checksum
+  - date: "2026-09-22"
+    field: dimensions.d06_customization.notes
+    change: >-
+      Listed ZFS and NVIDIA among Sysext Bakery extensions. The bakery
+      repository carries cilium, crio, k3s, nomad, nvidia-runtime and others
+      but no ZFS or NVIDIA driver extension; those two ship from the Flatcar
+      release server with each release. List corrected and the bakery
+      repository added as a source.
+    source:
+      url: https://stable.release.flatcar-linux.net/amd64-usr/current/
+      type: release-notes
+      title: Stable release artifact listing
+      retrieved: "2026-09-22"
+      quote: flatcar-zfs.raw
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.notes
+    change: >-
+      Attributed the retained USR-A/USR-B layout and OEM package model to
+      Microsoft's Azure Container Linux overview page. That statement is in
+      the repository's architecture document, not on the overview page.
+      Attribution corrected and the architecture document added as a source.
+    source:
+      url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/architecture.md
+      type: design-doc
+      title: Azure Container Linux architecture
+      retrieved: "2026-09-22"
+      quote: >-
+        The Flatcar update model, partition layout (USR-A/USR-B A/B scheme,
+        OEM, ROOT), and OEM package model are retained.
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 16: concentration is stated once, in one shape, for every foundation-held entry. The card had no concentration line although the profile records one. Added cost 'Nine of sixteen maintainers list Microsoft.' From d13 maintainer_affiliation: 9 of the 16 maintainers in flatcar/.project maintainers.yaml show Microsoft as their company on their public GitHub profile. The evidence is INFERRED, as recorded, because the company field is self-reported and the governance document states that each contributor participates as an individual."
+    source:
+      url: "https://github.com/flatcar/.project/blob/main/maintainers.yaml"
+      type: "governance-doc"
+      title: "Flatcar maintainer roster (.project, commit 026ea0f, 2026-08-31)"
+      retrieved: "2026-10-06"
+  - date: "2026-10-06"
+    field: "tradeoffs.buys"
+    change: "Cluster API parity: every entry with Cluster API support recorded in its profile gets a buy in the same shape, with its own status words. Added buy 'Cluster API support through upstream components (Apache-2.0), with no Flatcar-specific provider: the kubeadm bootstrap provider renders Ignition for it, as an alpha feature behind a gate, image-builder has Flatcar targets on ten platforms, and CAPA, CAPZ, CAPO and CAPV ship Flatcar cluster flavors.' From d12 cluster_api and oss_companion, as recorded."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18 and rule 15 (N6): dropped the unsourced comparison 'This is a smaller unit of reversibility than whole-root A/B.' from cost c0. The rest is kept."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18 and rule 15: an A/B design documents the retained versions, and retention depth is not assessed for every entry with rollback. Removed cost c1 'Two versions are retained, so there is no rollback to an arbitrary earlier version without a network fetch.'"
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized
+    change: Added read_only_mechanism and configurable_paths (yes, extra filesystems through Butane and mount units) for the Mounts row. The read-only and persistent values were re-read against the sources and stand.
+    source:
+      url: https://www.flatcar.org/docs/latest/os-config/storage/mounting-storage/
+      type: official-docs
+      title: 'Flatcar: mounting storage'
+      retrieved: '2026-10-12'
+      quote: Butane Configs can be used to format and attach additional filesystems to Flatcar Container Linux nodes
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: 'Added the add_software field. It records how an adopter adds software to the OS itself, not workloads. Values: systemd-sysext, Derive the image. Each value has its sources, read on 2026-10-12.'
+    source:
+      url: https://www.flatcar.org/docs/latest/sys-ext/
+      type: official-docs
+      title: 'Flatcar docs: systemd-sysext'
+      retrieved: '2026-10-12'
+      quote: The systemd-sysext feature finally provides a way to extend the base OS with a /usr overlay, thereby making custom binaries available to the user.

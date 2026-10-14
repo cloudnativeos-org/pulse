@@ -1,0 +1,1813 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: talos
+name: Talos Linux
+homepage: https://docs.siderolabs.com/talos/v1.14/
+repository: https://github.com/siderolabs/talos
+collected_at: "2026-09-15"
+
+entry_kind:
+  - distribution
+
+category_fit:
+  comparable: full
+  note: >-
+    A released distribution with versions, a documented support matrix and its
+    own upgrade system. Comparable on all fourteen dimensions.
+
+    Two events inside the collection window affect dimensions 12 to 14 and are
+    recorded as dated facts with no inference attached. Sidero Labs announced its
+    acquisition by Yardi on 2026-09-14, and Talos Enterprise Linux, a commercial
+    licence, launched on 2026-09-15, the day this data was collected.
+
+self_description:
+  text: >-
+    Talos is a modern OS for running Kubernetes: secure, immutable, and minimal.
+    Talos is fully open source, production-ready, and supported by the people at
+    Sidero Labs. All system management is done via an API - there is no shell or
+    interactive console.
+  source:
+    url: https://github.com/siderolabs/talos/blob/main/README.md
+    type: source-repo
+    title: Talos README
+    retrieved: "2026-09-22"
+
+version_observed:
+  version: "v1.14.1"
+  released: "2026-09-15"
+  channel: stable
+  method: >-
+    Latest non-prerelease GitHub release on siderolabs/talos via the releases
+    API, cross-checked against the version constant embedded in the v1.14
+    documentation pages.
+  source:
+    url: https://github.com/siderolabs/talos/releases/tag/v1.14.1
+    type: release-notes
+    title: Talos v1.14.1
+    retrieved: "2026-09-22"
+  additional_channels:
+    - channel: "previous minor, maintained"
+      version: "v1.13.10"
+      released: "2026-09-03"
+    - channel: "older minor, maintained"
+      version: "v1.12.12"
+      released: "2026-09-04"
+
+taxonomy:
+  workload_scope: kubernetes-appliance
+  construction_model:
+    - vendor-fixed-image
+    - framework
+  root_state_substrate:
+    - ab-partition-image
+  notes: >-
+    The clearest example of the Kubernetes appliance position in this edition,
+    and the project says so itself: "Talos integrates tightly with Kubernetes,
+    and is not meant to be a general-purpose operating system." Its philosophy
+    page goes further: "There is only a cluster."
+
+    That position is descriptive, not a demerit. The tradeoffs field records what
+    it buys.
+
+    framework appears as a second construction model because the imager container
+    is a documented, supported path to building your own boot assets from source,
+    including from the main branch and with custom extensions, outside the Image
+    Factory service.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: kubernetes-appliance
+      ships_kubernetes: true
+      general_purpose: false
+      shell: "none"
+      ssh: "none"
+      package_manager: "none"
+      non_kubernetes_workloads: "ContainerConfig, new in v1.14"
+    summary: >-
+      A ground-up rewrite of the userspace from PID 1, in Go, with no systemd, no
+      GNU utilities, no shell, no SSH and no packages. Management is a single
+      declarative gRPC API.
+    notes: >-
+      The project positions itself explicitly against the first generation of
+      container-optimized systems: "We think of ourselves as being the
+      second-generation of container-optimised operating systems, where things
+      like CoreOS, Flatcar, and Rancher represent the first generation (but the
+      technology is not derived from any of those.)"
+
+      v1.14 changes a long-standing answer. A new ContainerConfig document
+      declares a container "to be run by Talos directly, without Kubernetes",
+      started as soon as the configuration is applied, with no image rebuild and
+      no reboot. It runs against containerd in a dedicated namespace and restarts
+      automatically. It is not a Kubernetes replacement and not an orchestrator:
+      containers declared this way are not Talos services and do not appear in
+      the service list.
+
+      Maintainers stated in December 2024, before that feature existed, that
+      Talos "will always stay a single-purpose Kubernetes distribution" and that
+      a machine type with no Kubernetes was contemplated but "We're not there
+      yet." Both the statement and the subsequent feature are recorded; whether
+      the position has moved is an open question for a maintainer.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.siderolabs.com/talos/v1.14/troubleshooting/faqs
+        type: official-docs
+        title: Talos FAQ
+        retrieved: "2026-09-22"
+        quote: >-
+          Talos integrates tightly with Kubernetes, and is not meant to be a
+          general-purpose operating system.
+      - url: https://docs.siderolabs.com/talos/v1.14/learn-more/philosophy
+        type: official-docs
+        title: Talos philosophy
+        retrieved: "2026-09-22"
+        quote: >-
+          Talos Linux is actually a ground-up rewrite of the userspace, from PID
+          1 ... There is no systemd on our system. There are no GNU utilities, no
+          shell, no SSH, no packages.
+      - url: https://docs.siderolabs.com/talos/v1.14/reference/configuration/container/containerconfig
+        type: official-docs
+        title: ContainerConfig reference
+        retrieved: "2026-09-22"
+        quote: >-
+          ContainerConfig declares a container to be run by Talos directly,
+          without Kubernetes.
+
+  d02_immutability:
+    normalized:
+      read_only:
+        - /
+      read_only_mechanism: "read-only squashfs mounted as a loop device"
+      integrity_mechanism:
+        - read-only-mount
+      dm_verity: "none"
+      integrity_under_secureboot: "UEFI signature over the whole UKI"
+      survives_upgrade:
+        - "/var, including etcd, kubelet and container data"
+        - "STATE, holding the machine configuration"
+      ephemeral:
+        - /system
+        - /tmp
+        - /run
+      ephemeral_mechanism: tmpfs, recreated on every boot
+      writable_and_persistent:
+        - /var (the EPHEMERAL partition, XFS)
+        - STATE
+        - META
+        - /etc/kubernetes and similar directories (overlay, backed by /var)
+      configurable_paths:
+        value: 'yes'
+        evidence: DOCUMENTED
+        how: 'Only to add storage: a UserVolumeConfig document in the machine configuration creates a persistent volume mounted at /var/mnt/<name>.'
+        sources:
+          - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/storage-and-disk-management/disk-management/user
+            type: official-docs
+            title: Talos user volumes
+            retrieved: '2026-10-12'
+            quote: The volume mount location is /var/mnt/<volume-name>
+      mounts_sources:
+        - url: https://docs.siderolabs.com/talos/v1.14/learn-more/architecture
+          type: official-docs
+          title: 'Talos architecture: tmpfs layer'
+          retrieved: '2026-10-12'
+          quote: The next layer is a set of tmpfs file systems for runtime specific needs.
+        - url: https://docs.siderolabs.com/talos/v1.14/learn-more/architecture
+          type: official-docs
+          title: 'Talos architecture: /system'
+          retrieved: '2026-10-12'
+          quote: All files under /system are completely recreated on each boot.
+        - url: https://docs.siderolabs.com/talos/v1.14/learn-more/architecture
+          type: official-docs
+          title: 'Talos architecture: persistent overlays'
+          retrieved: '2026-10-12'
+          quote: Directories like this are overlayfs backed by an XFS file system mounted at /var.
+        - url: https://docs.siderolabs.com/talos/v1.14/learn-more/architecture
+          type: official-docs
+          title: 'Talos architecture: read-only root'
+          retrieved: '2026-10-12'
+          quote: At its core the rootfs is a read-only squashfs.
+    summary: >-
+      The root filesystem is a read-only squashfs of under 80 MB, mounted as a
+      loop device into memory. Only specific files under /etc are bind-mounted
+      writable rather than making all of /etc writable.
+    notes: >-
+      Three layers are documented: the read-only squashfs base, a set of tmpfs
+      filesystems recreated on every boot, and selective overlayfs directories
+      backed by the XFS partition at /var for the few things that must persist.
+
+      dm-verity is not used. The kernel config has it disabled. Under Secure Boot
+      the integrity guarantee comes from the UEFI signature over the entire UKI,
+      since the whole operating system is contained in it. On a non-Secure-Boot
+      install there is no documented runtime cryptographic re-verification of the
+      squashfs. That is an INFERRED gap from the kernel config plus the absence
+      of any verity documentation, and it is an open question for a maintainer.
+
+      The writable partition is named EPHEMERAL deliberately, and the project
+      explains why: "Everything Talos writes to its disk is either replicated or
+      reconstructable ... We even call the writable partition 'ephemeral' to keep
+      this idea always in focus."
+
+      Four separate mechanisms prevent modification of the running system, and
+      they are worth listing because together they are stronger than a read-only
+      mount alone. Kernel modules must be signed with a key generated during the
+      build, unique per build and not available to the user. CAP_SYS_MODULE and
+      CAP_SYS_BOOT are denied to every process including privileged Kubernetes
+      pods. An SELinux policy denies access to machine configuration and prevents
+      debuggers attaching to system processes, though it is permissive by
+      default. And v1.14 adds sandboxd, which runs the container runtime plane in
+      its own PID and mount namespace, default-on for newly generated configs
+      only.
+
+      The documentation is honest about what a configuration change does not
+      reach: etcd cluster settings, environment variables for running services,
+      kernel module parameters, volume encryption keys and sandboxd settings all
+      need a reboot, and the docs say the list "is not exhaustive".
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.siderolabs.com/talos/v1.14/learn-more/architecture
+        type: official-docs
+        title: Talos architecture
+        retrieved: "2026-09-22"
+        quote: >-
+          At its core the rootfs is a read-only squashfs. The squashfs is then
+          mounted as a loop device into memory. This provides Talos with an
+          immutable base.
+      - url: https://docs.siderolabs.com/talos/v1.14/learn-more/philosophy
+        type: official-docs
+        title: Talos philosophy, ephemeral partition
+        retrieved: "2026-09-22"
+        quote: >-
+          We even call the writable partition "ephemeral" to keep this idea
+          always in focus.
+      - url: https://docs.siderolabs.com/talos/v1.14/learn-more/process-capabilities
+        type: official-docs
+        title: Process capabilities
+        retrieved: "2026-09-22"
+        quote: >-
+          any process including privileged Kubernetes pods will not be able to
+          get these capabilities
+      - url: https://docs.siderolabs.com/talos/v1.14/security/selinux
+        type: official-docs
+        title: SELinux
+        retrieved: "2026-09-22"
+        quote: >-
+          The policy denies access to machine configuration, prevents debuggers
+          from attaching to system processes
+    unknowns:
+      - "Whether any runtime integrity check of the rootfs exists on a non-Secure-Boot install, or whether the signed installer image is the sole trust anchor."
+
+  d03_artifact:
+    normalized:
+      primary_artifact: installer-container-image
+      derived_artifacts:
+        - iso
+        - uki
+        - kernel-and-initramfs
+        - cloud-disk-images
+      oci_registry_distribution: true
+      content_addressable: "schematics are content-addressed by ID"
+      mirrorable: true
+      signed: cosign-keyless
+      air_gapped_capable: true
+      build_service: "Image Factory, self-hostable under MPL-2.0"
+    summary: >-
+      The installer container image is the unit of both install and upgrade. The
+      Image Factory generates it, along with ISOs, UKIs and cloud images, from a
+      content-addressed schematic that captures extensions and kernel arguments.
+    notes: >-
+      A v1.14 change matters for anyone pinning references: the project no longer
+      publishes a generic installer image. Installers are now built and served by
+      the Image Factory at a per-schematic address and are signed by the Image
+      Factory service account rather than by the release pipeline.
+
+      Schematics are content-addressable, so the same customization always
+      produces the same ID, and a node's schematic is recoverable from the
+      running system. The Factory deliberately does not allow listing all
+      schematics, because they can contain sensitive kernel arguments.
+
+      The Image Factory verifies signatures on every source image it fetches and
+      signs what it produces. It is self-hostable under MPL-2.0, with an
+      enterprise-licensed folder excluded from the open-source build. Two
+      capabilities are enterprise-only in that build and this matters for an
+      air-gapped operator: per-asset checksums and signature files return a
+      payment-required error, and authentication is likewise enterprise.
+
+      Air-gapped operation is documented end to end on both sides, with a listed
+      set of images to mirror and helper tooling. This is among the most complete
+      air-gap stories in the edition. The honest caveat the docs themselves give
+      is that a self-hosted Discovery Service requires a commercial licence.
+
+      Reproducible builds are claimed for the kernel, initramfs, CLI, ISO and
+      container images. Every GitHub release asset carries a matching Sigstore
+      bundle.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.siderolabs.com/talos/v1.14/learn-more/image-factory
+        type: official-docs
+        title: Image Factory
+        retrieved: "2026-09-22"
+        quote: >-
+          Schematics are content-addressable, that is, the content of the
+          schematic is used to generate a unique ID.
+      - url: https://docs.siderolabs.com/talos/v1.14/security/source-talos-images
+        type: official-docs
+        title: Source Talos images
+        retrieved: "2026-09-22"
+        quote: >-
+          Starting with Talos 1.14, the ghcr.io/siderolabs/installer image is no
+          longer published
+      - url: https://github.com/siderolabs/image-factory/blob/main/docs/air-gapped.md
+        type: source-repo
+        title: Image Factory air-gapped mode
+        retrieved: "2026-09-22"
+        quote: >-
+          The Image Factory can be run in air-gapped mode, where it uses a local
+          registry to pull the required images and their signatures.
+      - url: https://github.com/siderolabs/image-factory/blob/main/README.md
+        type: source-repo
+        title: Image Factory licence
+        retrieved: "2026-09-22"
+        quote: >-
+          licensed under the Mozilla Public License, version 2.0, except for the
+          code in the enterprise/ folder, which is licensed under the Business
+          Source License 1.1
+    unknowns:
+      - "No documented command for verifying a downloaded ISO or UKI against its Sigstore bundle, despite bundles shipping for every asset."
+
+  d04_upgrade:
+    normalized:
+      fleet_upgrade:
+        self_update: "No self-update agent exists. OS upgrades are effected by an API call."
+        paths:
+          - kind: fleet-server
+            name: "Omni"
+            license: "BUSL-1.1"
+            class: source-available
+            reconciliation: in-place
+            filter: true
+            note: "Self-hostable. Non-production use, including personal use in a home lab, is granted. Production requires a commercial license. The license converts to MPL-2.0 at the earlier of 2030-09-09 or the fourth anniversary of each version. The reconciliation mode is inferred from the word continuously."
+            evidence: INFERRED
+            sources:
+              - url: https://github.com/siderolabs/omni
+                title: "Omni repository"
+                retrieved: "2026-10-06"
+                quote: >-
+                  For each node, Omni drains and cordons it, updates the OS, then uncordons it.
+              - url: https://github.com/siderolabs/omni/blob/main/LICENSE
+                title: "Omni LICENSE"
+                retrieved: "2026-10-06"
+          - kind: cluster-api
+            name: "CACPPT (Cluster API control plane provider Talos)"
+            license: "MPL-2.0"
+            class: open-source
+            reconciliation: replacement
+            status: "no longer actively developed"
+            filter: true
+            note: "In the Talos support matrix. RollingUpdate replacement by default."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/siderolabs/cluster-api-control-plane-provider-talos
+                title: "CACPPT repository"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Sidero Labs is no longer actively developing Cluster API Control Plane Provider Talos.
+          - kind: operator
+            name: "tuppr"
+            license: "AGPL-3.0"
+            class: open-source
+            reconciliation: in-place
+            status: "third-party"
+            filter: false
+            note: "Third-party operator from home-operations. It is not in the Sidero docs. The project ships no operator. The reconciliation mode is inferred."
+            evidence: INFERRED
+            sources:
+              - url: https://github.com/home-operations/tuppr
+                title: "tuppr repository"
+                retrieved: "2026-10-06"
+          - kind: reboot-coordination
+            name: "Talos etcd quorum guard"
+            license: "not recorded"
+            filter: true
+            note: "Reboot coordination is inside the OS."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/upgrading-talos
+                title: "Upgrading Talos Linux"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Talos will refuse to upgrade a control plane node if that upgrade would cause a loss of quorum for etcd.
+      version_identity:
+        identifier: "Talos version plus the Image Factory schematic ID"
+        condition: "none on the Image Factory path"
+        evidence: DOCUMENTED
+        sources:
+          - url: https://docs.siderolabs.com/talos/v1.13/learn-more/image-factory
+            type: official-docs
+            title: "Talos Image Factory"
+            retrieved: "2026-10-06"
+            quote: >-
+              Schematics are content-addressable, that is, the content of the schematic is used to generate a unique ID.
+      mechanism:
+        - ab-partition-switch
+      scope: whole-os-image
+      scope_note: The bootloader is refreshed on every upgrade.
+      scope_sources:
+        - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/upgrading-talos
+          type: official-docs
+          title: Upgrading Talos
+          retrieved: '2026-10-06'
+          quote: Upgrades use an A-B image scheme
+        - url: https://docs.siderolabs.com/talos/v1.14/platform-specific-installations/bare-metal-platforms/bootloader
+          type: official-docs
+          title: Talos bootloader
+          retrieved: '2026-10-06'
+          quote: GRUB is used for legacy BIOS systems on x86_64, while `systemd-boot` is used for UEFI systems on x86_64 and arm64.
+      initiator: api-call
+      requires_kubernetes: false
+      requires_vendor_infrastructure: false
+      self_hostable_update_server: true
+      self_hostable_update_source: "Any OCI registry; Image Factory can run on-premises"
+      self_hostable_update_server_evidence: DOCUMENTED
+      self_hostable_update_server_note: "There is no update server. The node pulls an installer image from an OCI registry. Image Factory can run on-premises, and registry mirrors redirect pulls to an internal registry."
+      self_hostable_build_service: true
+      artifact_verification: "policy-based, permissive by default"
+      kubernetes_upgrade_separate: true
+      quorum_protection: true
+    summary: >-
+      An API call passes the node an installer image. The node cordons and drains
+      itself, unmounts filesystems, writes the new image, sets the bootloader to
+      boot once with it, and reboots via kexec. On success the change becomes
+      permanent and the node rejoins and uncordons.
+    notes: >-
+      Two safety properties stand out and both are in the OS rather than in a
+      fleet product. Talos refuses to upgrade a control plane node if that would
+      cost etcd quorum, and if several control plane nodes are asked at once it
+      serializes them. And the boot-once-then-commit sequence means a failed boot
+      reverts without anything outside the machine deciding.
+
+      The docs are candid about the limit of that protection: nothing prevents
+      simultaneous upgrades across nodes, and other quorum-keeping software in
+      the cluster may not survive more than one node rebooting at a time.
+
+      Upgrades are testable only between adjacent minor releases, so the
+      recommended path is through each intermediate minor's latest patch.
+
+      Kubernetes upgrades are deliberately separate and have been since v1.0. An
+      OS upgrade does not change the Kubernetes version. That separation is a
+      real property and is recorded again under d07.
+
+      Artifact verification is configurable machine-wide and covers every image
+      pull including those Kubernetes initiates. Two documented limits matter:
+      the default policy is permissive, so fail-closed requires an explicit deny
+      rule, and keyless verification does not work on air-gapped clusters.
+
+      Since v1.13 the upgrade goes through a new lifecycle API; the previous one
+      is deprecated. That new API does not yet appear in the published API
+      reference.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/upgrading-talos
+        type: official-docs
+        title: Upgrading Talos
+        retrieved: "2026-09-22"
+        quote: >-
+          Upgrades use an A-B image scheme in order to facilitate rollbacks ... If
+          an upgrade fails to boot, Talos will roll back to the previous version.
+      - url: https://docs.siderolabs.com/talos/v1.14/security/verifying-image-signatures
+        type: official-docs
+        title: Verifying image signatures
+        retrieved: "2026-09-22"
+        quote: >-
+          Any other images that do not match any of the rules will be allowed by
+          default
+      - url: https://docs.siderolabs.com/kubernetes-guides/advanced-guides/upgrading-kubernetes
+        type: official-docs
+        title: Upgrading Kubernetes
+        retrieved: "2026-09-22"
+        quote: >-
+          The recommended method to upgrade Kubernetes on a Talos-native cluster
+          is to use the talosctl upgrade-k8s command.
+      - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/unattended-install
+        type: official-docs
+        title: Unattended install
+        retrieved: "2026-09-22"
+        quote: >-
+          Talos Linux can install itself to disk from a multi-document machine
+          configuration by using UnattendedInstallConfig.
+      - url: https://docs.siderolabs.com/talos/v1.14/learn-more/image-factory
+        type: official-docs
+        title: "Image Factory, on-premises deployment"
+        retrieved: "2026-10-05"
+        quote: >-
+          Image Factory can be deployed on-premises to provide in-house asset generation.
+      - url: https://docs.siderolabs.com/talos/v1.14/platform-specific-installations/air-gapped.md
+        type: official-docs
+        title: "Air-gapped environments, registry mirrors"
+        retrieved: "2026-10-05"
+        quote: >-
+          Talos Linux provides support for redirecting image pull requests to internal registries via registry mirrors feature.
+    unknowns:
+      - "Whether upgrade is supported on a node that never joined a Kubernetes cluster."
+      - "The lifecycle API used since v1.13 is absent from the published gRPC API reference."
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: available
+      automatic_rollback_on_boot_failure: available
+      automatic_rollback_trigger: "fatal error or panic in the init process before the machine reaches ready"
+      automatic_rollback_attempts: 1
+      retained_versions: 1
+      recovery_environment: "maintenance mode, plus a bootloader wipe entry"
+      factory_reset: available
+      network_independent_recovery: partial
+      interactive_shell_for_recovery: "none"
+    summary: >-
+      One previous OS version is retained, and automatic rollback fires once. A
+      bootloader entry offers a wipe-and-return-to-maintenance-mode path, and the
+      video console carries a read-only dashboard that can repair network
+      configuration on bare metal.
+    notes: >-
+      The automatic rollback trigger is narrower than "fails to boot" suggests,
+      and this is the sharpest finding in this profile. The revert runs from the
+      init process's own fatal-error and panic handler, and the fallback marker
+      is deleted both when the revert runs and when the machine reaches ready.
+      So there is one attempt, and a kernel panic before the init process starts,
+      or a silent hang, may not be covered by it. The bootloader's own fallback
+      entry covers an entry that fails to load, which is a different failure.
+      None of this is stated in the documentation; it was read from source, and
+      it is an open question for a maintainer.
+
+      Recovery has no shell, by design, and the substitutes are specific.
+      Maintenance mode is the state a node boots into with no complete
+      configuration, serving the API over a self-signed certificate with a
+      deliberately small set of permitted calls. A bootloader entry labelled for
+      resetting the installation boots with wipe arguments. The interactive
+      dashboard runs on the physical video console and exists precisely for the
+      case where the network is down and the CLI cannot be used; on bare metal it
+      can edit network configuration in place, and it deliberately shows only
+      non-sensitive resources.
+
+      network_independent_recovery is partial for a precise reason: the console
+      paths above work with no network, but there is no interactive offline
+      repair, because there is no console login or shell. Recovering a node
+      beyond wiping it, selecting the other slot, or fixing network settings
+      requires the API, which requires the network.
+
+      etcd disaster recovery is documented including the hard case: if quorum is
+      already lost, a snapshot can be copied directly off a control plane node,
+      with the caveat that it may not be fully consistent.
+
+      Factory reset carries a documented hazard on cloud VMs, where the default
+      wipes the whole disk and can leave the machine unbootable.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/upgrading-talos
+        type: official-docs
+        title: Upgrading Talos, rollback
+        retrieved: "2026-09-22"
+        quote: >-
+          the node will be rebooted, and the bootloader will automatically use
+          the previous Talos kernel and image, thus effectively rolling back the
+          upgrade
+      - url: https://docs.siderolabs.com/talos/v1.14/build-and-extend-talos/cluster-operations-and-maintenance/disaster-recovery
+        type: official-docs
+        title: Disaster recovery
+        retrieved: "2026-09-22"
+        quote: >-
+          This snapshot might not be fully consistent (if the etcd process is
+          running), but it allows for disaster recovery when latest regular
+          snapshot is not available.
+      - url: https://docs.siderolabs.com/talos/v1.14/deploy-and-manage-workloads/interactive-dashboard
+        type: official-docs
+        title: Interactive dashboard
+        retrieved: "2026-09-22"
+        quote: >-
+          provides a way to inspect the running Talos machine state when using
+          the video console is the only option (e.g. when the network is not
+          working and talosctl cannot be used)
+      - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/resetting-a-machine
+        type: official-docs
+        title: Resetting a machine
+        retrieved: "2026-09-22"
+        quote: >-
+          Running talosctl reset on cloud VMs might result in the VM being
+          unable to boot as this wipes the entire disk.
+    unknowns:
+      - "What exactly triggers automatic rollback, how many attempts occur, and whether a pre-init panic or a silent hang is covered. Read from source, undocumented."
+      - "Whether rollback is supported across a machine-configuration schema migration."
+
+  d06_customization:
+    normalized:
+      runtime_package_install: "none"
+      mechanisms:
+        - image-factory-schematic
+        - imager-container
+        - system-extensions
+        - overlays
+        - extension-services
+        - machine-config-patches
+        - container-config
+      customization_points:
+        - build-time
+        - install-time
+        - boot-time
+        - runtime
+      extension_activation: "install or upgrade only"
+      custom_kernel_modules: "requires rebuilding the kernel, because the module signing key is per-build and not available to users"
+      add_software:
+      - kind: vendor-extensions
+        how: Talos system extensions extend the root filesystem. They are built into boot assets or the installer image, and they activate only at install or upgrade.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://docs.siderolabs.com/talos/v1.14/build-and-extend-talos/custom-images-and-development/system-extensions
+          type: official-docs
+          title: 'Talos docs: System extensions'
+          retrieved: '2026-10-12'
+          quote: System extensions allow extending the Talos root filesystem, which enables a variety of features, such as including custom container runtimes, loading additional firmware, etc.
+        - url: https://docs.siderolabs.com/talos/v1.14/build-and-extend-talos/custom-images-and-development/system-extensions
+          type: official-docs
+          title: 'Talos docs: System extensions'
+          retrieved: '2026-10-12'
+          quote: System extensions are only activated during the installation or upgrade of Talos Linux.
+    summary: >-
+      Customization is layered and each layer has a defined moment. Extensions
+      extend the root filesystem and activate only at install or upgrade.
+      Overlays customize the install process. Machine configuration patches apply
+      to running nodes.
+    notes: >-
+      The official extension catalog has 91 entries across four support tiers,
+      with the tiers stated plainly: fully supported, some level of support,
+      community-supported with no support, documentation, tests, SBOM or CVE
+      scan, and one deprecated. All extensions are signed and pinned per release.
+
+      The hardest constraint is kernel modules, and the reasoning is stated: the
+      module signing key is generated during the build, is unique to each build,
+      and is not available to the user. Adding an out-of-tree module therefore
+      means building your own kernel and all required modules so the signatures
+      match. That is a real cost and it is documented rather than hidden.
+
+      What an extension may contain is bounded by an allowlist of filesystem
+      hierarchies, published in the extensions repository README rather than in
+      the versioned documentation. The list is broad enough in practice to permit
+      arbitrary userspace binaries under a local hierarchy, but anything outside
+      it is out of contract. That the single most important "what can I not do"
+      fact lives outside versioned documentation is worth noting.
+
+      v1.14's ContainerConfig is the first mechanism here that takes effect
+      immediately at runtime with no rebuild and no reboot.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.siderolabs.com/talos/v1.14/build-and-extend-talos/custom-images-and-development/system-extensions
+        type: official-docs
+        title: System extensions
+        retrieved: "2026-09-22"
+        quote: >-
+          System extensions are only activated during the installation or upgrade
+          of Talos Linux. With system extensions installed, the Talos root
+          filesystem is still immutable and read-only.
+      - url: https://docs.siderolabs.com/talos/v1.14/build-and-extend-talos/custom-images-and-development/customizing-the-kernel
+        type: official-docs
+        title: Customizing the kernel
+        retrieved: "2026-09-22"
+        quote: >-
+          The signing key is generated during the build process, it is unique to
+          each build, and it is not available to the user.
+      - url: https://github.com/siderolabs/extensions/blob/main/README.md
+        type: source-repo
+        title: Extensions catalog and rootfs restrictions
+        retrieved: "2026-09-22"
+        quote: >-
+          The following restrictions are applied to the contents of the rootfs
+          of the system extension:
+      - url: https://docs.siderolabs.com/talos/v1.14/build-and-extend-talos/custom-images-and-development/overlays
+        type: official-docs
+        title: Overlays
+        retrieved: "2026-09-22"
+        quote: >-
+          Overlays are similar to extensions, but they are used to customize the
+          installation process, while extensions are used to customize the root
+          filesystem.
+
+  d07_kubernetes:
+    normalized:
+      requirement: required
+      bundled: bundled
+      independent_lifecycle: "yes"
+      os_manages_kubernetes: "yes"
+      kubernetes_manages_os: "none in the open-source project; offered by the commercial product"
+      distributions:
+        - "upstream Kubernetes, rendered as static pods"
+      kubernetes_versions_supported: "1.37, 1.36, 1.35, 1.34, 1.33 on v1.14"
+    summary: >-
+      Kubernetes is effectively required: machine types are control plane or
+      worker, and no documented way to disable the kubelet exists. The OS manages
+      Kubernetes comprehensively, and the two upgrade independently.
+    notes: >-
+      Lifecycle independence here is a genuine strength and is the opposite of
+      several projects in this edition. The OS and Kubernetes have separate
+      commands, separate version streams and separate support matrices, and an OS
+      upgrade has not changed the Kubernetes version since v1.0.
+
+      The OS manages Kubernetes deeply: it starts etcd and the kubelet, renders
+      control plane static pod manifests, injects bootstrap manifests under an
+      etcd mutex, and keeps the Kubernetes PKI separate from its own. All of it
+      is driven by controllers reacting to configuration and environment changes.
+
+      Kubernetes does not manage the OS. The Kubernetes-side controller that once
+      did is archived and unreferenced. Fleet-level, Kubernetes-integrated OS
+      lifecycle is the commercial product's territory; see d12.
+
+      Kubernetes can reach the Talos API only if explicitly opted in, scoped by
+      namespace and role.
+
+      A documented design property worth recording: the Talos API stays available
+      when Kubernetes is down, because it runs under the init process on the host
+      network and does not depend on etcd or the API server.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/upgrading-talos
+        type: official-docs
+        title: Upgrading Talos, Kubernetes separation
+        retrieved: "2026-09-22"
+        quote: >-
+          An upgrade of the Talos Linux OS will not (since v1.0) apply an upgrade
+          to the Kubernetes version by default.
+      - url: https://docs.siderolabs.com/talos/v1.14/learn-more/control-plane
+        type: official-docs
+        title: Control plane
+        retrieved: "2026-09-22"
+        quote: >-
+          The bootstrap node acquires an etcd mutex and injects the bootstrap
+          manifests into the API server.
+      - url: https://docs.siderolabs.com/talos/v1.14/getting-started/support-matrix
+        type: official-docs
+        title: Support matrix
+        retrieved: "2026-09-22"
+        quote: "1.37, 1.36, 1.35, 1.34, 1.33"
+    unknowns:
+      - "No documented option to disable the kubelet or run a machine with no Kubernetes role."
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        items:
+          - vendor: nvidia-gpu
+            what: "NVIDIA GPU, open and proprietary, lts and production"
+            arch: [amd64, arm64]
+            delivery: project-signed
+            delivery_note: "system extensions bound to the Talos release"
+            secure_boot: inferred-signed
+            gpu_operator: host-driver-and-toolkit
+            status: supported
+            note: "Secure Boot is inferred: the pkgs build checks every .ko for a signature, module.sig_enforce is set in Talos constants, and CONFIG_LOCK_DOWN_IN_EFI_SECURE_BOOT=y. No sentence covers NVIDIA under Secure Boot."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/hardware-and-drivers/nvidia-gpu
+                title: "Talos v1.14: NVIDIA GPU"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Make sure to install GPU operator version v26.3.1 or higher.
+              - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/hardware-and-drivers/nvidia-gpu
+                title: "Talos v1.14: NVIDIA GPU, release binding"
+                retrieved: "2026-10-06"
+                quote: >-
+                  The Talos published NVIDIA OSS drivers are bound to a specific Talos release
+              - url: https://github.com/siderolabs/pkgs/tree/f6b8411
+                title: "siderolabs/pkgs at f6b8411"
+                retrieved: "2026-10-06"
+          - vendor: amd
+            what: "AMD GPU, amdgpu extension"
+            delivery: project-signed
+            delivery_note: "amdgpu system extension"
+            secure_boot: inferred-signed
+            status: supported
+            note: "The ROCm GPU Operator is documented."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/hardware-and-drivers/amd-gpu
+                title: "Talos v1.14: AMD GPU"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Enable AMD GPUs on Talos and expose them to Kubernetes using the ROCm GPU Operator.
+          - vendor: intel
+            what: "Intel i915, xe and intel-npu extensions"
+            delivery: project-signed
+            delivery_note: "system extensions"
+            secure_boot: inferred-signed
+            status: supported
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/siderolabs/extensions/blob/7d75c4b/README.md
+                title: "siderolabs/extensions README at 7d75c4b"
+                retrieved: "2026-10-06"
+          - vendor: qualcomm
+            what: "Qualcomm Cloud AI (qaic)"
+            delivery: project-signed
+            delivery_note: "qaic system extension"
+            secure_boot: inferred-signed
+            status: supported
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/siderolabs/extensions/blob/7d75c4b/README.md
+                title: "siderolabs/extensions README at 7d75c4b"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Qualcomm Cloud AI accelerator firmware binaries and kernel modules
+          - vendor: edge-npu
+            what: "Hailo (hailort), Coral (gasket-driver), Tenstorrent, Rockchip (rockchip-rknn)"
+            delivery: project-signed
+            delivery_note: "system extensions"
+            secure_boot: inferred-signed
+            status: supported
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/siderolabs/extensions/blob/7d75c4b/README.md
+                title: "siderolabs/extensions README at 7d75c4b"
+                retrieved: "2026-10-06"
+      architectures_released:
+        - amd64
+        - arm64
+      architectures_absent:
+        - riscv64
+      platforms:
+        - bare-metal
+        - virtual-machines
+        - public-cloud
+        - sbc
+      gpu: "NVIDIA drivers as extensions, production and LTS branches"
+      tpm: "used for Secure Boot disk encryption key binding"
+      extension_mechanism: "system extensions for drivers and firmware; overlays for board support"
+    summary: >-
+      amd64 and arm64. Hardware support arrives through the extension catalog,
+      which carries 17 driver entries, 9 NVIDIA GPU entries, 8 firmware entries
+      and 7 display entries, and through overlays for single-board computers.
+    notes: >-
+      riscv64 is a documented absence for the OS. A client binary is published
+      for it, and the request to support it as a platform was closed as not
+      planned in February 2025.
+
+      Board support is worth distinguishing from driver support, because the
+      project separates them. Overlays carry firmware, bootloader, device tree
+      blobs and an install-time binary, and the overlay installer interface is
+      language-agnostic, so a third party can add board support without writing
+      Go.
+
+      Raspberry Pi 5 status is contradictory across four official sources: an
+      overlay exists in the catalog, the support matrix names only Pi 4B and
+      Compute Module 4, and an unofficial-ports page routes Pi 5 to a third
+      party. Recorded as an open question rather than resolved.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.siderolabs.com/talos/v1.14/getting-started/support-matrix
+        type: official-docs
+        title: Support matrix
+        retrieved: "2026-09-22"
+        quote: "amd64, arm64"
+      - url: https://github.com/siderolabs/extensions/blob/main/README.md
+        type: source-repo
+        title: Extensions catalog
+        retrieved: "2026-09-22"
+      - url: https://github.com/siderolabs/overlays/blob/main/README.md
+        type: source-repo
+        title: Overlays
+        retrieved: "2026-09-22"
+        quote: >-
+          Custom Installers can be written in any language as long as they
+          follow the conditions below:
+    unknowns:
+      - "Raspberry Pi 5 support status is stated differently in four official sources."
+
+  d09_provisioning:
+    normalized:
+      config_tools:
+        - name: "Machine configuration (machined, gRPC API)"
+          license: "MPL-2.0"
+          runs: [api]
+          reruns: continuous
+          runs_note: "Applied by machined in early userspace after switch_root, from a squashfs in RAM, before EPHEMERAL and user volumes mount; changed over the API with modes auto, no-reboot, staged and try."
+          early_disk: "Install disk selection and wipe, volume partitions, and disk encryption for system and user volumes with static, nodeID, KMS or TPM keys."
+          change_after_first_boot: "Yes, through the API; install keys have no effect after install"
+          evidence: DOCUMENTED
+          sources:
+            - url: https://github.com/siderolabs/talos/blob/527a272/internal/app/machined/pkg/controllers/config/acquire.go
+              title: "Talos machined config acquire controller"
+              retrieved: "2026-10-06"
+            - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/storage-and-disk-management/disk-encryption
+              title: "Talos v1.14: disk encryption"
+              retrieved: "2026-10-06"
+              quote: >-
+                supports disk encryption for system volumes, and for user volumes
+      methods:
+        - iso
+        - pxe
+        - uki
+        - cloud-image
+        - raw-disk-image
+        - unattended-install
+      config_mechanism: "declarative machine configuration, applied over the API"
+      config_reapplied: "controllers reconcile continuously; some settings need a reboot"
+    summary: >-
+      Image Factory serves ISO, PXE, UKI, disk and cloud image assets over HTTP,
+      PXE and a container registry. Machines are configured by applying a
+      declarative machine configuration over the API.
+    notes: >-
+      An unattended install configuration lets a machine install itself from a
+      pinned installer reference, and the documentation is precise about when the
+      reference must be given explicitly rather than derived.
+
+      A node with no complete configuration boots into maintenance mode and
+      serves the API over a self-signed certificate, which is how a new machine
+      is reached before it has an identity. The certificate fingerprint is
+      printed on the serial console at boot.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.siderolabs.com/talos/v1.14/learn-more/image-factory
+        type: official-docs
+        title: Image Factory frontends
+        retrieved: "2026-09-22"
+      - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/unattended-install
+        type: official-docs
+        title: Unattended install
+        retrieved: "2026-09-22"
+        quote: >-
+          Talos Linux can install itself to disk from a multi-document machine
+          configuration by using UnattendedInstallConfig.
+      - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/system-configuration/insecure
+        type: official-docs
+        title: Maintenance mode and insecure access
+        retrieved: "2026-09-22"
+        quote: >-
+          The certificate fingerprint is printed directly to the machine's
+          console logs during boot.
+
+  d10_security:
+    normalized:
+      boot_trust_chain:
+        level: 3
+        how: per-install-mode
+        route: usi
+        artifact: signed UKI
+        modes:
+          SecureBoot (UKI): 3
+          GRUB: 0
+        note: SecureBoot images come signed by Sidero from Image Factory, or signed with your own keys. The
+          squashfs root is inside the UKI initramfs. With TPM disk encryption, keys are sealed to the signed
+          PCR 11 policy plus PCR 7
+        evidence: DOCUMENTED
+        sources:
+        - url: https://docs.siderolabs.com/talos/v1.12/platform-specific-installations/bare-metal-platforms/secureboot
+          type: official-docs
+          title: Talos SecureBoot
+          retrieved: '2026-10-06'
+          quote: The Talos kernel, initramfs and cmdline arguments are combined into the Unified Kernel Image (UKI) format.
+        - url: https://github.com/siderolabs/talos/blob/e18d5ce093d98f6076f220dbf88bc4dc45be7651/Dockerfile#L1132-L1144
+          type: source-code
+          title: 'Talos Dockerfile: initramfs'
+          retrieved: '2026-10-06'
+          quote: COPY --link --from=squashfs-amd64 /rootfs.sqsh .
+      secure_boot: available
+      measured_boot: available
+      tpm: "disk encryption key binding under Secure Boot"
+      integrity: read-only-mount
+      dm_verity: "none"
+      disk_encryption: "available, TPM-bound under Secure Boot"
+      artifact_verification: "configurable policy, permissive by default"
+      sbom: "SPDX published per release"
+      provenance: "Sigstore bundle per release asset; no SLSA level claimed"
+      fips: "FIPS-enabled builds, enterprise only; the FIPS 140-3 validation attaches to the Go Cryptographic Module (CMVP certificate 5247), not to Talos Linux as a whole"
+      mandatory_access_control: "SELinux, permissive by default"
+      kernel_module_signing: enforced
+      shell_present: false
+      default_on:
+        - read-only-squashfs-root
+        - kernel-module-signature-enforcement
+        - capability-denial
+        - mutual-tls-api
+        - kspp-hardening
+        - pod-security-admission-baseline
+        - etcd-encryption-at-rest
+        - audit-logging
+      opt_in:
+        - secure-boot
+        - selinux-enforcing
+        - disk-encryption
+        - fail-closed-image-verification
+    summary: >-
+      A dense default hardening posture built on the absence of things: no SSH,
+      no shell, no package manager, read-only root, API-only management with
+      mutual TLS everywhere, and short-lived automatically rotating certificates.
+    notes: >-
+      The project's own framing of what the constraints buy is worth recording in
+      full, because it is the clearest statement in this edition of a constraint
+      being a guarantee: "No SSH, no remote shell access vector; No interactive
+      shell, no local shell access vector; Immutable root filesystem, the OS
+      cannot be modified at runtime; No package manager, software cannot be
+      installed at runtime; API-only management, all node operations go through
+      the authenticated Talos API."
+
+      A consequence the docs draw honestly: most of the CIS distribution-
+      independent Linux benchmark simply does not apply, because its checks
+      assume SSH, a shell, a package manager or a writable filesystem. The CIS
+      page is unusually candid, enumerating architectural false positives in a
+      common benchmarking tool and supplying validated skip lists rather than
+      claiming a score.
+
+      Kubernetes-side CIS defaults are on without configuration: anonymous auth
+      off, Node plus RBAC authorization that cannot be removed, audit logging,
+      etcd secrets encrypted at rest, profiling disabled, seccomp default
+      profile, and Pod Security Admission enforcing baseline with restricted
+      audited.
+
+      Two honest qualifications. SELinux is enabled but permissive by default,
+      because some storage and networking add-ons are incompatible with
+      enforcing, and the documentation still calls it experimental. And the
+      hardening page's claim about forced module signing does not match the
+      shipped kernel config: enforcement comes from an overridable kernel command
+      line parameter rather than a compiled-in force, so a reader gets two
+      different answers about whether it can be turned off.
+
+      FIPS-enabled builds exist but are an enterprise offering and are not
+      published on the public factory. The enterprise Image Factory page names
+      the module: the Go Cryptographic Module, validated under FIPS 140-3 as
+      CMVP certificate 5247, used in non-strict mode, and it states that the
+      validation attaches to that module and not to Talos Linux as a whole.
+      Until 2026-09-15 the same page said instead that FIPS-enabled builds were
+      distinct from CMVP certification and that certified builds were a
+      separate offering; the rewrite landed on collection day. The page is
+      unusually frank in both versions: "This is a compliance attribute rather
+      than a stronger security posture."
+
+      The security policy commits to a three business day response and a fix
+      within thirty days, for the two latest minor releases. That is a concrete
+      commitment and more than most projects in this edition publish.
+
+      A v1.14 change worth flagging for operators: support bundles are now
+      encrypted by default to recipients embedded in the CLI, so a bundle
+      produced with defaults can only be decrypted by the vendor. It is
+      overridable, and the docs say so, but the default is worth knowing.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.siderolabs.com/talos/v1.14/security/talos-default-hardening-and-cis-compliance
+        type: official-docs
+        title: Default hardening and CIS compliance
+        retrieved: "2026-09-22"
+        quote: >-
+          Because of this design, the majority of the CIS Distribution
+          Independent Linux Benchmark does not apply to Talos nodes.
+      - url: https://github.com/siderolabs/talos/blob/main/SECURITY.md
+        type: governance-doc
+        title: Talos security policy
+        retrieved: "2026-09-22"
+        quote: >-
+          The expected response time is within 3 business days, and the fix is
+          expected to be delivered within 30 days.
+      - url: https://docs.siderolabs.com/talos/v1.14/security/selinux
+        type: official-docs
+        title: SELinux
+        retrieved: "2026-09-22"
+        quote: >-
+          The default mode is permissive ... SELinux is still in an experimental
+          state in Talos Linux.
+      - url: https://docs.siderolabs.com/talos/v1.14/learn-more/enterprise-image-factory
+        type: official-docs
+        title: Enterprise Image Factory, FIPS
+        retrieved: "2026-09-22"
+        quote: >-
+          This is a compliance attribute rather than a stronger security posture
+      - url: https://docs.siderolabs.com/talos/v1.14/troubleshooting/support-bundle
+        type: official-docs
+        title: Support bundle
+        retrieved: "2026-09-22"
+        quote: >-
+          The default recipients are the public SSH keys of the public members
+          of the siderolabs GitHub organization, embedded in talosctl, so a
+          bundle produced with the defaults can only be decrypted by the Sidero
+          Labs team.
+    unknowns:
+      - "Whether strict or enforcing FIPS mode remains a separate offering after the 2026-09-15 documentation rewrite, which describes non-strict mode only."
+      - "No SLSA level is claimed despite reproducible builds and per-asset Sigstore bundles."
+      - "No documented verification command for release assets."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: "none"
+      local_shell: "none"
+      api: "declarative gRPC, mutual TLS, port 50000, with role-based access control"
+      serial_console: available
+      video_console_dashboard: available
+      debug_container: "talosctl debug, privileged, from v1.13"
+      support_bundle: "talosctl support, encrypted by default from v1.14"
+      works_without_kubernetes: "yes"
+    summary: >-
+      No SSH and no shell. Everything runs through an authenticated API with
+      four access roles, plus a video console dashboard, a support bundle
+      collector, and a sanctioned privileged debug container.
+    notes: >-
+      The absence of a shell is recorded here as a design choice with both sides
+      stated, as the methodology requires.
+
+      What it buys, in the project's words: management operations are all
+      possible through the API, the API applies least privilege and exposes only
+      a limited set of methods, and the intent is that operators think about the
+      cluster rather than individual nodes. Concretely, there is no remote or
+      local shell access vector, and the API is mutual-TLS authenticated with
+      short-lived rotating certificates and four roles: reader, operator,
+      admin, and a narrow etcd backup role.
+
+      What it costs: recovering a machine requires the API, and therefore the
+      network, except for the console paths recorded under d05. Diagnosis depends
+      on the tools the project chose to expose, which are extensive but finite.
+
+      The tooling is genuinely broad. Logs including a mirrored kernel log,
+      kernel message buffer, a resource API modelled on kubectl get, packet
+      capture, process and memory and network views mapped explicitly to their
+      Linux command equivalents, a cluster dashboard, and control plane
+      inspection through static pod and manifest resources.
+
+      Three documented escape hatches exist and all are official. The debug
+      container is the interesting one: it starts a privileged container from an
+      image you supply, with host PID and network namespaces and the host
+      filesystem mounted, and removes it on exit. It can accept an image pushed
+      over the API rather than pulled from a registry, specifically for the case
+      where connectivity is the thing being debugged. The documentation even
+      walks through relaxing a hardening setting to trace a packet drop.
+
+      The answer to operating without Kubernetes is direct and is quoted in the
+      FAQ: Kubernetes might be down for many reasons "while Talos API access will
+      always be available."
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.siderolabs.com/talos/v1.14/troubleshooting/faqs
+        type: official-docs
+        title: FAQ, why no shell or SSH
+        retrieved: "2026-09-22"
+        quote: >-
+          Since Talos is fully API-driven, all maintenance and debugging
+          operations are possible via the OS API ... the API is based on the
+          Principle of Least Privilege, and exposes only a limited set of methods.
+      - url: https://docs.siderolabs.com/talos/v1.14/troubleshooting/talosctl-debug
+        type: official-docs
+        title: talosctl debug
+        retrieved: "2026-09-22"
+        quote: >-
+          If you are troubleshooting a connectivity issue, use the API to push
+          the image directly to the machine instead.
+      - url: https://docs.siderolabs.com/talos/v1.14/security/rbac
+        type: official-docs
+        title: RBAC
+        retrieved: "2026-09-22"
+        quote: >-
+          RBAC is enabled by default in new clusters created with talosctl
+          v0.11+ and disabled otherwise.
+      - url: https://docs.siderolabs.com/talos/v1.14/learn-more/talos-for-linux-admins
+        type: official-docs
+        title: Talos for Linux admins
+        retrieved: "2026-09-22"
+        quote: Talos has no interactive shell and no writable filesystem
+
+  d12_fleet_management:
+    normalized:
+      core_project:
+        - "talosctl with contexts, endpoint proxying and multi-node fan-out"
+        - "Etcd quorum protection serializing control plane upgrades"
+        - "Boot-once-then-commit upgrade with automatic revert"
+        - "Encrypted support bundle collection"
+      oss_companion:
+        - name: Image Factory
+          repo: https://github.com/siderolabs/image-factory
+          license: "MPL-2.0, with a BUSL-1.1 enterprise folder excluded from the open build"
+          org: siderolabs
+        - name: terraform-provider-talos
+          repo: https://github.com/siderolabs/terraform-provider-talos
+          license: MPL-2.0
+          org: siderolabs
+          note: "Actively invested in, alongside the commercial product, for declarative infrastructure workflows."
+        - name: Cluster API Bootstrap Provider Talos (CABPT)
+          repo: https://github.com/siderolabs/cluster-api-bootstrap-provider-talos
+          license: MPL-2.0
+          org: siderolabs
+          note: "Bootstrap provider. Generates Talos machine config rather than cloud-init. Latest release v0.6.13 on 2026-09-18, for Talos 1.14 compatibility, with a v0.7.0-alpha.3 pre-release on 2026-09-17. A deprecation notice was added to the README on 2026-08-13: the vendor no longer develops it actively and points to Omni, with community support otherwise. Still listed upstream as a Cluster API bootstrap provider."
+        - name: Cluster API Control Plane Provider Talos (CACPPT)
+          repo: https://github.com/siderolabs/cluster-api-control-plane-provider-talos
+          license: MPL-2.0
+          org: siderolabs
+          note: "Control-plane provider. Latest release v0.5.14 on 2026-09-21, for Talos 1.14 compatibility. Carries the same deprecation notice pointing to Omni, added on 2026-08-14. Still listed upstream as a Cluster API control-plane provider."
+        - name: Sidero Metal
+          repo: https://github.com/siderolabs/sidero
+          license: MPL-2.0
+          org: siderolabs
+          note: "Bare-metal Cluster API infrastructure provider. Latest release v0.6.14 on 2026-06-12, with a Talos 1.14 compatibility commit on 2026-09-21. Carries the same deprecation notice in the same words, pointing to Omni and its bare-metal infrastructure provider, but it was added on 2024-03-25, two and a half years before the other two, and amended on 2025-03-03 to add the bare-metal provider link."
+        - name: talos-backup
+          repo: https://github.com/siderolabs/talos-backup
+          license: MPL-2.0
+          org: siderolabs
+          note: "No stable release; newest tag is a beta from 2024."
+      commercial:
+        - name: Omni
+          vendor: Sidero Labs
+          license: "BUSL-1.1, converting to MPL-2.0 roughly four years after each version's release"
+          self_hostable: true
+          note: "Source-available, not open source by the licence's own text. Non-production and home-lab use is granted free; production requires a commercial licence. Self-hosting is documented including air-gapped, and it has been tested to 5,000 nodes per instance."
+        - name: Talos Enterprise Linux
+          vendor: Sidero Labs
+          license: commercial
+          self_hostable: false
+          note: "Launched 2026-09-15. Adds schematic-specific SBOMs, curated VEX data, signed build attestations, FIPS-compliant builds, CVE response commitments and IP indemnity. The vendor states the codebase is the same and that other than FIPS builds there is no feature difference."
+      cluster_api:
+        os_specific_provider: "CABPT (bootstrap), CACPPT (control plane), Sidero Metal (bare-metal infrastructure)"
+        provider_types:
+          - bootstrap
+          - control-plane
+          - infrastructure
+        maintainer: project-native
+        upstream_provider_list: "listed in the published book under Bootstrap, Control Plane and Infrastructure, with no deprecation marker"
+        provisions: "OS configuration and bootstrap through Talos machine config, plus control-plane lifecycle. Sidero Metal provisions physical machines."
+        bootstrap_target: "Talos machine config, not kubeadm and not cloud-init"
+        image_builder_target: "not-applicable"
+        maturity: "released, and no longer actively developed by the maintainer, whose README notices point to Omni, which is not a Cluster API product: Sidero Metal on 2024-03-25, CABPT on 2026-08-13, CACPPT on 2026-08-14"
+    summary: >-
+      The open-source project gives a capable per-node and multi-node CLI plus
+      real safety interlocks in the OS itself. Fleet inventory, desired-state
+      management and a user interface are the commercial product's territory.
+    notes: >-
+      The licensing boundary deserves precision because it is easy to get wrong.
+      Talos Linux is MPL-2.0 open source. Omni is Business Source Licence 1.1,
+      which is not an open source licence by its own text, and which converts to
+      MPL-2.0 on a per-version change date roughly four years out. The use grant
+      widened over time: earlier versions granted no additional use, and from
+      v1.6.0, released 2026-03-16, a non-production and home-lab grant is
+      present. The vendor
+      publishes explicit interpretive guidance on where the production boundary
+      falls and labels it as interpretation rather than licence text.
+
+      Two vendor events fall inside the collection window and are recorded as
+      dated facts only. Sidero Labs announced its acquisition by Yardi on
+      2026-09-14, stating that Talos Linux remains fully open source under
+      MPL-2.0 with the same repositories and licence, and that Sidero Labs
+      continues to operate as a standalone company. A commercial licence, Talos
+      Enterprise Linux, launched on 2026-09-15, and the announcement states that
+      Talos Linux "remains fully open source under the MPL-2.0 license,
+      unchanged."
+
+      These are the vendor's own statements, made one day and zero days before
+      collection respectively. No inference about their durability is drawn here,
+      and none should be. A future edition of this Pulse will record what
+      actually happened, which is the point of running it again.
+
+      The Cluster API position is the sharpest example in this edition of why a
+      provider list is not a maturity signal. This project owns the only
+      operating-system-native provider set that the published Cluster API
+      provider list actually names: CABPT under Bootstrap, CACPPT under Control
+      Plane, Sidero Metal under Infrastructure. All three carry a deprecation
+      notice in their READMEs, in identical words: the vendor no longer
+      develops them actively, points to Omni as the alternative, and states
+      that support comes from the community unless an existing support
+      contract covers them. The dates differ: Sidero Metal's notice dates from
+      2024-03-25, CABPT's from 2026-08-13 and CACPPT's from 2026-08-14. Omni
+      is not a Cluster API implementation and does not appear on that list.
+
+      An earlier version of this profile recorded that the Cluster API
+      providers were migrating to kubernetes-sigs. That is corrected here. No
+      Talos Cluster API repository exists in the kubernetes-sigs organization,
+      and the deprecation notices point to Omni rather than to any upstream
+      migration. The providers still receive commits and releases after the
+      notices: CABPT v0.6.13 on 2026-09-18 and CACPPT v0.5.14 on 2026-09-21,
+      both for Talos 1.14 compatibility, and a Sidero Metal compatibility
+      commit on 2026-09-21. They are deprecated rather than dead.
+
+      The upstream provider list still carries all three with no deprecation
+      marker, checked again on 2026-09-22, five weeks after the August notices
+      and two and a half years after Sidero Metal's. A reader who uses that
+      list as a health check will get the wrong answer here.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/siderolabs/omni/blob/main/LICENSE
+        type: governance-doc
+        title: Omni licence
+        retrieved: "2026-09-22"
+        quote: >-
+          The Business Source License (this document, or the 'License') is not an
+          Open Source license.
+      - url: https://docs.siderolabs.com/omni/self-hosted/production-vs-non-production
+        type: vendor-docs
+        title: Omni production versus non-production
+        retrieved: "2026-09-22"
+        quote: >-
+          It does not modify the license or any agreement between you and
+          Sidero Labs.
+      - url: https://www.siderolabs.com/blog/sidero-labs-joins-yardi
+        type: announcement
+        title: Sidero Labs joins Yardi
+        retrieved: "2026-09-22"
+        quote: >-
+          Is Talos Linux still open source? Yes, unambiguously. Talos Linux
+          remains fully open source under the MPL-2.0 license, same repos, same
+          license.
+      - url: https://www.siderolabs.com/blog/introducing-talos-enterprise-linux
+        type: announcement
+        title: Introducing Talos Enterprise Linux
+        retrieved: "2026-09-22"
+        quote: >-
+          Talos Linux remains fully open source under the MPL-2.0 license,
+          unchanged.
+      - url: https://github.com/siderolabs/cluster-api-bootstrap-provider-talos
+        type: source-repo
+        title: CABPT README, deprecation notice
+        retrieved: "2026-09-22"
+        quote: >-
+          Sidero Labs is no longer actively developing Cluster API Bootstrap
+          Provider Talos. For an alternative, please see Omni.
+      - url: https://github.com/siderolabs/cluster-api-control-plane-provider-talos
+        type: source-repo
+        title: CACPPT README, deprecation notice
+        retrieved: "2026-09-22"
+        quote: >-
+          Sidero Labs is no longer actively developing Cluster API Control Plane
+          Provider Talos. For an alternative, please see Omni.
+      - url: https://github.com/siderolabs/sidero
+        type: source-repo
+        title: Sidero Metal README, deprecation notice
+        retrieved: "2026-09-22"
+        quote: >-
+          Sidero Labs is no longer actively developing Sidero Metal. For an
+          alternative, please see Omni and the Bare-Metal Infrastructure
+          Provider.
+      - url: https://cluster-api.sigs.k8s.io/reference/providers
+        type: official-docs
+        title: Cluster API provider list, which still lists all three
+        retrieved: "2026-09-22"
+
+  d13_governance:
+    normalized:
+      license: MPL-2.0
+      license_note: "Omni is BUSL-1.1 and the Image Factory has a BUSL-1.1 enterprise folder. The shipped OS bundles GPL-family third-party components."
+      open_source: true
+      open_governance: undocumented
+      vendor_neutral_ownership: single-vendor
+      foundation: "none"
+      foundation_note: "Present in the CNCF landscape as a non-hosted entry with no maturity level. Sidero Labs is a CNCF silver member."
+      trademark_holder: unknown
+      primary_commercial_sponsor: "Sidero Labs, acquired by Yardi on 2026-09-14"
+      contributor_agreement: DCO
+      contribution_diversity:
+        method: >-
+          All-time commit counts from the GitHub contributors API, plus the
+          public company field on contributor profiles. Counts individuals, not
+          organizations. Most top contributors leave the company field blank, so
+          affiliation cannot be established from primary sources and is not
+          inferred.
+        value: >-
+          Heavily concentrated: the top three contributors account for roughly
+          4,687 of about 6,250 commits among the top thirty, measured on
+          2026-09-22. The v1.14.0 release notes credit 60 contributors for that
+          cycle, though how that list is generated is not documented. The only
+          published maintainer roster names three people, all at one company.
+    summary: >-
+      MPL-2.0, single-vendor owned, no foundation and no governance document.
+      There is no maintainers file and no code owners file anywhere in the
+      repository. Contribution uses DCO rather than a CLA.
+    notes: >-
+      The four governance properties separate as follows. Open source: yes, and
+      the core project's licence is unchanged by this month's commercial
+      announcements. Open governance: undocumented. There is no governance
+      document, no maintainers file, no code owners file, no process for becoming
+      a maintainer and no escalation or conflict-resolution process; all were
+      probed directly and return not found. Vendor-neutral ownership: no.
+      Contribution diversity: concentrated.
+
+      The only published maintainer roster sits inside a compliance metadata file
+      and names three people, all affiliated with the same company.
+
+      Talos is not a CNCF project. It appears in the CNCF landscape as an entry
+      with no maturity field, alongside roughly 2,168 other non-hosted entries,
+      and it is a Certified Kubernetes Distribution and Installer. Sidero Labs is
+      a CNCF silver member, which is a membership, not a project hosting
+      relationship. Stating this precisely matters, because a landscape entry is
+      easy to mistake for CNCF hosting.
+
+      No trademark policy or usage guidelines were found anywhere.
+
+      The acquisition announcement addresses licence, repositories and
+      contribution process. It does not address trademark or copyright
+      ownership, and that is recorded as an open question rather than as a
+      concern.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/siderolabs/talos/blob/main/LICENSE
+        type: governance-doc
+        title: Talos licence
+        retrieved: "2026-09-22"
+        quote: Mozilla Public License Version 2.0
+      - url: https://github.com/siderolabs/talos/blob/main/security-insights.yml
+        type: governance-doc
+        title: Security insights, maintainer roster
+        retrieved: "2026-09-22"
+      - url: https://github.com/siderolabs/talos/blob/main/CONTRIBUTING.md
+        type: governance-doc
+        title: Contributing
+        retrieved: "2026-09-22"
+        quote: All commits require a DCO sign-off.
+      - url: https://github.com/cncf/landscape/blob/master/landscape.yml
+        type: foundation-page
+        title: CNCF landscape data, Talos Linux entry
+        retrieved: "2026-09-22"
+        quote: "Talos Linux is a single purpose distribution for Kubernetes."
+    unknowns:
+      - "No governance document, maintainers file or code owners file exists; all were probed directly."
+      - "No published trademark policy, and trademark ownership after the acquisition is unstated."
+
+  d14_maturity:
+    normalized:
+      first_release: "2018-04-03"
+      first_stable: "2022-03-29"
+      current_version: "v1.14.1"
+      current_version_date: "2026-09-15"
+      release_cadence: "minor releases every four months, aligned to the Kubernetes cycle; patches every two weeks for the current minor and monthly for the previous"
+      observed_intervals: "minor releases at 134, 124, 112, 126 and 129 days, mean 125 days; current-line patches at 12 to 17 days, including v1.14.0 to v1.14.1 at 12 days"
+      support_model: versioned-with-eol
+      support_window: "two minor versions in community support, roughly eight months; security updates for the two latest minor releases"
+      commercial_support: available
+    summary: >-
+      Eight years old, stable since March 2022, and the cadence policy matches
+      the measured intervals closely. Exactly two minor versions are in community
+      support at a time, an effective window of about eight months.
+    notes: >-
+      The measured intervals match the published policy, which is unusual in this
+      edition. Minor releases averaged 125 days against a stated four-month
+      target, and current-line patches land every two weeks as documented.
+
+      The community support window is short by the standards of the other
+      projects here: about two cycles. The commercially supported window is
+      broader, covering the current stable version, all stable versions released
+      in the previous nine months, and versions within two minor releases of
+      current. Commercial support publishes concrete response-time commitments
+      ranging from one hour to two business days by tier and severity.
+
+      Talos Enterprise Linux is priced per node per year with a minimum node
+      count, and the community edition is free with unlimited clusters and nodes.
+
+      Two documentation facts affect anyone repeating this research. The
+      documentation host moved: the old domain no longer serves current versions
+      and returns a bare not-found for v1.14 with no redirect, while older
+      versions do redirect and slugs changed. And the support matrix page is
+      stale against the shipped release, giving a release date a week earlier
+      than actual and marking both end-of-life dates as to be determined.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/siderolabs/talos/blob/main/RELEASE.md
+        type: governance-doc
+        title: Release policy
+        retrieved: "2026-09-22"
+        quote: >-
+          Talos Linux provides minor releases every 4 months, aligned with the
+          Kubernetes release cycle.
+      - url: https://docs.siderolabs.com/talos/v1.14/getting-started/support-matrix
+        type: official-docs
+        title: Support matrix
+        retrieved: "2026-09-22"
+        quote: "1.15.0 release (2026-12-27, TBD)"
+      - url: https://github.com/siderolabs/talos/blob/main/SECURITY.md
+        type: governance-doc
+        title: Security policy, supported versions
+        retrieved: "2026-09-22"
+        quote: >-
+          The Sidero Labs team will only provide security updates for the two
+          latest minor releases of Talos Linux.
+      - url: https://www.siderolabs.com/pricing/
+        type: vendor-docs
+        title: Pricing
+        retrieved: "2026-09-22"
+        quote: "Minimum 10 nodes · flat per-node pricing · volume discounts available"
+      - url: https://www.siderolabs.com/support/
+        type: vendor-docs
+        title: Support, covered versions and response times
+        retrieved: "2026-09-22"
+        quote: >-
+          Full support is available for the current stable version of Sidero
+          systems software, all stable versions released in the previous 9
+          months, and stable versions within 2 minor releases of the current
+          release, even if published more than 9 months ago.
+    unknowns:
+      - "Both end-of-life dates on the support matrix are marked to be determined, and the page's release date for v1.14 is a week earlier than the actual release."
+
+tradeoffs:
+  buys:
+    - "A single machine contract. With no shell, no SSH and no package manager, the set of states a node can be in is small, enumerable and testable. Configuration drift is not managed, it is structurally prevented."
+    - "No shell or SSH, and no runtime software installation: every change goes through one mutual-TLS API with four least-privilege roles and short-lived rotating certificates."
+    - "Safety interlocks in the OS rather than in a fleet product. Etcd quorum is protected, concurrent control plane upgrades are serialized, and an upgrade boots once before committing so a failure reverts without anything outside the machine deciding."
+    - "OS and Kubernetes lifecycles are independent, with separate commands, version streams and support matrices."
+    - "The Talos API stays available when Kubernetes is down, by design, because it does not depend on etcd or the API server."
+    - "A published vulnerability response commitment: three business days to respond, thirty days to fix, for the two latest minor releases."
+    - "An air-gap path on both the image build and the update path, with a self-hostable build service under MPL-2.0."
+    - "Its own Cluster API providers (MPL-2.0): a bootstrap provider and a control-plane provider, both released and listed upstream, plus a bare-metal infrastructure provider. The vendor no longer develops them actively, and their README notices point to Omni."
+  costs:
+    - "There is no documented way to run a machine with no Kubernetes role, and the container escape hatch added in v1.14 is unorchestrated and explicitly not a Kubernetes replacement."
+    - "Out-of-tree kernel modules require rebuilding the kernel, because the module signing key is generated per build and is not available to users."
+    - "Recovery depends on the API and therefore on the network. With the network down, the console offers a read-only dashboard, a wipe entry and slot selection, and no interactive repair, because there is no shell."
+    - "What triggers automatic rollback, a fatal error or panic in init before the machine is ready, is narrower than the documentation implies, and had to be read from source."
+    - "No dm-verity and no documented runtime integrity re-verification of the root on a non-Secure-Boot install."
+    - "To require signed images, an operator must add a deny rule. The verification policy is permissive by default, and keyless verification does not work air-gapped."
+    - "Ships with SELinux permissive, described as experimental, because storage and networking add-ons are incompatible with enforcing."
+    - "No governance document, no maintainers file, no CODEOWNERS file and no foundation. Ownership is single-vendor."
+    - "The community support window is about eight months. Longer support is a commercial product."
+    - "Fleet inventory and desired-state management need a product whose licence is not open source."
+    - "The vendor no longer actively develops its Cluster API providers, and their README notices point to Omni, which is not a Cluster API product. Releases still follow Talos versions; support is otherwise community."
+    - "Documentation gaps in load-bearing places: the upgrade API used since v1.13 is absent from the API reference, the Kubernetes upgrade procedure is unversioned and its in-document link is broken, and the support matrix is stale against the shipped release."
+maintainers_fact:
+  text: "Single vendor."
+  evidence: DOCUMENTED
+  sources:
+    - url: "https://github.com/siderolabs/talos/blob/main/security-insights.yml"
+      type: "governance-doc"
+      title: "Security insights, maintainer roster"
+      retrieved: "2026-09-22"
+known_issues:
+  - text: "To require signed images, an operator must add a deny rule. The verification policy is permissive by default, and keyless verification does not work air-gapped."
+    kind: unverified
+    sources:
+      - url: "https://docs.siderolabs.com/talos/v1.14/security/verifying-image-signatures"
+        type: "official-docs"
+        title: "Verifying image signatures"
+        retrieved: "2026-09-22"
+        quote: "Any other images that do not match any of the rules will be allowed by default"
+  - text: "The documentation states that if an upgrade fails to boot, Talos rolls back to the previous version. In the source, the revert runs only on a fatal error or panic in the init process before the machine is ready, so a kernel panic before init starts, or a silent hang, may not be covered."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/upgrading-talos"
+        type: "official-docs"
+        title: "Upgrading Talos"
+        retrieved: "2026-09-22"
+        quote: "Upgrades use an A-B image scheme in order to facilitate rollbacks ... If an upgrade fails to boot, Talos will roll back to the previous version."
+      - url: "https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/upgrading-talos"
+        type: "official-docs"
+        title: "Upgrading Talos, rollback"
+        retrieved: "2026-09-22"
+        quote: "the node will be rebooted, and the bootloader will automatically use the previous Talos kernel and image, thus effectively rolling back the upgrade"
+  - text: "The default hardening page claims forced kernel module signing. In the shipped kernel configuration, enforcement comes from a kernel command line parameter that can be overridden, not from a compiled-in setting."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://docs.siderolabs.com/talos/v1.14/security/talos-default-hardening-and-cis-compliance"
+        type: "official-docs"
+        title: "Default hardening and CIS compliance"
+        retrieved: "2026-09-22"
+        quote: "Because of this design, the majority of the CIS Distribution Independent Linux Benchmark does not apply to Talos nodes."
+  - text: "The vendor states it is no longer actively developing its Cluster API bootstrap provider, its control-plane provider, or Sidero Metal, its bare-metal infrastructure provider. The README notices point to Omni, which is not a Cluster API product. Releases still follow Talos versions; support is otherwise community."
+    kind: maintenance-stopped
+    sources:
+      - url: "https://github.com/siderolabs/cluster-api-bootstrap-provider-talos"
+        type: "source-repo"
+        title: "CABPT README, deprecation notice"
+        retrieved: "2026-09-22"
+        quote: "Sidero Labs is no longer actively developing Cluster API Bootstrap Provider Talos. For an alternative, please see Omni."
+      - url: "https://github.com/siderolabs/cluster-api-control-plane-provider-talos"
+        type: "source-repo"
+        title: "CACPPT README, deprecation notice"
+        retrieved: "2026-09-22"
+        quote: "Sidero Labs is no longer actively developing Cluster API Control Plane Provider Talos. For an alternative, please see Omni."
+      - url: "https://github.com/siderolabs/sidero"
+        type: "source-repo"
+        title: "Sidero Metal README, deprecation notice"
+        retrieved: "2026-09-22"
+        quote: "Sidero Labs is no longer actively developing Sidero Metal. For an alternative, please see Omni and the Bare-Metal Infrastructure Provider."
+open_questions:
+  - "With ContainerConfig shipping in v1.14, has the position on a Kubernetes-free Talos changed? Is a machine type with no Kubernetes still contemplated?"
+  - "Is upgrade or rollback supported on a node that never joined a Kubernetes cluster?"
+  - "Is there any runtime integrity check of the root squashfs on a non-Secure-Boot install, and was dm-verity considered and rejected?"
+  - "What exactly triggers automatic rollback? Does a panic before the init process starts, or a silent hang, also trigger it? Is there a watchdog for that case?"
+  - "How many boot attempts occur before fallback, and is the one-shot behaviour intentional and permanent?"
+  - "Is rolling back across a machine-configuration schema migration supported?"
+  - "What is in the per-asset Sigstore bundles, and what is the documented command to verify a downloaded ISO or UKI?"
+  - "Does the project claim a SLSA level, and if not, is one planned?"
+  - "Can a community self-hosted Image Factory emit checksums or signatures for its generated assets at all?"
+  - "The enterprise Image Factory page, rewritten on 2026-09-15, names the Go Cryptographic Module under CMVP certificate 5247 in non-strict mode. Is strict or enforcing FIPS mode still a separate offering, as the earlier version of the page said?"
+  - "What is the current status of SELinux enforcing mode after the v1.13 and v1.14 policy work?"
+  - "Is the hardening page's forced-module-signing claim correct, given the shipped kernel config shows it unset and enforcement comes from an overridable kernel parameter?"
+  - "How are the embedded default support-bundle encryption recipients rotated, and can an operator enumerate them before collecting?"
+  - "Is Raspberry Pi 5 supported? Four official sources say different things."
+  - "Is a governance document planned? What is the process for a non-employee to become a maintainer, and has anyone outside the company ever held commit rights?"
+  - "Does the acquisition change trademark or copyright ownership for Talos Linux? The announcement addresses licence and repositories but not the mark."
+  - "Has CNCF donation ever been considered?"
+  - "What is the end-of-life commitment for Sidero Metal and the two Cluster API providers, all marked no longer actively developed while still receiving pushes?"
+
+follow_up_research:
+  - FR-01
+  - FR-02
+  - FR-03
+  - FR-04
+  - FR-05
+  - FR-06
+  - FR-07
+  - FR-08
+  - FR-11
+  - FR-12
+  - FR-13
+  - FR-14
+  - FR-15
+  - FR-16
+  - FR-17
+
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Cost audit under methodology section 9, rule 15. c8 reworded to the limit (C1); the vendor's interpretive guidance is not a cost. Removed buy b6 ('The documentation states limits...'): it describes the documentation's candour, not an adopter outcome (N6), the same treatment as Fedora CoreOS b9 and Unikraft b5."
+  - date: '2026-10-06'
+    field: dimensions.d04_upgrade.normalized.scope
+    change: Was whole-os (Whole OS). Now whole-os-image (Whole OS image), from the independent check of what one update replaces (closed six-value vocabulary). Added scope_note.
+    source:
+      url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/upgrading-talos
+      type: official-docs
+      title: Upgrading Talos
+      retrieved: '2026-10-06'
+      quote: Upgrades use an A-B image scheme
+  - date: "2026-10-05"
+    field: dimensions.d12_fleet_management.normalized.cluster_api.maturity
+    change: "Said the providers were deprecated. The maintainer's own README notices say Sidero Labs is no longer actively developing them and point to Omni. Wording now matches the source (second review, 2026-10-05)."
+    source:
+      url: https://github.com/siderolabs/cluster-api-bootstrap-provider-talos
+      type: source-repo
+      title: CABPT README, deprecation notice
+      retrieved: "2026-10-05"
+  - date: "2026-09-22"
+    field: version_observed.version
+    change: "Moved since collection: v1.14.0 (released 2026-09-03) to v1.14.1, published 2026-09-15T16:41Z, later on the collection day. additional_channels unchanged; v1.13.10 and v1.12.12 remain the newest patches on their lines."
+    source:
+      url: https://github.com/siderolabs/talos/releases/tag/v1.14.1
+      type: release-notes
+      title: Talos v1.14.1
+      retrieved: "2026-09-22"
+      quote: "Talos 1.14.1"
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.normalized.current_version
+    change: "Moved since collection: v1.14.0 (2026-09-03) to v1.14.1 (2026-09-15), same event as the version_observed correction. observed_intervals gains the 12-day v1.14.0 to v1.14.1 gap."
+    source:
+      url: https://github.com/siderolabs/talos/releases/tag/v1.14.1
+      type: release-notes
+      title: Talos v1.14.1
+      retrieved: "2026-09-22"
+      quote: "Talos 1.14.1"
+  - date: "2026-09-22"
+    field: self_description.text
+    change: "The README sentence reads 'via an API - there is no shell', with a hyphen; the profile had substituted a comma. Restored to the README's own punctuation."
+    source:
+      url: https://github.com/siderolabs/talos/blob/main/README.md
+      type: source-repo
+      title: Talos README
+      retrieved: "2026-09-22"
+      quote: "All system management is done via an API - there is no shell or interactive console."
+  - date: "2026-09-22"
+    field: dimensions.d05_rollback_recovery.sources[0].url
+    change: "The quoted rollback sentence is not on the FAQ page; it is on the Upgrading Talos page. Source URL and title changed, quote unchanged."
+    source:
+      url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/upgrading-talos
+      type: official-docs
+      title: Upgrading Talos
+      retrieved: "2026-09-22"
+      quote: "In this case, the node will be rebooted, and the bootloader will automatically use the previous Talos kernel and image, thus effectively rolling back the upgrade."
+  - date: "2026-09-22"
+    field: dimensions.d10_security.normalized.fips
+    change: "Moved since collection: was 'FIPS-compliant builds, enterprise only; not CMVP certified', which matched the enterprise Image Factory docs page as it stood on 2026-09-11. That page was rewritten on 2026-09-15 and now names the Go Cryptographic Module under CMVP certificate 5247, non-strict mode, with the validation attached to the module and not to Talos as a whole. Value, notes, the d10 unknown and the matching open question updated."
+    source:
+      url: https://docs.siderolabs.com/talos/v1.14/learn-more/enterprise-image-factory
+      type: official-docs
+      title: Enterprise Image Factory, FIPS
+      retrieved: "2026-09-22"
+      quote: "The FIPS 140-3 validation attaches to the Go Cryptographic Module, not to Talos Linux as a whole."
+  - date: "2026-09-22"
+    field: dimensions.d10_security.sources[3].url
+    change: "The 'compliance attribute' quote was attributed to the FIPS announcement blog post, which does not contain it. It is on the enterprise Image Factory docs page, in both the pre- and post-2026-09-15 versions. Source replaced."
+    source:
+      url: https://docs.siderolabs.com/talos/v1.14/learn-more/enterprise-image-factory
+      type: official-docs
+      title: Enterprise Image Factory, FIPS
+      retrieved: "2026-09-22"
+      quote: "This is a compliance attribute rather than a stronger security posture"
+  - date: "2026-09-22"
+    field: dimensions.d11_operations_debugging.summary
+    change: "Said three access roles; the RBAC page lists four (os:admin, os:operator, os:reader, os:etcd:backup). Summary, notes and tradeoffs.buys updated."
+    source:
+      url: https://docs.siderolabs.com/talos/v1.14/security/rbac
+      type: official-docs
+      title: RBAC
+      retrieved: "2026-09-22"
+      quote: "os:etcd:backup grants access to /machine.MachineService/EtcdSnapshot method."
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.normalized.oss_companion[2].note
+    change: "Moved since collection: CABPT latest release v0.6.12 (2026-04-27) to v0.6.13 (2026-09-18), plus v0.7.0-alpha.3 pre-release on 2026-09-17, both for Talos 1.14 compatibility."
+    source:
+      url: https://github.com/siderolabs/cluster-api-bootstrap-provider-talos/releases/tag/v0.6.13
+      type: release-notes
+      title: CABPT v0.6.13
+      retrieved: "2026-09-22"
+      quote: "CABPT is now compatible with Talos v1.14.0+."
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.normalized.oss_companion[3].note
+    change: "CACPPT deprecation notice date was recorded as 2026-08-13; the README commit is dated 2026-08-14. Also moved since collection: latest release v0.5.13 (2026-04-27) to v0.5.14 (2026-09-21)."
+    source:
+      url: https://github.com/siderolabs/cluster-api-control-plane-provider-talos/commit/9e552e42
+      type: source-repo
+      title: CACPPT commit adding the deprecation notice
+      retrieved: "2026-09-22"
+      quote: "docs: add deprecation notice"
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.normalized.oss_companion[4].note
+    change: "Sidero Metal's deprecation notice was recorded as added on 2026-08-13 with the other two. The README history shows it was added on 2024-03-25 (author date 2024-03-06) and amended on 2025-03-03 to add the bare-metal provider link. Note, cluster_api.maturity and the d12 notes corrected. A Talos 1.14 compatibility commit on 2026-09-21 is also recorded."
+    source:
+      url: https://github.com/siderolabs/sidero/commit/b19e58a8
+      type: source-repo
+      title: Sidero Metal commit adding the notice
+      retrieved: "2026-09-22"
+      quote: "chore: add notice to README"
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.notes
+    change: "The Omni non-production and home-lab use grant was recorded as present from v1.10.0. The LICENSE file at tag v1.5.0 has 'Additional Use Grant: None' and the grant is present from v1.6.0, released 2026-03-16."
+    source:
+      url: https://github.com/siderolabs/omni/blob/v1.6.0/LICENSE
+      type: governance-doc
+      title: Omni licence at v1.6.0
+      retrieved: "2026-09-22"
+      quote: "You may make non-production use of the Licensed Work, including for testing and evaluation, or for personal use in a home lab environment."
+  - date: "2026-09-22"
+    field: dimensions.d13_governance.normalized.contribution_diversity.value
+    change: "The v1.14.0 release notes list 60 names under Contributors, not 202. Re-measured on 2026-09-22 with the same contributors API method: top three 4,687 of 6,252 among the top thirty. The earlier top-thirty total of about 5,700 could not be reproduced; the top-three figure is consistent with a week of commits."
+    source:
+      url: https://github.com/siderolabs/talos/releases/tag/v1.14.0
+      type: release-notes
+      title: Talos v1.14.0, Contributors section
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d13_governance.sources[3].quote
+    change: "The quote field held an editorial sentence ('Talos Linux appears as a landscape entry with no maturity field.'), not text from the page. Replaced with the landscape data file, where the Talos Linux item carries no project field, and a verbatim quote from its description."
+    source:
+      url: https://github.com/cncf/landscape/blob/master/landscape.yml
+      type: foundation-page
+      title: CNCF landscape data, Talos Linux entry
+      retrieved: "2026-09-22"
+      quote: "Talos Linux is a single purpose distribution for Kubernetes."
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.sources[3]
+    change: "The pricing page was cited for the commercial support window and response-time commitments, but it carries only the per-node price and minimum. Those statements are on the support page, added as a separate source."
+    source:
+      url: https://www.siderolabs.com/support/
+      type: vendor-docs
+      title: Support
+      retrieved: "2026-09-22"
+      quote: "Promised SLAs range from 1 hour to 2 business days depending on the level of support purchased and the severity of your issue."
+  - date: "2026-10-05"
+    field: dimensions.d04_upgrade.normalized.self_hostable_update_server
+    change: >-
+      Added a value for the self-hostable update source column, which rendered as Not collected. The value is true. Talos has no update server. The update source is the installer image, and the docs describe on-premises Image Factory and internal registry mirrors.
+    source:
+      url: https://docs.siderolabs.com/talos/v1.14/learn-more/image-factory
+      type: official-docs
+      title: "Image Factory, on-premises deployment"
+      retrieved: "2026-10-05"
+      quote: >-
+        Image Factory can be deployed on-premises to provide in-house asset generation.
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 16: a single-vendor entry says single vendor once, and a commit share is added only when it is measured the same way for every entry. Was 'No governance document, no maintainers file, no CODEOWNERS file and no foundation. The commit history is concentrated in three contributors at one company.' Now 'No governance document, no maintainers file, no CODEOWNERS file and no foundation. Ownership is single-vendor.' (d13 vendor_neutral_ownership: single-vendor). The commit figure stays in d13 contribution_diversity."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 17: where a capability is documented is not a cost. Removed the clause 'the extension path restrictions live outside versioned docs'. The allowlist is published in the extensions repository README (d06 notes), which the project maintains. The other gaps stay: each is an absent or a wrong document."
+  - date: "2026-10-06"
+    field: "tradeoffs.buys"
+    change: "Cluster API parity: every entry with Cluster API providers recorded in its profile gets a buy in the same shape, with its own status words. Added buy 'Its own Cluster API providers (MPL-2.0): a bootstrap provider and a control-plane provider, both released and listed upstream, plus a bare-metal infrastructure provider. The vendor no longer develops them actively, and their README notices point to Omni.' From d12 cluster_api and oss_companion (CABPT, CACPPT, Sidero Metal), with the deprecation notices as recorded there."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18: the number of retained versions is documented by the A/B design and is not a limitation assessed for every entry. Cost c3 reworded. Was 'One previous version is retained and automatic rollback fires once. What triggers it is narrower than the documentation implies, and had to be read from source.' Now 'What triggers automatic rollback, a fatal error or panic in init before the machine is ready, is narrower than the documentation implies, and had to be read from source.' The trigger is as recorded in d05."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18: a stated stop of maintenance counts wherever it appears. Added cost 'The vendor no longer actively develops its Cluster API providers, and their README notices point to Omni, which is not a Cluster API product. Releases still follow Talos versions; support is otherwise community.' Buy b7 keeps its status ending 'The vendor no longer develops them actively.' Verified verbatim on 2026-10-06 against the CABPT and CACPPT READMEs; latest releases CABPT v0.6.13 (2026-09-18) and CACPPT v0.5.14 (2026-09-21), both for Talos 1.14, as recorded in d12."
+    source:
+      url: "https://github.com/siderolabs/cluster-api-bootstrap-provider-talos"
+      type: "source-repo"
+      title: "CABPT README, deprecation notice"
+      retrieved: "2026-10-06"
+      quote: "Unless you have an existing support contract covering Cluster API Bootstrap Provider Talos, all support will be provided by the community (including questions in our Slack workspace)."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18, parity with bootc cost c0 (signature verification ships off): an unverified security path counts wherever it appears. Added cost 'To require signed images, an operator must add a deny rule. The verification policy is permissive by default, and keyless verification does not work air-gapped.' From d04 notes and d10 artifact_verification. The air-gapped clause is in the d04 source page, verified verbatim on 2026-10-06."
+    source:
+      url: "https://docs.siderolabs.com/talos/v1.14/security/verifying-image-signatures"
+      type: "official-docs"
+      title: "Verifying image signatures"
+      retrieved: "2026-10-06"
+      quote: "Keyless verification will not work on air-gapped clusters that do not have access to the Internet."
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized
+    change: Replaced the ephemeral entry 'tmpfs mounts' with the paths the architecture page names (/system, /tmp, /run). Listed the overlay directories under persistent, with '(overlay)', and added ephemeral_mechanism and configurable_paths for the Mounts row. The read-only value stands.
+    source:
+      url: https://docs.siderolabs.com/talos/v1.14/learn-more/architecture
+      type: official-docs
+      title: 'Talos architecture: persistent overlays'
+      retrieved: '2026-10-12'
+      quote: Directories like this are overlayfs backed by an XFS file system mounted at /var.
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: 'Added the add_software field. It records how an adopter adds software to the OS itself, not workloads. Values: Vendor extensions. Each value has its sources, read on 2026-10-12.'
+    source:
+      url: https://docs.siderolabs.com/talos/v1.14/build-and-extend-talos/custom-images-and-development/system-extensions
+      type: official-docs
+      title: 'Talos docs: System extensions'
+      retrieved: '2026-10-12'
+      quote: System extensions allow extending the Talos root filesystem, which enables a variety of features, such as including custom container runtimes, loading additional firmware, etc.

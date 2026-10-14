@@ -1,0 +1,49 @@
+name: Propose a change to the criteria
+description: One of the inclusion criteria is wrong, or a criterion is missing.
+title: "[criteria] <short summary>"
+labels: ["criteria"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The inclusion criteria decide which OS appears in the matrix. A change to them changes the whole comparison, so say what it would add or remove.
+  - type: dropdown
+    id: rule
+    attributes:
+      label: Which rule?
+      options:
+        - "Rule 1: whole-system updates"
+        - "Rule 2: immutable at runtime"
+        - "Rule 3: rollback"
+        - "Rule 4: declarative provisioning"
+        - "Rule 5: runs Kubernetes"
+        - A new rule
+        - Something else (scope, openness, the groups beside the matrix)
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: The change you propose
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: What the current rule gets wrong, or what is missing, for a reader choosing an OS.
+    validations:
+      required: true
+  - type: textarea
+    id: effect
+    attributes:
+      label: Entries it would add or remove
+      description: Name them, with a source for each where you can.
+    validations:
+      required: true
+  - type: checkboxes
+    id: affiliation
+    attributes:
+      label: Affiliation
+      options:
+        - label: I am a maintainer of, or work for a company behind, a project this change would affect.

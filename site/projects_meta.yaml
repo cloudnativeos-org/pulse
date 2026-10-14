@@ -1,0 +1,55 @@
+# Ownership labels and links shown on each project data sheet.
+# Ownership comes from each profile's d13 (governance): who holds the name and
+# assets, and the primary commercial sponsor. A sponsor tag is shown only where the
+# profile sources the concentration in one company. Links were checked on 2026-10-06.
+azure-container-linux:
+  owner: Microsoft project
+  links: {website: "https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview", source: "https://github.com/microsoft/azure-container-linux"}
+bootc:
+  owner: CNCF Sandbox project
+  tag: [Red Hat, main sponsor]
+  links: {website: "https://bootc.dev/", docs: "https://bootc.dev/bootc/", source: "https://github.com/bootc-dev/bootc", cncf: "https://www.cncf.io/projects/bootc/"}
+bottlerocket:
+  owner: Amazon (AWS) project
+  links: {website: "https://bottlerocket.dev/", docs: "https://bottlerocket.dev/en/os/", source: "https://github.com/bottlerocket-os/bottlerocket"}
+cos:
+  owner: Google project
+  links: {website: "https://cloud.google.com/container-optimized-os/docs", source: "https://cos.googlesource.com/"}
+eve-os:
+  owner: LF Edge project
+  tag: [ZEDEDA, main sponsor]
+  links: {website: "https://www.lfedge.org/projects/eve/", docs: "https://github.com/lf-edge/eve/tree/master/docs", source: "https://github.com/lf-edge/eve"}
+fedora-coreos:
+  owner: Fedora community
+  tag: [Red Hat, main sponsor]
+  links: {website: "https://fedoraproject.org/coreos/", docs: "https://docs.fedoraproject.org/en-US/fedora-coreos/", source: "https://github.com/coreos/fedora-coreos-config"}
+flatcar:
+  # Sourced in the profile (d13 maintainer_affiliation): 9 of 16 maintainers in
+  # flatcar/.project maintainers.yaml list Microsoft on their GitHub profile.
+  owner: CNCF Incubating project
+  tag: [Microsoft, main sponsor]
+  links: {website: "https://www.flatcar.org/", docs: "https://www.flatcar.org/docs/latest/", source: "https://github.com/flatcar/Flatcar", cncf: "https://www.cncf.io/projects/flatcar/"}
+kairos:
+  owner: CNCF Sandbox project
+  tag: [Spectro Cloud, main sponsor]
+  links: {website: "https://kairos.io/", docs: "https://kairos.io/docs/", source: "https://github.com/kairos-io/kairos", cncf: "https://www.cncf.io/projects/kairos/"}
+microos:
+  owner: openSUSE project
+  tag: [SUSE, main sponsor]
+  links: {website: "https://microos.opensuse.org/", docs: "https://en.opensuse.org/Portal:MicroOS", source: "https://github.com/openSUSE/transactional-update"}
+talos:
+  # siderolabs.com footer, 2026-10-06: "(c) 2026 Sidero Labs, Inc." No other company named.
+  # The acquisition is sourced in data/lineage.yaml and talos.yaml d13 (Sidero Labs joins Yardi, 2026-09-14).
+  owner: Sidero Labs project (acquired by Yardi, September 2026)
+  links: {website: "https://www.siderolabs.com/talos-linux/", docs: "https://docs.siderolabs.com/talos/", source: "https://github.com/siderolabs/talos"}
+ubuntu-core:
+  owner: Canonical project
+  links: {website: "https://ubuntu.com/core", docs: "https://documentation.ubuntu.com/core/", source: "https://github.com/snapcore/snapd"}
+hadron:
+  # Links from the profile's homepage and repository fields. No ownership label: the profile does not state one.
+  links: {website: "https://hadron-linux.io/", source: "https://github.com/kairos-io/hadron"}
+yocto:
+  # Owner label from yoctoproject.org/about: "a collaborative project under the Linux Foundation umbrella" (yocto.yaml d13).
+  # The entry sits under Alternative paradigms and has no data sheet, so this block records the links only.
+  owner: Linux Foundation project
+  links: {website: "https://www.yoctoproject.org/", docs: "https://docs.yoctoproject.org/", source: "https://git.yoctoproject.org/"}

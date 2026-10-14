@@ -1,0 +1,2490 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: kairos
+name: Kairos
+homepage: https://kairos.io/
+repository: https://github.com/kairos-io/kairos
+collected_at: "2026-09-15"
+
+entry_kind:
+  - framework
+  - distribution
+
+category_fit:
+  comparable: full
+  note: >-
+    Comparable on all fourteen dimensions. Carries two entry kinds, in this
+    order. Framework first: the project's own description is "a Linux
+    Framework", and what it primarily is, on every dimension below, is a
+    toolchain (kairos-init, AuroraBoot, the agent) that converts a base
+    distribution into an immutable A/B host and manages its lifecycle. This is
+    the same kind of object bootc is, one layer up: bootc is a mechanism a
+    distribution consumes, Kairos is a framework a base is fed into.
+    Distribution second: unlike bootc, the project also releases the artifacts
+    its framework produces, under its own version numbers, with its own release
+    process, and every finding in d08, d09 and d14 about released images is a
+    finding about those artifacts. NixOS and Ubuntu Core carry the same pair on
+    the same reasoning.
+
+    This profile carried a third tag, base-images, until 2026-09-22, and it was
+    removed. The base images in this pair belong to Hadron, the from-scratch
+    base every project-published artifact has been built from since v4, and
+    Hadron now has its own entry, hadron.yaml. Kairos's own published images
+    are the released artifacts, which distribution already covers. The
+    relationship between the two entries is the one between a framework and
+    the base it is applied to: the Hadron repository's own build pulls a
+    published Hadron image and applies kairos-init to it, exactly as an adopter
+    would with an Ubuntu base, and Hadron's home page says it "becomes
+    immutable" when "topped with Kairos". Six dimensions of hadron.yaml are
+    answered as provided by Kairos and cross-reference this profile, so that a
+    comparison table does not count the A/B substrate twice. The reasoning for
+    keeping distribution rather than reading Kairos as a framework only is in
+    methodology.md section 11, item 7: dropping it would have made the
+    released-artifact dimensions not applicable for the authors' own project,
+    and those carry some of the least flattering findings here.
+
+    The same field is applied to bootc, NixOS and Unikraft on identical terms.
+
+    This survey was initiated by people who work on Kairos. The research for this
+    profile was commissioned with an explicit instruction to hunt for
+    limitations, thin documentation and responsibilities pushed onto the adopter.
+    Several findings below are unflattering. They are recorded because the
+    alternative is a survey nobody should believe.
+
+self_description:
+  text: >-
+    Kairos is a Linux Framework managing the full lifecycle of machines, from
+    installation to upgrades and recovery.
+  source:
+    url: https://kairos.io/
+    type: official-docs
+    title: Kairos home page
+    retrieved: "2026-09-22"
+
+version_observed:
+  version: "v4.3.0"
+  released: "2026-09-08"
+  channel: stable
+  method: >-
+    Latest stable GitHub release on kairos-io/kairos via the releases API. 197
+    releases not flagged pre-release or draft, out of 314 releases in total,
+    counted with gh release list on 2026-09-22. Release assets enumerated to
+    establish which artifacts actually ship. Re-checked 2026-09-22: v4.3.0 is
+    still the latest release and no release has followed it.
+  source:
+    url: https://github.com/kairos-io/kairos/releases/tag/v4.3.0
+    type: release-notes
+    title: Kairos v4.3.0
+    retrieved: "2026-09-22"
+
+taxonomy:
+  workload_scope: general-purpose-host
+  construction_model:
+    - framework
+    - vendor-base-plus-derivation
+    - vendor-fixed-image
+  root_state_substrate:
+    - ab-partition-image
+  notes: >-
+    Kubernetes is optional and core images ship none, which places this at the
+    general-purpose-host position.
+
+    All three construction models apply, and the balance between them shifted
+    materially in v4. The project now publishes prebuilt artifacts for one base
+    (Hadron) and directs everyone else to build their own image. See d01 and d06:
+    that shift moves real obligations to the adopter, and the documentation
+    assigns only one of them. Framework is the primary model. Vendor-fixed-image
+    covers the released Hadron-based ISOs and images. Vendor-base-plus-derivation
+    covers the documented practice of deriving from a released core image with a
+    Dockerfile, which the image matrix page describes as the purpose of core
+    images; the base images meant purely to be derived from are Hadron's and are
+    recorded in hadron.yaml.
+
+    The A/B pair is unusual in this survey: the slots are fixed-size ext2 files
+    inside one state partition, not separate partitions. The vocabulary defines
+    ab-partition-image as images in alternating partitions, so the value is the
+    closest fit rather than an exact one, and hadron.yaml records the same
+    substrate as the same mechanism, not a second one.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: general-purpose-host
+      ships_kubernetes: "core images no, standard images yes"
+      bases_advertised:
+        - Alpine
+        - Debian
+        - Fedora
+        - Hadron
+        - openSUSE
+        - Rocky
+        - Ubuntu
+      bases_with_released_os_images:
+        - Hadron
+      bases_in_iso_ci:
+        - Hadron
+        - Ubuntu
+        - Rocky
+        - openSUSE Leap
+    summary: >-
+      A build toolchain plus a runtime that converts an upstream base into an
+      immutable A/B layout with an OCI image as the unit of deployment. As of
+      v4.3.0 the only base with released OS images is Hadron, a from-scratch
+      distribution in the same organization.
+    notes: >-
+      The project describes itself four different ways on four official surfaces:
+      "The Immutable OS to Operate at Scale" and "a Linux Framework" on the home
+      page, "the open-source project that simplifies Edge, cloud, and bare metal
+      OS lifecycle management ... distro agnostic" in the docs, "The immutable
+      Linux meta-distribution for edge Kubernetes" in the repository description
+      and the CNCF landscape, and "a meta-Linux Distribution" on the architecture
+      page. Framework, meta-distribution and distro-agnostic project imply
+      different adopter obligations, and no page reconciles them.
+
+      The base-distribution picture has three non-agreeing tiers and this matters
+      to a reader making a decision. The home page advertises seven bases. The
+      docs page titled "Image support matrix" contains no matrix and says: "As a
+      small open-source team, we now focus official prebuilt artifacts and docs
+      defaults on Hadron", adding that the other flavor repositories "are no
+      longer actively updated by the Kairos release pipeline". Every OS ISO in
+      the v4.3.0 release is Hadron. The registry images for Alpine, Debian,
+      Fedora, openSUSE and Rocky are frozen at v3.7.2 from February 2026, one
+      major version behind.
+
+      The build tool recognizes nine distributions in code. The release pipeline
+      ships one. A reader of the home page would reasonably conclude they can
+      pull a current Fedora or Alpine Kairos image, and they cannot.
+
+      Hadron itself is pre-1.0 (v0.5.2 on the collection date; v0.5.3 followed
+      on 2026-09-18), created in June 2025, musl plus systemd with vanilla
+      kernels and no package manager, and its README says it is "Engineered by
+      Spectro Cloud from the Kairos team". The v4.3.0 ISOs and the docs site
+      version selector still carry Hadron v0.5.1. Hadron has its own profile,
+      hadron.yaml, which records what is the base's (the kernel, the build, the
+      hardening baseline, the shim, the governance of that repository) and marks
+      what is this framework's as provided by Kairos. Read the two together: a
+      Kairos-published artifact is both.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://kairos.io/docs/reference/image_matrix/
+        type: official-docs
+        title: Image support matrix
+        retrieved: "2026-09-22"
+        quote: >-
+          As a small open-source team, we now focus official prebuilt artifacts
+          and docs defaults on Hadron.
+      - url: https://kairos.io/docs/architecture/meta/
+        type: official-docs
+        title: Meta-distribution architecture
+        retrieved: "2026-09-22"
+        quote: >-
+          a meta-Linux Distribution, as its goal is to convert other distros to
+          an immutable layout with Kubernetes Native components
+      - url: https://github.com/kairos-io/kairos/releases/tag/v4.3.0
+        type: release-notes
+        title: v4.3.0 release assets (57 assets; every OS ISO is a Hadron v0.5.1 build)
+        retrieved: "2026-09-22"
+        quote: "kairos-hadron-v0.5.1-core-amd64-generic-v4.3.0.iso"
+      - url: https://github.com/kairos-io/hadron
+        type: source-repo
+        title: Hadron
+        retrieved: "2026-09-22"
+        quote: "Hadron is Engineered by Spectro Cloud from the Kairos team."
+    unknowns:
+      - "Whether Alpine, Debian and Fedora remain supported bases. They appear on the home page, are in no ISO CI matrix, and their registry images are frozen at v3.7.2."
+
+  d02_immutability:
+    normalized:
+      read_only:
+        - /
+      read_only_mechanism: "fixed-size ext2 file mounted read-only over loopback"
+      ephemeral:
+        - /var
+        - /etc
+        - /srv
+      integrity_mechanism:
+        - read-only-mount
+      runtime_integrity_verification: "none"
+      drift_detection: "none"
+      immutability_can_be_disabled: true
+      ephemeral_mechanism: overlay on tmpfs
+      writable_and_persistent:
+        - /usr/local
+        - /oem
+        - paths in PERSISTENT_STATE_PATHS (for example /home, /opt, /root, /etc/ssh and /var/log), bind-mounted from /usr/local/.state
+      immutability_disable_where: the kernel command line (rd.immucore.disable or rd.immucore.debugrw)
+      configurable_paths:
+        value: 'yes'
+        evidence: DOCUMENTED
+        how: Add persistent bind mounts and ephemeral mounts in the install configuration (install.bind_mounts, install.ephemeral_mounts). The defaults come from cloud-config files that a later file can override.
+        sources:
+          - url: https://kairos.io/docs/architecture/immutable/
+            type: official-docs
+            title: Immutable architecture
+            retrieved: '2026-10-12'
+            quote: You can add additional paths to the persistent partition by using the bind_mounts configuration option.
+          - url: https://kairos.io/docs/reference/configuration/
+            type: official-docs
+            title: Configuration reference, bind mounts
+            retrieved: '2026-10-12'
+            quote: bind mounts, can be read and modified, changes persist reboots
+          - url: https://kairos.io/docs/reference/configuration/
+            type: official-docs
+            title: Configuration reference, ephemeral mounts
+            retrieved: '2026-10-12'
+            quote: ephemeral mounts, can be read and modified, changed are discarded at reboot
+          - url: https://github.com/kairos-io/immucore/blob/98d6a52/README.md
+            type: source-repo
+            title: 'immucore README: disabling the immutable root'
+            retrieved: '2026-10-12'
+            quote: It disables the execution of any immutable rootfs module logic at boot.
+      mounts_sources:
+        - url: https://github.com/kairos-io/kairos/blob/d17464a/kairos-init/pkg/bundled/cloudconfigs/00_rootfs.yaml
+          type: source-repo
+          title: 'kairos-init: default rootfs layout, v4.3.0'
+          retrieved: '2026-10-12'
+          quote: 'RW_PATHS: "/var /etc /srv"'
+        - url: https://github.com/kairos-io/immucore/blob/98d6a52/README.md
+          type: source-repo
+          title: 'immucore README: ephemeral overlay'
+          retrieved: '2026-10-12'
+          quote: an ephemeral overlay tmpfs filesystem is set in place. Ephemeral refers that changes to files or dirs in this filesystem will be lost upon reboot.
+        - url: https://kairos.io/docs/architecture/immutable/
+          type: official-docs
+          title: 'Immutable architecture: default paths'
+          retrieved: '2026-10-12'
+          quote: /var - ephemeral /etc - ephemeral /srv - ephemeral / immutable
+        - url: https://kairos.io/docs/architecture/immutable/
+          type: official-docs
+          title: 'Immutable architecture: persistent partition'
+          retrieved: '2026-10-12'
+          quote: /usr/local - persistent ( partition label COS_PERSISTENT) /oem - persistent ( partition label COS_OEM)
+    summary: >-
+      The root is a fixed-size ext2 file mounted read-only over loopback, not a
+      squashfs and not a partition. Writable paths are overlayfs on tmpfs and are
+      discarded on reboot. Persistence is by explicit bind mount from a separate
+      partition.
+    notes: >-
+      There is no dm-verity and no runtime integrity verification of the OS root.
+      Integrity is established at install and, under Trusted Boot, at boot
+      through the UKI signature. On a non-UKI installation the root image carries
+      no signature check after install. This is a real architectural difference
+      from the verity-based systems in this survey and is recorded here rather
+      than only under d10.
+
+      There is no reconciliation loop. Drift is handled by discard-on-reboot for
+      overlay paths only. Anything under /usr/local or a bind-mounted path drifts
+      freely and nothing detects it.
+
+      Immutability can be switched off at the kernel command line. The immucore
+      README says of one such flag: "Note that this completely breaks the concept
+      of an immutable root." These flags are documented only in a component
+      README, not on the documentation site.
+
+      The documentation and the shipped configuration disagree in several places,
+      and one disagreement is dangerous rather than merely untidy. The docs still
+      list /usr/libexec as a persistent bind mount. The shipped configuration
+      removed it, with the comment that a path under /usr is owned by the image,
+      so persisting it merges one slot's binaries into the other and breaks
+      rollback. The published documentation therefore advertises a
+      rollback-breaking configuration.
+
+      Other recorded mismatches: overlay size is 25 percent in the shipped
+      configuration and 20 percent in the component README, and unpublished on
+      the documentation site; the writable-path list is three entries in the
+      shipped configuration and seven in the README; the recovery image format is
+      documented as squashfs and defaults to ext2 in code.
+
+      The documentation states "after installation it's not possible to add
+      additional packages to the system". System extensions contradict this: they
+      extend /usr and persist across reboot and upgrade. Both statements are on
+      the same site.
+
+      Two hard limits appear only in source: a 3072 MiB ceiling on the root image
+      and a 64 MiB OEM partition. Neither figure appears in the documentation.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://kairos.io/docs/architecture/immutable/
+        type: official-docs
+        title: Immutable architecture
+        retrieved: "2026-09-22"
+        quote: >-
+          after installation it's not possible to add additional packages to the
+          system, and any configuration change is discarded after reboot
+      - url: https://github.com/kairos-io/kairos/blob/master/sdk/constants/constants.go
+        type: source-repo
+        title: SDK constants
+        retrieved: "2026-09-22"
+        quote: 'LinuxImgFs = "ext2"; ImgSize = uint(3072)'
+      - url: https://github.com/kairos-io/kairos/issues/4304
+        type: source-repo
+        title: "/usr/libexec persistence breaks rollback"
+        retrieved: "2026-09-22"
+        quote: "Persisting /usr/libexec across A/B slots breaks rollback ABI compatibility"
+      - url: https://kairos.io/docs/advanced/sys-extensions/
+        type: official-docs
+        title: System extensions
+        retrieved: "2026-09-22"
+        quote: "extend the /usr/ directory hierarchies with additional files"
+    unknowns:
+      - "The overlay tmpfs size, the root image size ceiling and the OEM partition size are not published in the documentation."
+      - "Flags that disable immutability are documented only in a component README."
+
+  d03_artifact:
+    normalized:
+      primary_artifact: oci-image
+      derived_artifacts:
+        - iso
+        - raw-disk-image
+        - uki
+      oci_registry_distribution: true
+      content_addressable: true
+      mirrorable: true
+      signed: sigstore-keyless-cosign
+      air_gapped_upgrade: true
+      air_gapped_build: unknown
+      kernel_initrd_userspace_together: true
+    summary: >-
+      The OCI image is the primary artifact and everything else is derived from
+      it. Kernel, initrd and userspace travel together in one image that is
+      pulled and swapped atomically. Standard registries, standard tooling.
+    notes: >-
+      This is the cleanest OCI-native artifact model in the survey. The images
+      are ordinary multi-architecture OCI indexes in ordinary registries, so
+      mirroring, signing and content addressing come from the registry ecosystem
+      rather than from project-specific infrastructure.
+
+      Release signing was verified end to end during this research: a v4.3.0
+      bundle is a genuine Sigstore bundle with a Fulcio certificate whose subject
+      names the project's own release workflow at the v4.3.0 tag, with Rekor
+      transparency log entries.
+
+      The OCI rootfs is unpacked into the ext2 file described in d02. It is not
+      run as a container.
+
+      Three practical gaps. There is no mirroring guide: no recipe and no
+      enumeration of which images a disconnected fleet needs. Raw disk images are
+      not release assets because they exceed the GitHub per-file limit, and ship
+      as OCI tags instead. Netboot needs a kernel, an initrd and a squashfs
+      rootfs that are not shipped as standalone release assets.
+
+      Air-gapped upgrade is documented, using a saved image tarball. Air-gapped
+      building is not addressed anywhere, and it is the harder problem: the build
+      tool requires the base distribution's package manager at build time.
+
+      Images are published to two registries, one for releases and one for CI and
+      for the Hadron bases. No documentation page explains the split.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://kairos.io/docs/architecture/container/
+        type: official-docs
+        title: Container-based architecture
+        retrieved: "2026-09-22"
+        quote: >-
+          Bootable images are standard OCI artifacts that can be hosted in any
+          container registry.
+      - url: https://kairos.io/docs/architecture/immutable/
+        type: official-docs
+        title: Immutable architecture, static initrd
+        retrieved: "2026-09-22"
+        quote: >-
+          to keep the entire OS stack confined as a single layer which gets
+          pulled and swapped atomically during upgrades
+      - url: https://kairos.io/docs/upgrade/manual/
+        type: official-docs
+        title: Manual upgrade, local OCI tarball source
+        retrieved: "2026-09-22"
+        quote: "sudo kairos-agent upgrade --source ocifile:/var/share/kairos-upgrade.tar"
+      - url: https://kairos.io/docs/reference/image_matrix/
+        type: official-docs
+        title: Image matrix, raw image distribution
+        retrieved: "2026-09-22"
+        quote: >-
+          Raw disk images ... are not attached to GitHub releases, because they
+          exceed GitHub's 2 GiB per-file asset limit.
+    unknowns:
+      - "Air-gapped image building is not documented, and the build tool requires the base distribution's package manager at build time."
+      - "No mirroring guide exists and no page enumerates the images a disconnected fleet needs."
+
+  d04_upgrade:
+    normalized:
+      fleet_upgrade:
+        self_update: "No self-update agent is documented. No timer or agent appears in the docs."
+        paths:
+          - kind: operator
+            name: "kairos-operator"
+            license: "Apache-2.0"
+            class: open-source
+            reconciliation: one-shot
+            filter: true
+            note: "Version v0.2.2. A NodeOpUpgrade is one run. Concurrency defaults to 0, which runs all target nodes at once. stopOnFailure defaults to false. The docs examples set concurrency 1 and stopOnFailure true. Cordon, drain and reboot are inside the operator."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/kairos-io/kairos-operator
+                title: "kairos-operator repository"
+                retrieved: "2026-10-06"
+                quote: >-
+                  A `NodeOpUpgrade` represents a **single upgrade run** on the target nodes.
+              - url: https://github.com/kairos-io/kairos-docs/blob/main/docs/upgrade/kubernetes.md
+                title: "Kairos docs: upgrade on Kubernetes"
+                retrieved: "2026-10-06"
+                quote: >-
+                  The recommended approach is to use the Kairos operator
+          - kind: suc
+            name: "system-upgrade-controller Plans"
+            license: "Apache-2.0"
+            class: open-source
+            status: "deprecated"
+            filter: false
+            note: "Deprecated for upgrades. The upgrade Plans were removed in kairos-docs commit 2483c15. A Plan for reset remains in docs/reference/reset.md. The reconciliation mode is inferred from the Plan model."
+            evidence: INFERRED
+            sources:
+              - url: https://kairos.io/docs/upgrade/system-upgrade-controller/
+                title: "Kairos docs: system-upgrade-controller"
+                retrieved: "2026-10-06"
+                quote: >-
+                  The system-upgrade-controller approach is deprecated
+              - url: https://github.com/kairos-io/kairos-docs/blob/main/docs/reference/reset.md
+                title: "Kairos docs: reset"
+                retrieved: "2026-10-06"
+          - kind: fleet-server
+            name: "AuroraBoot fleet server"
+            license: "Apache-2.0"
+            class: open-source
+            reconciliation: one-shot
+            filter: true
+            note: "Documented in the README only. Bulk commands loop over every matched node. There is no concurrency, batch or failure-stop field."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/kairos-io/AuroraBoot
+                title: "AuroraBoot repository"
+                retrieved: "2026-10-06"
+              - url: https://github.com/kairos-io/AuroraBoot/blob/master/pkg/handlers/commands.go
+                title: "AuroraBoot pkg/handlers/commands.go (CreateBulk)"
+                retrieved: "2026-10-06"
+          - kind: cluster-api
+            name: "cluster-api-provider-kairos"
+            license: "Apache-2.0"
+            class: open-source
+            reconciliation: replacement
+            status: "API may still change (README)"
+            filter: true
+            note: "Replaces control-plane machines one at a time. KairosControlPlane.spec.replicas accepts 1 (single-node), 3 or 5. High-availability control planes are supported on CAPK, CAPV and CAPM3 for k0s and k3s. With k3s, replacing a control-plane node leaves an etcd member that must be removed by hand (KD-5d). The companion provider cluster-api-provider-kairos-fleet claims existing AuroraBoot nodes and does not upgrade by reimaging; it supports a single control-plane machine only."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/kairos-io/cluster-api-provider-kairos
+                title: "cluster-api-provider-kairos repository"
+                retrieved: "2026-10-06"
+                quote: >-
+                  pre-1.0; API surface may still change
+              - url: https://github.com/kairos-io/cluster-api-provider-kairos/blob/v0.1.3/README.md
+                title: "cluster-api-provider-kairos README at v0.1.3, control-plane replicas"
+                retrieved: "2026-10-06"
+                quote: >-
+                  `KairosControlPlane.spec.replicas` accepts `1` (single-node), `3`, or `5`
+              - url: https://github.com/kairos-io/cluster-api-provider-kairos/blob/v0.1.3/docs/HIGH_AVAILABILITY.md
+                title: "cluster-api-provider-kairos high availability at v0.1.3, k3s member removal (KD-5d)"
+                retrieved: "2026-10-06"
+                quote: >-
+                  replacing a k3s control-plane node leaves an orphaned etcd member
+                  requiring manual `etcdctl member remove`
+              - url: https://github.com/kairos-io/cluster-api-provider-kairos-fleet
+                title: "cluster-api-provider-kairos-fleet repository"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Delete always releases, never resets
+      version_identity:
+        identifier: "KAIROS_VERSION in /etc/kairos-release plus flavor, variant and model fields"
+        condition: "One version per build; no system extensions, no bundles, and nothing written to /usr/local or /usr/libexec."
+        evidence: DOCUMENTED
+        sources:
+          - url: https://github.com/kairos-io/kairos/blob/2a3c309/.github/workflows/release.yaml
+            type: source-code
+            title: "Kairos release workflow (image tag format)"
+            retrieved: "2026-10-06"
+          - url: https://github.com/kairos-io/kairos-docs/blob/cd96078/docs/reference/kairos-factory.mdx
+            type: official-docs
+            title: "Kairos factory"
+            retrieved: "2026-10-06"
+            quote: >-
+              It's the responsibility of the derivative project or user (you!) to define and manage the versioning of your images. The only requirement is that versions must follow Semantic Versioning
+          - url: https://github.com/kairos-io/kairos-docs/blob/cd96078/docs/architecture/immutable.md
+            type: official-docs
+            title: "Kairos immutable architecture"
+            retrieved: "2026-10-06"
+            quote: >-
+              /usr/local - persistent
+          - url: https://github.com/kairos-io/kairos-docs/blob/cd96078/docs/advanced/bundles.md
+            type: official-docs
+            title: "Kairos bundles"
+            retrieved: "2026-10-06"
+            quote: >-
+              can be used to install new software ... applied after installation or before bootstrapping a node
+          - url: https://github.com/kairos-io/kairos-docs/blob/cd96078/docs/advanced/sys-extensions.md
+            type: official-docs
+            title: "Kairos system extensions"
+            retrieved: "2026-10-06"
+            quote: >-
+              System extension images may – dynamically at runtime — extend the /usr/ directory hierarchies
+      mechanism:
+        - ab-partition-switch
+      scope: whole-os-image
+      scope_note: Paths listed as persistent (including /opt, /etc/systemd, /etc/ssh, /etc/kubernetes; v4.3.0 also listed /usr/libexec, removed after it by kairos-io/kairos#4465) are synced from the image to persistent storage on every boot with rsync --update and no --delete, so a file the new image removes stays, and an image file is not applied when the persisted copy is newer. Not described in the Kairos docs; read from the code. Tracked in kairos-io/kairos#5268.
+      scope_note_evidence: INFERRED
+      scope_note_inferred_from: 'kairos-io/kairos v4.3.0 immucore/internal/utils/mounts.go SyncState (rsync -aquAX, comment: ''This has the --update flag to avoid overwriting newer files in dst.''); kairos-init/pkg/bundled/cloudconfigs/00_rootfs.yaml PERSISTENT_STATE_PATHS'
+      scope_sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/main/docs/architecture/immutable.md
+          type: official-docs
+          title: 'Kairos docs: immutable architecture'
+          retrieved: '2026-10-06'
+          quote: a single layer which gets pulled and swapped atomically during upgrades
+        - url: https://github.com/kairos-io/kairos/blob/v4.3.0/immucore/internal/utils/mounts.go
+          type: source-code
+          title: immucore SyncState, v4.3.0
+          retrieved: '2026-10-06'
+          quote: This has the --update flag to avoid overwriting newer files in dst.
+        - url: https://github.com/kairos-io/kairos/blob/v4.3.0/kairos-init/pkg/bundled/cloudconfigs/00_rootfs.yaml
+          type: source-code
+          title: kairos-init 00_rootfs.yaml, PERSISTENT_STATE_PATHS, v4.3.0
+          retrieved: '2026-10-06'
+          quote: 'PERSISTENT_STATE_PATHS: >-'
+      slot_implementation: "fixed-size image files inside one state partition"
+      initiator: operator-or-kubernetes-operator
+      requires_kubernetes: false
+      requires_vendor_infrastructure: false
+      self_hostable_update_server: true
+      self_hostable_update_source: "Any OCI registry, or a local file; there is no update server"
+      self_hostable_update_server_evidence: DOCUMENTED
+      self_hostable_update_server_note: "There is no update server. The agent pulls an OCI image from a registry the operator chooses, or from a local directory, file or saved tarball."
+      artifact_verification_by_mode:
+        standard: "not checked"
+        trusted_boot: enforced
+      artifact_verification_note: "Kairos has no default install mode: the standard install and Trusted Boot are both documented choices."
+      bootloader_upgraded_by_mode:
+        standard: 'not refreshed: a standard install upgrade does not write shim or GRUB'
+        trusted_boot: the whole artifact is written to the EFI partition, including the systemd-boot binary
+      bootloader_upgraded_evidence: INFERRED
+      bootloader_upgraded_inferred_from: 'Code reading only, not described in the docs: kairos-io/kairos v4.3.0 agent/pkg/uki/upgrade.go (DumpSource writes the artifact to the EFI directory); kairos-io/AuroraBoot v0.27.1 pkg/uki/uki.go imageFiles (EFI/BOOT holds the systemd-boot binary); no shim or GRUB write in the standard upgrade path.'
+      bootloader_upgraded_sources:
+        - url: https://github.com/kairos-io/kairos/blob/v4.3.0/agent/pkg/uki/upgrade.go
+          type: source-code
+          title: kairos-agent UKI upgrade, v4.3.0
+          retrieved: '2026-10-06'
+          quote: // Dump artifact to efi dir
+        - url: https://github.com/kairos-io/AuroraBoot/blob/v0.27.1/pkg/uki/uki.go
+          type: source-code
+          title: AuroraBoot UKI artifact files, v0.27.1
+          retrieved: '2026-10-06'
+          quote: '"EFI/BOOT":       {filepath.Join(sourceDir, bootfile)},'
+    summary: >-
+      An upgrade pulls an OCI image into a transition file, rotates the current
+      active image into the passive slot, renames the transition file into place,
+      and writes a one-shot boot entry. The live slot is never written to.
+    notes: >-
+      The rotation has a safety property worth recording: the active image is
+      rotated into passive only if the machine did not boot from passive, on the
+      stated reasoning that doing otherwise would overwrite a working passive
+      with an unknown active.
+
+      The upgrade works fully without Kubernetes and fully without any
+      project-hosted infrastructure. Local file, local directory and local OCI
+      tarball sources all work offline, and private registries use standard
+      credentials. The only dependency on project infrastructure is release
+      discovery, not the upgrade itself.
+
+      **Artifact verification on the default path is none, and this is not
+      stated anywhere in the documentation.** Signature checking is behind a
+      configuration field that defaults to false, there is no flag on the upgrade
+      command to turn it on, and the documentation for it is three table rows.
+      Under Trusted Boot the picture reverses: the signature is checked before
+      slots rotate and the upgrade aborts on failure. So the same project offers
+      enforced verification on one path and none by default on the other, with
+      the difference undocumented.
+
+      **At v4.3.0 an upgrade does not refresh the bootloader.** The kernel and
+      initrd ride inside the OCI image and swap atomically, but shim and GRUB on
+      the EFI partition stay at their install-time versions, because the
+      bootloader install routine is called only from install and reset. A fix
+      landed on 2026-09-11, after the v4.3.0 tag, and is unreleased and
+      undocumented (re-checked 2026-09-22: the commit is 51 commits ahead of
+      the v4.3.0 tag, not an ancestor of it, and no release has followed
+      v4.3.0). Until then, a factory reset is the only supported way to refresh
+      shim and GRUB.
+
+      The Kubernetes-driven upgrade path does not verify that a node returned on
+      the new version: its completion condition is the reboot pod exiting
+      successfully. INFERRED consequence recorded under unknowns.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://kairos.io/docs/upgrade/manual/
+        type: official-docs
+        title: Manual upgrade
+        retrieved: "2026-09-22"
+        quote: "sudo kairos-agent upgrade --source <type>:<address>"
+      - url: https://github.com/kairos-io/kairos/blob/master/agent/pkg/action/upgrade.go
+        type: source-repo
+        title: Upgrade action
+        retrieved: "2026-09-22"
+        quote: >-
+          We dont want to overwrite passive if we are booting from passive as it
+          could mean that active is broken and we would be overriding a working
+          passive with a broken/unknown  active
+      - url: https://kairos.io/docs/reference/configuration/
+        type: official-docs
+        title: Configuration reference, cosign
+        retrieved: "2026-09-22"
+        quote: "Enable cosign verification for container images"
+      - url: https://github.com/kairos-io/kairos/commit/beaa9cc6
+        type: source-repo
+        title: "fix(upgrade): refresh the shim, grub and grub.cfg on the ESP (#4513), committed 2026-09-11, not an ancestor of v4.3.0"
+        retrieved: "2026-09-22"
+        quote: >-
+          Grub.Install runs only from install and reset, so a signed-shim
+          rotation, a grub.cfg schema change or a grub CVE bump reached
+          installed nodes only if the operator ran a reinstall.
+      - url: https://kairos.io/docs/upgrade/manual/
+        type: official-docs
+        title: "Manual upgrade, upgrade sources"
+        retrieved: "2026-10-05"
+        quote: >-
+          An OCI image pulled from a container registry. If the tag is omitted, :latest is assumed.
+    unknowns:
+      - "Whether the Kubernetes upgrade operator can detect that a node boot-assessed and fell back, before advancing to the next batch. The completion condition observed is the reboot pod exiting zero."
+      - "There is no downgrade protection in the agent."
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: available
+      rollback_durability: "one-shot boot entry, not a durable pin"
+      automatic_rollback_on_boot_failure: available
+      automatic_rollback_trigger: "boot assessment flag still set when GRUB is reached again"
+      automatic_rollback_attempts: "1 on the GRUB path; 3 on the Trusted Boot path"
+      success_criterion: "reaching the cloud-init boot.before stage inside the active image"
+      retained_versions: 1
+      recovery_environment: dedicated-partition
+      factory_reset: available
+      network_independent_recovery: "yes"
+      remote_recovery: "QR pairing over a peer-to-peer mesh, and a phone-home agent"
+    summary: >-
+      A dedicated recovery partition, one retained previous version, and boot
+      assessment with exactly one retry on the GRUB path. Reset and local
+      recovery work fully offline, because the recovery image is on local disk.
+    notes: >-
+      The success criterion for a boot deserves emphasis because it sets the
+      limit of what automatic rollback can catch. A boot counts as successful
+      when the system reaches an early cloud-init stage inside the active image.
+      That means the root mounted and configuration ran. It does not mean
+      networking came up, and it does not mean Kubernetes or any workload is
+      healthy. An upgrade that boots cleanly and leaves the cluster dead is a
+      successful boot. This criterion appears only in a comment in a shipped YAML
+      file, never in user documentation.
+
+      Retention is exactly one previous version, and that number is stated
+      nowhere in the documentation.
+
+      Manual rollback works but is close to undocumented. In the v4.3.0
+      documentation tree the word rollback appears once, in the architecture
+      statement quoted below. Outside that tree, an unversioned getting-started
+      FAQ answers "Can I easily rollback an upgrade?" in two sentences: boot
+      into the passive system, then upgrade to the previous image. No page is
+      framed as a rollback procedure, the boot entry that selects the previous
+      slot is never shown in an example, and the fact that the selection is
+      one-shot rather than a durable pin appears only in a source comment. A
+      Kubernetes Provider documentation section published on 2026-09-21 adds a
+      Rollback heading that states booting the other slot restores the OS but
+      not the cluster. The project states a
+      deliberate position against incremental rollback: "We believe that bringing
+      rollbacks, or incremental patches upgrades increases the exposure to
+      infrastructure drift." That is a defensible design stance. It does not
+      explain leaving the mechanism that does exist undocumented.
+
+      Two documentation pages contradict each other on whether boot assessment
+      exists for Trusted Boot. One describes it working; the other says it is not
+      yet implemented and cites a tracking issue that closed in November 2024.
+      The second page has been wrong for around 22 months.
+
+      A fallback stage named autorecovery is documented on one page and exists in
+      no repository in the organization.
+
+      Factory reset can run only from recovery, formats the persistent partition
+      by default with no flag to prevent it, and also destroys the passive
+      rollback target. The second consequence is undocumented.
+
+      The recovery partition drifts by default: the Kubernetes upgrade resource
+      does not upgrade recovery unless asked, while the documentation advises
+      keeping recovery current.
+
+      Remote recovery has two mechanisms with real prerequisites. The QR pairing
+      path needs a human at the console, working outbound networking for a
+      peer-to-peer mesh, and a component that ships only in standard images. The
+      command-line tool its instructions point at lives in an archived repository
+      and ships no asset in v4.3.0. The phone-home agent is a WebSocket control
+      channel that can reboot and upgrade a machine, and it has no page in the
+      documentation at all.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://kairos.io/docs/architecture/container/
+        type: official-docs
+        title: Container architecture, position on rollback
+        retrieved: "2026-09-22"
+        quote: >-
+          We believe that bringing rollbacks, or incremental patches upgrades
+          increases the exposure to infrastructure drift.
+      - url: https://kairos.io/docs/upgrade/boot_assessment/
+        type: official-docs
+        title: Boot assessment (cites tracking issue kairos-io/kairos#2864, closed 2024-11-27)
+        retrieved: "2026-09-22"
+        quote: >-
+          While a similar solution exists in systemd to automatically reboot to
+          a fallback entry, it's not yet implemented in Kairos.
+      - url: https://kairos.io/docs/examples/boot_assessment_trusted_boot/
+        type: official-docs
+        title: Boot assessment under Trusted Boot
+        retrieved: "2026-09-22"
+        quote: "If recovery fails, the system attempts autorecovery."
+      - url: https://kairos.io/docs/reference/configuration/
+        type: official-docs
+        title: Reset behaviour
+        retrieved: "2026-09-22"
+        quote: "if set to true it will format persistent partitions ('oem 'and 'persistent')"
+    unknowns:
+      - "No rollback procedure page exists, and the one-shot nature of the boot selection is only in a source comment."
+      - "The retained-version count of one is not published."
+      - "The documented autorecovery fallback stage exists in no repository."
+
+  d06_customization:
+    normalized:
+      runtime_package_install: "none"
+      mechanisms:
+        - dockerfile-derivation
+        - kairos-init-toolchain
+        - stage-extensions
+        - systemd-sysext
+        - bundles
+        - upgrade-hooks
+      customization_points:
+        - build-time
+        - install-time
+        - runtime
+      board_support: "closed enum in source; adding a board requires a code change"
+      add_software:
+      - kind: derive-image
+        how: A Dockerfile that starts from a Kairos image. The package manager of that image's base distribution runs at build time, not on the node.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/versioned_docs/version-v4.3.0/advanced/customizing.md
+          type: official-docs
+          title: 'Kairos docs: Customizing the system image'
+          retrieved: '2026-10-12'
+          quote: To modify Kairos and add a package, you'll need to build a container image from the
+          version: v4.3.0
+        - url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/versioned_docs/version-v4.3.0/advanced/customizing.md
+          type: official-docs
+          title: 'Kairos docs: Customizing the system image'
+          retrieved: '2026-10-12'
+          quote: RUN zypper in -y figlet
+          version: v4.3.0
+      - kind: systemd-sysext
+        how: System extension images extend /usr at runtime. The base image needs systemd 255 or newer. Under Trusted Boot only signed images are supported. The docs also state that packages cannot be added to the system after installation; system extensions and bundles are the documented ways to add software.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/versioned_docs/version-v4.3.0/architecture/immutable.md
+          type: official-docs
+          title: 'Kairos docs: Immutable architecture'
+          retrieved: '2026-10-12'
+          quote: after installation it's not possible to add additional packages to the system, and any configuration change is discarded after reboot.
+          version: v4.3.0
+        - url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/versioned_docs/version-v4.3.0/advanced/sys-extensions.md
+          type: official-docs
+          title: 'Kairos docs: Extending the system with systemd extensions'
+          retrieved: '2026-10-12'
+          quote: extend the /usr/ directory hierarchies with additional files.
+          version: v4.3.0
+        - url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/versioned_docs/version-v4.3.0/advanced/sys-extensions.md
+          type: official-docs
+          title: 'Kairos docs: Extending the system with systemd extensions'
+          retrieved: '2026-10-12'
+          quote: Base image of the OS needs to have at least systemd 255 or newer
+          version: v4.3.0
+        - url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/versioned_docs/version-v4.3.0/advanced/sys-extensions.md
+          type: official-docs
+          title: 'Kairos docs: Extending the system with systemd extensions'
+          retrieved: '2026-10-12'
+          quote: Currently only signed+verity sysexts are supported under Trusted Boot (UKI).
+          version: v4.3.0
+      - kind: vendor-extensions
+        how: Bundles are Kairos container images that hold only files. They install once, at install time or on first boot. Changing a bundle's configuration later has no effect.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/versioned_docs/version-v4.3.0/advanced/bundles.md
+          type: official-docs
+          title: 'Kairos docs: Bundles'
+          retrieved: '2026-10-12'
+          quote: Bundles are container images containing only files (and not full OS) that can be used to install new software or extend the cloud-init syntax.
+          version: v4.3.0
+        - url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/versioned_docs/version-v4.3.0/advanced/bundles.md
+          type: official-docs
+          title: 'Kairos docs: Bundles'
+          retrieved: '2026-10-12'
+          quote: the installation only happens once.
+          version: v4.3.0
+    summary: >-
+      Customization is expected at build time, by deriving an image with a
+      Dockerfile and the kairos-init toolchain, which converts an arbitrary
+      upstream base. System extensions are the sanctioned runtime exception and
+      persist across upgrades.
+    notes: >-
+      The flexibility is real and it is this project's distinguishing capability:
+      an adopter can Kairos-ify a base the project has never shipped, using
+      ordinary container tooling.
+
+      **The cost of that flexibility is where this profile is most critical of
+      its own project.** Building your own image is now the recommended path for
+      every base except Hadron. The documentation describes the benefits, in a
+      page of under 400 words, and assigns exactly one responsibility: "It's the
+      responsibility of the derivative project or user (you!) to define and
+      manage the versioning of your images."
+
+      Three other responsibilities transfer with it and no page assigns them.
+      **Signing:** nothing tells an adopter building their own image that they
+      must run their own signing and hold their own keys. **CVE response:** the
+      security policy covers vulnerabilities in Kairos, and the release cadence
+      text is written for project-published artifacts. Nothing says who patches
+      base-OS vulnerabilities in a derived image. The plain reading is that the
+      adopter owns it, and no document says so. **Testing:** the automated
+      testing referenced covers whether a Kairos-ified base boots, not whether a
+      given derivation works.
+
+      This is exactly the pattern the survey methodology requires be recorded for
+      any framework, and it applies here more sharply than to any other project
+      in this edition, because the project moved its default to this path in v4.
+
+      System extension limits are documented and substantial: still banner-marked
+      as preview and v3.4.x-only on the v4.3.0 documentation, signature
+      enforcement only under Trusted Boot with the explicit note that "For
+      non-uki Kairos, the signature is not enforced yet", only specific /usr
+      subdirectories overlayable, and only the last image layer converted.
+
+      Bundles install once and never re-apply, and whether bundle changes survive
+      an upgrade is undefined in the documentation.
+
+      Board support is a closed enumeration in source. Adding one requires a code
+      change, there is no plugin mechanism, and no page explains the process.
+      There is no general GPU driver or out-of-tree module guide for x86; the
+      NVIDIA development page is a 2022 note that opens by describing a failed
+      port.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://kairos.io/docs/reference/byoi/
+        type: official-docs
+        title: Bring your own image
+        retrieved: "2026-09-22"
+        quote: You keep full control over release cadence and patch windows.
+      - url: https://kairos.io/docs/reference/kairos-factory/
+        type: official-docs
+        title: Kairos factory
+        retrieved: "2026-09-22"
+        quote: >-
+          It's the responsibility of the derivative project or user (you!) to
+          define and manage the versioning of your images.
+      - url: https://kairos.io/docs/advanced/sys-extensions/
+        type: official-docs
+        title: System extensions
+        retrieved: "2026-09-22"
+        quote: >-
+          Currently only signed+verity sysexts are supported under Trusted Boot
+          (UKI). For non-uki Kairos, the signature is not enforced yet
+      - url: https://kairos.io/docs/advanced/bundles/
+        type: official-docs
+        title: Bundles
+        retrieved: "2026-09-22"
+        quote: >-
+          the installation only happens once. Changing the bundle's configuration
+          block after Kairos installation is complete, will not have any effect.
+    unknowns:
+      - "No page assigns ownership of signing, CVE response or testing for an adopter-built image."
+      - "Whether bundle configuration changes survive an upgrade is undefined."
+      - "No documented mechanism exists to add a board or SoC."
+
+  d07_kubernetes:
+    normalized:
+      requirement: optional
+      bundled: "core images none, standard images bundled"
+      independent_lifecycle: "no"
+      os_manages_kubernetes: "yes"
+      kubernetes_manages_os: "kairos-operator, with NodeOp and NodeOpUpgrade custom resources"
+      distributions:
+        - k3s
+        - k0s
+        - kubeadm
+    summary: >-
+      Kubernetes is optional and core images ship none. Where it is included, the
+      distribution and version are baked into the image at build time and encoded
+      in the artifact tag, so the OS and Kubernetes do not upgrade independently.
+    notes: >-
+      Two distributions are named as officially supported on the
+      choosing-a-distribution page, k3s and k0s, and the released artifact set
+      is narrower than that reads: amd64 gets both, arm64 gets k3s only.
+
+      The provider ecosystem contracted sharply in the weeks before this
+      collection date. The umbrella provider repository carries an archive
+      notice commit dated 2026-08-31. The RKE2, kubeadm, k3s, canonical and
+      nodeadm providers have last pushes between 2026-08-18 and 2026-09-03, a
+      last metadata update on 2026-09-07, and are archived; the archive
+      timestamp itself is not exposed by the REST API, so 2026-09-07 is the
+      latest date the archiving could have happened. The MicroK8s provider is
+      not archived and its last release is an alpha from February 2023. The
+      only kubeadm page in the versioned documentation points at the archived
+      provider-kubeadm repository.
+
+      A newer, active Kubernetes provider exists, created in June 2026,
+      tracking upstream Kubernetes across three minor versions and
+      bootstrapping with kubeadm. On the collection date it was referenced
+      nowhere in the documentation. A Kubernetes Provider section was
+      published on the documentation site on 2026-09-21, which is why kubeadm
+      is now listed under distributions; the choosing-a-distribution page
+      still names only k3s and k0s as official. The Cluster API provider
+      remains undocumented on the site: it is active at v0.1.3 (2026-09-17;
+      v0.1.2 on the collection date) while the documentation still lists
+      Cluster API as coming soon.
+
+      Independent lifecycle is recorded as no rather than partial. For official
+      standard images the Kubernetes version is in the image tag. Decoupling is
+      possible by using a core image and managing Kubernetes separately, but that
+      is work pushed to the adopter, and no page describes upgrading Kubernetes
+      independently of the OS.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://kairos.io/docs/reference/image_matrix/
+        type: official-docs
+        title: Image matrix, core and standard images
+        retrieved: "2026-09-22"
+        quote: >-
+          Core images do not include a Kubernetes engine ... Standard images
+          include a Kubernetes provider.
+      - url: https://kairos.io/docs/examples/choosing-kubernetes-distribution/
+        type: official-docs
+        title: Choosing a Kubernetes distribution
+        retrieved: "2026-09-22"
+        quote: >-
+          At the moment, the official provider-kairos supports these two
+          distributions (k3s and k0s).
+      - url: https://kairos.io/docs/examples/without-kubernetes/
+        type: official-docs
+        title: Running without Kubernetes
+        retrieved: "2026-09-22"
+        quote: "This example shows how to build a Kairos image without Kubernetes."
+      - url: https://kairos.io/provider-kubernetes-docs/
+        type: official-docs
+        title: Kubernetes Provider documentation, published 2026-09-21
+        retrieved: "2026-09-22"
+        quote: >-
+          Bootstraps a cluster with kubeadm and joins control planes and workers
+          to it, including highly available control planes behind a shared
+          endpoint.
+      - url: https://github.com/kairos-io/kairos-operator
+        type: source-repo
+        title: kairos-operator
+        retrieved: "2026-09-22"
+        quote: "`api/v1alpha1/` - `NodeOp` and `NodeOpUpgrade` types (node operations and upgrades)."
+    unknowns:
+      - "No documentation describes upgrading Kubernetes independently of the OS, and no custom resource exists for it."
+      - "The Cluster API providers are undocumented on the site. The Kubernetes provider gained a documentation section on 2026-09-21, after the collection date."
+      - "Whether the kubeadm-based Kubernetes provider is an officially supported distribution: it has a documentation section, while the choosing-a-distribution page still names only k3s and k0s as official."
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        from_base_distribution:
+          note: "Other accelerators: the drivers your chosen base distribution provides, installed when you build the image. Not documented per accelerator by Kairos."
+          evidence: DOCUMENTED
+          sources:
+            - url: https://kairos.io/docs/reference/kairos-factory/
+              title: "Kairos Factory"
+              retrieved: "2026-10-06"
+              quote: >-
+                The primary purpose of kairos-init is to convert an existing base image into a Kairos-ready image.
+        items:
+          - vendor: nvidia-jetson
+            what: "Jetson AGX Orin, Orin NX, AGX Thor and DGX Spark (GB10)"
+            arch: [arm64]
+            delivery: layered
+            delivery_note: "packages layered at image build by kairos-init --model nvidia-*"
+            secure_boot: supported
+            gpu_operator: not-documented
+            status: supported
+            note: "Trusted Boot works with these models per the docs, but module signing is not stated. Prebuilt Orin images are not updated by the release pipeline. Thor reaches the GPU Operator only through the Hadron recipe. Toolkit: Thor uses host nvidia-container-toolkit 1.18.1 with nvidia-cdi-refresh; the Jetson models install L4T packages including the CUDA runtime; the DGX Spark model does not add the CUDA repository."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/kairos-io/kairos-docs/blob/4420f5e/versioned_docs/version-v4.3.0/installation/edge-devices/nvidia-jetson-images.md
+                title: "Kairos docs v4.3.0: NVIDIA Jetson images"
+                retrieved: "2026-10-06"
+                quote: >-
+                  `--fips`, `--trusted-boot`, `--skip-steps` and stage extensions (`-x`) all work identically.
+              - url: https://github.com/kairos-io/kairos-docs/blob/4420f5e/versioned_docs/version-v4.3.0/installation/edge-devices/nvidia-jetson-images.md
+                title: "Kairos docs v4.3.0: NVIDIA Jetson images, prebuilt images"
+                retrieved: "2026-10-06"
+                quote: >-
+                  are not actively updated by the Kairos release pipeline anymore
+              - url: https://github.com/kairos-io/kairos-docs/blob/4420f5e/versioned_docs/version-v4.3.0/installation/edge-devices/nvidia-jetson-images.md
+                title: "Kairos docs v4.3.0: NVIDIA Jetson images, cluster side"
+                retrieved: "2026-10-06"
+                quote: >-
+                  Cluster-side GPU Operator on these boards is not yet documented
+              - url: https://github.com/kairos-io/kairos-docs/blob/4420f5e/versioned_docs/version-v4.3.0/installation/edge-devices/nvidia_dgx_spark.md
+                title: "Kairos docs v4.3.0: NVIDIA DGX Spark"
+                retrieved: "2026-10-06"
+                quote: >-
+                  You can use providers, Trusted Boot, and stage extensions with this model.
+              - url: https://github.com/kairos-io/kairos-docs/blob/4420f5e/versioned_docs/version-v4.3.0/installation/edge-devices/nvidia_agx_thor.md
+                title: "Kairos docs v4.3.0: NVIDIA AGX Thor"
+                retrieved: "2026-10-06"
+      architectures_with_os_images:
+        - amd64
+        - arm64
+      architectures_with_tooling_only:
+        - riscv64
+      platforms:
+        - bare-metal
+        - virtual-machines
+        - public-cloud
+        - sbc
+      sbc: "Raspberry Pi 3 and 4 (64-bit); Pi 5 not supported"
+      gpu: "NVIDIA Jetson AGX Orin, Orin NX and AGX Thor, and DGX Spark (GB10), all arm64, through kairos-init --model nvidia-*; prebuilt Orin images are no longer updated by the release pipeline"
+      tpm: "TPM 2.0 required for encryption and Trusted Boot"
+      extension_mechanism: unknown
+      architectures_via_base_distribution:
+        - archs:
+            - riscv64
+          components:
+            - kairos-init
+            - kairos-agent
+            - immucore
+          evidence: DOCUMENTED
+          note: Kairos builds its own components for riscv64 and publishes no riscv64 OS image. The base distribution you pick supplies the rest.
+          sources:
+            - url: https://github.com/kairos-io/kairos-init/releases/tag/v0.17.3
+              type: release-notes
+              title: kairos-init v0.17.3 release assets
+              retrieved: '2026-10-12'
+              quote: kairos-init_0.17.3_linux_riscv64.tar.gz
+            - url: https://github.com/kairos-io/kairos-agent/releases/tag/v2.31.4
+              type: release-notes
+              title: kairos-agent v2.31.4 release assets
+              retrieved: '2026-10-12'
+              quote: kairos-agent-v2.31.4-linux-riscv64.tar.gz
+            - url: https://github.com/kairos-io/immucore/releases/tag/v0.20.4
+              type: release-notes
+              title: immucore v0.20.4 release assets
+              retrieved: '2026-10-12'
+              quote: immucore-v0.20.4-linux-riscv64.tar.gz
+    summary: >-
+      Released OS images are amd64 and arm64 only. riscv64 has first-class
+      support in code and ships Go binaries, but no ISO and no container image,
+      so it is not a released platform.
+    notes: >-
+      The riscv64 position is recorded carefully because the methodology requires
+      artifacts rather than intentions. The architecture is a first-class
+      constant in the source, the release ships riscv64 builds of every Go
+      binary, and the container registry contains no riscv64 OS image. It appears
+      nowhere in the documentation. Recorded as tooling only.
+
+      Several targets that the model flag accepts are not released: Jetson Thor,
+      DGX Spark, any FIPS ISO and any Trusted Boot ISO.
+
+      Cloud images exist for AWS, Azure and GCE. What continuous integration
+      actually publishes is Hadron, core, amd64 only, which contradicts the GCE
+      page describing an Ubuntu flavor and the AWS page's standard Ubuntu
+      example. Live cloud inventories could not be verified.
+
+      No page documents how to add a board or SoC. The practical routes are the
+      generic model plus your own image layers, or a code change to a closed
+      enumeration.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/kairos/releases/tag/v4.3.0
+        type: release-notes
+        title: v4.3.0 release assets (57 assets; riscv64 appears only as Go binary tarballs, no riscv64 ISO or OS container image)
+        retrieved: "2026-09-22"
+        quote: "kairos-v4.3.0-linux-riscv64.tar.gz"
+      - url: https://kairos.io/docs/installation/raspberry/
+        type: official-docs
+        title: Raspberry Pi
+        retrieved: "2026-09-22"
+        quote: "Model 5 is currently not supported because of how we use U-boot"
+      - url: https://kairos.io/docs/installation/bare-metal/
+        type: official-docs
+        title: Bare metal installation
+        retrieved: "2026-09-22"
+        quote: "When deploying on a bare metal server, directly flash the image into a USB stick."
+    unknowns:
+      - "No documented mechanism for extending hardware support to a new board or SoC."
+      - "Which cloud images are actually published today: the CI script says Hadron core amd64, while the AWS and GCE pages show Ubuntu variants."
+
+  d09_provisioning:
+    normalized:
+      config_tools:
+        - name: "yip (cloud-config stages)"
+          license: "Apache-2.0"
+          runs: [initramfs-after-root, userspace]
+          reruns: lifecycle
+          runs_note: "The rootfs and initramfs stages run in the initramfs after the root is mounted; boot, fs, network and reconcile stages run in userspace; user data that arrives at the network stage runs there."
+          early_disk: "The layout module partitions and formats; it is documented in the boot stage and at kairos-install.pre.before. LUKS with TPM or KMS is set at install and covers user-data partitions; first-boot encryption in the initramfs is on master only, not in v4.3.0."
+          change_after_first_boot: "Add or edit files in /oem; applied on the next boot or reconcile; install-time keys apply only at install, upgrade or reset"
+          evidence: DOCUMENTED
+          sources:
+            - url: https://github.com/kairos-io/kairos-docs/blob/4420f5e/docs/architecture/cloud-init.md
+              title: "Kairos docs: cloud-init architecture"
+              retrieved: "2026-10-06"
+              quote: >-
+                running before switching root, just right after the root is mounted in /sysroot and before applying the immutable rootfs configuration. This stage is executed over initrd root, no chroot is applied.
+            - url: https://github.com/kairos-io/kairos/blob/2a3c309/immucore/pkg/dag/dag_normal_boot.go
+              title: "immucore normal boot DAG"
+              retrieved: "2026-10-06"
+            - url: https://github.com/kairos-io/kairos-docs/blob/4420f5e/docs/reference/stage_modules.md
+              title: "Kairos docs: stage modules"
+              retrieved: "2026-10-06"
+            - url: https://kairos.io/docs/advanced/partition_encryption/
+              title: "Kairos: partition encryption"
+              retrieved: "2026-10-06"
+      methods:
+        - interactive-installer
+        - unattended-cloud-config
+        - web-ui
+        - iso
+        - pxe-ipxe-netboot
+        - cloud-image
+        - raw-image
+        - maas
+      config_mechanism: "yip, a cloud-init-like dialect"
+      config_reapplied: "stages re-run at defined lifecycle points"
+      primary_tooling: "AuroraBoot, a separate repository"
+    summary: >-
+      Installation covers interactive, unattended, network boot and cloud paths.
+      Media creation, network boot and raw image building all live in AuroraBoot,
+      which is a separate repository with its own version.
+    notes: >-
+      Configuration uses yip, a custom dialect, described on one page as the
+      standard cloud-init syntax plus "its own extended syntax" and on another
+      as "a subset of cloud-init". Configuration can
+      arrive by NoCloud ISO, a URL on the kernel command line, a templated URL
+      substituting machine identifiers, bake-in at image build, cloud user data,
+      or direct write to the OEM partition, with a documented merge order.
+      Thirteen datasource providers exist in the shipped configuration and the
+      documentation never enumerates them.
+
+      **The configuration schema URL that every current binary emits returns
+      404.** The generator stamps a versioned schema URL into every emitted
+      configuration; that URL resolves for v1.6.0 and returns 404 for v3.5.0
+      through v4.3.0 (re-checked 2026-09-22: v1.6.0 returns 200; v3.5.0,
+      v4.2.0 and v4.3.0 return 404). Tooling that follows the schema reference
+      gets nothing.
+
+      Network boot is documented from the tool's side only, and generic PXE, DHCP
+      and firmware setup is explicitly out of scope. The fallback iPXE ISO's only
+      release is from November 2022.
+
+      The QR pairing installation path is broken end to end: the instructions
+      point at an archived repository for a command-line tool that ships no asset
+      in the current release, and a component README states the tool is gone.
+
+      No page is framed as OEM or factory provisioning, though several mechanisms
+      would serve it.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://kairos.io/docs/installation/
+        type: official-docs
+        title: Installation
+        retrieved: "2026-09-22"
+        quote: "Automated Install Kairos automatically, with zero touch provisioning"
+      - url: https://github.com/kairos-io/AuroraBoot
+        type: source-repo
+        title: AuroraBoot
+        retrieved: "2026-09-22"
+        quote: >-
+          The historical one-shot CLI is fully preserved, and it's often all you
+          need for a quick build or a one-off netboot.
+      - url: https://github.com/kairos-io/kairos/blob/master/sdk/schema/validate.go
+        type: source-repo
+        title: Schema validator, versioned schema URL (v1.6.0 returns 200; v3.5.0, v4.2.0 and v4.3.0 return 404 on 2026-09-22)
+        retrieved: "2026-09-22"
+        quote: 'url := fmt.Sprintf("https://kairos.io/%s/cloud-config.json", version)'
+    unknowns:
+      - "The configuration schema URL emitted by current binaries returns 404, and no page says where tooling should fetch the current schema."
+      - "No page is framed as OEM or factory provisioning."
+
+  d10_security:
+    normalized:
+      boot_trust_chain:
+        level: 3
+        how: opt-in
+        route: usi
+        artifact: signed UKI
+        modes:
+          Trusted Boot: 3
+          Standard install: 1
+        note: With Trusted Boot you sign with your own keys. The whole OS is packed in the UKI initrd
+          and runs from memory, with signed system extensions only. Disk keys are sealed to the signed PCR 11
+          policy
+        evidence: DOCUMENTED
+        sources:
+        - url: https://kairos.io/docs/architecture/trustedboot/
+          type: official-docs
+          title: Kairos Trusted Boot architecture
+          retrieved: '2026-10-06'
+          quote: There is no second stage loaded and no system pivoting
+        - url: https://github.com/kairos-io/AuroraBoot/blob/adfcf37fad0d2d0dcfe505f14b4d24c522032520/pkg/uki/uki.go#L686-L714
+          type: source-code
+          title: AuroraBoot UKI build
+          retrieved: '2026-10-06'
+          quote: Walk sourceDir with absolute paths (no os.Chdir) and record each entry under a path relative to sourceDir, so the initramfs layout is rooted at "." regardless of the process working directory.
+      secure_boot: unknown
+      measured_boot: "available under Trusted Boot; disk keys sealed to the signed PCR 11 policy by default, PCR 7 only when bind-pcrs is set"
+      tpm: "TPM 2.0"
+      integrity: read-only-mount
+      integrity_scope: "root image at boot; no runtime re-verification"
+      dm_verity: "used for system extensions only, not for the OS root"
+      disk_encryption: "LUKS on user-data partitions, opt-in on the default install; automatic under Trusted Boot"
+      artifact_verification_release: sigstore-keyless-cosign
+      artifact_verification_upgrade_default: "none"
+      sbom: "OCI build attestations; documented release assets do not exist"
+      provenance: unknown
+      fips: "build flag; no FIPS ISO published; no whole-system validation claimed"
+      mandatory_access_control: "SELinux relabel on upgrade; posture not documented"
+      default_on:
+        - read-only-root
+        - ssh-baseline-hardening-at-build-time
+        - release-signing
+      opt_in:
+        - trusted-boot-uki
+        - disk-encryption
+        - upgrade-signature-verification
+        - fips-build
+    summary: >-
+      Two very different security postures ship from one project. Trusted Boot
+      enforces signature verification, measures the UKI into the TPM and
+      encrypts automatically. The default non-UKI path verifies nothing at
+      upgrade time and encrypts nothing.
+    notes: >-
+      **Secure Boot is recorded as unknown, and the reasoning matters.** The only
+      Secure Boot architecture page is dated January 2024 and describes
+      piggybacking on an upstream distribution's signed artifacts. That model
+      cannot apply to Hadron, which is now the only released base and which
+      compiles its own shim from source. No signing step was found in that
+      repository, and the build tooling only copies the shim. INFERRED from those
+      three facts: the official ISOs carry a self-built shim that will not
+      validate against factory-default firmware keys. No primary source documents
+      a CA-signed shim or a shim-review submission either way. The architecture
+      page still claims any supported flavor works with Secure Boot out of the
+      box. This is the largest documentation gap found in this profile, and it is
+      the same class of question raised for several other projects under FR-14.
+
+      Trusted Boot keys are entirely the adopter's. The documentation is clear
+      and unsentimental about the consequences: you generate the keys, losing
+      them prevents generating new images, keys cannot be made non-expiring, and
+      enrollment needs firmware setup mode or per-machine work.
+
+      dm-verity is not used for the OS root on either path. It appears only in
+      the system extension mechanism, and there signature enforcement is Trusted
+      Boot only.
+
+      Disk encryption is opt-in on the default install and covers user-data
+      partitions only. INFERRED consequence: a default installation stores host
+      keys, home directories and Kubernetes state unencrypted. Under Trusted Boot
+      encryption is automatic.
+
+      The remote key server path is documented with a candour worth crediting:
+      every worked example uses plain HTTP, and the documentation says plainly
+      that nothing proves the answer came from your key server, with certificate
+      pinning opt-in and empty by default.
+
+      Release signing is genuine and was verified independently during this
+      research. However, three official pages give three mutually inconsistent
+      signer identities, and one of them points at an archived repository. A
+      verification policy copied from one of those pages would reject current
+      releases. User verification is presented as an optional step.
+
+      **The documentation claims SBOMs are release assets at a specific URL. All
+      57 assets of v4.3.0 were enumerated and none match; the URL returns 404.**
+      Re-checked 2026-09-22: no v4.3.0 asset name contains sbom, spdx or
+      cyclonedx, and the documented URL pattern for the core amd64 image still
+      returns 404. SBOMs are in fact OCI build attestations, and are disabled
+      for Jetson images because they exceed a size limit.
+
+      The FIPS documentation page is 88 words. Two hard limits appear only in
+      source: not available on riscv64, and not supported on one base without a
+      commercial subscription. No FIPS ISO is published and no claim of
+      whole-system validation exists anywhere.
+
+      The security policy has no supported-versions table, no acknowledgement or
+      fix service level, no severity matrix, no embargo timeline and no key.
+      Exactly one advisory has ever been published, in June 2024. A real,
+      well-engineered scanning and triage program exists in a separate
+      repository, with committed state and a release gate, and it is not linked
+      from the documentation site. As read on this date it carries several
+      advisory suppressions whose expiry dates have already passed, and it
+      suppresses kernel vulnerabilities wholesale.
+
+      CNCF CLOMonitor, an independent dashboard, reports the project failing its
+      SBOM, signed releases, security insights, token permissions, dangerous workflow and
+      dependency policy checks (unchanged on 2026-09-22; the dashboard's own
+      report timestamp is 2026-09-21). In fairness the signed-releases failure is
+      arguably a false negative: that check looks for particular asset
+      extensions, and this project ships Sigstore bundles instead, which were
+      verified genuine.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://kairos.io/docs/architecture/secureboot/
+        type: official-docs
+        title: Secure Boot architecture (front matter date 2024-01-29)
+        retrieved: "2026-09-22"
+        quote: >-
+          We piggyback on the upstream artifacts to be properly signed in order
+          to support SecureBoot.
+      - url: https://github.com/kairos-io/hadron/blob/main/sources.yaml
+        type: source-repo
+        title: Hadron sources, shim built from upstream tarball
+        retrieved: "2026-09-22"
+        quote: "https://github.com/rhboot/shim/releases/download/${version}/shim-${version}.tar.bz2"
+      - url: https://kairos.io/docs/advanced/partition_encryption/
+        type: official-docs
+        title: Partition encryption
+        retrieved: "2026-09-22"
+        quote: >-
+          User-data partitions are dedicated to persist data for a running
+          system, stored separately from the OS images.
+      - url: https://kairos.io/docs/upgrade/trustedboot/
+        type: official-docs
+        title: Trusted Boot upgrades
+        retrieved: "2026-09-22"
+        quote: >-
+          In order to upgrade a node to a new version of the OS, you need to
+          generate again the installable medium with the same keys used in the
+          steps before.
+      - url: https://kairos.io/docs/reference/image_matrix/
+        type: official-docs
+        title: Image matrix, SBOM section
+        retrieved: "2026-09-22"
+        quote: "SBOM lists are regularly pushed via the CI as part of the Github releases assets"
+      - url: https://clomonitor.io/api/projects/cncf/kairos
+        type: foundation-page
+        title: CNCF CLOMonitor API, Kairos (dashboard at clomonitor.io/projects/cncf/kairos)
+        retrieved: "2026-09-22"
+        quote: '"global":93.23,"license":100.0,"security":59.09'
+    unknowns:
+      - "Whether the shim in the official Hadron ISOs is signed by any CA present in default firmware, and whether a shim review has been submitted."
+      - "Which of three documented signer identities is correct for current releases."
+      - "Whether SBOMs are intended to return as release assets, or whether the OCI attestation is now the only channel."
+      - "No SLSA generator or level claim was found."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: available
+      local_shell: available
+      serial_console: unknown
+      recovery_shell: available
+      api: "install web UI on port 8080; phone-home WebSocket; AuroraBoot REST API"
+      support_bundle: "kairos-agent logs"
+      works_without_kubernetes: "yes"
+      trusted_boot_debugging: "limited: the command line is measured, so boot-time debug options cannot be added; the troubleshooting page documents TPM event log, sbctl and goverify checks"
+    summary: >-
+      A complete node-local command line: upgrade, roll back, reset, inspect and
+      re-key by hand, with no Kubernetes and no network required. Initramfs
+      breakpoints and a recovery entry exist for boot failures.
+    notes: >-
+      Working without Kubernetes is a genuine strength here and is recorded as
+      such. The local agent covers the whole machine lifecycle.
+
+      **There is no debugging story for Trusted Boot, and the documentation says
+      so.** Because the kernel command line is measured into the TPM, debug
+      options cannot easily be added, and the documentation states outright that
+      it cannot yet advise how to build UKI images with debug options. What
+      the troubleshooting page rules out is adding boot-time debug options,
+      such as initramfs breakpoints, to the measured command line, since the
+      system will not boot if it changes. For Trusted Boot it lists TPM event
+      log and Secure Boot key checks instead.
+
+      The installer web UI listens on port 8080 on all interfaces. A search of
+      its source for authentication, password, token or TLS handling returned no
+      matches. INFERRED: anyone on the provisioning network can post a
+      configuration to a machine sitting at the installer. The documentation does
+      not flag this. The contrast with the AuroraBoot README is instructive,
+      which states plainly that its netboot server is unauthenticated by design
+      and should run only on a trusted, isolated provisioning network.
+
+      In-RAM boot failure handling is genuinely good: a full-screen error on
+      every console naming the exact kernel option needed, then a reboot so that
+      boot assessment records the failure.
+
+      There is no logging, telemetry, metrics or monitoring documentation of any
+      kind. A page at a URL operators will click expecting alerting guidance is
+      published placeholder text. There is no serial console configuration page
+      despite an edge and headless audience.
+
+      The multi-cluster remote debugging workflow requires a working cluster to
+      deploy into, so it does not help when Kubernetes is the thing that is down.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://kairos.io/docs/reference/troubleshooting/
+        type: official-docs
+        title: Troubleshooting, Trusted Boot debugging
+        retrieved: "2026-09-22"
+        quote: >-
+          currently we cannot advise how to proceed here to build the UKI images
+          with debug options yet
+      - url: https://github.com/kairos-io/AuroraBoot
+        type: source-repo
+        title: AuroraBoot README, netboot server posture
+        retrieved: "2026-09-22"
+        quote: >-
+          unauthenticated by design ... Run it only on a trusted, isolated
+          provisioning network.
+    unknowns:
+      - "Whether the install web UI on port 8080 has any authentication or network scoping."
+      - "No logging, telemetry, metrics or monitoring documentation exists."
+      - "No serial console configuration page exists."
+
+  d12_fleet_management:
+    normalized:
+      core_project:
+        - "A/B upgrade from an OCI source, offline-capable"
+        - "Boot assessment with one retry"
+        - "Cloud configuration as the whole configuration surface"
+        - "Phone-home agent with a restricted default command set"
+        - "Peer-to-peer self-organizing clusters"
+      oss_companion:
+        - name: AuroraBoot
+          repo: https://github.com/kairos-io/AuroraBoot
+          license: Apache-2.0
+          org: kairos-io
+          note: "Media building, network boot, and a fleet server with a dashboard, node manager, remote commands, Secure Boot key store and BMC provisioning. The fleet server is documented only in the repository README."
+        - name: kairos-operator
+          repo: https://github.com/kairos-io/kairos-operator
+          license: Apache-2.0
+          org: kairos-io
+          note: "NodeOp, NodeOpUpgrade and OSArtifact custom resources. Documented limitation: a NodeOp is a single run, not a reconciler, so editing a resource in place is unsupported."
+        - name: cluster-api-provider-kairos
+          repo: https://github.com/kairos-io/cluster-api-provider-kairos
+          license: Apache-2.0
+          org: kairos-io
+          note: "Cluster API bootstrap and control-plane providers in one repository. v0.1.3 on 2026-09-17 (v0.1.2 on 2026-09-09 was current on the collection date), self-declared pre-1.0 with an API surface that may still change. First release 2026-05-18, so four months of release history. Bootstraps k0s and k3s through Kairos cloud-config, not kubeadm. Not documented on the site, which still lists Cluster API as coming soon."
+        - name: cluster-api-provider-kairos-fleet
+          repo: https://github.com/kairos-io/cluster-api-provider-kairos-fleet
+          license: Apache-2.0
+          org: kairos-io
+          note: "Cluster API infrastructure provider. v0.1.3 on 2026-09-17 (v0.1.2 on 2026-09-09 was current on the collection date). It calls no IaaS API: it claims an already-enrolled node from an AuroraBoot fleet group and releases it when the machine is deleted. Single control plane only; replicas above 1 are documented as out of scope."
+      commercial:
+        - name: Spectro Cloud Palette Edge
+          vendor: Spectro Cloud
+          license: proprietary
+          self_hostable: false
+          note: "Uses Kairos images, bootstrapped by Spectro Cloud's own Stylus installer. Stylus, the Palette console, cluster profiles and the managed Kubernetes distribution are Spectro Cloud's, not the open-source project's."
+        - name: Kairos commercial support
+          vendor: Spectro Cloud
+          license: subscription
+          self_hostable: false
+          note: "Published tiers with CVE patch releases and long-term maintenance. This is the only place where a CVE patch commitment and a long-term maintenance offering exist for Kairos."
+      cluster_api:
+        os_specific_provider: "cluster-api-provider-kairos (bootstrap and control plane), cluster-api-provider-kairos-fleet (infrastructure)"
+        provider_types:
+          - bootstrap
+          - control-plane
+          - infrastructure
+        maintainer: project-native
+        upstream_provider_list: "not listed in the released book; present on the main-branch build since 2026-08-11"
+        clusterctl_builtin: "not in any released clusterctl; the entries are on cluster-api main and postdate the v1.14.0 cut, so the provider must be registered by hand today. Re-checked 2026-09-22: v1.14.1 (2026-09-01) and v1.14.2 (2026-09-08) carry no Kairos entry either"
+        provisions: "OS configuration and bootstrap through Kairos cloud-config, plus control-plane machine lifecycle. The fleet provider claims enrolled nodes rather than creating instances."
+        bootstrap_target: "k0s and k3s, not kubeadm"
+        image_builder_target: "none"
+        maturity: "pre-1.0, self-declared; v0.1.3 on 2026-09-17 (v0.1.2 on 2026-09-09 on the collection date); first release 2026-05-18"
+    summary: >-
+      The open-source project provides the upgrade primitive, boot assessment and
+      configuration surface, with no inventory, scheduling, canary logic, policy
+      engine or dashboard. Those live in AuroraBoot's fleet server and in the
+      Kubernetes operator, both separate repositories.
+    notes: >-
+      AuroraBoot's fleet server is the most capable fleet tool in the
+      organization and is close to invisible in the documentation. It has a
+      dashboard, a node manager where machines it built phone home and can be
+      sent upgrade, reboot, reset, configuration and arbitrary shell commands, a
+      Secure Boot key store and BMC provisioning. The word "fleet" does not
+      appear on its documentation page at all.
+
+      Several load-bearing companion components are stale or unreleased: two have
+      never published a release, one last released in December 2024, one has no
+      README. Six repositories the documentation still routes readers to are
+      archived.
+
+      The commercial boundary is worth stating precisely and fairly. Spectro
+      Cloud's edge product uses Kairos images and adds its own installer, console
+      and managed Kubernetes distribution, and the vendor's own documentation
+      says so. The commercial support announcement is candid about what changed:
+      support had been best effort until then, and it states that Kairos remains
+      fully open with no commercial forks or gated features. What the commercial
+      tier adds that the project does not offer is a CVE patch commitment and
+      long-term maintenance, and that is recorded under d14 as well.
+
+      The Cluster API story is the newest thing here and needs its strong and
+      weak halves recorded together, because this profile's authors contribute
+      to the provider and a one-sided reading would be the easy mistake.
+
+      The strong half. Three providers exist, all in the project's own
+      organization, covering bootstrap, control plane and infrastructure. That
+      is a more complete provider set than any other entry in this edition has
+      today. They are actively developed, with commits within two days of the
+      collection date, and they ship proper clusterctl artifacts. Six pull
+      requests registering them landed in cluster-api on 2026-08-11, so the
+      names now appear in that project's built-in provider list and glossary on
+      main.
+
+      The weak half, and it is the half a reader planning a deployment needs.
+      The registration landed about five hours after cluster-api v1.14.0 was
+      cut, so Kairos appears in no released clusterctl, and the provider list in
+      the published book does not carry it either. Today an operator must
+      register the provider by hand before clusterctl init will find it, which
+      the project's own README says. The provider is pre-1.0 by its own
+      statement, with an API surface that may still change, and its first
+      release was four months before this survey. It bootstraps k0s and k3s
+      rather than kubeadm, so the standard kubeadm path does not apply, and
+      Kairos is not an image-builder target. Provider-list inclusion is
+      self-service registration rather than a review or a conformance audit,
+      and the six registering pull requests were authored by a Kairos
+      maintainer listed in the project's MAINTAINERS.md. None of that makes
+      the provider worse than it is; it makes "listed
+      upstream" a weaker claim than it sounds, and the same caution is applied
+      to every other entry in this edition.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/AuroraBoot
+        type: source-repo
+        title: AuroraBoot README, fleet server
+        retrieved: "2026-09-22"
+        quote: "Manage a whole fleet from a browser once nodes come online."
+      - url: https://github.com/kairos-io/cluster-api-provider-kairos
+        type: source-repo
+        title: Kairos CAPI provider README
+        retrieved: "2026-09-22"
+        quote: >-
+          This project provides two Cluster API (CAPI) providers for managing
+          Kubernetes clusters on Kairos: 1. Bootstrap Provider
+          (bootstrap.cluster.x-k8s.io) ... 2. Control Plane Provider
+          (controlplane.cluster.x-k8s.io)
+      - url: https://github.com/kairos-io/cluster-api-provider-kairos/releases/tag/v0.1.3
+        type: release-notes
+        title: cluster-api-provider-kairos v0.1.3
+        retrieved: "2026-09-22"
+        quote: "A fix and supply-chain release."
+      - url: https://github.com/kairos-io/cluster-api-provider-kairos-fleet
+        type: source-repo
+        title: Kairos fleet infrastructure provider README
+        retrieved: "2026-09-22"
+        quote: >-
+          High-availability control planes (`replicas` greater than 1) are out
+          of scope for this provider.
+      - url: https://cluster-api.sigs.k8s.io/reference/providers
+        type: official-docs
+        title: Cluster API provider list, published build (no Kairos entry; the main-branch build at main.cluster-api.sigs.k8s.io lists Kairos and Kairos Fleet)
+        retrieved: "2026-09-22"
+      - url: https://kairos.io/operator-docs/nodeop-upgrade/
+        type: official-docs
+        title: NodeOpUpgrade
+        retrieved: "2026-09-22"
+        quote: >-
+          Each merged commit produces a new named resource, which the operator
+          treats as a new one-shot run.
+      - url: https://docs.spectrocloud.com/clusters/edge/architecture/
+        type: vendor-docs
+        title: Spectro Cloud Edge architecture
+        retrieved: "2026-09-22"
+        quote: >-
+          Operating system (OS) images are derived from immutable container-based
+          OS images provided by the Kairos open source project.
+      - url: https://www.spectrocloud.com/solutions/kairos-support
+        type: vendor-docs
+        title: Kairos commercial support
+        retrieved: "2026-09-22"
+        quote: "CVE patch releases and bugfixes"
+      - url: https://kairos.io/blog/2025/08/08/growing-stronger-introducing-commercial-support-for-kairos/
+        type: announcement
+        title: Commercial support announcement
+        retrieved: "2026-09-22"
+        quote: "Kairos remains 100% open, with no commercial forks or gated features."
+    unknowns:
+      - "No per-repository or organization-wide statement of which companion repositories are supported, community-maintained or experimental."
+
+  d13_governance:
+    normalized:
+      license: Apache-2.0
+      license_note: "A directory check on 2026-09-22 found no LICENSE or COPYING file in eight active public repositories in the organization (entangle, entangle-proxy, provider-microk8s, efi-key-enroller, hadron-firmware, hadron-layers, security, homebrew-kairos), plus several archived ones. Two repositories, go-ukify and osutil, are MPL-2.0."
+      open_source: true
+      open_governance: partial
+      vendor_neutral_ownership: foundation-held
+      foundation:
+        name: CNCF
+        level: Sandbox
+        since: "2024-04-13"
+      trademark_holder: "LF Projects, LLC"
+      primary_commercial_sponsor: Spectro Cloud
+      contributor_agreement: DCO
+      contribution_diversity:
+        method: >-
+          git log against a freshly fetched origin/master of kairos-io/kairos,
+          with the window fixed to end on 2026-09-22 so the count can be re-run.
+          Bot and agent accounts are excluded by author email, using the
+          pattern in the commands below. Human commits are then attributed to
+          the primary sponsor by matching the author emails of the maintainers
+          that the community repository's MAINTAINERS.md lists as Spectro Cloud
+          employees. This method undercounts contributors who use personal
+          addresses, which is why the cross-reference matters here. Merge
+          commits are included in the totals. Commands, run from a clone after
+          "git fetch origin". Set once: L="git log origin/master
+          --format=%ae --since=2025-09-22T00:00:00+00:00
+          --until=2026-09-22T00:00:00+00:00" and
+          B='\[bot\]|ci-robbot|mudler-bot|agent|Copilot'.
+          (1) all commits, twelve months: $L | wc -l;
+          (2) bot and agent commits: $L | grep -c -E "$B";
+          (3) human commits: $L | grep -v -E "$B" | wc -l;
+          (4) distinct human authors: $L | grep -v -E "$B" | sort -u | wc -l;
+          (5) six-month human commits: run $L with
+          --since=2026-03-22T00:00:00+00:00 added at the end, pipe to
+          grep -v -E "$B", then count with wc -l for the 430, or with
+          grep -c -E
+          '^(dimitris@|itxaka@|itxaka\.garcia@|mudler@|rishi@|contact@mauromorales\.com|mauro\.morales@spectrocloud\.com)'
+          for the 406.
+        value: >-
+          Last twelve months, to 2026-09-22: 1710 total commits, 997 of them from
+          bot and agent accounts (778 from the Renovate bot alone), leaving 713
+          human commits across 34 distinct author addresses. Over the last six
+          months, 406 of 430 human commits (about 94 percent) came from
+          maintainers affiliated with the primary sponsor. The
+          contributing-organizations file lists exactly one organization.
+    summary: >-
+      Apache-2.0, CNCF Sandbox since April 2024, assets held under LF Projects,
+      DCO rather than a CLA, and a published governance document with a role
+      ladder. Contribution and maintainership are concentrated in one company.
+    notes: >-
+      The four governance properties separate sharply here, and the honest
+      reading is mixed. Open source: yes. Vendor-neutral ownership: yes, assets
+      are foundation-held, which is more than three other projects in this
+      edition can say. Open governance: partial. Contribution diversity: low.
+
+      Open governance is partial rather than documented for concrete reasons. A
+      governance document exists, with a Contributor to Approver to Maintainer to
+      Admin ladder, nomination and voting for onboarding, and a three-month
+      inactivity rule for offboarding. But it names no governance model, defines
+      no conflict-resolution or escalation process, has no steering or technical
+      oversight body, and says nothing about trademark or asset ownership. The
+      voting thresholds are not in it: they live in a continuous-integration
+      configuration file, where a maintainer vote requires a 100 percent pass
+      threshold over four weeks. An adopter reading the governance document would
+      not learn that.
+
+      Maintainer affiliation, from the project's own published file: five of six
+      maintainers and four of four administrators work for the primary sponsor,
+      with the sixth maintainer at a different company. Both emeritus maintainers
+      are from the same sponsor.
+
+      The contributing-organizations file lists a single organization while
+      asserting that development "is driven by a diverse set of contributors
+      rather than a single vendor" and that contributing organizations "ensure
+      that the project remains vendor-neutral". Its own table does not support
+      that assertion, and the same document states the goal plainly: more than
+      one contributing organization is needed.
+
+      One composition note that a diversity figure would otherwise hide: a
+      substantial share of recent commits come from AI agent and CI accounts
+      operated by the same maintainers, and most currently open pull requests are
+      from those accounts. The organization publishes shared conventions for AI
+      coding agents. This is recorded as a fact about how the commit history is
+      produced, because a raw commit count would otherwise be read as human
+      activity.
+
+      Five adopting organizations and three individuals are listed publicly.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/kairos-io/community/blob/main/GOVERNANCE.md
+        type: governance-doc
+        title: Kairos governance
+        retrieved: "2026-09-22"
+        quote: >-
+          A new Approver, Maintainer, or Administrator joins through nomination
+          and a vote. Nobody self-applies for a role.
+      - url: https://github.com/kairos-io/community/blob/main/MAINTAINERS.md
+        type: governance-doc
+        title: Kairos maintainers (six maintainers, five at Spectro Cloud and one at Mirantis; four administrators, all at Spectro Cloud; two emeritus, both Spectro Cloud)
+        retrieved: "2026-09-22"
+      - url: https://github.com/kairos-io/kairos/blob/master/.gitvote.yml
+        type: governance-doc
+        title: Vote configuration, maintainer profile
+        retrieved: "2026-09-22"
+        quote: "pass_threshold: 100"
+      - url: https://github.com/kairos-io/community/blob/main/CONTRIBUTING_ORGANIZATIONS.md
+        type: governance-doc
+        title: Contributing organizations
+        retrieved: "2026-09-22"
+        quote: >-
+          To achieve this, we need more than one contributing organization
+          actively supporting the project.
+      - url: https://www.cncf.io/projects/kairos/
+        type: foundation-page
+        title: CNCF project page, Kairos
+        retrieved: "2026-09-22"
+        quote: >-
+          Kairos was accepted to CNCF on April 13, 2024 at the Sandbox maturity
+          level.
+      - url: https://kairos.io/
+        type: official-docs
+        title: Site footer, LF Projects and sponsorship
+        retrieved: "2026-09-22"
+        quote: >-
+          Copyright 2026 Kairos a Series of LF Projects, LLC ... Project
+          supported by Spectro Cloud
+    unknowns:
+      - "Whether Hadron, the default base since v4, falls under the CNCF project's governance, trademark and security processes, or is a separate project in the same organization."
+      - "Eight active public repositories in the organization have no LICENSE file, and no statement says which of them are code intended for reuse."
+
+  d14_maturity:
+    normalized:
+      first_release: "2021-07-30"
+      current_version: "v4.3.0"
+      current_version_date: "2026-09-08"
+      release_cadence: "bursty: clusters of same-week patches separated by one to two month gaps"
+      observed_intervals: "21, 62, 2, 31, 56, 0, 17, 4, 22, 2, 1 days across v3.7.0 to v4.3.0"
+      support_model: "none published"
+      support_window: "none published; latest release branch only"
+      commercial_support: available
+      foundation_status: "CNCF Sandbox since 2024-04-13, no movement to Incubating"
+    summary: >-
+      Five years old, 197 releases not flagged pre-release, currently at
+      v4.3.0. There is no published support lifecycle, no end-of-life policy
+      and no LTS. The only statement is that the latest release branch receives
+      patch releases.
+    notes: >-
+      The documentation tree was searched for end-of-life, LTS, support policy
+      and supported-version wording, and returned nothing. Only three
+      documentation versions are retained. Long-term maintenance exists only as a
+      commercial line item.
+
+      Maintenance branches do exist. Several v3.5.x releases were published after
+      v3.6.0 and those tags are not ancestors of the main branch, so backporting
+      happens. No published policy says which versions receive it.
+
+      Stated and observed cadence do not match. The CNCF landscape entry claims
+      at least one minor release per quarter, the documentation claims weekly
+      patches and monthly minors, and the observed intervals over the last twelve
+      releases are bursty rather than regular.
+
+      The project underwent major structural change in the thirty days before
+      this collection date: a monorepo consolidation archived nine repositories
+      between 2026-08-19 and 2026-08-31 (five on 2026-08-19, three on
+      2026-08-26, the umbrella Kubernetes provider on 2026-08-31, dated by
+      each repository's last metadata update), and five further Kubernetes
+      provider repositories were archived by 2026-09-07. The code side was
+      executed cleanly, with
+      a single module, one release tag and a multi-call binary. The documentation
+      has not caught up, and a large share of the findings in this profile are
+      downstream of that gap rather than of the architecture.
+
+      A fairness correction worth recording, since a naive freshness measure
+      would overstate the problem: 35 of 105 documentation pages carry 2022 or
+      2023 front-matter dates, but every page has been touched in git in 2026, so
+      those are creation dates. The fairer measure is that about a third of pages
+      have had no content update since a single migration cleanup commit in
+      February 2026.
+
+      Issues are closing faster than they open over the last 90 days.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://kairos.io/docs/reference/image_matrix/
+        type: official-docs
+        title: Image matrix, support statement
+        retrieved: "2026-09-22"
+        quote: We only support the latest release branch with patch releases
+      - url: https://github.com/kairos-io/kairos/releases
+        type: release-notes
+        title: Kairos releases (314 releases, 197 not flagged pre-release, on 2026-09-22)
+        retrieved: "2026-09-22"
+      - url: https://www.cncf.io/projects/kairos/
+        type: foundation-page
+        title: CNCF project page, Kairos
+        retrieved: "2026-09-22"
+        quote: >-
+          Kairos was accepted to CNCF on April 13, 2024 at the Sandbox maturity
+          level.
+      - url: https://www.spectrocloud.com/solutions/kairos-support
+        type: vendor-docs
+        title: Commercial support tiers
+        retrieved: "2026-09-22"
+        quote: "Kairos - long term maintenance"
+    unknowns:
+      - "No support lifecycle, end-of-life or LTS policy is published anywhere in the documentation."
+      - "No published policy says which versions receive backports, although backporting demonstrably happens."
+
+tradeoffs:
+  buys:
+    - "The OS is an ordinary container image in an ordinary registry, so mirroring, signing, content addressing and air-gapped transfer come from existing ecosystem tooling rather than project-specific infrastructure."
+    - "Base-distribution independence. An adopter can convert an upstream base the project has never shipped, using a Dockerfile and standard container tooling."
+    - "Other bases are built by the adopter: the project publishes Hadron artifacts only, validates eight distributions in kairos-init, and provides kairos-factory-action and AuroraBoot to run your own pipeline on your own cadence. The adopter then owns the image's testing, signing and CVE response; the documentation assigns only versioning to the adopter."
+    - "Offline, node-local operation. Upgrade, rollback, reset, inspection and re-keying all work from the local command line with no network, no management plane and no Kubernetes."
+    - "A dedicated recovery partition on local disk, so recovery does not depend on network, media or a management plane. Automatic rollback allows one retry on the standard install and counts a boot as good when it reaches an early configuration stage, before any workload is healthy."
+    - "Kubernetes is optional, with a documented path to running without it."
+    - "An open-source fleet server (Apache-2.0) in AuroraBoot: nodes enrol and are grouped, and the server sends upgrade, reboot, reset and configuration commands, with a dashboard, a Secure Boot key store and BMC provisioning. A Cluster API provider builds on it."
+    - "Its own Cluster API providers (Apache-2.0). A bootstrap and control-plane provider for k0s and k3s rolls control-plane machines one at a time and accepts 1, 3 or 5 control-plane replicas, with high availability on CAPK, CAPV and CAPM3; its README says the API may still change. A fleet infrastructure provider claims nodes already enrolled in AuroraBoot, for a single control-plane machine."
+    - "Foundation-held assets under LF Projects, CNCF Sandbox membership, DCO rather than a CLA, and a published governance document with a role ladder and defined offboarding."
+    - "Verified Sigstore keyless release signing with transparency log entries."
+    - "Trusted Boot: the whole OS in a UKI signed with your own keys, run from memory, with signed system extensions only and disk keys sealed to the signed PCR 11 policy. Upgrades enforce signature verification. The command line is measured, so boot-time debug options cannot be added, and the documentation cannot yet advise how to build UKI images with them."
+    - "Disk encryption with TPM or KMS unlock, automatic under Trusted Boot. On the standard install it is opt-in and covers the user-data partitions; without it, host keys, home directories and Kubernetes state are stored unencrypted."
+  costs:
+    - "On the standard install, an upgrade does not verify the image signature, no command-line flag turns it on, and the documentation does not say the path is unverified."
+    - "At v4.3.0 an upgrade does not refresh the bootloader, so shim and GRUB stay at install-time versions. The fix is unreleased and undocumented, and a factory reset is currently the only supported way to refresh them."
+    - "No dm-verity and no runtime integrity verification of the root. On a non-UKI installation the root image has no signature check after install."
+    - "Trusted Boot uses the adopter's own keys, which must be enrolled through firmware setup mode or per machine."
+    - "The only published support statement is that the latest release branch gets patch releases. No end-of-life or LTS policy is published. Long-term maintenance exists only as a commercial offering."
+    - "The security policy has no supported-versions table, no response commitment and no embargo policy, and one advisory has been published."
+    - "Documentation contradicts shipped behaviour in load-bearing places: a persistent path that breaks rollback, a boot-assessment page that has been wrong for around 22 months, SBOM release assets that do not exist, a configuration schema URL that returns 404, three inconsistent signer identities, routes to six archived repositories, and a Secure Boot architecture page that describes relying on upstream-signed artifacts, which Hadron, the only released base, does not use."
+    - "Trusted Boot media built with the latest released AuroraBoot (v0.27.1) carry a root-caused UKI section-alignment defect (kairos-io/kairos#4885). On firmware with memory-protection asserts, such as the OVMF Secure Boot build, the image loops before the kernel until a watchdog resets it. The fix merged on 2026-09-22 and is in no release on 2026-10-06."
+    - "With k3s, replacing a control-plane node through the Cluster API provider leaves an etcd member that must be removed by hand. The project documents this as a known limitation. k0s is not affected."
+    - "Five of six maintainers work for Spectro Cloud."
+maintainers_fact:
+  text: "Five of six maintainers work for Spectro Cloud."
+  evidence: DOCUMENTED
+  sources:
+    - url: "https://github.com/kairos-io/community/blob/main/MAINTAINERS.md"
+      type: "governance-doc"
+      title: "Kairos maintainers (six maintainers, five at Spectro Cloud and one at Mirantis; four administrators, all at Spectro Cloud; two emeritus, both Spectro Cloud)"
+      retrieved: "2026-09-22"
+known_issues:
+  - text: "On the standard install, an upgrade does not verify the image signature, no command-line flag turns it on, and the documentation does not say the path is unverified. Signature checking is behind a configuration field that defaults to false."
+    kind: unverified
+    sources:
+      - url: "https://kairos.io/docs/reference/configuration/"
+        type: "official-docs"
+        title: "Configuration reference, cosign"
+        retrieved: "2026-09-22"
+        quote: "Enable cosign verification for container images"
+  - text: "At v4.3.0 an upgrade does not refresh the bootloader, so shim and GRUB stay at install-time versions. The fix is unreleased and undocumented, and a factory reset is currently the only supported way to refresh them."
+    kind: defect
+    sources:
+      - url: "https://github.com/kairos-io/kairos/commit/beaa9cc6"
+        type: "source-repo"
+        title: "fix(upgrade): refresh the shim, grub and grub.cfg on the ESP (#4513), committed 2026-09-11, not an ancestor of v4.3.0"
+        retrieved: "2026-09-22"
+        quote: "Grub.Install runs only from install and reset, so a signed-shim rotation, a grub.cfg schema change or a grub CVE bump reached installed nodes only if the operator ran a reinstall."
+  - text: "Trusted Boot media built with the latest released AuroraBoot (v0.27.1) carry a root-caused UKI section-alignment defect (kairos-io/kairos#4885). On firmware with memory-protection asserts, such as the OVMF Secure Boot build, the image loops before the kernel until a watchdog resets it. The fix merged on 2026-09-22 and is in no release on 2026-10-06."
+    kind: defect
+    sources:
+      - url: "https://github.com/kairos-io/kairos/issues/4885"
+        type: "source-repo"
+        title: "Hadron/Kairos UKI Trusted Boot: go-ukify appends PE sections misaligned"
+        retrieved: "2026-09-22"
+        quote: "go-ukify's assemble() places every section it appends to the systemd stub ... at a 512-byte aligned virtual address, while the stub's PE header declares SectionAlignment 0x1000."
+  - text: "With k3s, replacing a control-plane node through the Cluster API provider leaves an etcd member that must be removed by hand. The project documents this as a known limitation. k0s is not affected."
+    kind: defect
+    sources:
+      - url: "https://github.com/kairos-io/cluster-api-provider-kairos/blob/v0.1.3/docs/HIGH_AVAILABILITY.md"
+        title: "cluster-api-provider-kairos high availability at v0.1.3, k3s member removal (KD-5d)"
+        retrieved: "2026-10-06"
+        quote: "replacing a k3s control-plane node leaves an orphaned etcd member requiring manual `etcdctl member remove`"
+  - text: "In v4.3.0, /usr/libexec is a persistent path, in the shipped configuration and in the documentation. Persisting it across A/B slots merges one slot's binaries into the other and breaks rollback (kairos-io/kairos#4304). It was removed from the configuration after v4.3.0 (kairos-io/kairos#4465)."
+    kind: defect
+    sources:
+      - url: "https://github.com/kairos-io/kairos/issues/4304"
+        type: "source-repo"
+        title: "/usr/libexec persistence breaks rollback"
+        retrieved: "2026-09-22"
+        quote: "Persisting /usr/libexec across A/B slots breaks rollback ABI compatibility"
+      - url: "https://github.com/kairos-io/kairos/blob/v4.3.0/kairos-init/pkg/bundled/cloudconfigs/00_rootfs.yaml"
+        type: "source-code"
+        title: "kairos-init 00_rootfs.yaml, PERSISTENT_STATE_PATHS, v4.3.0"
+        retrieved: "2026-10-06"
+        quote: "PERSISTENT_STATE_PATHS: >-"
+  - text: "The documentation states that SBOM lists are pushed as GitHub release assets. None of the 57 assets of v4.3.0 is an SBOM, and the documented URL returns 404. SBOMs are published as OCI build attestations instead."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://kairos.io/docs/reference/image_matrix/"
+        type: "official-docs"
+        title: "Image matrix, SBOM section"
+        retrieved: "2026-09-22"
+        quote: "SBOM lists are regularly pushed via the CI as part of the Github releases assets"
+      - url: "https://github.com/kairos-io/kairos/releases/tag/v4.3.0"
+        type: "release-notes"
+        title: "v4.3.0 release assets (57 assets; riscv64 appears only as Go binary tarballs, no riscv64 ISO or OS container image)"
+        retrieved: "2026-09-22"
+        quote: "kairos-v4.3.0-linux-riscv64.tar.gz"
+  - text: "Every current binary stamps a versioned configuration schema URL into the configuration it emits. The URL resolves for v1.6.0 and returns 404 for v3.5.0, v4.2.0 and v4.3.0."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://github.com/kairos-io/kairos/blob/master/sdk/schema/validate.go"
+        type: "source-repo"
+        title: "Schema validator, versioned schema URL (v1.6.0 returns 200; v3.5.0, v4.2.0 and v4.3.0 return 404 on 2026-09-22)"
+        retrieved: "2026-09-22"
+        quote: "url := fmt.Sprintf(\"https://kairos.io/%s/cloud-config.json\", version)"
+  - text: "The Trusted Boot boot-assessment page documents a fallback stage named autorecovery. It exists in no repository in the organization."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://kairos.io/docs/examples/boot_assessment_trusted_boot/"
+        type: "official-docs"
+        title: "Boot assessment under Trusted Boot"
+        retrieved: "2026-09-22"
+        quote: "If recovery fails, the system attempts autorecovery."
+  - text: "The only Secure Boot architecture page, dated January 2024, describes relying on upstream-signed artifacts and claims that any supported flavor works with Secure Boot out of the box. Hadron, the only released base, builds its own shim from source, and no signing step was found."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://kairos.io/docs/architecture/secureboot/"
+        type: "official-docs"
+        title: "Secure Boot architecture (front matter date 2024-01-29)"
+        retrieved: "2026-09-22"
+        quote: "We piggyback on the upstream artifacts to be properly signed in order to support SecureBoot."
+      - url: "https://github.com/kairos-io/hadron/blob/main/sources.yaml"
+        type: "source-repo"
+        title: "Hadron sources, shim built from upstream tarball"
+        retrieved: "2026-09-22"
+        quote: "https://github.com/rhboot/shim/releases/download/${version}/shim-${version}.tar.bz2"
+  - text: "The QR pairing installation instructions point at an archived repository for a command-line tool that ships no asset in v4.3.0."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://github.com/kairos-io/kairos/releases/tag/v4.3.0"
+        type: "release-notes"
+        title: "v4.3.0 release assets (57 assets; riscv64 appears only as Go binary tarballs, no riscv64 ISO or OS container image)"
+        retrieved: "2026-09-22"
+        quote: "kairos-v4.3.0-linux-riscv64.tar.gz"
+      - url: "https://github.com/orgs/kairos-io/repositories?q=archived%3Atrue"
+        type: "source-repo"
+        title: "kairos-io archived repositories"
+        retrieved: "2026-09-22"
+open_questions:
+  - "Is the shim in the official Hadron ISOs signed by any CA present in default firmware, and has a shim review been submitted? What Secure Boot posture should an adopter expect on stock firmware with the official artifacts? No primary source establishes whether the shipped shim validates against default firmware keys. The shim is built in the Hadron repository, so hadron.yaml records the same question at its source."
+  - "Which of the three documented signer identities is correct for v4.3.0 and later?"
+  - "Are SBOMs intended to return as release assets, or is the OCI attestation now the only channel?"
+  - "Is there a published or intended support-lifecycle policy, and what governs which branches receive backports?"
+  - "What is the CVE response commitment for the open-source project, as distinct from the commercial tiers?"
+  - "Do Alpine, Debian and Fedora remain supported base distributions?"
+  - "Is riscv64 intended to become a released OS platform, or is it permanently build-tooling only?"
+  - "Does the install web UI on port 8080 have any authentication or network scoping?"
+  - "Is boot-assessment fallback implemented for Trusted Boot? Two pages disagree and the cited issue is closed. What is the documented autorecovery stage, which exists in no repository?"
+  - "Does the Kubernetes upgrade resource verify that a node returned on the new image before advancing to the next batch?"
+  - "What is the intended support status of the companion repositories that have never released or have no README?"
+  - "Is Hadron in scope for the CNCF project's governance, trademark and security processes, or is it a separate project in the same organization? hadron.yaml records the same question from Hadron's side, where the announcement claims CNCF vendor neutrality and no primary source establishes it."
+  - "Is there a plan to add a second contributing organization, given that the project's own document names vendor neutrality as an incubation prerequisite?"
+  - "Should the governance document carry the voting thresholds that currently live only in a CI configuration file, plus a conflict-resolution process?"
+  - "Is the configuration schema URL 404 a hosting regression, and where should tooling fetch the current schema?"
+  - "Which cloud images are actually published today?"
+  - "Is the kubeadm-based Kubernetes provider, which gained a documentation section on 2026-09-21, an officially supported distribution alongside k3s and k0s? The choosing-a-distribution page still names only those two."
+  - "On which dates were the five Kubernetes provider repositories (RKE2, kubeadm, k3s, canonical, nodeadm) archived? Their last pushes fall between 2026-08-18 and 2026-09-03 and their last metadata update is 2026-09-07; the archive timestamp itself is not exposed by the REST API."
+
+follow_up_research:
+  - FR-01
+  - FR-02
+  - FR-03
+  - FR-05
+  - FR-06
+  - FR-07
+  - FR-08
+  - FR-09
+  - FR-12
+  - FR-13
+  - FR-14
+  - FR-15
+  - FR-16
+  - FR-17
+
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Cost audit under methodology section 9, rule 15, with the author's rulings. Removed cost 'The advertised base distributions and the released artifacts disagree. Seven bases are advertised, one has released images, and five have registry images frozen a major version behind.' (N2: a documented design choice with a supported alternative path, per rule 14 as amended), and added a buy that states the alternative path."
+    source:
+      url: "https://github.com/kairos-io/kairos-docs/blob/5fe7466/blog/2026-02-25-kairos-v4-hadron-artifacts-and-distro-flexibility.md"
+      type: "announcement"
+      title: "Kairos v4: Hadron artifacts and distro flexibility"
+      retrieved: "2026-10-06"
+      quote: "Starting with **Kairos v4**, the Kairos project will publish **Hadron-based artifacts only**. ... continues to validate a wide distro matrix: **8 different distros and multiple releases**."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Removed cost 'One previous version is retained. The documentation does not publish that number and has no rollback procedure page.' The documented A/B design implies one previous version (rule 15), and the documented boot sequence A, then B, then Recovery, with the boot-assessment page's 'Booting to fallback' section, documents the rollback path. The same test was applied to every other card; the other retention and rollback lines were already handled by the audit verdicts."
+    source:
+      url: "https://github.com/kairos-io/kairos-docs/blob/5fe7466/versioned_docs/version-v4.3.0/architecture/immutable.md"
+      type: "official-docs"
+      title: "Kairos docs: immutable architecture, v4.3.0"
+      retrieved: "2026-10-06"
+      version: "v4.3.0"
+      quote: "The upgrade will create a new pristine image, that will be selected as active for the next reboot, the old one will be flagged as passive."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Added the Trusted Boot section-alignment defect, moved from the Hadron card: Trusted Boot media are built by AuroraBoot, a Kairos tool, so the cost belongs to the release that carries it. The fix is kairos-io/go-ukify#66, merged 2026-09-22, and the latest AuroraBoot release, v0.27.1 of 2026-09-11, predates it. Sources as recorded in hadron.yaml d07."
+    source:
+      url: "https://github.com/kairos-io/kairos/issues/4885"
+      type: "source-repo"
+      title: "Hadron/Kairos UKI Trusted Boot: go-ukify appends PE sections misaligned"
+      retrieved: "2026-09-22"
+      quote: "go-ukify's assemble() places every section it appends to the systemd stub ... at a 512-byte aligned virtual address, while the stub's PE header declares SectionAlignment 0x1000."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Cost audit under methodology section 9, rule 15. Moved cost 'Secure Boot on stock firmware is unknown for the default artifact...' to open question q0 (N1), which now carries the shim fact; the architecture-page fact moved into the documentation-contradictions cost. Reworded, with every fact kept: c0 (upgrade verification), c2 (adopter-built bases), c6 (disk encryption), c7 (boot assessment), all now name the standard install, which the documentation presents as a choice, not a default. c9 now states the one published support statement. c12 dropped the clause that AuroraBoot's fleet server is documented only in a repository README, which the dimensions record; the undocumented phone-home channel stays."
+  - date: '2026-10-06'
+    field: dimensions.d04_upgrade.normalized.scope
+    change: Was whole-root (Whole root). Now whole-os-image (Whole OS image), from the independent check of what one update replaces (closed six-value vocabulary). Added scope_note.
+    source:
+      url: https://github.com/kairos-io/kairos-docs/blob/main/docs/architecture/immutable.md
+      type: official-docs
+      title: 'Kairos docs: immutable architecture'
+      retrieved: '2026-10-06'
+      quote: a single layer which gets pulled and swapped atomically during upgrades
+  - date: '2026-10-06'
+    field: dimensions.d04_upgrade.normalized.bootloader_upgraded
+    change: Said none. Code reading shows Trusted Boot upgrades write the whole artifact to the EFI partition, including the systemd-boot binary; standard install upgrades do not refresh shim or GRUB. Replaced by bootloader_upgraded_by_mode, evidence INFERRED.
+    source:
+      url: https://github.com/kairos-io/kairos/blob/v4.3.0/agent/pkg/uki/upgrade.go
+      type: source-repo
+      title: kairos-agent UKI upgrade, v4.3.0
+      retrieved: '2026-10-06'
+      quote: // Dump artifact to efi dir
+  - date: "2026-10-06"
+    field: dimensions.d04_upgrade.normalized.artifact_verification_default
+    change: "The field called the standard install the default. Kairos documents the standard install and Trusted Boot as choices, with no default. Replaced by artifact_verification_by_mode (Mauro Morales, Kairos maintainer, during review; the per-mode values are unchanged)."
+    source:
+      url: https://kairos.io/docs/
+      type: official-docs
+      title: Kairos documentation
+      retrieved: "2026-10-06"
+  - date: "2026-09-22"
+    field: entry_kind
+    change: >-
+      Was [distribution, framework, base-images]; now [framework, distribution].
+      base-images removed because the base images in the Kairos-and-Hadron pair
+      are Hadron's, now profiled in hadron.yaml; distribution kept because the
+      project releases the artifacts its framework produces. Reasoning in
+      methodology.md section 11, item 7, and in category_fit.note.
+    source:
+      url: https://hadron-linux.io/
+      type: official-docs
+      title: Hadron Linux home page
+      retrieved: "2026-09-22"
+      quote: >-
+        Topped with Kairos, it becomes immutable and has powerful lifecycle
+        management
+  - date: "2026-09-22"
+    field: version_observed.method
+    change: >-
+      Said 109 stable releases to date. The stated method (releases API,
+      excluding pre-releases and drafts) returns 197 of 314 releases on
+      2026-09-22, and 109 could not be reproduced by any counting method tried
+      (semver-only tags give 97). Now says 197 with the count method and date.
+    source:
+      url: https://github.com/kairos-io/kairos/releases
+      type: release-notes
+      title: Kairos releases
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.summary
+    change: >-
+      Said 109 stable releases. Now says 197 releases not flagged pre-release,
+      for the reason recorded against version_observed.method.
+    source:
+      url: https://github.com/kairos-io/kairos/releases
+      type: release-notes
+      title: Kairos releases
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d01_os_model.notes
+    change: >-
+      Moved since collection: Hadron was v0.5.2 (2026-09-09) on 2026-09-15 and
+      is v0.5.3 since 2026-09-18. The v4.3.0 ISOs still carry Hadron v0.5.1.
+    source:
+      url: https://github.com/kairos-io/hadron/releases/tag/v0.5.3
+      type: release-notes
+      title: Hadron v0.5.3
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d05_rollback_recovery.notes
+    change: >-
+      Said the words rollback and roll back appear twice in the v4.3.0
+      documentation, neither as a procedure. The v4.3.0 tree carries the word
+      once, and an unversioned getting-started FAQ, present since at least
+      February 2026, answers "Can I easily rollback an upgrade?" in two
+      sentences. Now states both. Also records that a Kubernetes Provider
+      section published 2026-09-21 adds a Rollback heading. The finding that no
+      rollback procedure page exists stands.
+    source:
+      url: https://kairos.io/getting-started/building-and-upgrading/
+      type: official-docs
+      title: Getting started, building and upgrading FAQ
+      retrieved: "2026-09-22"
+      quote: >-
+        Boot into the passive (fallback) system, and apply an upgrade with the
+        previous image (or to any image you'd rather upgrade to).
+  - date: "2026-09-22"
+    field: dimensions.d07_kubernetes.notes
+    change: >-
+      Said the providers were all archived between 2026-08-18 and 2026-09-03.
+      Those are the repositories' last push dates, not archive dates. The
+      umbrella provider carries an archive-notice commit dated 2026-08-31; the
+      other five have a last metadata update on 2026-09-07, the latest date
+      the archiving could have happened. Now states the evidence and the bound.
+    source:
+      url: https://github.com/kairos-io/provider-kairos
+      type: source-repo
+      title: provider-kairos, archive notice commit 2026-08-31
+      retrieved: "2026-09-22"
+      quote: "Add archive notice"
+  - date: "2026-09-22"
+    field: dimensions.d07_kubernetes.notes
+    change: >-
+      Moved since collection: said the newer Kubernetes provider is referenced
+      nowhere in the documentation. True on 2026-09-15; a Kubernetes Provider
+      documentation section was published on the site on 2026-09-21. The
+      Cluster API provider remains undocumented and moved from v0.1.2
+      (2026-09-09) to v0.1.3 (2026-09-17).
+    source:
+      url: https://kairos.io/provider-kubernetes-docs/
+      type: official-docs
+      title: Kubernetes Provider documentation
+      retrieved: "2026-09-22"
+      quote: >-
+        The Kubernetes provider turns a Kairos node into a Kubernetes node.
+  - date: "2026-09-22"
+    field: dimensions.d07_kubernetes.normalized.distributions
+    change: >-
+      Moved since collection: was k3s and k0s. Adds kubeadm, because the
+      kubeadm-based Kubernetes provider gained a documentation section on
+      2026-09-21. The choosing-a-distribution page still names only k3s and
+      k0s as official, which is recorded as an open question.
+    source:
+      url: https://kairos.io/provider-kubernetes-docs/
+      type: official-docs
+      title: Kubernetes Provider documentation
+      retrieved: "2026-09-22"
+      quote: >-
+        Bootstraps a cluster with kubeadm and joins control planes and workers
+        to it, including highly available control planes behind a shared
+        endpoint.
+  - date: "2026-09-22"
+    field: dimensions.d08_hardware_platform.sources[1].url
+    change: >-
+      Was https://kairos.io/docs/installation/raspberry-pi/, which returns 404.
+      The v4.3.0 documentation source declares the slug /installation/raspberry,
+      so the URL was wrong on the collection date. Now
+      https://kairos.io/docs/installation/raspberry/. The quoted sentence is
+      present on the live page.
+    source:
+      url: https://kairos.io/docs/installation/raspberry/
+      type: official-docs
+      title: Raspberry Pi
+      retrieved: "2026-09-22"
+      quote: "Model 5 is currently not supported because of how we use U-boot"
+  - date: "2026-09-22"
+    field: dimensions.d09_provisioning.notes
+    change: >-
+      Said yip is described on one page as a superset of cloud-init syntax and
+      on another as a subset. Neither page uses the word superset: one says
+      Kairos supports the standard cloud-init syntax and "its own extended
+      syntax", the other says "a subset of cloud-init". Now uses the pages'
+      own words.
+    source:
+      url: https://kairos.io/docs/architecture/cloud-init/
+      type: official-docs
+      title: Cloud-init based architecture
+      retrieved: "2026-09-22"
+      quote: >-
+        Kairos supports the standard cloud-init syntax and its own extended
+        syntax
+  - date: "2026-09-22"
+    field: dimensions.d09_provisioning.sources[2]
+    change: >-
+      The quote field held a research note, not page text, and the cited
+      configuration reference page does not contain the schema URL. Replaced
+      with the source file that builds the URL and its verbatim line. The
+      404 finding was re-verified on 2026-09-22 and stands.
+    source:
+      url: https://github.com/kairos-io/kairos/blob/master/sdk/schema/validate.go
+      type: source-repo
+      title: Schema validator
+      retrieved: "2026-09-22"
+      quote: 'url := fmt.Sprintf("https://kairos.io/%s/cloud-config.json", version)'
+  - date: "2026-09-22"
+    field: dimensions.d11_operations_debugging.sources
+    change: >-
+      The quote "currently we cannot advise how to proceed here to build the
+      UKI images with debug options yet" was attributed to the Trusted Boot
+      upgrade page. It is on the troubleshooting page, in both the v4.3.0 and
+      the development tree. Moved the quote to the troubleshooting source and
+      removed the Trusted Boot upgrade page from this dimension, since it
+      supports no claim here.
+    source:
+      url: https://kairos.io/docs/reference/troubleshooting/
+      type: official-docs
+      title: Troubleshooting
+      retrieved: "2026-09-22"
+      quote: >-
+        currently we cannot advise how to proceed here to build the UKI images
+        with debug options yet
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.oss_companion
+    change: >-
+      Moved since collection: cluster-api-provider-kairos and
+      cluster-api-provider-kairos-fleet were v0.1.2 (2026-09-09) on 2026-09-15
+      and are v0.1.3 (2026-09-17) now. Same change applied to
+      normalized.cluster_api.maturity and to the release-notes source.
+    source:
+      url: https://github.com/kairos-io/cluster-api-provider-kairos/releases/tag/v0.1.3
+      type: release-notes
+      title: cluster-api-provider-kairos v0.1.3
+      retrieved: "2026-09-22"
+      quote: "A fix and supply-chain release."
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.normalized.cluster_api.clusterctl_builtin
+    change: >-
+      Moved since collection: cluster-api v1.14.1 (2026-09-01) and v1.14.2
+      (2026-09-08) were released; the providers file at v1.14.2 carries no
+      Kairos entry, so the statement that no released clusterctl includes
+      Kairos still holds and now names the versions checked.
+    source:
+      url: https://github.com/kubernetes-sigs/cluster-api/blob/v1.14.2/cmd/clusterctl/client/config/providers_client.go
+      type: source-repo
+      title: clusterctl built-in providers at v1.14.2
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.notes
+    change: >-
+      Said the registering pull requests in cluster-api were authored by a
+      Kairos contributor. The author is listed as a Maintainer in the project's
+      MAINTAINERS.md, which is the stronger fact. Now says maintainer.
+    source:
+      url: https://github.com/kairos-io/community/blob/main/MAINTAINERS.md
+      type: governance-doc
+      title: Kairos maintainers
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d13_governance.normalized.license_note
+    change: >-
+      Said three repositories have no LICENSE file and one component is
+      MPL-2.0. A directory check on 2026-09-22 found no LICENSE or COPYING file
+      in eight active public repositories, and two repositories (go-ukify,
+      osutil) are MPL-2.0. The limitation was understated; now lists them.
+    source:
+      url: https://github.com/kairos-io/entangle
+      type: source-repo
+      title: entangle repository root, no licence file
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.notes
+    change: >-
+      Said the monorepo consolidation archived eleven repositories between
+      2026-08-18 and 2026-09-03. The count could not be reproduced from the
+      organization's repository list. By last metadata update, nine were
+      archived between 2026-08-19 and 2026-08-31 and five Kubernetes provider
+      repositories by 2026-09-07. Now states those figures and the method.
+    source:
+      url: https://github.com/orgs/kairos-io/repositories?q=archived%3Atrue
+      type: source-repo
+      title: kairos-io archived repositories
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.*.sources[].quote
+    change: >-
+      Several quote fields (d01, d04, d05, d08, d09, d10) held research notes
+      rather than page text. Each was replaced with a short verbatim excerpt
+      from the cited source, and the note moved into the source title or the
+      dimension notes. No normalized value changed as a result.
+    source:
+      url: https://github.com/kairos-io/kairos/releases/tag/v4.3.0
+      type: release-notes
+      title: Kairos v4.3.0
+      retrieved: "2026-09-22"
+  - date: "2026-10-05"
+    field: dimensions.d13_governance.normalized.contribution_diversity
+    change: >-
+      The earlier count did not reconcile (1703 total minus 803 bot is 900, not
+      the 709 stated) and carried no commands. Re-run with a fixed window ending
+      2026-09-22: 1710 total, 997 bot and agent, 713 human, 34 distinct human
+      author addresses; the six-month share from sponsor-affiliated maintainers
+      is 406 of 430 (about 94 percent), not 92. The exact commands are now in
+      the method field.
+    source:
+      url: https://github.com/kairos-io/kairos/commits/master/
+      type: source-repo
+      title: kairos-io/kairos commit history, origin/master
+      retrieved: "2026-10-05"
+      quote: >-
+        Commit history of the default branch, read with the commands in the
+        contribution_diversity method field.
+  - date: "2026-10-05"
+    field: dimensions.d04_upgrade.normalized.self_hostable_update_server
+    change: >-
+      Added a value for the self-hostable update source column, which rendered as Not collected. The value is true. The upgrade source is any OCI registry, including a private one, or a local directory, file or saved image. Hadron has no upgrade path of its own and uses the same one.
+    source:
+      url: https://kairos.io/docs/upgrade/manual/
+      type: official-docs
+      title: "Manual upgrade, upgrade sources"
+      retrieved: "2026-10-05"
+      quote: >-
+        An OCI image pulled from a container registry. If the tag is omitted, :latest is assumed.
+  - date: "2026-10-06"
+    field: dimensions.d10_security.normalized.measured_boot
+    change: "The field said PCR 7 and PCR 11. The code default binds the signed PCR 11 policy only and adds PCR 7 only when bind-pcrs is set. The Kairos docs page on revoking Secure Boot access still describes PCR 11 plus PCR 7."
+    source:
+      url: https://github.com/kairos-io/kairos/blob/2a3c309cc9a812b7dc8e4d72438f3f1b711fba89/sdk/kcrypt/lock.go#L172
+      type: source-repo
+      title: "kairos sdk/kcrypt lock.go"
+      retrieved: "2026-10-06"
+      quote: >-
+        default for pcrs is nothing, so it doesn't bind as we want to expand things like DBX and be able to blacklist certs and such.
+  - date: "2026-10-06"
+    field: dimensions.d08_hardware_platform.normalized.gpu
+    change: "The field named Orin AGX and Orin NX container images only. The docs for the nvidia-* models also cover AGX Thor and DGX Spark (GB10), all arm64, layered at image build by kairos-init. The docs say the prebuilt Orin images are no longer updated by the release pipeline."
+    source:
+      url: https://github.com/kairos-io/kairos-docs/blob/4420f5e/versioned_docs/version-v4.3.0/installation/edge-devices/nvidia-jetson-images.md
+      type: official-docs
+      title: "Kairos docs v4.3.0: NVIDIA Jetson images"
+      retrieved: "2026-10-06"
+      quote: >-
+        are not actively updated by the Kairos release pipeline anymore
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 16: concentration is stated once, in one shape. Was 'Maintainership and contribution are concentrated in one company: five of six maintainers, four of four administrators, one listed contributing organization, and about 94 percent of recent human commits from that company's affiliated maintainers.' Now 'Five of six maintainers work for Spectro Cloud.', the one measure every foundation-held entry gets, from the project's own maintainers file. The administrator count, the contributing-organizations count and the commit share stay in d13 contribution_diversity and notes. They are not on the card, because no other entry has a commit share measured the same way."
+    source:
+      url: "https://github.com/kairos-io/community/blob/main/MAINTAINERS.md"
+      type: "governance-doc"
+      title: "Kairos maintainers (six maintainers, five at Spectro Cloud and one at Mirantis; four administrators, all at Spectro Cloud; two emeritus, both Spectro Cloud)"
+      retrieved: "2026-09-22"
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 17: where a capability is documented is not a cost. Removed cost 'A phone-home control channel that can reboot and upgrade machines has no documentation page.' The channel is the AuroraBoot fleet server's node manager. The feature exists and the AuroraBoot README documents it, so where it is documented is not a cost. The kairos.io documentation gap is tracked in kairos-io/kairos#5256."
+    source:
+      url: "https://github.com/kairos-io/AuroraBoot"
+      type: "source-repo"
+      title: "AuroraBoot README, node manager"
+      retrieved: "2026-10-06"
+      quote: "From there you can send commands: upgrade, reboot, reset, apply a cloud-config, or run arbitrary shell"
+  - date: "2026-10-06"
+    field: "tradeoffs.buys"
+    change: "Methodology section 9, rule 17, fleet tooling parity: Flatcar (Nebraska), Bottlerocket (update waves) and EVE-OS (Adam) get a buy for open fleet tooling, and Kairos did not. Added buy 'An open-source fleet server (Apache-2.0) in AuroraBoot: nodes enrol and are grouped, and the server sends upgrade, reboot, reset and configuration commands, with a dashboard, a Secure Boot key store and BMC provisioning. A Cluster API provider builds on it.' Sources as recorded in d12 oss_companion (AuroraBoot, cluster-api-provider-kairos-fleet) and d04 fleet_upgrade, plus the AuroraBoot README, quote verified verbatim on 2026-10-06. The d04 note that bulk commands have no concurrency, batch or failure-stop field stays in the dimension data."
+    source:
+      url: "https://github.com/kairos-io/AuroraBoot"
+      type: "source-repo"
+      title: "AuroraBoot README, node manager"
+      retrieved: "2026-10-06"
+      quote: "From there you can send commands: upgrade, reboot, reset, apply a cloud-config, or run arbitrary shell"
+  - date: "2026-10-06"
+    field: "tradeoffs.buys"
+    change: "Cluster API parity: the profile records the project's own Cluster API providers in d12 (cluster_api and oss_companion) and in the d04 fleet_upgrade block, and the card had no buy for them. Added buy 'Its own Cluster API providers (Apache-2.0): a control-plane provider that rolls control-plane machines one at a time, and a fleet provider that claims nodes already enrolled in AuroraBoot.' The same test was applied to every entry with Cluster API providers recorded in its profile (Talos, Flatcar)."
+    source:
+      url: "https://github.com/kairos-io/cluster-api-provider-kairos"
+      type: "source-repo"
+      title: "cluster-api-provider-kairos repository"
+      retrieved: "2026-10-06"
+      quote: "pre-1.0; API surface may still change"
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Cluster API parity: no cost covered the stated limits of the new Cluster API buy, so added one cost (C1, C3): 'The Cluster API providers are pre-1.0, and their API may still change. The fleet provider supports a single control-plane machine only.' From d12 oss_companion and cluster_api.maturity, and the fleet provider README as recorded in d12 sources."
+    source:
+      url: "https://github.com/kairos-io/cluster-api-provider-kairos-fleet"
+      type: "source-repo"
+      title: "Kairos fleet infrastructure provider README"
+      retrieved: "2026-09-22"
+      quote: "High-availability control planes (`replicas` greater than 1) are out of scope for this provider."
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18: a limitation counts only where the same aspect is assessed for every entry with the capability, and an unverified security path always counts. Cost c0 reworded to the unverified path only. Was 'On the standard install, upgrade signature checking ships off and has no command-line flag, and the documentation does not say the path is unverified. Trusted Boot enforces verification, and no page documents the difference.' Now 'On the standard install, an upgrade does not verify the image signature, no command-line flag turns it on, and the documentation does not say the path is unverified.' The Trusted Boot half moved to the new Trusted Boot buy ('Upgrades enforce signature verification'). Sources as recorded in d10."
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Methodology section 9, rule 18: build-your-own responsibility is a status of the build-your-own capability, not a separate cost. Moved cost c2 ('For a base other than Hadron, the adopter builds the image and owns its testing, signing and CVE response. The documentation assigns only versioning to the adopter.') into buy b2, which now ends 'The adopter then owns the image's testing, signing and CVE response; the documentation assigns only versioning to the adopter.' Every fact kept."
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Methodology section 9, rule 18: disk encryption is assessed as a capability with its status. Moved cost c4 ('On the standard install, disk encryption is opt-in and covers user-data partitions only. Without it, host keys, home directories and Kubernetes state are stored unencrypted.') into a new buy: 'Disk encryption with TPM or KMS unlock, automatic under Trusted Boot. On the standard install it is opt-in and covers the user-data partitions; without it, host keys, home directories and Kubernetes state are stored unencrypted.' Sources as recorded in d10 (disk_encryption, partition encryption page)."
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Methodology section 9, rule 18: boot-assessment quality is not assessed for every entry with automatic rollback, so it is a status of the recovery buy. Moved cost c5 ('On the standard install, boot assessment allows one retry and counts a boot successful at an early configuration stage, before any workload is healthy. An upgrade that boots but breaks the cluster counts as successful.') into buy b4, which now ends 'Automatic rollback allows one retry on the standard install and counts a boot as good when it reaches an early configuration stage, before any workload is healthy.' Sources as recorded in d05."
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Methodology section 9, rule 18: Trusted Boot had no buy, and its limits were costs. Added buy 'Trusted Boot: the whole OS in a UKI signed with your own keys, run from memory, with signed system extensions only and disk keys sealed to the signed PCR 11 policy. Upgrades enforce signature verification. The command line is measured, so boot-time debug options cannot be added, and the documentation cannot yet advise how to build UKI images with them.' from d10 boot_trust_chain and the troubleshooting page. Moved cost c10 ('No debugging story exists for Trusted Boot, and the documentation says so. The mode intended for high-assurance deployment has no shell access.') into that buy, and dropped 'no shell access', which no source supports: the troubleshooting page says the measured command line prevents adding boot-time debug options, not that the mode has no shell."
+    source:
+      url: "https://kairos.io/docs/reference/troubleshooting/"
+      type: "official-docs"
+      title: "Troubleshooting, Kairos UKI note"
+      retrieved: "2026-10-06"
+      quote: "Currently on UKI mode we cannot easily change the cmdline to provide debug options easily as the cmdline is measured by the TPM and the system will not boot if the cmdline is changed."
+  - date: "2026-10-06"
+    field: "dimensions.d11_operations_debugging.notes"
+    change: "The note said Trusted Boot 'is the one you cannot get a shell into'. No source supports that. The troubleshooting page says the command line is measured by the TPM and the system will not boot if it is changed, so debug options such as initramfs breakpoints cannot be added. Reworded to that, and noted that the page lists TPM event log and Secure Boot key checks for Trusted Boot."
+    source:
+      url: "https://kairos.io/docs/reference/troubleshooting/"
+      type: "official-docs"
+      title: "Troubleshooting, Kairos UKI note"
+      retrieved: "2026-10-06"
+      quote: "Currently on UKI mode we cannot easily change the cmdline to provide debug options easily as the cmdline is measured by the TPM and the system will not boot if the cmdline is changed."
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Methodology section 9, rule 18: a version number alone is not a status (rule 15, N4), and a status goes inside the buy when the project states a consequence. Cost c11 ('The Cluster API providers are pre-1.0, and their API may still change. The fleet provider supports a single control-plane machine only.') removed; buy b7 replaced. Was 'Its own Cluster API providers (Apache-2.0): a control-plane provider that rolls control-plane machines one at a time, and a fleet provider that claims nodes already enrolled in AuroraBoot.' Now 'Its own Cluster API providers (Apache-2.0). A bootstrap and control-plane provider for k0s and k3s rolls control-plane machines one at a time and accepts 1, 3 or 5 control-plane replicas, with high availability on CAPK, CAPV and CAPM3; its README says the API may still change. A fleet infrastructure provider claims nodes already enrolled in AuroraBoot, for a single control-plane machine.' Verified verbatim on 2026-10-06 against the v0.1.3 README ('pre-1.0; API surface may still change before v1.0.', 'HA control planes (`spec.replicas: 3` or `5`) are supported on CAPK, CAPV, and CAPM3 for both k0s and k3s.') and the fleet provider README at v0.1.3 ('High-availability control planes (`replicas` greater than 1) are out of scope for this provider.')."
+    source:
+      url: "https://github.com/kairos-io/cluster-api-provider-kairos/blob/v0.1.3/README.md"
+      type: "source-repo"
+      title: "cluster-api-provider-kairos README at v0.1.3"
+      retrieved: "2026-10-06"
+      quote: "`KairosControlPlane.spec.replicas` accepts `1` (single-node), `3`, or `5`"
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18: a documented defect counts wherever it appears (C3). Added cost 'With k3s, replacing a control-plane node through the Cluster API provider leaves an etcd member that must be removed by hand. The project documents this as a known limitation. k0s is not affected.' Verified verbatim on 2026-10-06."
+    source:
+      url: "https://github.com/kairos-io/cluster-api-provider-kairos/blob/v0.1.3/docs/HIGH_AVAILABILITY.md"
+      type: "source-repo"
+      title: "cluster-api-provider-kairos high availability at v0.1.3"
+      retrieved: "2026-10-06"
+      quote: "replacing a k3s control-plane node leaves an orphaned etcd member requiring manual `etcdctl member remove`"
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 18, parity with Bottlerocket cost c0 (Secure Boot key enrolment on bare metal): the same limit is a cost on both entries (C1). Added cost 'Trusted Boot uses the adopter's own keys, which must be enrolled through firmware setup mode or per machine.' From d10 notes ('enrollment needs firmware setup mode or per-machine work'), re-verified on 2026-10-06 against the Trusted Boot installation page."
+    source:
+      url: "https://github.com/kairos-io/kairos-docs/blob/57b3dbfc8117bcdd3c984bdbc9e6ae1311dcd244/docs/installation/trustedboot.mdx"
+      type: "official-docs"
+      title: "Kairos docs: Trusted Boot installation, enroll the keys"
+      retrieved: "2026-10-06"
+      quote: "If UEFI setup mode is not available, you need to enroll the keys manually in the BIOS/UEFI."
+  - date: "2026-10-06"
+    field: "dimensions.d04_upgrade.normalized.fleet_upgrade"
+    change: "The cluster-api-provider-kairos path said 'A single-node control plane is not supported.' The v0.1.3 README says the opposite: replicas accepts 1 (single-node), 3 or 5. Note now records the README facts: replicas 1, 3 or 5; high availability on CAPK, CAPV and CAPM3 for k0s and k3s; the k3s member-removal limitation (KD-5d); the fleet provider supports a single control-plane machine only. Status was 'pre-1.0' (a version number, rule 15 N4); now 'API may still change (README)'. Added the replicas quote and the KD-5d quote to the path's sources, both verified verbatim on 2026-10-06."
+    source:
+      url: "https://github.com/kairos-io/cluster-api-provider-kairos/blob/v0.1.3/README.md"
+      type: "source-repo"
+      title: "cluster-api-provider-kairos README at v0.1.3"
+      retrieved: "2026-10-06"
+      quote: "`KairosControlPlane.spec.replicas` accepts `1` (single-node), `3`, or `5`"
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized
+    change: 'Added normalized.configurable_paths (yes: install.bind_mounts and install.ephemeral_mounts), ephemeral_mechanism (overlay on tmpfs) and immutability_disable_where (kernel command line), for the Mounts row of the data sheet. Extended the persistent-paths entry with four examples from PERSISTENT_STATE_PATHS. The values for read_only, ephemeral and the persistent list were re-read against the sources and stand.'
+    source:
+      url: https://github.com/kairos-io/kairos/blob/d17464a/kairos-init/pkg/bundled/cloudconfigs/00_rootfs.yaml
+      type: source-repo
+      title: 'kairos-init: default rootfs layout, v4.3.0'
+      retrieved: '2026-10-12'
+      quote: 'RW_PATHS: "/var /etc /srv"'
+  - date: '2026-10-12'
+    field: dimensions.d08_hardware_platform.normalized.architectures_via_base_distribution
+    change: Added riscv64 via your base distribution (methodology section 9, rule 21). The latest releases of kairos-init, kairos-agent and immucore each ship a linux riscv64 build. amd64 and arm64 are already released images. ppc64le and s390x are not built by any of the three. riscv64 stays recorded as tooling only, because no riscv64 OS image or ISO is released.
+    source:
+      url: https://github.com/kairos-io/kairos-init/releases/tag/v0.17.3
+      type: release-notes
+      title: kairos-init v0.17.3 release assets
+      retrieved: '2026-10-12'
+      quote: kairos-init_0.17.3_linux_riscv64.tar.gz
+  - date: '2026-10-12'
+    field: corrections[5].source.type, corrections[27].source.type
+    change: The schema allows no source type "source-code". Both correction sources are repository files, so the type is now "source-repo". No quote, URL or claim changed.
+    source:
+      url: https://github.com/kairos-io/kairos/blob/d17464a/kairos-init/pkg/bundled/cloudconfigs/00_rootfs.yaml
+      type: source-repo
+      title: 'kairos-init: default rootfs layout, v4.3.0'
+      retrieved: '2026-10-12'
+      quote: 'RW_PATHS: "/var /etc /srv"'
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: 'Added the add_software field. It records how an adopter adds software to the OS itself, not workloads. Values: Derive the image, systemd-sysext, Vendor extensions, Not supported. Each value has its sources, read on 2026-10-12.'
+    source:
+      url: https://github.com/kairos-io/kairos-docs/blob/53e6883b7904253438ce0fa1b573da6bda926041/versioned_docs/version-v4.3.0/advanced/customizing.md
+      type: official-docs
+      title: 'Kairos docs: Customizing the system image'
+      retrieved: '2026-10-12'
+      quote: To modify Kairos and add a package, you'll need to build a container image from the
+      version: v4.3.0
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: Removed the not-supported value. Not supported means no way to add host software exists, and this entry documents other ways. The docs' statement about package installs, with its source, moved into the systemd-sysext value.

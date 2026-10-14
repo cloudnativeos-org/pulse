@@ -1,0 +1,1656 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: fedora-coreos
+name: Fedora CoreOS
+homepage: https://docs.fedoraproject.org/en-US/fedora-coreos/
+repository: https://github.com/coreos/fedora-coreos-config
+collected_at: "2026-09-15"
+
+entry_kind:
+  - distribution
+
+category_fit:
+  comparable: full
+  note: >-
+    A Fedora Edition with streams and releases. Comparable on all fourteen
+    dimensions.
+
+    Read alongside the bootc profile. They are separate entries because a
+    distribution and a mechanism are not peers, and this edition's methodology
+    section 3 explains why. A Fedora working group opened on 2026-08-26 proposes
+    merging Fedora CoreOS and the Fedora bootc base images, targeting Fedora 46.
+    That is announced and in progress, with no technical design or shipped
+    artifact yet, and it is recorded as such rather than as a completed move.
+
+self_description:
+  text: >-
+    Fedora CoreOS is an automatically updating, minimal, monolithic,
+    container-focused operating system, designed for clusters but also operable
+    standalone, optimized for Kubernetes but also great without it.
+  source:
+    url: https://docs.fedoraproject.org/en-US/fedora-coreos/
+    type: official-docs
+    title: Fedora CoreOS documentation
+    retrieved: "2026-09-22"
+
+version_observed:
+  version: "44.20260829.3.1"
+  released: "2026-09-15"
+  channel: stable
+  method: >-
+    Live stream metadata at builds.coreos.fedoraproject.org/streams/stable.json,
+    which the documentation names as the canonical URL on its stream metadata
+    page. The download page is client-side rendered and carries no version
+    strings. The release date is the rollout date: the "Roll out stable" commit
+    to streams/stable.json in the fedora-coreos-streams repository, cross-checked
+    against the rollout start_epoch in
+    builds.coreos.fedoraproject.org/updates/stable.json. The version string's
+    embedded date (20260829) is the build date, not the release date.
+  source:
+    url: https://builds.coreos.fedoraproject.org/streams/stable.json
+    type: release-notes
+    title: Fedora CoreOS stable stream metadata
+    retrieved: "2026-09-22"
+  additional_channels:
+    - channel: testing
+      version: "44.20260913.2.1"
+      released: "2026-09-15"
+    - channel: next
+      version: "45.20260913.1.1"
+      released: "2026-09-15"
+
+taxonomy:
+  workload_scope: general-purpose-host
+  construction_model:
+    - vendor-fixed-image
+  root_state_substrate:
+    - ostree-deployment
+  notes: >-
+    A container host that is optimized for Kubernetes but ships none, and whose
+    own description stresses it is "operable standalone". That places it at the
+    general-purpose-host position rather than the Kubernetes-oriented one.
+
+    The construction model is deliberately single-valued here, and it is the
+    difference the Fedora bootc documentation itself draws: Fedora CoreOS
+    "generally emphasizes users configuring an image pre-built by Fedora", while
+    Fedora bootc "emphasizes users deriving from our container base image".
+
+    The substrate is an OSTree deployment. Since late 2025 the update payload is
+    fetched as an OCI image, but what lands on disk is still an OSTree
+    deployment applied by rpm-ostree, not a bootc deployment.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: general-purpose-host
+      ships_kubernetes: false
+      streams:
+        - stable
+        - testing
+        - next
+      edition_status: "official Fedora Edition since Fedora 37"
+    summary: >-
+      A minimal, automatically updating container host, shipped as three
+      continuously updating streams with no versioned or long-term branch.
+      Podman and Docker ship; no orchestrator does.
+    notes: >-
+      The three streams flow next to testing to stable. A system following a
+      stream updates automatically when a new release rolls out on it. There is
+      no maintenance branch and no per-release end-of-life, because there are no
+      releases to support in that sense.
+
+      It became an official Fedora Edition for Fedora 37, by a recorded
+      engineering committee vote, with separate Fedora Council trademark
+      approval.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/update-streams/
+        type: official-docs
+        title: Update streams
+        retrieved: "2026-09-22"
+        quote: >-
+          When following a stream, a system is updated automatically when a new
+          release is rolled out on that stream.
+      - url: https://pagure.io/fesco/issue/2823
+        type: governance-doc
+        title: "FESCo #2823, make Fedora CoreOS an Edition"
+        retrieved: "2026-09-22"
+        quote: "Closed: Accepted Jul 19, 2022 ... the vote is APPROVED (+5,0,-0)"
+      - url: https://docs.fedoraproject.org/en-US/bootc/fedora-coreos/
+        type: official-docs
+        title: Fedora bootc documentation, Fedora CoreOS versus Fedora bootc
+        retrieved: "2026-09-22"
+        quote: >-
+          Fedora CoreOS (much like Fedora Atomic Desktops) generally emphasizes
+          users configuring an image pre-built by Fedora
+
+  d02_immutability:
+    normalized:
+      read_only:
+        - /
+        - /usr
+        - /boot
+      writable_and_persistent:
+        - /etc
+        - /var
+      integrity_mechanism:
+        - ostree-immutable-checkout
+        - read-only-mount
+      composefs: "default since Fedora 41"
+      dm_verity: "none"
+      etc_merge: three-way
+      retained_deployments: 2
+      survives_upgrade:
+        - "/var, untouched by upgrades and rollbacks"
+        - "/etc, through a three-way merge that preserves local modifications"
+      read_only_mechanism: OSTree-managed; composefs root since Fedora 41
+      configurable_paths:
+        value: 'yes'
+        evidence: DOCUMENTED
+        how: 'Only to add storage: mount a separate partition, disk or network filesystem at /var or a subdirectory of it, with a Butane config and Ignition. The writable set stays /etc and /var.'
+        sources:
+          - url: https://docs.fedoraproject.org/en-US/fedora-coreos/storage/
+            type: official-docs
+            title: 'Fedora CoreOS storage: separate /var mounts'
+            retrieved: '2026-10-12'
+            quote: You can of course mount only a subset of /var into a separate partition.
+      mounts_sources:
+        - url: https://docs.fedoraproject.org/en-US/fedora-coreos/storage/
+          type: official-docs
+          title: 'Fedora CoreOS storage: immutable root'
+          retrieved: '2026-10-12'
+          quote: As OSTree is used to manage all files belonging to the operating system, the / and /usr mountpoints are not writable.
+        - url: https://docs.fedoraproject.org/en-US/fedora-coreos/storage/
+          type: official-docs
+          title: 'Fedora CoreOS storage: writable locations'
+          retrieved: '2026-10-12'
+          quote: The only supported writable locations are /etc and /var.
+    summary: >-
+      OSTree owns every file in the operating system, so / and /usr are not
+      writable, and neither is /boot. The documented statement is unusually
+      crisp: the only supported writable locations are /etc and /var.
+    notes: >-
+      Traditional state directories such as /home and /srv are symlinks into
+      /var. Adding a top-level directory is disallowed by the immutable
+      attribute.
+
+      /etc is the interesting case and its handling is better than a blanket
+      read-only mount for operators: OSTree performs a three-way merge on
+      upgrade, applying the difference between the previous and current default
+      /etc onto the new one, so locally modified files are retained.
+
+      Composefs has been enabled by default since Fedora 41, which the change
+      proposal says makes the root mount "a truly read only filesystem". The
+      same proposal is honest about its limit, describing it as "the first step
+      toward a full at runtime verification of filesystem integrity". It is not
+      dm-verity, and signature-backed runtime integrity remains an open design
+      question in the project's own tracker, open since 2022.
+
+      Two deployments are retained by default. Individual deployments can be
+      pinned against garbage collection, but that mechanism is documented only
+      upstream in OSTree and not in the Fedora CoreOS documentation at all.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/storage/
+        type: official-docs
+        title: Storage and mounted filesystems
+        retrieved: "2026-09-22"
+        quote: >-
+          The only supported writable locations are /etc and /var. ... All data
+          must be kept under /var and will not be touched by system upgrades.
+      - url: https://fedoraproject.org/wiki/Changes/ComposefsAtomicCoreOSIoT
+        type: design-doc
+        title: "Fedora Change: composefs by default"
+        retrieved: "2026-09-22"
+        quote: >-
+          This is the first step toward a full at runtime verification of
+          filesystem integrity.
+      - url: https://github.com/coreos/fedora-coreos-tracker/issues/1252
+        type: source-repo
+        title: fs-verity signature checking design question
+        retrieved: "2026-09-22"
+        quote: >-
+          the primary question is: are we interested in leveraging any of these
+          technologies to strengthen our security?
+    unknowns:
+      - "Deployment pinning is undocumented in the project's own documentation, appearing only in upstream OSTree material."
+
+  d03_artifact:
+    normalized:
+      primary_artifact: oci-image
+      legacy_artifact: ostree-commit
+      oci_registry_distribution: true
+      content_addressable: true
+      mirrorable: true
+      signed: gpg
+      signature_policy: "GPG signature required for the OS update image only; the policy is bind-mounted into the rpm-ostree daemon, not applied host-wide"
+      air_gapped_capable: unknown
+    summary: >-
+      Since 2025 the update payload is an OCI image on a public registry,
+      replacing the OSTree HTTP transport. It is GPG-signed, and the OS update
+      path runs under a shipped container policy that requires a signature
+      under Fedora signing keys for the project's own repository.
+    notes: >-
+      The transition landed per stream through 2025 and is complete on all three.
+      The signature policy needs stating precisely. The shipped policy file sets
+      a top-level default of reject, then sets the docker transport default to
+      insecureAcceptAnything and requires a GPG signature only for
+      quay.io/fedora/fedora-coreos. It is bind-mounted into the rpm-ostree
+      daemon's service, so it governs OS image pulls and not the host-wide
+      container policy that podman reads. Within that scope it is stricter than
+      the generic default in this space: bootc's own documentation notes that
+      the upstream default policy does not require signatures, and recommends
+      operators enable them.
+
+      Signing key rotation is handled through documented update barriers, so a
+      machine cannot skip past a key change.
+
+      Four architectures ship, with a wide platform matrix: 21 platform artifact
+      sets on x86_64, 10 on aarch64, 4 on ppc64le and 5 on s390x, including live
+      ISO and PXE artifacts as first-class published assets.
+
+      No Fedora CoreOS specific air-gap procedure was found. Generic offline
+      update by carrying an OCI directory is documented on the bootc side.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://fedoraproject.org/wiki/Changes/CoreOSOstree2OCIUpdates
+        type: design-doc
+        title: "Fedora Change: move updates from OSTree to OCI"
+        retrieved: "2026-09-22"
+        quote: >-
+          the hosts will pull updates from the Quay.io container registry
+          instead ... We will notably keep using rpm-ostree for updates (and not
+          yet bootc).
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/update-barrier-signing-keys/
+        type: official-docs
+        title: Update barriers and signing keys
+        retrieved: "2026-09-22"
+        quote: >-
+          All binary artifacts, ostree commits, and OS images belonging to Fedora
+          and Fedora CoreOS (FCOS) are signed via GPG.
+      - url: https://builds.coreos.fedoraproject.org/streams/stable.json
+        type: release-notes
+        title: Stable stream artifact metadata
+        retrieved: "2026-09-22"
+      - url: https://github.com/coreos/fedora-coreos-config/tree/testing-devel/overlay.d/17fcos-container-signing
+        type: source-repo
+        title: Shipped container signature policy for OS image pulls
+        retrieved: "2026-09-22"
+        quote: >-
+          Bind mount in our containers policy.json that configures how to do
+          signature verification for quay.io/fedora/fedora-coreos
+    unknowns:
+      - "No Fedora CoreOS specific air-gapped procedure is documented."
+
+  d04_upgrade:
+    normalized:
+      fleet_upgrade:
+        self_update: "By default, the OS performs continual auto-updates."
+        paths:
+          - kind: operator
+            name: "OKD Machine Config Operator"
+            license: "Apache-2.0"
+            class: open-source
+            status: "no longer for Fedora CoreOS: OKD moved to CentOS Stream CoreOS in 4.16 (December 2024)"
+            filter: false
+            note: "The Fedora CoreOS FAQ still names the OKD Machine Config Operator, but OKD has shipped CentOS Stream CoreOS since 4.16."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/okd-project/okd-web/blob/749fc3ab/blog/2024/12-16-okd-4-16-and-4-17-release.md
+                title: "OKD 4.16 and 4.17 release"
+                retrieved: "2026-10-06"
+                quote: >-
+                  we have also changed the node operating system to be based off CentOS Stream CoreOS (SCOS) rather than Fedora CoreOS (FCOS).
+              - url: https://github.com/coreos/fedora-coreos-docs/blob/main/modules/ROOT/pages/faq.adoc
+                title: "Fedora CoreOS FAQ"
+                retrieved: "2026-10-06"
+                quote: >-
+                  OKD's Machine Config Operator (MCO) automatically handles updates of Fedora CoreOS in OKD clusters.
+          - kind: fleet-server
+            name: "Cincinnati update graph"
+            license: "Apache-2.0"
+            class: open-source
+            reconciliation: in-place
+            filter: true
+            note: "Phased rollout. The default instance is hosted in the Fedora infrastructure. Self-hosting is code plus a developer quickstart only."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/coreos/fedora-coreos-cincinnati
+                title: "fedora-coreos-cincinnati repository"
+                retrieved: "2026-10-06"
+          - kind: reboot-coordination
+            name: "FleetLock (Zincati) with airlock"
+            license: "Apache-2.0"
+            class: open-source
+            filter: true
+            note: "Zincati takes a FleetLock lock before a reboot. The lock server airlock is Apache-2.0."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/coreos/zincati
+                title: "Zincati repository"
+                retrieved: "2026-10-06"
+              - url: https://github.com/coreos/airlock
+                title: "airlock repository"
+                retrieved: "2026-10-06"
+          - kind: reboot-coordination
+            name: "FleetLock (Zincati) with poseidon/fleetlock"
+            license: "MIT"
+            class: open-source
+            filter: true
+            note: "A second lock server for the FleetLock protocol."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/poseidon/fleetlock
+                title: "poseidon/fleetlock repository"
+                retrieved: "2026-10-06"
+      version_identity:
+        identifier: "Release version, for example 44.20260829.3.1"
+        condition: "No package layering or overrides."
+        evidence: DOCUMENTED
+        sources:
+          - url: https://github.com/coreos/fedora-coreos-docs/blob/main/modules/ROOT/pages/os-extensions.adoc
+            type: official-docs
+            title: "Fedora CoreOS os-extensions"
+            retrieved: "2026-10-06"
+            quote: >-
+              there are no restrictions on which packages one can actually install
+          - url: https://github.com/coreos/rpm-ostree/blob/e5f67f1/src/libpriv/rpmostree-core.cxx
+            type: source-code
+            title: "rpm-ostree core: version tag copied from parent commit"
+            retrieved: "2026-10-06"
+          - url: https://github.com/coreos/rpm-ostree/blob/e5f67f1/docs/ex-replace.md
+            type: official-docs
+            title: "rpm-ostree override replace"
+            retrieved: "2026-10-06"
+      mechanism:
+        - ostree-deployment
+      scope: os-tree-etc-merged
+      scope_sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/main/modules/ROOT/pages/auto-updates.adoc
+          type: official-docs
+          title: Fedora CoreOS auto-updates
+          retrieved: '2026-10-06'
+          quote: Zincati continually checks for OS updates and applies them via rpm-ostree.
+        - url: https://ostreedev.github.io/ostree/atomic-upgrades/
+          type: official-docs
+          title: OSTree atomic upgrades, /etc merge
+          retrieved: '2026-10-06'
+          quote: a 3-way merge is performed between the (by default) currently booted deployment's `/etc`, its default configuration, and the new deployment
+      initiator: "node agent polling an update graph"
+      requires_kubernetes: false
+      requires_vendor_infrastructure: false
+      self_hostable_update_server: true
+      self_hostable_update_source: "Your own Cincinnati update graph server"
+      artifact_verification: gpg-signature
+      artifact_verification_scope: "OS update image only: the shipped policy requires a GPG signature for quay.io/fedora/fedora-coreos pulls made by the rpm-ostree daemon. Other registry pulls are not checked by it. See d03 signature_policy."
+      auto_update_default: true
+      phased_rollout: true
+      reboot_coordination: "FleetLock protocol; the OS ships the client, the lock manager is a separate deployment"
+    summary: >-
+      Automatic updates are on by default. An agent polls an update graph, stages
+      a new OSTree deployment without touching the running filesystem, and
+      reboots according to a configurable strategy.
+    notes: >-
+      This is the only project in the edition where phased rollout, per-node
+      rollout wariness and weekly maintenance windows all ship in the
+      open-source node agent rather than in a fleet product, alongside
+      Bottlerocket's waves.
+
+      Three finalization strategies are documented. Immediate is the default.
+      A fleet-lock strategy coordinates cluster-wide reboots through an HTTP
+      protocol, and here is the honest limit: the OS ships the client only, and
+      the lock manager is an external component the operator deploys. The
+      Zincati documentation names three implementations: airlock, an
+      etcd3-backed server published under the same coreos GitHub organisation as
+      Zincati, whose repository was last pushed in January 2024; a
+      Kubernetes-based reboot manager inside Typhoon; and a serverless DynamoDB
+      implementation. A periodic strategy gives weekly maintenance windows.
+
+      The update graph server is Fedora-hosted by default and is self-hostable,
+      with a published implementation, or can be bypassed entirely by disabling
+      the agent and rebasing by hand. A migration to an OCI-native graph that
+      would remove the server dependency is open and in progress.
+
+      Downgrades are blocked by default and must be explicitly allowed.
+
+      Nothing in the update path involves Kubernetes.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/auto-updates/
+        type: official-docs
+        title: Auto updates
+        retrieved: "2026-09-22"
+        quote: >-
+          rpm-ostree handles multiple on-disk OSTree deployments and can switch
+          between them at boot-time [and] Zincati continually checks for OS
+          updates and applies them via rpm-ostree
+      - url: https://coreos.github.io/zincati/usage/updates-strategy/
+        type: official-docs
+        title: Zincati update strategies
+        retrieved: "2026-09-22"
+        quote: >-
+          Zincati does not mandate any specific lock-manager or database, but
+          instead it uses a simple HTTP-based protocol modeling a distributed
+          counting semaphore with recursive locking, called FleetLock
+      - url: https://coreos.github.io/zincati/usage/auto-updates/
+        type: official-docs
+        title: Zincati auto-updates, phased rollouts and downgrades
+        retrieved: "2026-09-22"
+        quote: >-
+          By default, this ordering is also used to prevent automatic downgrades.
+      - url: https://github.com/coreos/fedora-coreos-cincinnati
+        type: source-repo
+        title: Self-hostable update graph server
+        retrieved: "2026-09-22"
+        quote: >-
+          This service provides an implementation of the Cincinnati protocol,
+          which is consumed by on-host update agents (like Zincati).
+      - url: https://github.com/coreos/fedora-coreos-tracker/issues/1872
+        type: source-repo
+        title: Migration to an OCI-native update graph
+        retrieved: "2026-09-22"
+        quote: >-
+          However, the requirement to host a Cincinnati server is an huge
+          impediment.
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: available
+      rollback_requires_console: true
+      automatic_rollback_on_boot_failure: "none"
+      retained_versions: 2
+      recovery_environment: live-media
+      factory_reset: "none"
+      network_independent_recovery: "yes"
+      remote_recovery: unknown
+    summary: >-
+      Rollback works by reordering the two retained deployments and is
+      documented as a manual operation requiring human intervention and console
+      access. There is no automatic rollback in the shipped system.
+    notes: >-
+      This is the clearest contrast in the edition with the A/B systems. Rollback
+      itself is cheap and local, because both deployments are already on disk and
+      no network is involved. But nothing detects a bad boot and reverts on its
+      own.
+
+      The health-check framework that would provide that, greenboot, is not part
+      of Fedora CoreOS. Its upstream moved to a Rust rewrite, greenboot-rs, in
+      February 2026, and the shell-based repository is in maintenance mode. The
+      greenboot-rs README documents adding it to Fedora CoreOS by building a
+      derived container image with the package installed. The project's design
+      question about automatic rollback has been open in its tracker since 2018.
+      Recorded as documented absence, not as unknown, because the docs describe
+      rollback as manual and the tracker issue names the gap.
+
+      A practical caveat the documentation gives: the update agent keeps looking
+      for updates after a rollback and will upgrade again unless it is also
+      stopped.
+
+      There is no factory reset. The open feature request from 2020 states the
+      problem precisely: reprovisioning is the intended answer, but on
+      single-node bare metal without external infrastructure a manual reinstall
+      is impractical.
+
+      No in-band remote recovery mechanism is documented. Every documented path
+      requires console access, which for a remote machine means lights-out
+      management.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/manual-rollbacks/
+        type: official-docs
+        title: Manual rollbacks
+        retrieved: "2026-09-22"
+        quote: >-
+          This is a manual operation that requires human intervention and console
+          access.
+      - url: https://github.com/coreos/fedora-coreos-tracker/issues/47
+        type: source-repo
+        title: Automatic rollback design question, open since 2018
+        retrieved: "2026-09-22"
+        quote: >-
+          Ostree currently does not support automatic rollback
+      - url: https://github.com/coreos/fedora-coreos-tracker/issues/399
+        type: source-repo
+        title: Factory reset feature request, open since 2020
+        retrieved: "2026-09-22"
+        quote: >-
+          But on single-node bare metal setups without external infrastructure,
+          manual reinstall is impractical.
+      - url: https://github.com/fedora-iot/greenboot-rs
+        type: source-repo
+        title: greenboot-rs, documented as an addition to a derived image
+        retrieved: "2026-09-22"
+        quote: >-
+          In order to get a full Greenboot installation on any bootc system like
+          Fedora Silverblue, Fedora IoT or Fedora CoreOS, make container with:
+    unknowns:
+      - "No documented in-band remote recovery mechanism."
+
+  d06_customization:
+    normalized:
+      runtime_package_install: "available but strongly discouraged by the project"
+      mechanisms:
+        - containers-and-quadlet
+        - butane-ignition-at-first-boot
+        - rpm-ostree-package-layering
+        - coreos-assembler-custom-build
+        - derive-via-fedora-bootc
+      customization_points:
+        - build-time
+        - first-boot
+        - runtime
+      kernel_modules: "no documented supported path; a layering example exists in a separate repository"
+      gpu: "none documented"
+      add_software:
+      - kind: package-layering
+        how: rpm-ostree install, run from a systemd unit that Butane writes. The change goes into a new deployment and needs a reboot. The docs prefer containers, and the FAQ strongly discourages layering.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://docs.fedoraproject.org/en-US/fedora-coreos/os-extensions/
+          type: official-docs
+          title: 'Fedora CoreOS docs: Adding OS extensions to the host system'
+          retrieved: '2026-10-12'
+          quote: However, in some cases it is necessary to add software to the base OS itself.
+        - url: https://docs.fedoraproject.org/en-US/fedora-coreos/os-extensions/
+          type: official-docs
+          title: 'Fedora CoreOS docs: Adding OS extensions to the host system'
+          retrieved: '2026-10-12'
+          quote: Changes are applied to a new deployment and a reboot is necessary for those to take effect.
+        - url: https://docs.fedoraproject.org/en-US/fedora-coreos/faq/
+          type: official-docs
+          title: 'Fedora CoreOS docs: FAQ'
+          retrieved: '2026-10-12'
+          quote: but we strongly discourage its use.
+      - kind: derive-image
+        how: Fedora CoreOS is an OCI image that can be the base for bootable derivative containers. The docs send heavy customization to Fedora bootc.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/layering-examples/blob/dc59c03692915de9c3046bb3b51a6a8c1bed8283/README.md
+          type: source-repo
+          title: coreos/layering-examples README
+          retrieved: '2026-10-12'
+          quote: Fedora CoreOS is now also an OCI container image that can be used as a base image to create
+        - url: https://docs.fedoraproject.org/en-US/fedora-coreos/faq/
+          type: official-docs
+          title: 'Fedora CoreOS docs: FAQ'
+          retrieved: '2026-10-12'
+          quote: it might make more sense to instead build on top of Fedora Bootc
+    summary: >-
+      Containers are the recommended path and the documentation says so
+      repeatedly. Package layering exists for the cases containers cannot cover,
+      such as drivers and VPN software, and the project strongly discourages it.
+    notes: >-
+      The project's own words are worth recording because few projects are this
+      direct about steering users away from a feature they ship: layering "will
+      continue to exist for use in debugging a Fedora CoreOS machine, but we
+      strongly discourage its use".
+
+      Layering has real friction beyond the discouragement. There is no native
+      first-boot directive for it, so it requires a systemd unit invoking the
+      command, and it needs a reboot.
+
+      For heavier customization the documented advice is to leave: the project's
+      own FAQ says that beyond what OS extensions provide, "it might make more
+      sense to instead build on top of Fedora Bootc directly". That is a clear
+      and honest boundary, and it is also why the two entries in this dataset
+      make sense.
+
+      Kernel modules have no documentation page. The documented practice comes
+      from maintainer guidance in the tracker, a July 2024 comment pointing at a
+      separate layering examples repository. The kernel module examples there
+      were last changed in 2023, and the repository as a whole in June 2024. GPU
+      drivers have no supported path at all; the only work is an explicitly
+      work-in-progress repository whose own README says it is not ready for
+      production and notes that its modules break Secure Boot because they are
+      not signed by Fedora's key.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/os-extensions/
+        type: official-docs
+        title: OS extensions
+        retrieved: "2026-09-22"
+        quote: >-
+          That is why you should in general prefer the usage of podman containers
+          over layering software.
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/faq/
+        type: official-docs
+        title: FAQ, layering and derivation
+        retrieved: "2026-09-22"
+        quote: >-
+          we strongly discourage its use
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/running-containers/
+        type: official-docs
+        title: Running containers
+        retrieved: "2026-09-22"
+        quote: >-
+          Fedora CoreOS ships with both the docker CLI tool (as provided via
+          Moby) and podman installed.
+      - url: https://github.com/coreos/coreos-assembler
+        type: source-repo
+        title: coreos-assembler
+        retrieved: "2026-09-22"
+        quote: >-
+          It is a collection of various tools used to build Fedora CoreOS style
+          systems, including RHEL CoreOS.
+      - url: https://github.com/coreos/fedora-coreos-tracker/issues/15
+        type: source-repo
+        title: Kernel module support tracker, maintainer pointer to layering examples
+        retrieved: "2026-09-22"
+        quote: >-
+          I think the general issue here will be fixed by the bootable containers
+          initiative.
+      - url: https://github.com/coreos/layering-examples
+        type: source-repo
+        title: Layering examples, kernel module examples last changed 2023
+        retrieved: "2026-09-22"
+        quote: >-
+          Fedora CoreOS is now also an OCI container image that can be used as
+          a base image to create bootable derivative containers.
+      - url: https://github.com/coreos/fedora-bootc-nvidia
+        type: source-repo
+        title: Work-in-progress NVIDIA image for CoreOS
+        retrieved: "2026-09-22"
+        quote: >-
+          This image is in active development and is not yet ready for
+          production use.
+    unknowns:
+      - "No documentation page exists for kernel modules or GPU drivers."
+
+  d07_kubernetes:
+    normalized:
+      requirement: optional
+      bundled: "none"
+      independent_lifecycle: "yes"
+      os_manages_kubernetes: "no"
+      kubernetes_manages_os: "none in Fedora CoreOS; the Machine Config Operator is OpenShift and OKD specific"
+      distributions: []
+    summary: >-
+      Kubernetes is optional and not included. The FAQ answers directly: yes you
+      can run Kubernetes, but no specific orchestrator or version ships by
+      default. Docker and podman do.
+    notes: >-
+      The relationship to the downstream products needs stating precisely,
+      because it is often blurred. Red Hat CoreOS is a separate downstream
+      product, supported only as an OpenShift component and life-cycled with that
+      platform. Fedora CoreOS is the upstream basis for it and is not life-cycled
+      with any Kubernetes distribution.
+
+      The Machine Config Operator belongs to OpenShift and OKD, not to Fedora
+      CoreOS, and the FAQ names it as such.
+
+      One correction worth recording, because a stale vendor page says otherwise:
+      OKD's architecture chapter still states that Fedora CoreOS is the only
+      supported node operating system, while OKD's own project pages state that
+      OKD has used CentOS Stream CoreOS rather than Fedora CoreOS since OKD 4.16
+      in December 2024. The project pages are authoritative here.
+
+      The update agent has no Kubernetes-specific logic. Cluster-wide reboot
+      coordination goes through a generic HTTP protocol, for which a
+      Kubernetes-based lock manager is one third-party option among several.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/faq/
+        type: official-docs
+        title: FAQ, Kubernetes and RHCOS
+        retrieved: "2026-09-22"
+        quote: >-
+          Yes. However, Fedora CoreOS does not include a specific container
+          orchestrator (or version of Kubernetes) by default.
+      - url: https://okd.io/docs/project/scos-migration-faq/
+        type: official-docs
+        title: OKD SCOS migration FAQ
+        retrieved: "2026-09-22"
+        quote: >-
+          The upgrade path requires that your FCOS-based cluster be running
+          4.15. From there, clusters can be updated to 4.16 SCOS.
+      - url: https://okd.io/blog/2024/12/16/okd-4-16-and-4-17-release/
+        type: announcement
+        title: OKD 4.17 and 4.16 releases, 2024-12-16
+        retrieved: "2026-09-22"
+        quote: >-
+          Node operating systems are now based off CentOS Stream CoreOS (SCOS)
+          rather than Fedora CoreOS (FCOS).
+      - url: https://docs.okd.io/latest/architecture/architecture-rhcos.html
+        type: official-docs
+        title: OKD architecture chapter, the stale statement
+        retrieved: "2026-09-22"
+        quote: >-
+          FCOS is the only supported operating system for all node types in OKD.
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        items:
+          - vendor: nvidia-gpu
+            what: "NVIDIA GPU, DKMS open modules"
+            delivery: layered
+            delivery_note: "bootc switch to quay.io/coreos-devel/fedora-bootc-nvidia"
+            secure_boot: breaks
+            gpu_operator: not-documented
+            status: unsupported-wip
+            note: "Only a work-in-progress image exists. The modules are self-signed, so Secure Boot breaks. A MOK-enrolled custom key would restore it. The GPU Operator is not documented."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/coreos/fedora-coreos-tracker/issues/2047
+                title: "fedora-coreos-tracker#2047"
+                retrieved: "2026-10-06"
+                quote: >-
+                  this is an experimental, untested and unsupported image
+              - url: https://github.com/coreos/fedora-bootc-nvidia/tree/121c7d2
+                title: "coreos/fedora-bootc-nvidia at 121c7d2"
+                retrieved: "2026-10-06"
+      architectures_released:
+        - x86_64
+        - aarch64
+        - ppc64le
+        - s390x
+      architectures_absent:
+        - riscv64
+      platforms:
+        - bare-metal
+        - virtual-machines
+        - public-cloud
+        - sbc
+      gpu: "none documented"
+      tpm: "TPM2 pinning for LUKS root encryption; PCR 7 supported, PCR 8 documented as unsupported"
+      extension_mechanism: "kernel arguments, package layering, or a custom build"
+    summary: >-
+      Four architectures on all three streams, with the widest platform matrix in
+      this edition: 21 platform artifact sets on x86_64 alone, plus live ISO and
+      PXE as first-class published assets.
+    notes: >-
+      riscv64 is not released and the tracker explains why in a way worth
+      recording: even when the technical gaps close, an official stream needs
+      official builds in the distribution's build system first.
+
+      A documentation currency gap: the supported platforms page omits ppc64le
+      entirely, despite ppc64le having shipped stable-stream artifacts since
+      June 2023 (first stable release carrying it: 38.20230625.3.0). The live
+      stream metadata is authoritative and the page is stale on that point.
+
+      Raspberry Pi 4 is documented using the generic aarch64 bare-metal artifact
+      rather than a dedicated image, with two firmware paths and a required
+      firmware update step. There is no dedicated single-board platform
+      identifier in the metadata, and Pi 5 is not documented.
+
+      TPM support is specific rather than general: it covers pinning a LUKS root
+      filesystem, and PCR 8 binding is documented as unsupported because the
+      kernel command line changes with every update. That is a precise and
+      useful statement of a real constraint.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://builds.coreos.fedoraproject.org/streams/stable.json
+        type: release-notes
+        title: Stable stream metadata, architectures and platforms
+        retrieved: "2026-09-22"
+      - url: https://builds.coreos.fedoraproject.org/prod/streams/stable/releases.json
+        type: release-notes
+        title: Stable stream release index, first release per architecture
+        retrieved: "2026-09-22"
+      - url: https://github.com/coreos/fedora-coreos-tracker/issues/1931
+        type: source-repo
+        title: riscv64 support tracker
+        retrieved: "2026-09-22"
+        quote: >-
+          we won't be able to offer an official stream until there are official
+          builds in koji
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/storage/
+        type: official-docs
+        title: Storage, LUKS and TPM pinning
+        retrieved: "2026-09-22"
+        quote: >-
+          Binding for PCR 8 (UEFI Boot Component used to track commands and
+          kernel command line) is not supported as the kernel command line
+          changes with every OS update.
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/platforms/
+        type: official-docs
+        title: Supported platforms page, lists x86_64, AArch64 and s390x only
+        retrieved: "2026-09-22"
+        quote: >-
+          The currently supported platforms and their identifiers are listed
+          below.
+    unknowns:
+      - "The supported platforms page omits ppc64le, which has shipped on stable since June 2023."
+      - "No GPU driver support is documented."
+
+  d09_provisioning:
+    normalized:
+      config_tools:
+        - name: "Ignition (written as Butane)"
+          license: "Apache-2.0"
+          runs: [initramfs-before-root]
+          reruns: first-boot
+          runs_note: "Runs in the initramfs on first boot, before switch_root; ignition-disks has Before=sysroot.mount."
+          early_disk: "Partitions, RAID, filesystems and LUKS with Clevis TPM2 or Tang, including the root."
+          change_after_first_boot: "Reprovision"
+          evidence: DOCUMENTED
+          sources:
+            - url: https://github.com/coreos/ignition/blob/9417372/docs/getting-started.md
+              title: "Ignition getting started"
+              retrieved: "2026-10-06"
+              quote: >-
+                applies it to the machine before `switch_root` is called
+            - url: https://github.com/coreos/ignition/blob/9417372/docs/rationale.md
+              title: "Ignition rationale"
+              retrieved: "2026-10-06"
+              quote: >-
+                designed to be used as a provisioning tool, not as a configuration management tool
+            - url: https://docs.fedoraproject.org/en-US/fedora-coreos/faq/
+              title: "Fedora CoreOS FAQ"
+              retrieved: "2026-10-06"
+              quote: >-
+                Existing cloud-init configurations are not supported
+      methods:
+        - live-iso
+        - pxe
+        - cloud-image
+        - install-to-disk
+      config_mechanism: "Ignition, authored as Butane YAML"
+      config_reapplied: false
+      zero_touch: "supported through ISO and PXE customization"
+    summary: >-
+      Ignition runs once, during the first boot, in the initramfs, before
+      userspace starts. It is a provisioning tool and not a configuration
+      management tool, and the upstream project says so explicitly.
+    notes: >-
+      Because it runs so early it can repartition disks, format filesystems,
+      create users and write files before anything else boots. The documented
+      remedy for a forgotten setting is to fix the configuration and redeploy the
+      instance, not to reapply.
+
+      Butane, the human-authored YAML that transpiles to Ignition, merged into
+      Ignition itself in 2026 and its separate repository is archived.
+
+      The live ISO can bring up a fully functioning system entirely from memory,
+      and ISO and PXE customization commands are documented as the recommended
+      path for unattended installation, including pre-install scripts for
+      heterogeneous hardware.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
+        type: official-docs
+        title: Producing an Ignition config
+        retrieved: "2026-09-22"
+        quote: >-
+          Ignition runs only once during the first boot of the system (while in
+          the initramfs).
+      - url: https://coreos.github.io/ignition/rationale/
+        type: design-doc
+        title: Ignition rationale
+        retrieved: "2026-09-22"
+        quote: >-
+          Ignition is designed to be used as a provisioning tool, not as a
+          configuration management tool
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/live-booting/
+        type: official-docs
+        title: Live booting
+        retrieved: "2026-09-22"
+        quote: >-
+          The live environment can be used to install Fedora CoreOS to disk, and
+          can also be used to run Fedora CoreOS directly from RAM.
+      - url: https://github.com/coreos/butane
+        type: source-repo
+        title: Butane repository, archived after the merge into Ignition
+        retrieved: "2026-09-22"
+        quote: >-
+          Starting with Ignition 2.27.0, Ignition natively accepts Butane YAML
+          configs at boot, and the butane CLI is built from the Ignition source
+          tree.
+
+  d10_security:
+    normalized:
+      boot_trust_chain:
+        level: 1
+        how: platform-provided
+        note: Secure Boot through the signed shim, when the firmware enforces it. Binding a disk key to PCR
+          7 is opt-in. No measured-boot chain is documented
+        evidence: DOCUMENTED
+        sources:
+        - url: https://raw.githubusercontent.com/coreos/fedora-coreos-docs/main/modules/ROOT/pages/storage.adoc
+          type: official-docs
+          title: Fedora CoreOS storage docs
+          retrieved: '2026-10-06'
+          quote: Binding for PCR 7 which corresponds to the UEFI Boot Component used to track the Secure Boot
+            certificate from memory
+      secure_boot: available
+      secure_boot_ca: "shim signed through the Microsoft UEFI CA"
+      measured_boot: "none documented"
+      tpm: "TPM2 pinning for LUKS"
+      integrity: ostree-immutable-checkout
+      composefs: "default since Fedora 41"
+      dm_verity: "none"
+      disk_encryption: "LUKS2, opt-in, with TPM2 and network-bound pins"
+      artifact_verification: gpg
+      sbom: unknown
+      provenance: "build provenance work in progress, partially complete"
+      fips: "none"
+      mandatory_access_control: "SELinux enforcing, disabling not supported"
+      bootloader_updates: automatic
+      default_on:
+        - selinux-enforcing
+        - signature-verified-updates
+        - automatic-bootloader-updates
+        - auditd
+        - ssh-password-authentication-disabled
+      opt_in:
+        - disk-encryption
+    summary: >-
+      SELinux is enforcing and the project states plainly that disabling it is
+      not supported. Secure Boot works on stock firmware, because the shim comes
+      through Fedora and is signed via the Microsoft UEFI CA.
+    notes: >-
+      The Secure Boot position is the most operator-friendly in this edition and
+      deserves saying: no key enrolment is required, because the shim chain is
+      signed by a certificate authority already present in firmware. Bootloader
+      updates happen automatically by default, which several projects here do not
+      do.
+
+      Integrity has a real gap and the project documents it as one. Composefs
+      gives a genuinely read-only root but nothing verifies the composefs image
+      against a signature at runtime. The tracker issue asking whether to leverage
+      fs-verity signatures has been open since 2022.
+
+      FIPS is not supported and there is no documentation page. A maintainer's
+      comment in the open issue is candid about why it would be of limited value:
+      adding FIPS support does not make the system FIPS certified.
+
+      Disk encryption is opt-in. Root can be converted to LUKS2 on first boot,
+      with TPM2 and network-bound pins and Shamir threshold combinations, needing
+      at least 4 GiB of RAM to reprovision.
+
+      Software bill of materials and build provenance work is in progress through
+      a build system migration and is only partially complete. No per-release
+      published location was found.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/selinux/
+        type: official-docs
+        title: SELinux
+        retrieved: "2026-09-22"
+        quote: >-
+          Fedora CoreOS comes with SELinux enabled in enforcing mode ... We do not
+          support disabling SELinux in Fedora CoreOS
+      - url: https://fedoraproject.org/wiki/Features/SecureBoot
+        type: design-doc
+        title: Fedora Secure Boot feature page (Fedora 18, 2013)
+        retrieved: "2026-09-22"
+        quote: >-
+          Under the first scheme, Fedora will utilize the signing service hosted
+          by Microsoft.
+      - url: https://github.com/coreos/fedora-coreos-tracker/issues/302
+        type: source-repo
+        title: FIPS mode tracker, open since 2019
+        retrieved: "2026-09-22"
+        quote: >-
+          Note that adding FIPS support to FCOS does not make FCOS (or more
+          precisely the openssl build inside) FIPS certified.
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/storage/
+        type: official-docs
+        title: Storage, LUKS and Secure Boot
+        retrieved: "2026-09-22"
+        quote: >-
+          It supports booting via both BIOS and UEFI (including Secure Boot).
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/bootloader-updates/
+        type: official-docs
+        title: Bootloader updates
+        retrieved: "2026-09-22"
+        quote: >-
+          The bootloader update is now performed automatically by default.
+    unknowns:
+      - "No published per-release SBOM location was found; provenance work is partially complete."
+      - "No measured boot or attestation mechanism is documented."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: "available, key-only, no default credential"
+      local_shell: available
+      serial_console: available
+      debug_container: toolbox
+      support_bundle: unknown
+      journald: "persistent by default"
+      works_without_kubernetes: "yes"
+    summary: >-
+      A conventional systemd userspace with SSH by key, a shell, and persistent
+      journald. Toolbox is the documented answer to the minimal base image, using
+      podman to run a privileged debugging container with host directories
+      mounted.
+    notes: >-
+      Password authentication is disabled by default and no default password or
+      key ships. Keys arrive through the first-boot configuration or through a
+      cloud metadata agent, which write into separate files so the two sources do
+      not collide.
+
+      Access recovery for a lost key is documented through single-user mode.
+
+      Audit logging has been on by default since Fedora 39 and cannot be stopped
+      or restarted, which the documentation attributes to compliance
+      requirements.
+
+      No support bundle mechanism is documented. Recorded as unknown rather
+      than none, because no primary source states that there is none.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/debugging-with-toolbox/
+        type: official-docs
+        title: Debugging with toolbox
+        retrieved: "2026-09-22"
+        quote: >-
+          Toolbx is a utility that allows you to create privileged containers
+          meant to debug and troubleshoot your instance.
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/authentication/
+        type: official-docs
+        title: Authentication
+        retrieved: "2026-09-22"
+        quote: >-
+          By default, a privileged user named core is created on the Fedora
+          CoreOS system, but it is not configured with a default password or SSH
+          key.
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/faq/
+        type: official-docs
+        title: FAQ
+        retrieved: "2026-09-22"
+        quote: >-
+          The FCOS image is kept minimal by design. Not every troubleshooting
+          tool is included by default. Instead, it is recommended to use the
+          toolbox utility.
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/access-recovery/
+        type: official-docs
+        title: Emergency console access
+        retrieved: "2026-09-22"
+        quote: >-
+          you can gain access back to the machine by booting into single user
+          mode with the single kernel command-line argument
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/audit/
+        type: official-docs
+        title: Audit
+        retrieved: "2026-09-22"
+        quote: >-
+          it cannot be stopped or restarted via systemctl stop auditd or
+          systemctl restart auditd for compliance reasons.
+    unknowns:
+      - "No support bundle or diagnostic collection mechanism is documented. Searched: the Fedora CoreOS documentation index, the FAQ, and the debugging-with-toolbox page."
+
+  d12_fleet_management:
+    normalized:
+      core_project:
+        - "Automatic updates on by default, with phased rollout orchestrated by the update graph"
+        - "Per-node rollout wariness, so a machine can ask to be early or late in a rollout"
+        - "Weekly maintenance windows"
+        - "Cluster-wide reboot coordination through a documented HTTP lock protocol; the OS ships the client side only"
+        - "Prometheus-format metrics from the update agent"
+        - "Automatic bootloader updates"
+      oss_companion:
+        - name: Cincinnati update graph server
+          repo: https://github.com/coreos/fedora-coreos-cincinnati
+          license: Apache-2.0
+          org: coreos
+          note: "Self-hostable server side of the update graph."
+        - name: coreos-assembler
+          repo: https://github.com/coreos/coreos-assembler
+          license: Apache-2.0
+          org: coreos
+        - name: coreos-installer
+          repo: https://github.com/coreos/coreos-installer
+          license: Apache-2.0
+          org: coreos
+        - name: airlock
+          repo: https://github.com/coreos/airlock
+          license: Apache-2.0
+          org: coreos
+          note: "FleetLock lock manager backed by etcd3, named in the Zincati documentation. Published under the same GitHub organisation as Zincati, not shipped in the OS. Repository last pushed January 2024."
+        - name: greenboot-rs
+          repo: https://github.com/fedora-iot/greenboot-rs
+          license: BSD-3-Clause
+          org: fedora-iot
+          note: "Health-check and automatic-rollback framework. Rust rewrite that replaced the shell-based fedora-iot/greenboot repository (LGPL-2.1, deprecated 2026-02-10, maintenance mode). Not shipped in Fedora CoreOS; its README documents adding the package to a derived container image."
+      commercial: []
+      cluster_api:
+        os_specific_provider: "none"
+        maintainer: not-applicable
+        upstream_provider_list: "not listed under any provider type"
+        provisions: not-applicable
+        bootstrap_target: "none that works. The kubeadm bootstrap provider can emit Ignition, but its implementation is Ignition v2 and this system requires v3."
+        bootstrap_maturity: "the Ignition path is alpha behind a feature gate, introduced at Cluster API v1.1 and still alpha at v1.14.2"
+        image_builder_target: "none"
+        blocking_issue: "fedora-coreos-tracker#2010, open since 2025-08-20, records that first boot fails because Ignition rejects the unsupported version"
+    summary: >-
+      An unusually capable open-source fleet update story for a community
+      project: phased rollout, per-node wariness, maintenance windows and reboot
+      coordination all in shipped components, with a self-hostable graph server.
+      No fleet inventory or control plane.
+    notes: >-
+      Two honest limits. The OS ships the lock protocol client only, so
+      cluster-wide reboot coordination requires a separately deployed lock
+      manager; the Zincati documentation names airlock, under the same GitHub
+      organisation, plus one inside Typhoon and one on DynamoDB. And there is no
+      inventory, no dashboard and no desired-state controller.
+
+      No commercial product is listed against this entry, and that is deliberate.
+      The commercially supported systems in this family, Red Hat CoreOS and image
+      mode for RHEL, are separate products. Attributing their capabilities here
+      would be exactly the error the three-bucket split exists to prevent.
+
+      The Cluster API answer is a documented failure rather than a documented
+      absence, and the distinction is worth keeping.
+
+      No provider exists for this system and none is listed. The mechanism that
+      should apply is the kubeadm bootstrap provider's Ignition support, since
+      this system is configured by Ignition. It does not work. The upstream
+      documentation states that the implementation uses Ignition v2 and was
+      tested with one other distribution only. This system requires Ignition v3,
+      so a node bootstrapped this way fails at first boot when Ignition rejects
+      the version. The project's own issue tracker records exactly that, in
+      issue 2010, open since August 2025.
+
+      Ignition v3 support was requested twice upstream and implemented neither
+      time. One request was closed as not planned, one pull request was closed
+      unmerged, and a third request, opened specifically for this system, was
+      closed with the work folded into a node-bootstrapping working group. The
+      feature gate itself has been alpha since Cluster API v1.1 in 2021 and its
+      tracking issue still records beta and stable as to be determined.
+
+      The vendor's own Cluster API work does not close this. Its operator
+      manages Cluster API infrastructure providers on its commercial Kubernetes
+      platform and is documented as running on technology-preview clusters only.
+      The Ignition configuration those nodes receive comes from that platform's
+      machine-config operator, not from a Cluster API bootstrap provider, so it
+      is not a bootstrap-provider story for this operating system.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://coreos.github.io/zincati/
+        type: official-docs
+        title: Zincati
+        retrieved: "2026-09-22"
+        quote: >-
+          Zincati is an auto-update agent for Fedora CoreOS hosts.
+      - url: https://coreos.github.io/zincati/development/fleetlock/protocol/
+        type: design-doc
+        title: FleetLock protocol
+        retrieved: "2026-09-22"
+        quote: >-
+          An HTTP-based protocol for orchestrating fleet-wide reboots, used by
+          Zincati.
+      - url: https://github.com/fedora-iot/greenboot-rs
+        type: source-repo
+        title: greenboot-rs
+        retrieved: "2026-09-22"
+        quote: >-
+          rollback to previous deployment if rebooting hasn't solved the problem
+      - url: https://github.com/coreos/airlock
+        type: source-repo
+        title: airlock, FleetLock lock manager
+        retrieved: "2026-09-22"
+        quote: >-
+          Airlock is a minimal update/reboot manager for clusters of Linux
+          nodes. It is meant to be simple to run in a container.
+
+      - url: https://cluster-api.sigs.k8s.io/reference/providers
+        type: official-docs
+        title: Cluster API provider list, searched for this project
+        retrieved: "2026-09-22"
+      - url: https://github.com/coreos/fedora-coreos-tracker/issues/2010
+        type: source-repo
+        title: Fedora CoreOS tracker, Cluster API Ignition version mismatch
+        retrieved: "2026-09-22"
+        quote: >-
+          they rely on the flatcar library for ignition, which, unfortunately,
+          only supports ignition v2. If you try to bootstrap a node based of
+          fedora coreos, firstboot will fails because ignition complains about
+          the unsupported ignition version.
+      - url: https://cluster-api.sigs.k8s.io/tasks/experimental-features/ignition.html
+        type: official-docs
+        title: Cluster API Ignition bootstrap config, alpha and v2 only
+        retrieved: "2026-09-22"
+        quote: >-
+          This initial implementation uses Ignition v2 and was tested with
+          Flatcar Container Linux only.
+      - url: https://github.com/kubernetes-sigs/cluster-api/issues/11116
+        type: source-repo
+        title: Cluster API feature gate tracking, KubeadmBootstrapFormatIgnition
+        retrieved: "2026-09-22"
+        quote: >-
+          Alpha (disabled per default): v1.1 ... Beta (enabled per default): TBD
+          ... Stable (feature GA): TBD
+      - url: https://github.com/kubernetes-sigs/cluster-api/issues/12610
+        type: source-repo
+        title: Cluster API request for Ignition v3, closed into the bootstrap working group
+        retrieved: "2026-09-22"
+        quote: >-
+          As per various discussion in CAPI/SCL office hours, this should merge
+          into the reasearch work of the bootstrap WG
+      - url: https://github.com/kubernetes-sigs/image-builder
+        type: source-repo
+        title: image-builder supported operating system targets
+        retrieved: "2026-09-22"
+  d13_governance:
+    normalized:
+      license: "component-dependent; Apache-2.0 for most tooling, MIT for the OS configuration, mixed for rpm-ostree"
+      open_source: true
+      open_governance: documented
+      vendor_neutral_ownership: foundation-held
+      foundation:
+        name: "Fedora Project"
+        level: "official Edition"
+        since: "Fedora 37, 2022"
+      trademark_holder: "Red Hat, Inc., protected on behalf of the Fedora community with Council oversight"
+      primary_commercial_sponsor: "Red Hat"
+      contribution_diversity:
+        method: >-
+          No maintainers file and no employer-labelled membership record exists
+          for the working group. The only membership artifact is a meeting ping
+          list of 23 handles with no roles or affiliations. Affiliation is
+          therefore not established and is not inferred.
+        value: "unknown"
+    summary: >-
+      Governed by a Fedora working group with a published product requirements
+      document, documented voting rules and weekly public meetings. Trademark is
+      held by Red Hat and protected on behalf of the community with Fedora
+      Council oversight.
+    notes: >-
+      The four governance properties read as follows. Open source: yes, across a
+      set of components with different licences. Open governance: documented, and
+      genuinely so, with quorum and majority rules, a public weekly meeting and a
+      product requirements document that functions as a charter. Vendor-neutral
+      ownership: foundation-held, through the Fedora Project, with Red Hat as
+      trademark owner under Council oversight. Contribution diversity: unknown,
+      because no affiliation data is published.
+
+      That last point is the honest one. There is no maintainers file, unlike the
+      bootc project which publishes one. The degree of single-company employment
+      among the working group is therefore not establishable from primary
+      sources, and this profile does not guess at it.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/coreos/fedora-coreos-tracker/blob/main/README.md
+        type: governance-doc
+        title: Fedora CoreOS Working Group
+        retrieved: "2026-09-22"
+        quote: >-
+          A quorum for the meeting is 5 people, or 51% of the members of the WG
+          listed below, which ever is lower. Voting items must pass with a
+          majority of the members voting at the meeting.
+      - url: https://github.com/coreos/fedora-coreos-tracker/blob/main/meeting-people.txt
+        type: governance-doc
+        title: Meeting ping list, 23 handles
+        retrieved: "2026-09-22"
+        quote: >-
+          List of people to ping before the Fedora CoreOS community meetings.
+      - url: https://fedoraproject.org/wiki/CoreOS/PRD
+        type: governance-doc
+        title: Product requirements document
+        retrieved: "2026-09-22"
+        quote: >-
+          This is the Product Requirements Document for the Fedora CoreOS
+          Working Group.
+      - url: https://docs.fedoraproject.org/en-US/legal/trademarks/
+        type: governance-doc
+        title: Fedora trademarks
+        retrieved: "2026-09-22"
+        quote: >-
+          Red Hat protects the Fedora Trademarks on behalf of the entire Fedora
+          community.
+    unknowns:
+      - "No maintainers file or employer-labelled membership record exists for the working group."
+
+  d14_maturity:
+    normalized:
+      first_release: "2020-01-17"
+      current_version: "44.20260829.3.1"
+      current_version_date: "2026-09-15"
+      release_cadence: "every two weeks per stream, with asynchronous releases for security fixes"
+      observed_intervals: "median 14 days, mean 13.3 days across 184 stable releases (2020-01-17 general availability to the 2026-09-15 rollout); rollout commit timestamps in the fedora-coreos-streams repository give a median of 13.9 days"
+      support_model: rolling-no-lts
+      support_window: "none; streams update continuously and no release has an end-of-life"
+      commercial_support: unknown
+    summary: >-
+      Six years past general availability, 184 stable releases, and a documented
+      two-week cadence that the measured intervals match almost exactly. There is
+      no long-term support branch and no per-release end-of-life, by design.
+    notes: >-
+      The rolling model is the whole structure rather than an absence of one:
+      three streams that update continuously, with no maintenance branches. The
+      project is explicit that it provides best-effort stability and may
+      occasionally include regressions or breaking changes for some workloads.
+
+      That is a genuine fit question rather than a defect. For a team that needs
+      to name a supported version to an auditor, there is nothing to name. For a
+      team that wants current kernels and packages without a migration project
+      every few years, it is the point.
+
+      No commercial support offering for Fedora CoreOS itself was found, and no
+      primary source states that there is none, so the value is unknown rather
+      than none. The FAQ describes RHEL CoreOS as the downstream that is
+      "released and life-cycled in tandem with" OpenShift; it says nothing about
+      support for Fedora CoreOS.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/coreos/fedora-coreos-tracker/blob/main/RELEASES.md
+        type: governance-doc
+        title: Release process
+        retrieved: "2026-09-22"
+        quote: >-
+          FCOS releases normally happen every 2 weeks. In addition, there may be
+          asynchronous releases for e.g. CVEs or bug fixes
+      - url: https://fedoramagazine.org/fedora-coreos-out-of-preview/
+        type: announcement
+        title: Fedora CoreOS general availability
+        retrieved: "2026-09-22"
+        quote: >-
+          The Fedora CoreOS team is pleased to announce that Fedora CoreOS is now
+          available for general use.
+      - url: https://builds.coreos.fedoraproject.org/prod/streams/stable/releases.json
+        type: release-notes
+        title: Stable stream release index, 184 releases
+        retrieved: "2026-09-22"
+      - url: https://github.com/coreos/fedora-coreos-streams/commits/main/streams/stable.json
+        type: source-repo
+        title: Stable stream rollout commits, release dates
+        retrieved: "2026-09-22"
+      - url: https://docs.fedoraproject.org/en-US/fedora-coreos/faq/
+        type: official-docs
+        title: FAQ, relationship to RHEL CoreOS
+        retrieved: "2026-09-22"
+        quote: >-
+          RHEL CoreOS provides a focused OS for OpenShift, released and
+          life-cycled in tandem with the platform.
+    unknowns:
+      - "No commercial support offering for Fedora CoreOS itself was found, and no source documents its absence. Searched: the Fedora CoreOS documentation index and FAQ, the working group README, and the product requirements document."
+
+tradeoffs:
+  buys:
+    - "Secure Boot works on stock firmware with no key enrolment, because the shim chain is signed through a certificate authority already present in firmware."
+    - "Automatic bootloader updates by default, so shim and GRUB do not drift behind the OS."
+    - "A three-way merge on /etc, so local configuration survives an upgrade rather than being discarded or requiring a rebuild."
+    - "Phased rollout, per-node rollout wariness and weekly maintenance windows, all in the open-source node agent rather than in a product."
+    - "A self-hostable update graph server, and the option to bypass the graph entirely and rebase by hand."
+    - "A shipped signature policy for the OS update image, requiring a GPG signature under Fedora keys for the project's own repository before rpm-ostree will apply it."
+    - "Ships with SELinux enforcing, and disabling it is explicitly unsupported. Audit logging cannot be stopped."
+    - "Foundation-held governance with a published charter, documented voting rules and weekly public meetings."
+    - "Four architectures, and live ISO and PXE as first-class published artifacts."
+  costs:
+    - "No automatic rollback. Rollback is manual and requires console access, and the framework that would automate it is not shipped. The design question has been open since 2018."
+    - "No factory reset, with the open request itself naming the gap for single-node bare metal where reprovisioning is impractical."
+    - "No documented in-band remote recovery. Every recovery path needs console access."
+    - "Composefs gives a read-only root but nothing verifies it against a signature at runtime. Signature-backed integrity has been an open question since 2022."
+    - "No FIPS support and no documentation page, with a maintainer noting that adding it would not confer certification anyway."
+    - "No supported path for GPU drivers. The only work is a work-in-progress repository whose README says it is not ready for production use."
+    - "No long-term support branch and no per-release end-of-life."
+maintainers_fact:
+  text: "Maintainer affiliation is not published."
+  evidence: DOCUMENTED
+  sources:
+    - url: "https://github.com/coreos/fedora-coreos-tracker/blob/main/README.md"
+      type: "governance-doc"
+      title: "Fedora CoreOS Working Group"
+      retrieved: "2026-09-22"
+      quote: "A quorum for the meeting is 5 people, or 51% of the members of the WG listed below, which ever is lower. Voting items must pass with a majority of the members voting at the meeting."
+    - url: "https://github.com/coreos/fedora-coreos-tracker/blob/main/meeting-people.txt"
+      type: "governance-doc"
+      title: "Meeting ping list, 23 handles"
+      retrieved: "2026-09-22"
+      quote: "List of people to ping before the Fedora CoreOS community meetings."
+known_issues: []
+open_questions:
+  - "What is the realistic timeline and technical shape of the unification working group? A working group opened three weeks before this snapshot proposes merging Fedora CoreOS with the Fedora bootc base images, with no technical design published yet. Will the stream model, the update agent and the update graph survive the merge, or be replaced by the simpler timer-based bootc model?"
+  - "Is there a target for closing the migration to an OCI-native update graph, and does it block the bootc integration work?"
+  - "Will Fedora CoreOS ever ship a supported GPU driver mechanism, or is that intentionally left to Fedora bootc derivatives?"
+  - "Is automatic, health-gated rollback ever planned to be on by default, given the design question has been open since 2018?"
+  - "Is there any plan to publish working group membership with affiliations, as the bootc project does? Contributor and maintainer affiliation is unpublished today."
+  - "Will signature-backed runtime filesystem integrity land on a committed timeline after composefs?"
+  - "Is Fedora CoreOS itself ever intended to gain a commercial support option? No primary source found either offers one or states that none exists."
+  - "Does the project ship or recommend any diagnostic collection tool? None is documented, and no source states that none exists."
+  - "Which container signature policy does podman on the host actually read? The shipped strict policy is bind-mounted into the rpm-ostree daemon only; the host-wide default was not verified on a running system."
+
+follow_up_research:
+  - FR-01
+  - FR-02
+  - FR-03
+  - FR-05
+  - FR-08
+  - FR-11
+  - FR-12
+  - FR-13
+  - FR-14
+  - FR-15
+  - FR-17
+
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Cost audit under methodology section 9, rule 15. Moved to open questions as unknowns (N1): 'No documented support bundle or diagnostic collection mechanism.' (q7 covers it); 'Contributor and maintainer affiliation is unpublished, so contribution diversity cannot be assessed from primary sources.' (q4, which now carries the fact); 'Its own relationship to bootc is in flux...' (q0, which now carries the working-group fact). Removed buy 'The documentation steers users away from a feature it ships when containers are the better answer, and tells heavy customizers to use a different project.': it describes the documentation's candour, not an adopter outcome (N6). The same treatment applies to Talos b6 and Unikraft b5."
+  - date: '2026-10-06'
+    field: dimensions.d04_upgrade.normalized.scope
+    change: Was no scope value (the cell showed the mechanism). Now os-tree-etc-merged (OS tree, /etc merged), from the independent check of what one update replaces (closed six-value vocabulary).
+    source:
+      url: https://ostreedev.github.io/ostree/atomic-upgrades/
+      type: official-docs
+      title: OSTree atomic upgrades, /etc merge
+      retrieved: '2026-10-06'
+      quote: a 3-way merge is performed between the (by default) currently booted deployment's `/etc`, its default configuration, and the new deployment
+  - date: "2026-09-22"
+    field: version_observed.released
+    change: >-
+      Said 2026-09-14 for stable, 2026-09-14 for testing and 2026-09-13 for
+      next. Now 2026-09-15 for all three. The "Roll out" commits to
+      streams/stable.json, streams/testing.json and streams/next.json are all
+      timestamped 2026-09-15T13:27Z, and the rollout start_epoch in
+      updates/stable.json, updates/testing.json and updates/next.json is
+      2026-09-15T14:00Z. No source supports the earlier dates. Also applied to
+      version_observed.additional_channels[].released and
+      dimensions.d14_maturity.normalized.current_version_date.
+    source:
+      url: https://github.com/coreos/fedora-coreos-streams/commits/main/streams/stable.json
+      type: source-repo
+      title: Stable stream rollout commits
+      retrieved: "2026-09-22"
+      quote: "Roll out stable 44.20260829.3.1"
+  - date: "2026-09-22"
+    field: dimensions.d10_security.sources[1].quote
+    change: >-
+      The recorded quote "Fedora provides grub2, kernel and associated packages
+      that are loaded by shim which is signed by Verisign (via Microsoft)" does
+      not appear on the cited page. Replaced with the sentence the page does
+      carry. The page is the Fedora 18 feature page from 2013; type changed
+      from official-docs to design-doc to say so.
+    source:
+      url: https://fedoraproject.org/wiki/Features/SecureBoot
+      type: design-doc
+      title: Fedora Secure Boot feature page
+      retrieved: "2026-09-22"
+      quote: >-
+        Under the first scheme, Fedora will utilize the signing service hosted
+        by Microsoft.
+  - date: "2026-09-22"
+    field: dimensions.d02_immutability.sources[1].quote
+    change: >-
+      The recorded quote "This is a first step towards a full verification of
+      filesystem integrity, even at runtime" is a paraphrase, not the page
+      text. Replaced with the verbatim sentence, and the notes paragraph that
+      quoted it was corrected the same way, including "a truly read-only root",
+      which the page phrases as "a truly read only filesystem".
+    source:
+      url: https://fedoraproject.org/wiki/Changes/ComposefsAtomicCoreOSIoT
+      type: design-doc
+      title: "Fedora Change: composefs by default"
+      retrieved: "2026-09-22"
+      quote: >-
+        This is the first step toward a full at runtime verification of
+        filesystem integrity.
+  - date: "2026-09-22"
+    field: dimensions.d07_kubernetes.sources[1].quote
+    change: >-
+      The recorded quote "OKD 4.16 and later use SCOS ... OKD 4.15 and earlier
+      used Fedora CoreOS (FCOS)" does not appear on the OKD FAQ page. Replaced
+      with the FAQ's actual upgrade-path sentence, and the December 2024 OKD
+      release announcement was added as the source for the switch date the
+      notes already gave.
+    source:
+      url: https://okd.io/blog/2024/12/16/okd-4-16-and-4-17-release/
+      type: announcement
+      title: OKD 4.17 and 4.16 releases
+      retrieved: "2026-09-22"
+      quote: >-
+        Node operating systems are now based off CentOS Stream CoreOS (SCOS)
+        rather than Fedora CoreOS (FCOS).
+  - date: "2026-09-22"
+    field: dimensions.d08_hardware_platform.notes
+    change: >-
+      Said ppc64le had shipped stable-stream artifacts since 2021. The stable
+      release index shows the first stable release carrying a ppc64le commit
+      is 38.20230625.3.0, so the year is 2023. aarch64 first appears at
+      34.20210821.3.0 (2021) and s390x at 36.20220618.3.1 (2022). The unknowns
+      entry was corrected to match.
+    source:
+      url: https://builds.coreos.fedoraproject.org/prod/streams/stable/releases.json
+      type: release-notes
+      title: Stable stream release index
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d03_artifact.normalized.signature_policy
+    change: >-
+      Said "reject by default, scoped to the project's own repository", and the
+      summary said the shipped policy "rejects by default and trusts only the
+      project's own repository". The shipped policy file sets the docker
+      transport default to insecureAcceptAnything and requires a signature only
+      for quay.io/fedora/fedora-coreos, and a systemd drop-in bind-mounts it
+      into rpm-ostreed.service only. It governs OS image pulls, not the
+      host-wide container policy. Value, summary and notes reworded; the
+      tradeoffs.buys entry reworded the same way.
+    source:
+      url: https://github.com/coreos/fedora-coreos-config/tree/testing-devel/overlay.d/17fcos-container-signing
+      type: source-repo
+      title: Shipped container signature policy for OS image pulls
+      retrieved: "2026-09-22"
+      quote: >-
+        Bind mount in our containers policy.json that configures how to do
+        signature verification for quay.io/fedora/fedora-coreos
+  - date: "2026-09-22"
+    field: dimensions.d04_upgrade.notes
+    change: >-
+      Said the FleetLock lock manager exists only as "third-party
+      implementations". The Zincati documentation names airlock, which is
+      published under the same coreos GitHub organisation as Zincati (last
+      pushed January 2024), alongside a Typhoon implementation and a DynamoDB
+      one. Notes in d04 and d12 reworded, reboot_coordination reworded, and
+      airlock added to d12 oss_companion. The OS still ships the client only.
+    source:
+      url: https://coreos.github.io/zincati/usage/updates-strategy/
+      type: official-docs
+      title: Zincati update strategies
+      retrieved: "2026-09-22"
+      quote: >-
+        airlock is a free-software project which implements such protocol on
+        top of etcd3.
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.normalized.oss_companion
+    change: >-
+      Listed greenboot at fedora-iot/greenboot (LGPL-2.1). That repository was
+      deprecated on 2026-02-10 in favour of fedora-iot/greenboot-rs
+      (BSD-3-Clause), which builds the greenboot package from 0.16.0 on. Entry
+      replaced, and the d05 source and notes updated: the greenboot-rs README
+      documents adding the package to a derived container image, not layering
+      it at runtime.
+    source:
+      url: https://github.com/fedora-iot/greenboot
+      type: source-repo
+      title: greenboot deprecation notice
+      retrieved: "2026-09-22"
+      quote: >-
+        This Shell-based version of greenboot is now deprecated in favor of
+        greenboot-rs
+  - date: "2026-09-22"
+    field: dimensions.d06_customization.notes
+    change: >-
+      Said the relevant layering example "was last updated in 2024". The
+      kernel module examples were last changed in 2023 (loading-kernel-module
+      2023-07-19, build-zfs-module 2023-12-18); the repository as a whole was
+      last pushed 2024-06-17 and the maintainer pointer in tracker issue 15 is
+      dated 2024-07-11. Reworded, and the sources for the tracker comment, the
+      examples repository and the work-in-progress NVIDIA repository were
+      added.
+    source:
+      url: https://github.com/coreos/fedora-coreos-tracker/issues/15
+      type: source-repo
+      title: Kernel module support tracker
+      retrieved: "2026-09-22"
+      quote: >-
+        I think the general issue here will be fixed by the bootable containers
+        initiative.
+  - date: "2026-09-22"
+    field: dimensions.d11_operations_debugging.normalized.support_bundle
+    change: >-
+      Said none. No primary source documents the absence; the value rested on
+      not finding documentation. Changed to unknown with a searched note, per
+      the methodology's rule that missing documentation is not evidence of
+      absence. The tradeoffs.costs entry now says "No documented support
+      bundle".
+    source:
+      url: https://docs.fedoraproject.org/en-US/fedora-coreos/
+      type: official-docs
+      title: Fedora CoreOS documentation index
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.normalized.commercial_support
+    change: >-
+      Said "none for Fedora CoreOS itself". No primary source documents the
+      absence. Changed to unknown with a searched note; the FAQ's statement
+      about RHEL CoreOS was added as the nearest documented fact.
+    source:
+      url: https://docs.fedoraproject.org/en-US/fedora-coreos/faq/
+      type: official-docs
+      title: FAQ, relationship to RHEL CoreOS
+      retrieved: "2026-09-22"
+      quote: >-
+        RHEL CoreOS provides a focused OS for OpenShift, released and
+        life-cycled in tandem with the platform.
+  - date: "2026-09-22"
+    field: dimensions.d13_governance.normalized.contribution_diversity.method
+    change: >-
+      Said the meeting ping list has 24 handles. The file has 23 handles and
+      two comment lines; its last change was 2026-04-06, so it had 23 on the
+      collection date too.
+    source:
+      url: https://github.com/coreos/fedora-coreos-tracker/blob/main/meeting-people.txt
+      type: governance-doc
+      title: Meeting ping list
+      retrieved: "2026-09-22"
+      quote: >-
+        List of people to ping before the Fedora CoreOS community meetings.
+  - date: "2026-10-05"
+    field: dimensions.d04_upgrade.normalized.artifact_verification_scope
+    change: >-
+      Added artifact_verification_scope. The d03 profile text already stated that the signature policy covers the OS update image only. The d04 value gpg-signature, which feeds the Verified by default column, did not carry that limit. The new field repeats it, with the same source as d03.
+    source:
+      url: https://github.com/coreos/fedora-coreos-config/tree/testing-devel/overlay.d/17fcos-container-signing
+      type: source-repo
+      title: "Shipped container signature policy for OS image pulls"
+      retrieved: "2026-10-05"
+      quote: >-
+        Bind mount in our containers policy.json that configures how to do signature verification for quay.io/fedora/fedora-coreos
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 17: where a capability is documented is not a cost. Was 'No kernel module or GPU driver documentation. The practical answer lives in a tracker comment pointing at a separate examples repository.' Kernel module examples are published in coreos/layering-examples, a repository the project maintains, and a maintainer points to them in the tracker, so the kernel module half is not a cost. GPU drivers have no supported path (d06 notes), and that absence stays. Now 'No supported path for GPU drivers. The only work is a work-in-progress repository whose README says it is not ready for production use.'"
+    source:
+      url: "https://github.com/coreos/fedora-bootc-nvidia"
+      type: "source-repo"
+      title: "Work-in-progress NVIDIA image for CoreOS"
+      retrieved: "2026-09-22"
+      quote: "This image is in active development and is not yet ready for production use."
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized
+    change: Added read_only_mechanism and configurable_paths (yes, separate mounts at /var) for the Mounts row. The read-only and persistent values were re-read against the storage page and stand.
+    source:
+      url: https://docs.fedoraproject.org/en-US/fedora-coreos/storage/
+      type: official-docs
+      title: 'Fedora CoreOS storage: separate /var mounts'
+      retrieved: '2026-10-12'
+      quote: You can of course mount only a subset of /var into a separate partition.
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: 'Added the add_software field. It records how an adopter adds software to the OS itself, not workloads. Values: Package layering, Derive the image. Each value has its sources, read on 2026-10-12.'
+    source:
+      url: https://docs.fedoraproject.org/en-US/fedora-coreos/os-extensions/
+      type: official-docs
+      title: 'Fedora CoreOS docs: Adding OS extensions to the host system'
+      retrieved: '2026-10-12'
+      quote: However, in some cases it is necessary to add software to the base OS itself.

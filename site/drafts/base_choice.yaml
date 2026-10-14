@@ -1,0 +1,132 @@
+# DRAFT for Mauro to check. Not applied to the dataset.
+#
+# Proposed normalized field: dimensions.d01_os_model.normalized.base_choice
+# Question: can the adopter run this entry on a base distribution they choose?
+#
+# Proposed vocabulary (would go in schema/vocabularies.md):
+#   adopter-chosen   The project documents running on, or converting, a base the adopter picks.
+#   own-base-only    The project ships one base of its own; no path to another base is documented.
+#   not-applicable   The entry has no host OS base (for example a unikernel).
+#   unknown          Not determined. Needs a `searched` note.
+#
+# Evidence rule used below: "adopter-chosen" is DOCUMENTED, because a source says it.
+# "own-base-only" is INFERRED: the sources document which base the project ships,
+# and none documents a path to another base. Missing documentation is not
+# evidence of absence (vocabularies section 1), so these stay INFERRED until a
+# maintainer confirms them in maintainer review. Every source below is already
+# cited in that profile's d01, retrieved 2026-09-22.
+
+azure-container-linux:
+  value: own-base-only
+  evidence: INFERRED
+  inferred_from: Documented as derived from Flatcar Container Linux and built from Azure Linux packages, and documented as the node OS for AKS. No source documents running it on another base. It is one base from one vendor.
+  sources:
+    - url: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+      type: vendor-docs
+      quote: ACL is derived from the Flatcar Container Linux project, building on Flatcar's proven, container-first immutable design while layering in Azure Linux packages, servicing, and platform integration.
+  check: the sibling Flatcar entry is a different entry, so this draft does not count the Flatcar lineage as a base choice.
+
+bootc:
+  value: adopter-chosen
+  evidence: DOCUMENTED
+  note: A mechanism, not an OS. Adopters span several distributions (HeliumOS, AlmaLinux Atomic SIG, CIQ and Rocky Linux, Universal Blue, ALT Atomic, Red Hat products).
+  sources:
+    - url: https://github.com/bootc-dev/bootc/blob/main/ADOPTERS.md
+      type: source-repo
+  released_images: none; bootc ships no OS image
+
+kairos:
+  value: adopter-chosen
+  evidence: DOCUMENTED
+  note: Converts an upstream base. Seven bases advertised; as of v4.3.0 only Hadron has released OS images, and four bases are built in ISO CI.
+  sources:
+    - url: https://kairos.io/docs/architecture/meta/
+      type: official-docs
+      quote: a meta-Linux Distribution, as its goal is to convert other distros to an immutable layout with Kubernetes Native components
+    - url: https://kairos.io/docs/reference/image_matrix/
+      type: official-docs
+      quote: As a small open-source team, we now focus official prebuilt artifacts and docs defaults on Hadron.
+  released_images: [Hadron]
+
+bottlerocket:
+  value: own-base-only
+  evidence: INFERRED
+  inferred_from: The project builds its own variants with no package manager; a custom variant (Twoliter) is still Bottlerocket. No source documents running it on another base.
+  sources:
+    - url: https://bottlerocket.dev/en/os/1.64.x/concepts/variants/
+      type: official-docs
+      quote: Bottlerocket is not a general purpose Linux distribution and intentionally doesn't have a package manager. Instead Bottlerocket has variants.
+
+cos:
+  value: own-base-only
+  evidence: INFERRED
+  inferred_from: Documented as a fork of Chromium OS, supported only on Google Cloud. No source documents another base.
+  sources:
+    - url: https://docs.cloud.google.com/container-optimized-os/docs/resources/sources
+      type: official-docs
+      quote: Container-Optimized OS from Google is a fork of the Chromium OS open-source project.
+
+fedora-coreos:
+  value: own-base-only
+  evidence: INFERRED
+  inferred_from: Fedora documents that FCOS emphasizes configuring an image pre-built by Fedora, and points users who want to build their own toward Fedora bootc (a separate entry).
+  sources:
+    - url: https://docs.fedoraproject.org/en-US/bootc/fedora-coreos/
+      type: official-docs
+      quote: Fedora CoreOS (much like Fedora Atomic Desktops) generally emphasizes users configuring an image pre-built by Fedora
+  check: whether readers will see "build on Fedora bootc" as a base choice. It is a different entry, so this draft says no.
+
+flatcar:
+  value: own-base-only
+  evidence: INFERRED
+  inferred_from: Built from a ChromiumOS and Gentoo base; the SDK modifies Flatcar itself. No source documents another base.
+  sources:
+    - url: https://www.flatcar.org/docs/latest/devguide/sdk-modifying-flatcar/
+      type: official-docs
+      quote: Flatcar Container Linux is based on ChromiumOS, which is based on Gentoo.
+
+microos:
+  value: own-base-only
+  evidence: INFERRED
+  inferred_from: Built from openSUSE Tumbleweed (community) or SUSE Linux Micro (commercial). Packages can be added in a snapshot, but the base stays openSUSE or SUSE.
+  sources:
+    - url: https://en.opensuse.org/Portal:MicroOS/Intro
+      type: official-docs
+      quote: openSUSE MicroOS inherits the openSUSE Tumbleweed and SUSE Linux Enterprise knowledge
+  check: the source page returned 403 to the last fact-check; reread by hand.
+
+talos:
+  value: own-base-only
+  evidence: INFERRED
+  inferred_from: The userspace is the project's own rewrite from PID 1; there is no distribution underneath to swap.
+  sources:
+    - url: https://docs.siderolabs.com/talos/v1.14/learn-more/philosophy
+      type: official-docs
+      quote: Talos Linux is actually a ground-up rewrite of the userspace, from PID 1
+
+ubuntu-core:
+  value: own-base-only
+  evidence: INFERRED
+  inferred_from: The base snap is the root filesystem. The profile documents custom model, gadget and kernel snaps, but no custom base snap.
+  sources:
+    - url: https://documentation.ubuntu.com/core/explanation/core-elements/inside-ubuntu-core/
+      type: official-docs
+      quote: base snap holds the execution environment inside which applications run. It also serves as the root file system for Ubuntu Core images.
+  check: whether snapd documents a non-Canonical base snap for a model. If it does, this becomes adopter-chosen or partial.
+
+# Context-box entries, for completeness
+nixos:
+  value: own-base-only
+  evidence: INFERRED
+  inferred_from: NixOS is its own distribution. Nix, the package manager, runs on other distributions, but Nix is not the profiled entry.
+# azure-linux was removed from the survey on 2026-10-05; azure-container-linux above replaces it.
+azure-linux:
+  value: own-base-only
+  evidence: INFERRED
+  inferred_from: An RPM distribution built by Microsoft; customized images are supported only when built on a prebuilt Azure Linux image (profile d06 documented limits).
+unikraft:
+  value: not-applicable
+  note: No host OS. The application and kernel compile into one binary.
+hadron:
+  value: not-applicable
+  note: Hadron is itself the base Kairos converts; shown inside the Kairos row.

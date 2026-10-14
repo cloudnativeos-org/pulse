@@ -1,0 +1,2111 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: microos
+name: openSUSE MicroOS
+homepage: https://microos.opensuse.org/
+repository: https://github.com/openSUSE/transactional-update
+collected_at: "2026-09-15"
+
+entry_kind:
+  - distribution
+
+category_fit:
+  comparable: full
+  note: >-
+    Comparable on all fourteen dimensions. This profile is the transactional
+    snapshot model's only entry in the 2026 edition, and it is the only entry
+    whose root state substrate is `transactional-snapshot`.
+
+    **Three release vehicles share one architecture, and this profile covers all
+    three.** openSUSE MicroOS is the rolling, Tumbleweed-based community build.
+    openSUSE Leap Micro is a versioned community build that the project's own
+    roadmap describes as "a re-brand of SLE Micro RPMs with minor configuration
+    tweaks". SUSE Linux Micro (named SLE Micro until the 6.1 release) is the
+    versioned commercial product. Dimensions d02 through d06, which is to say the
+    whole immutability, artifact, upgrade, rollback and customization
+    architecture, are the same mechanism across all three: a read-only btrfs root,
+    `transactional-update` applying changes in a new snapshot, snapper retention
+    and GRUB2 snapshot boot.
+
+    They are recorded in one profile rather than two or three because the
+    architecture is one architecture, and separate entries would make `transactional-snapshot`
+    appear two or three times in every comparison table and read as that much more
+    prevalent than it is. Where the vehicles genuinely differ, and they differ
+    sharply on support model, certification, architectures, Kubernetes pairing,
+    fleet tooling and governance, each dimension records them as separate named
+    fields rather than averaging them.
+
+    The counter-argument was considered and is recorded rather than hidden: the
+    support model, subscription requirement and certification claims diverge by
+    dated, primary-source evidence, which is a real argument for separate entries.
+    It was not taken, because the survey already profiles Fedora CoreOS without a
+    separate entry for its commercial downstream, and applying that distinction to
+    SUSE but not to Red Hat would apply it where it is convenient rather than
+    consistently.
+
+    No primary source found in this research states that openSUSE MicroOS is the
+    upstream of SUSE Linux Micro. The documented relationship is that Leap Micro
+    is a rebrand of SUSE Linux Micro, and that MicroOS is the Tumbleweed-based
+    sibling. The lineage question is recorded in `open_questions` rather than
+    asserted.
+
+self_description:
+  text: >-
+    Micro Service OS providing Transactional (Atomic) Updates upon a read-only
+    btrfs root filesystem. Designed to host container workloads with automated
+    administration & patching.
+  source:
+    url: https://get.opensuse.org/microos/
+    type: official-docs
+    title: Get openSUSE MicroOS
+    retrieved: "2026-09-22"
+    quote: >-
+      Micro Service OS providing Transactional (Atomic) Updates upon a read-only
+      btrfs root filesystem
+
+version_observed:
+  version: "16.0.0-Snapshot20260919"
+  released: "2026-09-19"
+  channel: "rolling, tracking openSUSE Tumbleweed snapshots"
+  method: >-
+    Read the filename in the published appliance directory at
+    https://download.opensuse.org/tumbleweed/appliances/, for example
+    openSUSE-MicroOS.x86_64-16.0.0-kvm-and-xen-Snapshot20260919.qcow2. The
+    Snapshot<YYYYMMDD> token is the Tumbleweed snapshot that produced the image.
+    Other architectures publish under their own port paths
+    (/ports/aarch64/, /ports/ppc/, /ports/zsystems/, /ports/riscv/). The
+    get.opensuse.org download page serves only images labelled "Current" and
+    carries no version string, so the appliance directory is the lookup that
+    yields a checkable identifier. The version was cross-checked against the
+    image's own CycloneDX SBOM, which records MicroOS-release version
+    20260919-4313.1 (20260914-4303.1 at collection).
+  source:
+    url: https://download.opensuse.org/tumbleweed/appliances/
+    type: release-notes
+    title: openSUSE Tumbleweed appliance directory
+    retrieved: "2026-09-22"
+    quote: "openSUSE-MicroOS.x86_64-16.0.0-kvm-and-xen-Snapshot20260919.qcow2"
+  additional_channels:
+    - channel: "openSUSE Leap Micro 6.2 (community, versioned)"
+      version: "6.2"
+      released: "2025-10-01"
+      eol: "tied to the Leap Micro 6.4 release"
+    - channel: "openSUSE Leap Micro 6.1 (community, versioned)"
+      version: "6.1"
+      released: "2024-12-05"
+      eol: "2026-11-03 (planned)"
+    - channel: "SUSE Linux Micro 6.2 (commercial)"
+      version: "6.2"
+      released: "2025-11-04"
+      eol: "general support ends 2029-11-30"
+    - channel: "SUSE Linux Micro 6.1 (commercial)"
+      version: "6.1"
+      released: "2024-11-26"
+      eol: "general support ends 2028-11-30"
+    - channel: "SUSE Linux Micro 6.0 (commercial)"
+      version: "6.0"
+      released: "2024-06-06"
+      eol: "general support ends 2028-06-30"
+
+taxonomy:
+  workload_scope: general-purpose-host
+  construction_model:
+    - vendor-fixed-image
+    - package-repository-assembly
+  root_state_substrate:
+    - transactional-snapshot
+  notes: >-
+    Kubernetes is neither required nor bundled in any of the three release
+    vehicles, which places this at the general-purpose-host position. The shipped
+    MicroOS profiles are "Base System" and "Base System + Container Runtime
+    Environment", the latter carrying Podman.
+
+    The substrate is the distinguishing fact of this entry. Nothing else in the
+    2026 edition uses `transactional-snapshot`: a btrfs snapshot is taken per
+    transaction, changes are applied inside it, and the snapshot becomes the next
+    boot target. It is neither an A/B pair nor an OSTree deployment, and the
+    difference shows up most clearly in d05, where retention is a snapper policy
+    rather than a fixed slot count.
+
+    Construction is both vendor-fixed and package-repository assembly, and the two
+    are genuinely simultaneous rather than alternatives. Official images are built
+    with KIWI in the openSUSE Build Service, and the running system then assembles
+    from the same zypper repositories openSUSE Tumbleweed uses.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: general-purpose-host
+      ships_kubernetes: false
+      profiles_offered:
+        - "Base System"
+        - "Base System + Container Runtime Environment (Podman)"
+      release_vehicles:
+        - "openSUSE MicroOS: rolling, built from every Tumbleweed snapshot"
+        - "openSUSE Leap Micro: versioned community build, a rebrand of SUSE Linux Micro"
+        - "SUSE Linux Micro: versioned commercial product, named SLE Micro until 6.1"
+      package_manager_at_runtime: "yes, but only inside a new snapshot"
+    summary: >-
+      A container-oriented immutable host built on a read-only btrfs root with
+      transactional updates. It ships no Kubernetes, offers a base profile and a
+      Podman container-host profile, and exists as a rolling community build, a
+      versioned community build and a versioned commercial product.
+    notes: >-
+      The project describes itself as "designed for but not limited to container
+      hosts and edge devices", and its design documentation frames the install
+      media around packages needed to boot, to run containers, and to run a
+      container-as-a-service stack. It does not describe itself around a specific
+      orchestrator.
+
+      The commercial vehicle positions itself differently, as "a lightweight and
+      secure operating system for the edge" that "merges the enterprise-hardened
+      components of SUSE Linux with the features that developers want in a modern,
+      immutable operating system", with named use cases in aerospace, telecom,
+      automotive, defence, healthcare and manufacturing.
+
+      A naming change is worth recording because it makes older documentation hard
+      to match against current product. The commercial product was called SUSE
+      Linux Enterprise Micro, or SLE Micro, through the 6.1 public beta on
+      2024-08-22, and appears as SUSE Linux Micro in the 6.1 general availability
+      announcement on 2024-11-14. No announcement stating the rename or giving a
+      reason was found, and the documentation URL path still reads /sle-micro/, so
+      the path is not a reliable signal of the current name.
+
+      One further convergence is documented and dated, and a reader deciding today
+      should know it. SUSE published on 2026-02-23 that SUSE Linux Enterprise
+      Server 16.1 adds an Immutable Mode carrying SUSE Linux Micro's
+      characteristics, and committed to "a seamless upgrade path from SUSE Linux
+      Micro 6.2 to SUSE Linux Enterprise Server 16.1 (Immutable)". The same post
+      places the 16.1 release in November 2026, the vendor's lifecycle page lists
+      16.1 with an FCS date of "Nov 2026", and a public beta opened on 2026-05-28.
+      SUSE Linux Micro 6.2 already identifies itself as SLES 16.0 in
+      /etc/os-release, with PRETTY_NAME "SUSE Linux Enterprise Server 16.0" and
+      VARIANT "Micro". The commercial vehicle is therefore being folded into the
+      general-purpose enterprise distribution. The name of the successor is not
+      settled in the vendor's own pages: the 6.2 release notes refer to an upgrade
+      "from SL Micro to SL Micro 6.3 (so-called "SLE merge")", while the
+      announcement calls it SUSE Linux Enterprise Server 16.1 (Immutable). No
+      lifecycle entry for a SUSE Linux Micro 6.3 exists on the lifecycle page.
+
+      The versioned community vehicle has a parallel plan. The openSUSE roadmap
+      states that "Leap Micro 6.3 will be incorporated as an Appliance image of
+      Leap 16.1 which can be newly installed as Immutable", and that Leap Micro 6.2
+      adopts the Leap 16.0 schedule. No statement was found about the rolling
+      vehicle, openSUSE MicroOS, in either direction.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://en.opensuse.org/Portal:MicroOS/Intro
+        type: official-docs
+        title: "Portal:MicroOS, introduction"
+        retrieved: "2026-09-22"
+        quote: >-
+          It's designed for but not limited to container hosts and edge devices.
+          ... openSUSE MicroOS inherits the openSUSE Tumbleweed and SUSE Linux
+          Enterprise knowledge while redefining the operating system into a small,
+          efficient and reliable distribution.
+      - url: https://documentation.suse.com/sle-micro/6.2/
+        type: vendor-docs
+        title: SUSE Linux Micro 6.2 documentation
+        retrieved: "2026-09-22"
+        quote: >-
+          SUSE Linux Micro is a lightweight and secure operating system for the
+          edge.
+      - url: https://www.suse.com/c/the-next-leap-unifying-the-immutable-future-with-suse-linux-enterprise-server-16-1/
+        type: announcement
+        title: "SLES 16.1 immutable mode, and the SUSE Linux Micro upgrade path"
+        retrieved: "2026-09-22"
+        quote: >-
+          We are committed to providing a seamless upgrade path from SUSE Linux
+          Micro 6.2 to SUSE Linux Enterprise Server 16.1 (Immutable).
+      - url: https://www.suse.com/c/suse-linux-16-1-public-beta/
+        type: announcement
+        title: "SUSE Linux 16.1 public beta"
+        retrieved: "2026-09-22"
+        quote: >-
+          By integrating the immutable architecture pioneered by SUSE Linux Micro
+          directly into SUSE
+      - url: https://www.suse.com/lifecycle/
+        type: vendor-docs
+        title: "SUSE product lifecycle, SUSE Linux Enterprise Server 16.1"
+        retrieved: "2026-09-22"
+        quote: "SUSE Linux Enterprise Server 16.1 Nov 2026 30 Nov 2028 30 Nov 2031"
+      - url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.2/index.html
+        type: vendor-docs
+        title: SUSE Linux Micro 6.2 release notes, product identification
+        retrieved: "2026-09-22"
+        quote: "The identification variables in /etc/os-release have been changed."
+      - url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.2/index.html
+        type: vendor-docs
+        title: SUSE Linux Micro 6.2 release notes, SLE merge note
+        retrieved: "2026-09-22"
+        quote: >-
+          In the future, when upgrading from SL Micro to SL Micro 6.3 (so-called
+          "SLE merge"), some systems will have net.ifnames=0 set on their kernel
+          command line
+      - url: https://en.opensuse.org/openSUSE:Roadmap
+        type: official-docs
+        title: "openSUSE roadmap, Leap Micro 6.3 and Leap 16.1"
+        retrieved: "2026-09-22"
+        quote: >-
+          Leap Micro 6.3 will be incorporated as an Appliance image of Leap 16.1
+          which can be newly installed as Immutable.
+    unknowns:
+      - "No primary source states that openSUSE MicroOS is the upstream of SUSE Linux Micro. The documented relationship is Leap Micro as a rebrand of SUSE Linux Micro."
+      - "No SUSE announcement states the SLE Micro to SUSE Linux Micro rename or gives a reason. It is observable only by diffing dated pages."
+      - "Whether the successor to SUSE Linux Micro 6.2 ships as SUSE Linux Micro 6.3 or as SUSE Linux Enterprise Server 16.1 (Immutable). The 6.2 release notes use the first name, the announcement the second, and the lifecycle page lists neither a 6.3 nor an Immutable variant."
+      - "Whether openSUSE MicroOS, the rolling vehicle, is affected by the Leap Micro 6.3 to Leap 16.1 appliance plan. No statement was found."
+
+  d02_immutability:
+    normalized:
+      read_only:
+        - /
+      read_only_mechanism: "read-only btrfs subvolume, made writable only inside a new snapshot"
+      etc_mechanism: "overlayfs, with a per-snapshot work directory under /var/lib/overlay/<snapshot>/etc"
+      var_mechanism: "separate writable btrfs subvolume, deliberately excluded from snapshots"
+      integrity_mechanism:
+        - read-only-mount
+      dm_verity: "not used"
+      runtime_integrity_verification: "none"
+      immutability_can_be_disabled: unknown
+      writable_and_persistent:
+        - /var (separate btrfs subvolume, left out of snapshots)
+        - /etc (overlay)
+        - /home, /root, /opt, /srv and /usr/local (separate btrfs subvolumes in the image definition)
+        - /boot/writable (separate btrfs subvolume, in 20 of the 22 image profiles; not in kvm-and-xen-sdboot or kvm-and-xen-grub-bls)
+      configurable_paths:
+        value: unknown
+        evidence: UNKNOWN
+        how: Unknown
+        searched: The Kubic transactional-update guide (tu-setup), the SUSE Linux Micro 6.2 transactional-update article and the MicroOS home page. None says whether the adopter can change which paths are writable or persistent.
+        sources: []
+      mounts_sources:
+        - url: https://api.opensuse.org/public/source/openSUSE:Factory/openSUSE-MicroOS/openSUSE-MicroOS.kiwi?rev=103
+          type: source-repo
+          title: 'openSUSE-MicroOS image definition (kiwi), openSUSE:Factory, revision 103: separate subvolumes'
+          retrieved: '2026-10-12'
+          quote: <volume name="home"/>
+        - url: https://kubic.opensuse.org/documentation/transactional-update-guide/tu-setup.html
+          type: official-docs
+          title: 'transactional-update guide: /var'
+          retrieved: '2026-10-12'
+          quote: On a read-only system this directory has to be writable in any case, variable data is stored inside.
+        - url: https://kubic.opensuse.org/documentation/transactional-update-guide/tu-setup.html
+          type: official-docs
+          title: 'transactional-update guide: /etc'
+          retrieved: '2026-10-12'
+          quote: To do so an overlayfs layer is put on top of the system's /etc directory.
+        - url: https://kubic.opensuse.org/documentation/transactional-update-guide/tu-setup.html
+          type: official-docs
+          title: 'transactional-update guide: read-only root'
+          retrieved: '2026-10-12'
+          quote: transactional-update is typically used on a read-only root file system, even though it also supports regular read-write systems.
+    summary: >-
+      The root filesystem is a read-only btrfs subvolume. Configuration lives in
+      an overlayfs on /etc that is snapshotted with the root, and variable data
+      lives in a separate /var subvolume that is deliberately left out of
+      snapshots so that a rollback does not take container data with it.
+    notes: >-
+      The /etc and /var split is the design decision that distinguishes this model
+      from whole-root A/B, and it is documented with its reasoning. /etc is an
+      overlay whose work directory is per snapshot, so a rollback reverts
+      configuration along with the OS. /var is excluded from snapshots explicitly
+      because "snapshots and rollback have qgroups enabled on the root filesystem,
+      which would be a massive performance bottleneck especially for containers".
+
+      A consequence worth stating plainly, because it is the FR-13 question in a
+      concrete form: rolling back reverts the OS and /etc together, and does not
+      revert /var. That is a different answer from Flatcar, which reverts /usr and
+      keeps /etc, and from Fedora CoreOS, which reverts the deployment and merges
+      /etc. A reader comparing rollback across this edition should read those three
+      rows together.
+
+      There is no dm-verity and no runtime integrity verification of the OS root on
+      any of the three release vehicles. Integrity rests on the read-only mount and
+      on snapshot discipline, plus signature verification of the packages that
+      built the snapshot. That is a real architectural difference from the
+      verity-based systems in this survey and is recorded here rather than only
+      under d10.
+
+      The commercial vehicle's documentation states the same read-only root
+      property, and its 6.2 transactional-update article states the same layering:
+      /var is "not included in the snapshot" and is not reachable from inside a
+      transaction, and /etc changes live in overlay layers under /var/lib/overlay
+      that a cleanup command removes when unreferenced. The fetched pages do not
+      say in as many words whether the read-only boundary is / or only /usr; the
+      wording "read-only root file system" is recorded as given.
+
+      Whether immutability can be switched off is not documented on any page found
+      for any of the three vehicles.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://en.opensuse.org/Portal:MicroOS/Design
+        type: official-docs
+        title: "Portal:MicroOS, design"
+        retrieved: "2026-09-22"
+        quote: >-
+          The only available and supported filesystem for the root filesystem is
+          btrfs... The root filesystem is read-only. To store modified
+          configuration files, overlayfs is used for /etc.
+      - url: https://en.opensuse.org/Portal:MicroOS/Design
+        type: official-docs
+        title: "Portal:MicroOS, design, /var subvolume"
+        retrieved: "2026-09-22"
+        quote: >-
+          to store variable data should be an own btrfs partition. This is since
+          snapshots and rollback have qgroups enabled on the root filesystem, which
+          would be a massive performance bottleneck especially for containers.
+      - url: https://documentation.suse.com/sle-micro/6.2/html/Micro-transactional-updates/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.2, transactional updates"
+        retrieved: "2026-09-22"
+        quote: >-
+          To keep the base operating system stable and consistent, the SUSE Linux
+          Micro uses a read-only root file system.
+      - url: https://documentation.suse.com/sle-micro/6.2/html/Micro-transactional-updates/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.2, transactional updates, /var and /etc overlay"
+        retrieved: "2026-09-22"
+        quote: >-
+          From within the snapshot, you cannot access the /var directory. This
+          directory is also not included in the snapshot.
+    unknowns:
+      - "Whether SUSE Linux Micro 6.x makes / read-only or only /usr. The commercial documentation says \"read-only root file system\" and documents the /etc overlay and the /var exclusion, but does not name the boundary."
+      - "Whether immutability can be disabled on any of the three release vehicles. No page found addresses it."
+      - "The default snapper retention policy on openSUSE MicroOS. The commercial vehicle's 6.2 documentation publishes its defaults (see d05); no community page does."
+
+  d03_artifact:
+    normalized:
+      primary_artifact: disk-image
+      artifact_formats:
+        - iso
+        - self-installing-iso
+        - qcow2
+        - raw
+        - vmdk
+        - vhdx
+      oci_registry_distribution: false
+      content_addressable: false
+      mirrorable: true
+      signed: "detached PGP signature over a SHA256 checksum, per image"
+      sbom: "CycloneDX and SPDX, shipped beside every official image"
+      air_gapped_upgrade: "possible by mirroring the zypper repositories; no bundled offline update mechanism documented"
+    summary: >-
+      The deployable artifact is a disk image or ISO, not an OCI image. Every
+      official image ships with a PGP-signed checksum and with machine-readable
+      CycloneDX and SPDX bills of materials generated by the build service.
+    notes: >-
+      The supply-chain artifacts here were verified directly rather than taken from
+      a documentation claim. Each published image carries a .sha256 file, a
+      detached .sha256.asc PGP signature, a .cdx.json CycloneDX SBOM and a
+      .spdx.json SPDX SBOM, and the SBOM names its own generator as the build
+      service's obs_build_generate_sbom tool and references the originating build
+      project. **Every image, on every architecture, including the ports.** This is
+      the most complete SBOM and provenance story observed in this edition, and it
+      is present by default rather than opt-in.
+
+      Distribution is through the openSUSE mirror network. Every file carries a
+      .mirrorlist companion, so mirroring is the normal path rather than a
+      special-cased one.
+
+      The OS is not distributed through an OCI registry. That is a real difference
+      from the container-native entries in this edition and is recorded as an
+      absence of a capability rather than as a deficiency: the artifact is a disk
+      image, and the update path is package based, so a registry would not carry
+      the OS state.
+
+      The commercial vehicle publishes raw disk images, a self-install ISO, a PXE
+      installation image, virtual machine images and cloud images. From 6.0 it
+      publishes no installer: its release notes state that it "only supports
+      deployment via images. An installer based installation method is not
+      offered". Image signing for the commercial vehicle was not established from
+      the pages found.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://download.opensuse.org/tumbleweed/appliances/
+        type: release-notes
+        title: "Published appliance directory, signatures and SBOMs (filenames observed 2026-09-22; the same four companions were observed for Snapshot20260914 at collection)"
+        retrieved: "2026-09-22"
+        quote: >-
+          openSUSE-MicroOS.x86_64-16.0.0-kvm-and-xen-Snapshot20260919.qcow2.sha256
+          openSUSE-MicroOS.x86_64-16.0.0-kvm-and-xen-Snapshot20260919.qcow2.sha256.asc
+          openSUSE-MicroOS.x86_64-16.0.0-kvm-and-xen-Snapshot20260919.cdx.json
+          openSUSE-MicroOS.x86_64-16.0.0-kvm-and-xen-Snapshot20260919.spdx.json
+      - url: https://get.opensuse.org/microos/
+        type: official-docs
+        title: Get openSUSE MicroOS, image list
+        retrieved: "2026-09-22"
+      - url: https://documentation.suse.com/sle-micro/6.1/html/Micro-deployment-images/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.1, deployment images"
+        retrieved: "2026-09-22"
+        quote: "Raw disk image, Self-install image, PXE installation image, Virtual machine image, Cloud image."
+      - url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.0/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.0 release notes, image-only deployment"
+        retrieved: "2026-09-22"
+        quote: >-
+          SUSE Linux Micro 6.0 only supports deployment via images. An installer
+          based installation method is not offered.
+    unknowns:
+      - "Whether SUSE Linux Micro images carry signatures equivalent to the community images. No signing statement was found on the product pages."
+      - "Whether any OCI-packaged MicroOS build exists experimentally."
+
+  d04_upgrade:
+    normalized:
+      fleet_upgrade:
+        self_update: "transactional-update is run by systemd.timer in regular intervals (OnCalendar=daily). Whether openSUSE enables the timer by default is unverified."
+        paths:
+          - kind: operator
+            name: "SUSE Edge Upgrade Controller"
+            license: "Apache-2.0"
+            class: open-source
+            reconciliation: in-place
+            filter: false
+            note: "For SUSE Linux Micro only, not openSUSE MicroOS. It creates SUC Plans."
+            evidence: INFERRED
+            sources:
+              - url: https://github.com/suse-edge/upgrade-controller
+                title: "suse-edge/upgrade-controller repository"
+                retrieved: "2026-10-06"
+          - kind: operator
+            name: "Elemental ManagedOSImage"
+            license: "Apache-2.0"
+            class: open-source
+            reconciliation: in-place
+            filter: false
+            note: "For SUSE Linux Micro only, not openSUSE MicroOS. Provided by elemental-operator."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/rancher/elemental-operator
+                title: "elemental-operator repository"
+                retrieved: "2026-10-06"
+                quote: >-
+                  reconcile the configured image ... to all targeted nodes
+          - kind: suc
+            name: "system-upgrade-controller example Plan"
+            license: "Apache-2.0"
+            class: open-source
+            filter: false
+            note: "openSUSE MicroOS has only an example Plan in the SUC repository and no openSUSE doc. The reconciliation mode is inferred."
+            evidence: INFERRED
+            sources:
+              - url: https://github.com/rancher/system-upgrade-controller/blob/master/examples/openSUSE/microos.yaml
+                title: "SUC examples/openSUSE/microos.yaml"
+                retrieved: "2026-10-06"
+          - kind: reboot-coordination
+            name: "rebootmgr"
+            license: "GPL-2.0"
+            class: open-source
+            filter: true
+            note: "Single node, with maintenance windows."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/SUSE/rebootmgr
+                title: "rebootmgr repository"
+                retrieved: "2026-10-06"
+      version_identity:
+        identifier: "os-release VERSION_ID, the Tumbleweed snapshot date, for example 20261003"
+        condition: "Deploy every node from one appliance image, add no packages with transactional-update pkg install, use no system extensions, and move nodes together to a pinned snapshot repository."
+        evidence: DOCUMENTED
+        sources:
+          - url: https://download.opensuse.org/tumbleweed/appliances/
+            type: official-docs
+            title: "openSUSE Tumbleweed appliance images"
+            retrieved: "2026-10-06"
+          - url: https://github.com/openSUSE/transactional-update/blob/ef8af9f/man/transactional-update.8.xml
+            type: source-code
+            title: "transactional-update man page"
+            retrieved: "2026-10-06"
+            quote: >-
+              Installs additional software
+      mechanism:
+        - transactional-snapshot
+      scope: root-snapshot-etc
+      scope_sources:
+        - url: https://github.com/openSUSE/transactional-update/blob/ef8af9f/doc/transactional-update.xml
+          type: source-repo
+          title: openSUSE transactional-update documentation, /etc
+          retrieved: '2026-10-06'
+          quote: /etc is created as a nested BTRFS subvolume of the root file system.
+      steps: "snapshot the root, apply changes inside a chroot, return the snapshot to read-only, set it as the next default boot target"
+      initiator: "transactional-update.timer, daily and enabled by default on SUSE Linux Micro 6.2, or an operator running transactional-update; the timer is not named on any community page found"
+      requires_kubernetes: false
+      requires_vendor_infrastructure: "no for MicroOS; yes for SUSE Linux Micro, which needs product registration for its update repositories"
+      self_hostable_update_server: true
+      self_hostable_update_source: "A mirror of the Tumbleweed repositories"
+      self_hostable_update_server_evidence: INFERRED
+      self_hostable_update_server_note: "There is no update server. MicroOS updates from the Tumbleweed zypper repositories. The openSUSE project invites anyone to run a mirror of them."
+      self_hostable_update_server_inferred_from: "Two documented facts. MicroOS uses the exact same repositories as Tumbleweed (profile source, Portal:MicroOS zypper page). The openSUSE mirror list says anyone can become a mirror. No page states that a MicroOS host can be pointed at a private mirror. SUSE Linux Micro needs registration, so this value covers the community vehicle only."
+      artifact_verification: "RPM and repository signing, inherited from the shared Tumbleweed repositories"
+      reboot_coordination: "rebootmgr, with a configurable maintenance window"
+      soft_reboot: "SUSE Linux Micro 6.1 and later, for userland-only changes"
+    summary: >-
+      An update creates a new btrfs snapshot of the root, applies package changes
+      inside a chroot into that snapshot, returns it to read-only, and makes it the
+      default boot target. The running system is untouched until the reboot.
+    notes: >-
+      The running system is never modified, which is the property the mechanism
+      exists to provide: "Changes are applied in a separate snapshot and so do not
+      influence the running system", and the update "is applied only if it
+      completes successfully".
+
+      Reboot scheduling is a separate component rather than part of the updater.
+      rebootmgr is a service that executes a controlled reboot inside a defined
+      maintenance window, with strategies of instantly, maint-window, best-effort
+      and off, best-effort being the default. On the commercial vehicle
+      transactional-update.timer runs once per day, is enabled by default, and
+      then informs rebootmgrd.
+
+      SUSE Linux Micro 6.1 added a soft reboot that restarts only the userland when
+      a change contains no new kernel or bootloader, which materially reduces the
+      downtime an update costs. No equivalent statement was found for the community
+      vehicle.
+
+      **The infrastructure dependency differs between the vehicles and it is the
+      sharpest practical difference between them.** MicroOS updates from the same
+      public zypper repositories openSUSE Tumbleweed uses, mirrored worldwide, with
+      no registration. SUSE Linux Micro "obtains software packages from
+      repositories that are available after the product registration", so its
+      update path requires a subscription and either the vendor's customer centre
+      or a local mirror of it.
+
+      Payload verification is the standard RPM and repository signing that the
+      shared Tumbleweed repositories carry. This was not independently re-verified
+      by fetching signed repository metadata, and it is recorded as an inference
+      from the shared-repository fact rather than as a quoted claim about MicroOS
+      specifically.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://documentation.suse.com/sle-micro/6.2/html/Micro-transactional-updates/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.2, transactional updates"
+        retrieved: "2026-09-22"
+        quote: >-
+          A new read-write snapshot is created from your current root file system...
+          All changes are applied (updates, patches or package installation). The
+          snapshot is switched back to read-only mode... the new root file system
+          snapshot is set as default. After rebooting, the system boots into the
+          new snapshot.
+      - url: https://documentation.suse.com/sle-micro/6.2/html/Micro-transactional-updates/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.2, transactional updates, automatic update timer"
+        retrieved: "2026-09-22"
+        quote: >-
+          Automatic updates are controlled by systemd.timer that runs once per
+          day. This applies all updates and informs rebootmgrd that the machine
+          should be rebooted.
+      - url: https://github.com/openSUSE/transactional-update
+        type: source-repo
+        title: transactional-update
+        retrieved: "2026-09-22"
+        quote: >-
+          Only if the update was the successful as a whole the system will boot
+          into the new snapshot.
+      - url: https://github.com/SUSE/rebootmgr
+        type: source-repo
+        title: rebootmgr
+        retrieved: "2026-09-22"
+        quote: >-
+          a sd-varlink service to execute a controlled reboot after updates in a
+          defined maintenance window
+      - url: https://en.opensuse.org/Portal:MicroOS/Zypper
+        type: official-docs
+        title: "Portal:MicroOS, zypper repositories"
+        retrieved: "2026-09-22"
+        quote: "MicroOS uses the exact same repositories as the standard Tumbleweed"
+      - url: https://mirrors.opensuse.org/
+        type: official-docs
+        title: "openSUSE mirrors"
+        retrieved: "2026-10-05"
+        quote: >-
+          If you have a server with some space left, and want to help with making the openSUSE experience better for other users, become a mirror!
+    unknowns:
+      - "Whether transactional-update.timer is enabled by default on a stock openSUSE MicroOS image. The commercial vehicle documents it as daily and enabled by default; no community page found names the timer."
+      - "Repository and package signature verification was inferred from the shared Tumbleweed repositories rather than confirmed from a MicroOS-specific statement."
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: available
+      rollback_mechanism: "transactional-update rollback, or select an older snapshot from the GRUB2 boot menu"
+      automatic_rollback_on_boot_failure: available
+      automatic_rollback_trigger: "health-checker plugin failure during boot"
+      health_checker_installed_by_default: "yes on the community vehicle: the microos_base pattern requires health-checker and health-checker-plugins-MicroOS"
+      health_checker_enabled_by_default: unknown
+      automatic_rollback_attempts: "3 by default on BLS bootloaders, configurable in /etc/kernel/tries"
+      success_criterion: "health-checker completes with no plugin failure; on BLS systems systemd-bless-boot then marks the snapshot good"
+      retained_versions: configurable
+      retained_versions_suse_linux_micro: "snapper defaults of 2 to 10 for NUMBER_LIMIT and 4 to 10 for NUMBER_LIMIT_IMPORTANT, per the 6.2 documentation"
+      retained_versions_microos: unknown
+      recovery_environment: live-media
+      factory_reset: unknown
+      network_independent_recovery: "yes for rollback, which is local to the disk"
+      remote_recovery: unknown
+    summary: >-
+      Rollback is a snapshot boot, so any retained snapshot is a rollback target
+      rather than only the previous one. health-checker runs plugin checks during
+      boot and rolls back automatically to the last known-good snapshot when a new
+      snapshot fails them.
+    notes: >-
+      The escalation rules are documented and they distinguish two failure cases
+      that most projects collapse: "Error with new snapshot: Rollback to last known
+      working snapshot if one exists. Error with already successfully booted
+      snapshot: Try rebooting the system. If the error persist shut down services,
+      inform the system administrator." The system does not loop indefinitely; it
+      stops and leaves the machine reachable for an operator.
+
+      **The success criterion is stronger than a whole-root A/B system's, and that
+      is the interesting comparison.** health-checker runs plugins that check
+      particular services and conditions, so what counts as a good boot is
+      extensible and can be made to mean more than "the root mounted". Several
+      other entries in this edition mark a boot successful at a much earlier point.
+      What the shipped plugin set actually checks was not established, so the
+      strength of the default criterion is unknown even though the mechanism is
+      documented.
+
+      Retention is the field where this substrate differs most from an A/B system.
+      An A/B system keeps one or two slots; here retention is a snapper policy, so
+      the number of rollback targets is whatever that policy is set to. The
+      commercial vehicle's 6.2 snapper article publishes the defaults: 2 to 10
+      numbered snapshots for NUMBER_LIMIT and 4 to 10 for NUMBER_LIMIT_IMPORTANT,
+      "meaning that only the youngest snapshots are kept", with the exact count
+      inside each range decided by the free-space rules. The default policy for
+      openSUSE MicroOS was not found on any community page, and it is not assumed
+      to match. That matters to an operator, because it is the answer to "how far
+      back can I go".
+
+      Recovery is the installation media acting as rescue media, which is standard
+      openSUSE behaviour rather than a MicroOS-specific recovery partition. No
+      factory reset feature and no remote or out-of-band recovery path was found
+      documented for any of the three vehicles.
+
+      health-checker is documented for the 5.x line of the commercial vehicle. No
+      6.x page for it was located: the 6.2 documentation index lists per-topic
+      articles and none is about health-checker, and the 6.0, 6.1 and 6.2 release
+      notes do not mention it. Whether the 6.x product still ships the mechanism
+      is recorded as unknown rather than assumed either way.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://en.opensuse.org/Portal:MicroOS/Design
+        type: official-docs
+        title: "Portal:MicroOS, health check rules (nested list items joined with colons)"
+        retrieved: "2026-09-22"
+        quote: >-
+          Error with new snapshot: Rollback to last known working snapshot if one
+          exists. Error with already successfully booted snapshot: Try rebooting
+          the system. If the error persist shut down services, inform the system
+          administrator.
+      - url: https://github.com/openSUSE/health-checker
+        type: source-repo
+        title: health-checker
+        retrieved: "2026-09-22"
+        quote: >-
+          a systemd service ... that validates system integrity following reboots
+          and updates. It executes plugins to assess various services and
+          conditions.
+      - url: https://documentation.suse.com/sle-micro/5.5/html/SLE-Micro-all/cha-health-checker.html
+        type: vendor-docs
+        title: "SLE Micro 5.5, health checker"
+        retrieved: "2026-09-22"
+        quote: >-
+          If the current snapshot is different from the last one that worked
+          properly, an automatic rollback to the last working snapshot is
+          performed.
+      - url: https://documentation.suse.com/sle-micro/6.2/html/Micro-transactional-updates/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.2, GRUB2 snapshot boot"
+        retrieved: "2026-09-22"
+        quote: >-
+          GRUB 2 enables booting from btrfs snapshots and thus allows you to use
+          any older functional snapshot in case the new snapshot does not work
+          correctly.
+      - url: https://documentation.suse.com/sle-micro/6.2/html/Micro-snapper-basic-concepts/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.2, snapper default settings"
+        retrieved: "2026-09-22"
+        quote: >-
+          The default values are 2–10 for NUMBER_LIMIT and 4–10 for
+          NUMBER_LIMIT_IMPORTANT, meaning that only the youngest snapshots are
+          kept.
+      - url: https://api.opensuse.org/public/source/openSUSE:Factory/patterns-microos/patterns-microos.spec
+        type: source-repo
+        title: "patterns-microos spec, package base (microos_base)"
+        retrieved: "2026-10-05"
+        quote: >-
+          Requires: health-checker
+    unknowns:
+      - "Whether health-checker.service is enabled by default in a stock openSUSE MicroOS image. The microos_base pattern installs the package. The package spec uses the standard service macros, and the default-openSUSE and default-SUSE systemd preset files name no health-checker unit. The image build configuration was not read."
+      - "The default snapshot retention count on openSUSE MicroOS. It is a snapper policy rather than a fixed slot count; the commercial vehicle publishes its defaults and no community page does."
+      - "What the shipped health-checker plugin set actually checks, which is what sets the real strength of the success criterion."
+      - "Whether SUSE Linux Micro 6.x still ships health-checker. It is documented for 5.x, the 6.2 article index has no article for it, and the 6.x release notes do not mention it."
+      - "Whether a factory reset or any remote or network-independent recovery path is documented for any vehicle."
+
+  d06_customization:
+    normalized:
+      runtime_package_install: "yes, into a new snapshot rather than the running system"
+      mechanisms:
+        - transactional-update-pkg-install
+        - systemd-sysext
+        - combustion-first-boot
+        - ignition-first-boot
+        - cloud-init-first-boot
+        - kiwi-image-build
+        - edge-image-builder
+      customization_points:
+        - image-build
+        - first-boot
+        - runtime
+      stable_abi: "none promised"
+      add_software:
+      - kind: transactional-packages
+        how: transactional-update installs RPM packages into a new snapshot. The system boots that snapshot on the next boot.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://en.opensuse.org/Portal:MicroOS/Design
+          type: official-docs
+          title: openSUSE MicroOS design
+          retrieved: '2026-10-12'
+          quote: A MicroOS installation can be updated and new RPM packages can be installed using the transactional-update or the pkcon application.
+        - url: https://github.com/openSUSE/transactional-update/blob/ef8af9f43526c7e482a4a290439a24fd1cb22ffc/README.md
+          type: source-repo
+          title: transactional-update README
+          retrieved: '2026-10-12'
+          quote: On next boot, the system will boot the new snapshot.
+      - kind: systemd-sysext
+        how: sysextmgrcli downloads and version-checks sysext images, and systemd-sysext merges them. The images match the booted snapshot.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://news.opensuse.org/2026/05/21/sysextmgr
+          type: announcement
+          title: Managing System Extensions with sysextmgrcli
+          retrieved: '2026-10-12'
+          quote: sysextmgrcli is a command-line client for managing systemd-sysext images
+        - url: https://news.opensuse.org/2026/05/21/sysextmgr
+          type: announcement
+          title: Managing System Extensions with sysextmgrcli
+          retrieved: '2026-10-12'
+          quote: This ensures the active sysext images always match the OS version you are currently booted into.
+    summary: >-
+      Packages can be installed at runtime, but into a new snapshot that takes
+      effect on reboot rather than into the running system. Beyond that, the
+      expected paths are first-boot configuration with Combustion or Ignition, and
+      systemd system extensions.
+    notes: >-
+      This is the clearest difference between this entry and the image-based
+      entries in the edition. The full package set of a general-purpose
+      distribution is available through the ordinary package manager, and
+      installing from it does not break the immutability property, because the
+      install happens inside a snapshot. An adopter who needs a driver, an agent or
+      a debugging tool on the host has a first-class path to it that does not
+      require rebuilding an image. Several other entries in this edition do not.
+
+      The cost is stated by the project rather than discovered: there is no stable
+      ABI promise at the base OS layer, and "packages will be introduced if needed
+      and removed if no longer needed". On the rolling vehicle, that responsibility
+      lands on the adopter's own testing and rollback discipline.
+
+      System extensions arrived as a managed story in May 2026 with sysextmgrcli
+      and a sysextmgrd Varlink daemon. The design detail worth recording is the
+      storage split: extension images live in /var/lib/sysext-store and persist
+      across snapshots, while /etc/extensions holds symlinks that roll back with
+      system state, "so the active sysext images always match the OS version you
+      are currently booted into". The tool is deliberately "a manager, not an
+      activator"; activation stays with systemd-sysext merge.
+
+      First-boot configuration has three mechanisms and they are not
+      interchangeable. Combustion runs a shell script from a filesystem labelled
+      combustion, inside a new transactional-update snapshot, with no reboot needed
+      on success. Ignition reads a JSON config from a volume labelled ignition and
+      is the mechanism most prebuilt images use. cloud-init is used on the
+      OpenStack cloud images. All three run at first boot only. There is no
+      reconciliation loop, so day-2 configuration changes land in the writable
+      subvolumes and nothing detects drift.
+
+      On the commercial vehicle, Edge Image Builder is the documented tool for
+      building customized images with Kubernetes and agents baked in. Who owns and
+      supports an image an adopter builds themselves was not stated on any page
+      found, for either vehicle.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://en.opensuse.org/Portal:MicroOS/Design
+        type: official-docs
+        title: "Portal:MicroOS, design, runtime package install and ABI"
+        retrieved: "2026-09-22"
+        quote: >-
+          A MicroOS installation can be updated and new RPM packages can be
+          installed using the transactional-update or the pkcon application.
+      - url: https://news.opensuse.org/2026/05/21/sysextmgr
+        type: announcement
+        title: "sysextmgr, managing systemd system extensions on MicroOS"
+        retrieved: "2026-09-22"
+        quote: >-
+          the active sysext images always match the OS version you are currently
+          booted into
+      - url: https://en.opensuse.org/Portal:MicroOS/Combustion
+        type: official-docs
+        title: "Portal:MicroOS, Combustion"
+        retrieved: "2026-09-22"
+        quote: >-
+          Combustion is a minimal module for dracut, which runs a user provided
+          script on the first boot of a system.
+      - url: https://en.opensuse.org/Portal:MicroOS/Ignition
+        type: official-docs
+        title: "Portal:MicroOS, Ignition"
+        retrieved: "2026-09-22"
+        quote: >-
+          has its origins in Fedora CoreOS and is fully supported by openSUSE
+          MicroOS
+      - url: https://en.opensuse.org/Portal:MicroOS/Design
+        type: official-docs
+        title: "Portal:MicroOS, design, first-boot configuration"
+        retrieved: "2026-09-22"
+        quote: >-
+          Most of our pre-built MicroOS system images use Ignition for
+          configuration on first boot.
+    unknowns:
+      - "Who owns support for an image an adopter builds with KIWI or Edge Image Builder, and whether customization affects the commercial support entitlement."
+      - "Whether systemd system extensions are available on the commercial vehicle. No page mentioning them was found there."
+
+  d07_kubernetes:
+    normalized:
+      requirement: optional
+      bundled: "none"
+      independent_lifecycle: "yes"
+      os_manages_kubernetes: "no"
+      kubernetes_manages_os: unknown
+      distributions_documented_microos:
+        - "k3s, on a wiki page the project marks unmaintained"
+      distributions_documented_suse_linux_micro:
+        - RKE2
+      history: "openSUSE Kubic, a kubeadm-based Kubernetes variant on MicroOS, is archived"
+    summary: >-
+      Kubernetes is optional and no vehicle bundles it. The commercial vehicle
+      pairs with RKE2 through a separate product; the community vehicle's only
+      documented Kubernetes path is a k3s guide the project itself marks as
+      unmaintained.
+    notes: >-
+      The community Kubernetes story is thin and the project says so. openSUSE
+      Kubic, which combined MicroOS with kubeadm and started in May 2017, is
+      archived and its wiki page now redirects to the archive. The page that was
+      written to replace it, deploying k3s on MicroOS with Combustion, carries a
+      banner reading "This is unmaintained". That is a real, documented capability
+      whose upkeep nobody currently owns, and it is recorded as such rather than as
+      either working or absent.
+
+      The commercial vehicle went the other way and removed Kubernetes from the
+      base. k3s appears in the 6.1 release notes as a discontinued package, and
+      RKE2 is documented as layered on top through SUSE Edge: "RKE2 is a
+      fundamental piece of the SUSE Edge stack. It sits on top of SUSE Linux Micro,
+      providing a standard Kubernetes interface required to deploy Edge workloads."
+
+      Because nothing is bundled on any vehicle, the OS and Kubernetes lifecycles
+      are independent by construction. That is an unusual answer in this edition,
+      and it comes from the OS simply not being in the Kubernetes business rather
+      than from any decoupling work.
+
+      Whether Kubernetes can manage the OS is recorded as unknown for the OS
+      itself. Elemental's register and system-agent components onboard commercial
+      hosts to Rancher, but that is a capability of a separate product and is
+      recorded under d12, not here.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://en.opensuse.org/SDB:K3s_cluster_deployment_on_MicroOS
+        type: official-docs
+        title: "Deploying a k3s cluster on MicroOS"
+        retrieved: "2026-09-22"
+        quote: "This is unmaintained."
+      - url: https://en.opensuse.org/Archive:Kubic/Intro
+        type: official-docs
+        title: "Archive:Kubic, introduction"
+        retrieved: "2026-09-22"
+        quote: >-
+          kubeadm - a Kubernetes cluster bootstrapping tool integrated as part of
+          openSUSE Kubic to run atop openSUSE MicroOS.
+      - url: https://documentation.suse.com/suse-edge/3.5/html/edge/components-rke2.html
+        type: vendor-docs
+        title: "SUSE Edge 3.5, RKE2 (the page's inline chapter cross-reference is omitted from the quote)"
+        retrieved: "2026-09-22"
+        quote: >-
+          RKE2 is a fundamental piece of the SUSE Edge stack. It sits on top of
+          SUSE Linux Micro, providing a standard Kubernetes interface required to
+          deploy Edge workloads.
+      - url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.1/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.1 release notes, section 2.3.1 removed features and packages"
+        retrieved: "2026-09-22"
+        quote: "busybox salt-master k3s criu nerdctl"
+    unknowns:
+      - "Whether RKE2 has any documented deployment path on the community vehicle, comparable to the unmaintained k3s page."
+      - "Whether anyone has taken over maintenance of the k3s on MicroOS guide."
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        applies_to: "SUSE Linux Micro"
+        items:
+          - vendor: nvidia-gpu
+            what: "NVIDIA GPU, open driver, SUSE Linux Micro 6.2 (subscription)"
+            arch: [amd64]
+            delivery: layered
+            delivery_note: "nvidia-open-driver-G06-signed-kmp layered with transactional-update, or Edge Image Builder"
+            secure_boot: inferred-signed
+            gpu_operator: host-driver
+            status: supported
+            note: "Secure Boot is inferred from the package name. The toolkit is layered and nvidia-ctk cdi generate is documented. No openSUSE documentation was found for openSUSE MicroOS itself."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://documentation.suse.com/suse-edge/3.6/html/edge/nvidia-on-slemicro.html
+                title: "SUSE Edge 3.6: NVIDIA on SUSE Linux Micro"
+                retrieved: "2026-10-06"
+                quote: >-
+                  host-level NVIDIA GPU support via the pre-built open-source drivers on SUSE Linux Micro 6.2
+      architectures_with_os_images_microos:
+        - x86_64
+        - aarch64
+        - ppc64le
+        - armv7l
+        - s390x
+        - riscv64
+      architectures_with_os_images_suse_linux_micro:
+        - x86_64
+        - aarch64
+        - s390x
+        - ppc64le
+      platforms:
+        - bare-metal
+        - virtual-machines
+        - public-cloud
+        - sbc
+        - mainframe
+      sbc: "Raspberry Pi and Pine64 on aarch64; Raspberry Pi 2 on armv7l"
+      gpu: "NVIDIA open driver packaged for SUSE Linux Micro 6.2, per the SUSE Edge 3.5 guide, which needs a subscription for package access; unknown for the community vehicle"
+      tpm: "TPM 2.0, used for full disk encryption"
+      extension_mechanism: "install kernel and driver packages from the shared repositories into a new snapshot, or ship a system extension"
+    summary: >-
+      Six architectures carry released, signed community images, including riscv64
+      and s390x. The commercial vehicle ships four and does not include riscv64.
+      Peripheral hardware is extended through the ordinary package set rather than
+      through a board enumeration.
+    notes: >-
+      **riscv64 is a released OS image here, and that is worth stating precisely
+      because this survey applies the artifacts-not-intentions rule to every
+      project.** The riscv64 port directory carries current qcow2 images with
+      checksums, PGP signatures and SBOMs. It is a released platform, not a
+      tooling-only one. Only one other entry in this edition has a genuinely usable
+      riscv64 story, and none of the Kubernetes-oriented hosts do.
+
+      The same check found the limit of it. At the time of collection the riscv64
+      images were dated 15 days behind the x86_64, aarch64, armv7l and s390x
+      images, which were all current to the previous day. A re-check on
+      2026-09-22 found x86_64, aarch64, armv7l and s390x at Snapshot20260919,
+      riscv64 still at Snapshot20260830 (20 days behind) and the ppc64le
+      appliance and DVD at Snapshot20260817 (33 days behind). The ppc64le port
+      directory holds one build per image, and the only build present predates
+      the collection date, so the collection-day record that ppc64le was current
+      to 2026-09-14 could not be confirmed and is corrected. The design statement is
+      that every Tumbleweed snapshot produces a new MicroOS release for every
+      architecture. In practice the cadence is not uniform across architectures,
+      and that was observed directly rather than inferred.
+
+      s390x images are published under the ports path and are not listed on the
+      main download page, so the published architecture set is wider than the
+      project's own download page advertises. That is the opposite of the failure
+      mode this survey usually finds, and it is recorded in the project's favour.
+
+      The commercial vehicle added ppc64le at 6.1 and carries no riscv64. Its own
+      6.1 release notes contain an unresolved internal tension about the ppc64le
+      baseline, stating both that the platform "requires at least IBM Power9" and,
+      elsewhere, that POWER9 can run but is not supported with POWER10 as the
+      supported baseline. Both statements are recorded rather than reconciled.
+
+      Hardware support extends through the ordinary package set, because the
+      running system assembles from the same repositories a general-purpose
+      distribution uses. There is no board enumeration to add an entry to. That is
+      a materially different extension story from the image-based entries in this
+      edition.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://download.opensuse.org/ports/riscv/tumbleweed/appliances/
+        type: release-notes
+        title: "openSUSE riscv64 appliance directory (filename observed 2026-09-22; the same snapshot was current at collection)"
+        retrieved: "2026-09-22"
+        quote: "openSUSE-MicroOS.riscv64-16.0.0-kvm-and-xen-grub-bls-Snapshot20260830.qcow2.sha256.asc"
+      - url: https://download.opensuse.org/ports/zsystems/tumbleweed/appliances/
+        type: release-notes
+        title: "openSUSE s390x appliance directory (filename observed 2026-09-22; Snapshot20260914 at collection)"
+        retrieved: "2026-09-22"
+        quote: "openSUSE-MicroOS.s390x-16.0.0-s390x-dasd-Snapshot20260919.raw.xz"
+      - url: https://download.opensuse.org/ports/ppc/tumbleweed/appliances/
+        type: release-notes
+        title: "openSUSE ppc64le appliance directory (filename observed 2026-09-22)"
+        retrieved: "2026-09-22"
+        quote: "openSUSE-MicroOS.ppc64le-16.0.0-ppc64le-512B-Snapshot20260817.raw.xz"
+      - url: https://get.opensuse.org/microos/
+        type: official-docs
+        title: "Get openSUSE MicroOS, board and platform images"
+        retrieved: "2026-09-22"
+      - url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.1/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.1 release notes, architectures"
+        retrieved: "2026-09-22"
+        quote: >-
+          SUSE Linux Micro 6.1 adds general support for the IBM Power platform
+          (ppc64le) to the product. It requires at least IBM Power9.
+      - url: https://documentation.suse.com/suse-edge/3.6/html/edge/nvidia-on-slemicro.html
+        type: vendor-docs
+        title: "SUSE Edge 3.5, NVIDIA GPUs on SUSE Linux Micro"
+        retrieved: "2026-09-22"
+        quote: >-
+          This guide demonstrates how to implement host-level NVIDIA GPU support
+          via the pre-built open-source drivers on SUSE Linux Micro 6.2.
+    unknowns:
+      - "Whether GPU enablement is documented for the community vehicle. Only the commercial vehicle documents an NVIDIA driver path, and that page is a SUSE Edge product guide rather than SUSE Linux Micro's own documentation."
+      - "Which public clouds publish current community images. OpenStack and DigitalOcean artifacts were observed; no others were confirmed."
+      - "The ppc64le baseline for the commercial vehicle, where its own release notes say both Power9 and POWER10."
+
+  d09_provisioning:
+    normalized:
+      config_tools:
+        - name: "Combustion"
+          license: "GPL-2.0-or-later"
+          runs: [initramfs-before-root]
+          reruns: first-boot
+          runs_note: "A dracut module that runs on first boot and can perform tasks before /sysroot is mounted."
+          early_disk: "Can re-partition the hard disk; TPM2 or FIDO2 enrollment of an existing LUKS2 device happens in userspace."
+          change_after_first_boot: "No (INFERRED); later changes go through transactional-update"
+          evidence: DOCUMENTED
+          sources:
+            - url: https://github.com/openSUSE/combustion/blob/c60eaac/README.md
+              title: "Combustion README"
+              retrieved: "2026-10-06"
+              quote: >-
+                re-partition the hard disk
+        - name: "Ignition"
+          runs: [initramfs-before-root]
+          reruns: first-boot
+          runs_note: "Runs on first boot only."
+          early_disk: "Not covered in the collected sources."
+          change_after_first_boot: "No (INFERRED)"
+          evidence: INFERRED
+          sources:
+            - url: https://en.opensuse.org/Portal:MicroOS/Ignition
+              title: "openSUSE MicroOS: Ignition"
+              retrieved: "2026-10-06"
+        - name: "cloud-init (OpenStack images)"
+          runs: [userspace]
+          reruns: first-boot
+          runs_note: "Runs on first boot only."
+          early_disk: "Not covered in the collected sources."
+          change_after_first_boot: "No (INFERRED)"
+          evidence: INFERRED
+          sources:
+            - url: https://github.com/openSUSE/combustion/blob/c60eaac/README.md
+              title: "Combustion README"
+              retrieved: "2026-10-06"
+        - name: "jeos-firstboot (interactive)"
+          license: "MIT"
+          runs: [userspace]
+          reruns: first-boot
+          runs_note: "Interactive; runs on first boot only."
+          early_disk: "Not covered in the collected sources."
+          change_after_first_boot: "No (INFERRED)"
+          evidence: INFERRED
+          sources:
+            - url: https://github.com/openSUSE/combustion/blob/c60eaac/README.md
+              title: "Combustion README"
+              retrieved: "2026-10-06"
+      methods:
+        - iso
+        - self-installing-iso
+        - raw-image
+        - cloud-image
+        - pxe-ipxe-netboot
+      config_mechanism: "Combustion shell script, Ignition JSON, or cloud-init on OpenStack images"
+      config_reapplied: "no, all three run at first boot only"
+      interactive_fallback: "jeos-firstboot wizard when no first-boot configuration is present"
+    summary: >-
+      Installation covers ISO, self-installing images, raw images for boards and
+      clouds, and network boot on the commercial vehicle. Configuration arrives at
+      first boot through Combustion, Ignition or cloud-init, and is not reapplied
+      afterwards.
+    notes: >-
+      Combustion is the openSUSE-native mechanism and it is unusually direct: a
+      dracut module reads a shell script from a filesystem labelled combustion and
+      runs it inside a new transactional-update snapshot, with no reboot needed on
+      success. A comment line requesting networking triggers network setup before
+      the script runs, and a QEMU fw_cfg blob can carry the script into a virtual
+      machine with no attached media.
+
+      Ignition is the mechanism most prebuilt images use, which makes the images
+      compatible with configuration written for the CoreOS ecosystem. Butane is
+      documented as the YAML to JSON transpiler.
+
+      A practical trap is documented and worth repeating: neither mechanism runs by
+      default from the DVD, and a configuration providing at least a root password
+      is required on first boot, with the jeos-firstboot wizard as the interactive
+      fallback. An operator expecting a prebuilt image to come up with a usable
+      login without supplying configuration will not get one.
+
+      Network boot is documented for the commercial vehicle, which publishes a PXE
+      installation image and a network boot guide. Its 6.1 release notes add the
+      limit: PXE boot images are provided "for all architectures except ppc64le".
+      No PXE page specific to the community vehicle was found. AutoYaST does not
+      apply to the commercial 6.x line, which ships no installer.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://en.opensuse.org/Portal:MicroOS/Combustion
+        type: official-docs
+        title: "Portal:MicroOS, Combustion"
+        retrieved: "2026-09-22"
+        quote: >-
+          The configuration can be provided as a shell script, loaded from an
+          external storage media and is run during boot in a new system snapshot.
+          On success, the system will directly boot into that new snapshot, so
+          that no reboot is needed.
+      - url: https://en.opensuse.org/Portal:MicroOS/Ignition
+        type: official-docs
+        title: "Portal:MicroOS, Ignition, first-boot requirement"
+        retrieved: "2026-09-22"
+        quote: >-
+          neither Ignition nor Combustion are run by default when using the DVD ...
+          you need to provide a configuration file on first boot. At least a
+          password for root is required.
+      - url: https://en.opensuse.org/Portal:MicroOS/Design
+        type: official-docs
+        title: "Portal:MicroOS, design, configuration mechanisms"
+        retrieved: "2026-09-22"
+        quote: >-
+          For configuration openSUSE MicroOS is using cloud-init for OpenStack
+          Cloud and else ignition to adjust the system during the boot phase.
+      - url: https://documentation.suse.com/sle-micro/6.1/html/Micro-deployment-images/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.1, deployment images including PXE"
+        retrieved: "2026-09-22"
+        quote: >-
+          A tar archive that can be used to install SUSE Linux Micro from a remote
+          server using the PXE client on the target system.
+      - url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.1/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.1 release notes, installation media"
+        retrieved: "2026-09-22"
+        quote: >-
+          we are adding PXE boot images (network boot .tar) for all architectures
+          except ppc64le.
+    unknowns:
+      - "Whether PXE or network installation is documented for the community vehicle."
+      - "Whether any day-2 configuration reconciliation mechanism exists beyond first boot."
+
+  d10_security:
+    normalized:
+      boot_trust_chain:
+        level: 2
+        how: opt-in
+        note: Measured boot applies with TPM2 full-disk encryption. No UKI or dm-verity
+          root is documented
+        evidence: DOCUMENTED
+        sources:
+        - url: https://microos.opensuse.org/blog/2025-08-11-fde-tpm2-yast2/
+          type: official-docs
+          title: 'MicroOS: FDE with TPM2'
+          retrieved: '2026-10-06'
+          quote: make FDE+TPM2 the default for MicroOS
+        - url: https://news.opensuse.org/2023/12/20/systemd-fde/
+          type: official-docs
+          title: 'openSUSE: systemd-based FDE'
+          retrieved: '2026-10-06'
+          quote: will register all the secure boot certificates
+      secure_boot: "shim signed by Microsoft, chaining to an openSUSE certificate for GRUB2 and the kernel"
+      measured_boot: "PCR-based, used to gate TPM2 key release for full disk encryption"
+      tpm: "TPM 2.0; FIDO2 also supported as an unlock factor"
+      integrity: read-only-mount
+      dm_verity: "not used"
+      disk_encryption: "LUKS2 via systemd-cryptsetup, opt-in, TPM2 or FIDO2 unlock"
+      artifact_verification: "PGP-signed checksums on images; RPM and repository signing for packages"
+      sbom: "CycloneDX and SPDX with every official image"
+      provenance: "SBOM references the originating build-service project"
+      fips: "no certificate for either Micro product; the commercial vehicle documents how to enable FIPS mode"
+      common_criteria: "none found for either Micro product"
+      mandatory_access_control: "community vehicle: SELinux enforcing by default for new installations from Tumbleweed snapshot 20250211, AppArmor also fully supported; SUSE Linux Micro: SELinux in enforcing mode by default from 6.0, AppArmor not supported"
+      attestation: "Keylime documented for the commercial vehicle"
+      default_on:
+        - read-only-root
+        - selinux-enforcing
+        - signed-images-and-sboms
+      opt_in:
+        - full-disk-encryption
+        - fips-mode
+    summary: >-
+      Secure Boot works on stock firmware through a Microsoft-signed shim.
+      Integrity of the running root is a read-only mount with no dm-verity and no
+      runtime verification. Full disk encryption is opt-in, LUKS2, and can bind to
+      a TPM or a FIDO2 token.
+    notes: >-
+      **Secure Boot is one of the two answers in this edition that works on
+      unmodified firmware.** The shared openSUSE chain is documented plainly: shim
+      "carries a signature by Microsoft in order to be recognized by the firmware",
+      shim knows the openSUSE certificate that signed GRUB2, and GRUB2 loads
+      kernels signed by openSUSE certificates. No key enrolment is required of the
+      operator. Read that against the FR-14 question and against the entries in
+      this edition that sign with their own key.
+
+      The full disk encryption design is documented with its architectural
+      constraints rather than as a feature list. The key is sealed to PCR values
+      covering firmware, Secure Boot certificates, bootloader, kernel, initrd and
+      command line, and "the TPM2 will unlock the secret if the system is in a
+      healthy state". Unlocking happens from inside the initrd through
+      systemd-cryptsetup rather than in GRUB2, which is why the scheme needs a
+      BLS-compliant bootloader reading from the ESP: "systemd-boot does not speak
+      btrfs". Encryption is opt-in and no source states it is a default.
+
+      There is no dm-verity anywhere in the boot chain for either Micro product,
+      and no runtime re-verification of the root. Against an attacker with local
+      write access to the disk, a read-only mount is a weaker property than a
+      verified root, and this profile records that rather than letting "immutable"
+      carry the weight.
+
+      The mandatory access control default changed distribution-wide: Tumbleweed
+      snapshot 20250211, announced 2025-02-13, switched new installations to
+      SELinux in enforcing mode, and the announcement names minimal VM images among
+      those affected. Because MicroOS tracks Tumbleweed snapshots one to one and
+      its own design page lists SELinux as fully supported for the base and
+      container-host roles, the balance of evidence is that new MicroOS
+      installations default to SELinux enforcing from that date. No MicroOS-specific
+      announcement was found, so this is recorded as an inference and listed under
+      unknowns rather than stated as a MicroOS fact. The commercial vehicle is
+      explicit: its 6.0 release notes state that "SUSE Linux Micro 6.0 will have
+      SELinux in enforced mode as a default" and that "On SUSE Linux Micro we do
+      not support AppArmor", and the 6.2 SELinux article states that "SELinux is
+      present on the pre-built images by default". The design page for the
+      community vehicle lists both AppArmor and SELinux as fully supported, so the
+      two vehicles differ on AppArmor.
+
+      **No FIPS 140-3 certificate exists for either Micro product.** The vendor's
+      own certifications page attributes its FIPS 140-3 validation to a SUSE Linux
+      Enterprise Server 15 SP6 OpenSSL module and its Common Criteria certificates
+      to SUSE Linux Enterprise Server 15 SP4, not to the Micro line, while the
+      Micro release notes refer to "FIPS 140-3 certification requirements" when
+      running in FIPS mode. Whether FIPS mode inherits the enterprise server's
+      validated modules is not stated anywhere found. A compliance-driven reader
+      should treat that gap as the finding. The commercial vehicle does carry its
+      own USGv6 and IPv6 Ready certification, listed for 6.2 and dated 2026-01-26;
+      no 6.1 entry appears on the page.
+
+      Two security defaults tightened in recent commercial releases and are worth
+      recording as dated facts: 6.1 stopped allowing password-based remote root
+      login, which also affects the Cockpit web interface, and 6.2 enabled firewalld
+      by default and turned on post-quantum key exchange for SSH in the system-wide
+      cryptographic policy.
+
+      No published vulnerability response commitment or service level was found for
+      either Micro product.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://en.opensuse.org/openSUSE:UEFI
+        type: official-docs
+        title: "openSUSE UEFI and Secure Boot"
+        retrieved: "2026-09-22"
+        quote: >-
+          'shim' carries a signature by Microsoft in order to be recognized by the
+          firmware. 'shim' in turn knows about the openSUSE certificate that was
+          used to sign grub2.
+      - url: https://microos.opensuse.org/blog/2023-12-20-sdboot-fde/
+        type: official-docs
+        title: "Full disk encryption with systemd-boot"
+        retrieved: "2026-09-22"
+        quote: >-
+          the TPM2 will unlock the secret if the system is in a healthy state
+      - url: https://news.opensuse.org/2025/02/13/tw-plans-to-adopt-selinux-as-default/
+        type: announcement
+        title: "Tumbleweed adopts SELinux as the default"
+        retrieved: "2026-09-22"
+        quote: >-
+          SELinux will be enabled in enforcing mode by default only for new
+          installations. Existing installations will not be affected by the change.
+      - url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.0/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.0 release notes, security framework"
+        retrieved: "2026-09-22"
+        quote: >-
+          On SUSE Linux Micro we do not support AppArmor. SUSE Linux Micro only
+          supports SELinux and in addition we ship a supported policy. ... SUSE
+          Linux Micro 6.0 will have SELinux in enforced mode as a default.
+      - url: https://documentation.suse.com/sle-micro/6.2/html/Micro-selinux/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.2, SELinux"
+        retrieved: "2026-09-22"
+        quote: "SELinux is present on the pre-built images by default."
+      - url: https://www.suse.com/support/security/certifications/
+        type: vendor-docs
+        title: "SUSE certifications, SUSE Linux Micro entry"
+        retrieved: "2026-09-22"
+        quote: >-
+          SUSE receives USGv6 and IPv6 Ready Program certifications for SUSE Linux
+          Micro 6.2 from the University of New Hampshire Interoperability
+          Laboratory
+      - url: https://www.suse.com/support/security/certifications/
+        type: vendor-docs
+        title: "SUSE certifications, FIPS 140-3 entry"
+        retrieved: "2026-09-22"
+        quote: >-
+          NIST FIPS 140-3 validation for the SUSE Linux Enterprise Server 15 SP6
+          OpenSSL 3 Cryptographic Module
+      - url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.1/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.1 release notes, root login change"
+        retrieved: "2026-09-22"
+        quote: >-
+          new installations of SUSE Linux Micro 6.1 do not allow password-based
+          remote root login anymore, which also affects Cockpit.
+    unknowns:
+      - "Whether SELinux enforcing by default was ever announced for MicroOS by name, or is purely inherited from the shared Tumbleweed installer default."
+      - "Whether FIPS mode on the commercial vehicle inherits the enterprise server's validated cryptographic modules. No source states it either way."
+      - "No published vulnerability response commitment or service level was found for either Micro product."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: available
+      local_shell: available
+      serial_console: unknown
+      recovery_shell: "emergency shell after health-checker retries are exhausted"
+      web_ui: "Cockpit, on the commercial vehicle"
+      api: "Varlink services for rebootmgr and sysextmgrd"
+      support_bundle: "supportconfig, a general SUSE tool; behaviour on a read-only root not documented"
+      works_without_kubernetes: "yes"
+      live_patching: "user space live patching with transactional updates, commercial vehicle 6.2"
+    summary: >-
+      A conventional Linux operations model with a full shell, SSH and the
+      distribution's ordinary tooling, plus a documented emergency shell when
+      automatic rollback has exhausted its retries.
+    notes: >-
+      Because the root assembles from a general-purpose distribution's
+      repositories, existing operational knowledge transfers directly and the usual
+      diagnostic tools are installable through the same snapshot mechanism as
+      anything else. That is the practical benefit of this substrate and it is the
+      mirror of the appliance-model entries in this edition, which give up the shell
+      and get a smaller attack surface.
+
+      The commercial vehicle documents a Cockpit web interface, and from 6.1 its
+      login requires an unprivileged user with optional one-time-password two-factor
+      authentication rather than a root password. 6.2 added user space live patching
+      integrated with transactional updates, which lets a userland fix apply without
+      a full reboot. Kernel live patching status for the Micro line was not
+      established.
+
+      There is no logging, metrics or monitoring documentation specific to either
+      Micro product. The community design page says only that packages for logging
+      and monitoring are available on the installation media, and names no stack.
+
+      supportconfig exists as a general vendor tool and the commercial vehicle ships
+      a guide for it. Whether it behaves correctly against a read-only, overlay-based
+      root is not documented, and that is exactly the kind of question an immutable
+      layout raises for tooling written for a mutable one.
+
+      No serial console configuration page was found for either vehicle.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://en.opensuse.org/Portal:MicroOS/Design
+        type: official-docs
+        title: "Portal:MicroOS, design, available packages"
+        retrieved: "2026-09-22"
+        quote: >-
+          Additional RPM packages for hardware enablement, logging, monitoring and
+          similar tasks are available on the installation media.
+      - url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.1/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.1, Cockpit login change"
+        retrieved: "2026-09-22"
+        quote: >-
+          The login to Cockpit now requires to create and use an unprivileged user
+          and to optionally set up 2-factor authentication with one-time passwords.
+      - url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.2/index.html
+        type: vendor-docs
+        title: "SUSE Linux Micro 6.2, user space live patching"
+        retrieved: "2026-09-22"
+        quote: "ULP (user space live patching) is now supported with transactional updates"
+      - url: https://github.com/SUSE/rebootmgr
+        type: source-repo
+        title: "rebootmgr, Varlink service"
+        retrieved: "2026-09-22"
+        quote: >-
+          RebootManager is a sd-varlink service to execute a controlled reboot
+          after updates in a defined maintenance window.
+    unknowns:
+      - "Whether supportconfig is documented to work correctly against a read-only, overlay-based root."
+      - "No serial console configuration page was found for either vehicle."
+      - "Kernel live patching status for the Micro line, as distinct from user space live patching."
+
+  d12_fleet_management:
+    normalized:
+      core_project:
+        - "transactional-update, the snapshot-based updater"
+        - "health-checker, boot validation with automatic rollback"
+        - "rebootmgr, controlled reboot inside a maintenance window"
+        - "sysextmgrcli and sysextmgrd, system extension management"
+      oss_companion:
+        - name: transactional-update
+          repo: https://github.com/openSUSE/transactional-update
+          license: "GPL-2.0 and LGPL-2.1"
+          org: openSUSE
+          note: "Single node. The updater itself, not a fleet tool."
+        - name: health-checker
+          repo: https://github.com/openSUSE/health-checker
+          license: GPL-2.0
+          org: openSUSE
+          note: "Single node. Boot validation plugins and automatic rollback."
+        - name: rebootmgr
+          repo: https://github.com/SUSE/rebootmgr
+          license: "GPL-2.0 and LGPL-2.1"
+          org: SUSE
+          note: "Single node. Lives in the vendor's GitHub organisation rather than the community one, though community documentation links it."
+        - name: combustion
+          repo: https://github.com/openSUSE/combustion
+          license: GPL-2.0
+          org: openSUSE
+          note: "First boot only."
+        - name: Edge Image Builder
+          repo: https://github.com/suse-edge/edge-image-builder
+          license: Apache-2.0
+          org: suse-edge
+          note: "Builds customized images for the commercial vehicle. On 2026-09-22 the repository root carries a LICENSE file that GitHub's licence detection reports as Apache-2.0; at collection the licence had been read from package metadata."
+      commercial:
+        - name: SUSE Multi-Linux Manager
+          vendor: SUSE
+          license: proprietary
+          self_hostable: true
+          note: "Formerly SUSE Manager. Documented as supporting SUSE Linux Micro 6.1 and 6.2 as client operating systems, with patching, content lifecycle management and monitoring."
+        - name: SUSE Edge with Rancher and Elemental
+          vendor: SUSE
+          license: "mixed, with open-source components"
+          self_hostable: true
+          note: "elemental-register and elemental-system-agent onboard SUSE Linux Micro hosts to Rancher for phone-home provisioning. A separate product, not an OS capability."
+      cluster_api:
+        os_specific_provider: "none"
+        maintainer: not-applicable
+        upstream_provider_list: "not listed under any provider type, for any of the three release vehicles"
+        provisions: not-applicable
+        bootstrap_target: "for the commercial vehicle, the RKE2 bootstrap and control-plane providers, which the vendor's own organisation maintains and which are Kubernetes-distribution-scoped rather than operating-system-scoped"
+        image_builder_target: "none. image-builder contains no SUSE target on any platform."
+        community_vehicles: "no Cluster API story at all for openSUSE MicroOS or Leap Micro"
+        abandoned_attempt: "cluster-api-provider-elemental, a Cluster API infrastructure provider for Elemental-built hosts, reached v0.7.0 in September 2024 and was archived on 2026-05-12"
+    summary: >-
+      The project itself ships single-node lifecycle tools and no fleet manager.
+      Every multi-node capability, inventory, scheduled rollout, drift detection and
+      onboarding, belongs to a separate commercial product and applies to the
+      commercial vehicle.
+    notes: >-
+      The four core tools are genuinely good at what they do and none of them is a
+      fleet tool. transactional-update updates one machine, health-checker validates
+      one boot, rebootmgr schedules one reboot inside a window, sysextmgr manages one
+      machine's extensions. Composed, they let an unattended machine patch itself and
+      recover from a bad update without an operator, which is a real fleet-relevant
+      property even though no fleet component exists.
+
+      No fleet-scale open-source companion built for the community vehicle was found.
+      That is recorded as not found rather than as absent, since a general
+      configuration-management integration may exist without a page describing it for
+      this substrate specifically.
+
+      The commercial products are kept in their own bucket deliberately. Multi-Linux
+      Manager's patching and lifecycle management, and Elemental's onboarding to
+      Rancher, are capabilities of those products. An adopter running the community
+      vehicle inherits the four single-node tools and builds the rest.
+
+      The Cluster API answer splits along the same community-versus-commercial
+      line the rest of this profile does, and the split is sharp.
+
+      The community vehicles have no Cluster API story. No provider exists in
+      the community organisation, nothing is listed upstream, and image-builder
+      contains no target for any of this vendor's operating systems on any
+      platform.
+
+      The commercial vehicle has a working path, and none of it is
+      operating-system-specific. The vendor's own subsidiary maintains the RKE2
+      bootstrap and control-plane providers, which are listed upstream and
+      actively released, and they are scoped to a Kubernetes distribution rather
+      than to an operating system: their own examples use a different
+      distribution's images. The vendor publishes a guide for building a virtual
+      machine template of its commercial vehicle by hand, for use with a generic
+      vSphere infrastructure provider plus those RKE2 providers. So the path is
+      generic infrastructure provider, plus a distribution-scoped bootstrap
+      provider, plus a template the operator builds themselves.
+
+      One abandoned attempt belongs in the record because it is the only
+      operating-system-native Cluster API provider this vendor ever built. Its
+      Elemental Cluster API infrastructure provider registered bare-metal hosts,
+      installed the operating system and handled Cluster API bootstrap. It
+      described itself as an early prototype, reached v0.7.0 in September 2024,
+      and was archived on 2026-05-12. The non-Cluster-API Elemental product
+      continues, and its Cluster API integration layer is an operator rather
+      than a provider and does not provision anything itself.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/openSUSE/health-checker
+        type: source-repo
+        title: health-checker
+        retrieved: "2026-09-22"
+        quote: "Check the state of a openSUSE MicroOS system after a reboot."
+      - url: https://github.com/SUSE/rebootmgr
+        type: source-repo
+        title: "rebootmgr, reboot strategies (README list items joined; the README reads: best-effort - this is the default)"
+        retrieved: "2026-09-22"
+        quote: "strategies: instantly, maint-window, best-effort (default), off"
+      - url: https://documentation.suse.com/suse-edge/3.5/html/edge/components-rke2.html
+        type: vendor-docs
+        title: "SUSE Edge 3.5 components, RKE2 installation"
+        retrieved: "2026-09-22"
+        quote: >-
+          The recommended way of installing RKE2 as part of the SUSE Edge stack is
+          by using Edge Image Builder (EIB).
+      - url: https://news.opensuse.org/2026/05/21/sysextmgr
+        type: announcement
+        title: sysextmgr
+        retrieved: "2026-09-22"
+        quote: "sysextmgrcli is a manager, not an activator"
+      - url: https://documentation.suse.com/multi-linux-manager/5.1/en/docs/client-configuration/supported-features.html
+        type: vendor-docs
+        title: "SUSE Multi-Linux Manager 5.1, supported client systems"
+        retrieved: "2026-09-22"
+        quote: >-
+          The support for SUSE Linux Enterprise 16 and SL Micro 6.2 is only
+          available in SUSE Multi-Linux Manager version 5.1.2 or later.
+      - url: https://cluster-api.sigs.k8s.io/reference/providers
+        type: official-docs
+        title: Cluster API provider list, searched for this project
+        retrieved: "2026-09-22"
+      - url: https://github.com/rancher/cluster-api-provider-rke2
+        type: source-repo
+        title: RKE2 Cluster API bootstrap and control-plane providers
+        retrieved: "2026-09-22"
+        quote: "RKE2 bootstrap and control-plane Cluster API providers."
+      - url: https://github.com/rancher-sandbox/cluster-api-provider-elemental
+        type: source-repo
+        title: Elemental Cluster API infrastructure provider, archived 2026-05-12
+        retrieved: "2026-09-22"
+        quote: >-
+          This project is an early prototype. It will eventually support all the
+          features of the current elemental-operator.
+      - url: https://github.com/kubernetes-sigs/image-builder
+        type: source-repo
+        title: image-builder supported operating system targets (file tree searched for suse, sle-micro, microos and leap; no match)
+        retrieved: "2026-09-22"
+    unknowns:
+      - "Whether any fleet-scale open-source tool documents support for the transactional snapshot model specifically."
+      - "Whether SUSE Multi-Linux Manager can manage the community vehicles, as distinct from the commercial one."
+
+  d13_governance:
+    normalized:
+      license: "GPL-2.0 as the collective-work licence; components carry their own licences"
+      open_source: true
+      open_governance: documented
+      vendor_neutral_ownership: single-vendor
+      foundation: "the Geeko Foundation exists and sponsors project events; no source states it holds the trademark"
+      trademark_and_infrastructure_steward: "SUSE Software Solutions Ireland Limited"
+      primary_commercial_sponsor: SUSE
+      board: "elected by the community; the chair is appointed by the sponsor"
+      contribution_diversity:
+        method: >-
+          GitHub contributors API against the three repositories that carry this
+          entry's distinguishing mechanism: openSUSE/transactional-update,
+          openSUSE/health-checker and openSUSE/combustion. All-time commit counts per
+          individual, not per organization. Employer affiliation is not published for
+          these repositories and is therefore not claimed here, although several
+          account names carry vendor suffixes. This method counts only the lifecycle
+          tooling, not the thousands of packages the distribution inherits from
+          openSUSE Tumbleweed, so it measures the mechanism's maintainer base rather
+          than the distribution's.
+        value: >-
+          Measured 2026-09-22. transactional-update: 26 contributors, 1042 commits,
+          the top two holding 938 of them. health-checker: 11 contributors, 106
+          commits, the top two holding 85. combustion: 4 contributors, 73 commits,
+          the top one holding 68. At collection on 2026-09-15 the counts were 966,
+          861, 97, 78, 73 and 68 respectively, with the same contributor totals.
+          The mechanism that distinguishes this entry rests on a small number of
+          people.
+    summary: >-
+      A community distribution with an elected board and a published decision
+      process, whose trademark and infrastructure are held by a vendor legal entity.
+      The commercial vehicle is a vendor product with no published governance of its
+      own.
+    notes: >-
+      The four governance properties separate cleanly here and the honest reading is
+      mixed. Open source: yes. Open governance: documented, and genuinely so, through
+      an elected board that includes community volunteers alongside employees, with
+      the chair appointed by the sponsor. Vendor-neutral ownership: no. Contribution
+      diversity on the distinguishing mechanism: low.
+
+      The ownership position is stated by the project itself with unusual clarity,
+      and both halves of it deserve quoting. The sponsor "acts as an open-source
+      software steward by providing infrastructure, resources and sponsorship", and
+      the distributions "are separate from and independent of SUSE's commercial
+      enterprise product offerings" and "are supported by the openSUSE community;
+      they are not commercially supported by SUSE". That is a clearer statement of
+      the boundary than several other entries in this edition publish at all.
+
+      Two of the project's own pages disagree about the foundation question, and both
+      are current. A board working document frames a foundation as an open request to
+      the sponsor, citing volunteer bandwidth and past difficulty accepting hardware
+      donations. Another page states flatly that "The Geeko Foundation has been
+      established to help the project". The Geeko Foundation is a real legal entity, a
+      not-for-profit company in England and Wales, and its own site shows it
+      sponsoring project events. Nothing found states that it holds the trademark or
+      the project assets. So the accurate answer today is that the trademark steward
+      is a vendor entity and a separate not-for-profit exists alongside it.
+
+      The commercial vehicle has no published governance of its own. Its stated build
+      lineage runs through a build-service project that describes itself as public,
+      but the product-specific build was not confirmed to be public, and no decision
+      process a non-employee could join was found for the product.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://en.opensuse.org/openSUSE:License
+        type: governance-doc
+        title: "openSUSE licence and stewardship"
+        retrieved: "2026-09-22"
+        quote: >-
+          SUSE Software Solutions Ireland Limited ... acts as an open-source software
+          steward by providing infrastructure, resources and sponsorship to support
+          The openSUSE Project... openSUSE Distributions are supported by the openSUSE
+          community; they are not commercially supported by SUSE.
+      - url: https://en.opensuse.org/openSUSE:Board
+        type: governance-doc
+        title: "openSUSE Board"
+        retrieved: "2026-09-22"
+        quote: >-
+          The purpose of the openSUSE Board is to lead the overall project... The
+          board members are elected by the community and the chair person is appointed
+          by SUSE.
+      - url: https://en.opensuse.org/Portal:Foundation/Intro
+        type: governance-doc
+        title: "openSUSE foundation portal"
+        retrieved: "2026-09-22"
+        quote: "The Geeko Foundation has been established to help the project."
+      - url: https://geekos.org/
+        type: foundation-page
+        title: The Geeko Foundation
+        retrieved: "2026-09-22"
+        quote: >-
+          a not-for-profit enterprise limited by guarantee in England and Wales
+    unknowns:
+      - "Whether any openSUSE trademark or infrastructure ownership has moved to the Geeko Foundation, or whether its role is limited to sponsorship."
+      - "Whether the commercial product's own build, as distinct from the shared core project, is done in public."
+      - "Employer affiliation of contributors to the lifecycle repositories is not published, so the diversity figure counts individuals only."
+
+  d14_maturity:
+    normalized:
+      first_release: "2017-05 (project start); integrated into the Tumbleweed release process by 2018-08"
+      current_version: "16.0.0-Snapshot20260919"
+      current_version_date: "2026-09-19"
+      release_cadence: "one image set per Tumbleweed snapshot, but not uniform across architectures"
+      observed_intervals: "at collection, x86_64, aarch64, armv7l and s390x current to 2026-09-14 and riscv64 15 days behind at Snapshot20260830; on 2026-09-22, x86_64, aarch64, armv7l and s390x at Snapshot20260919, riscv64 still at Snapshot20260830 (20 days), ppc64le at Snapshot20260817 (33 days)"
+      support_model: rolling-no-lts
+      support_window: "none for the rolling vehicle; Leap Micro and SUSE Linux Micro publish dates"
+      commercial_support: "none for MicroOS; available for SUSE Linux Micro"
+      commercial_support_window: "roughly four years of general support per minor version"
+    summary: >-
+      Nine years old, rolling, with a new image set for every upstream snapshot and
+      no end-of-life date to plan against. The versioned vehicles beside it publish
+      concrete dates, and the commercial one carries roughly four years of general
+      support per minor version.
+    notes: >-
+      The cadence claim and the observed cadence mostly agree, which is not the usual
+      finding in this edition. The design statement is that every Tumbleweed snapshot
+      produces a new MicroOS release, and four of the six architectures were current
+      to the previous day at collection. riscv64 was 15 days behind, so the claim
+      holds per snapshot but not per architecture. A re-check one week later found
+      the same four architectures at the 2026-09-19 snapshot, riscv64 unchanged at
+      Snapshot20260830, and ppc64le at Snapshot20260817, a build that predates the
+      collection date; the collection-day record had counted ppc64le among the
+      current architectures and is corrected (see d08).
+
+      **The support-window column is where the three vehicles diverge most, and it is
+      the reason to read them as one architecture with three commitments rather than
+      as one product.** The rolling vehicle publishes no end-of-life date at all,
+      because a rolling release does not have one, and it is explicitly not
+      commercially supported. Leap Micro publishes GA and planned end-of-life dates
+      and a twice-yearly cadence. SUSE Linux Micro publishes a lifecycle table with
+      roughly four years of general support per minor version, running to 2029-11-30
+      for 6.2. A team with an auditor to answer to is choosing between those three
+      commitments, not between three architectures.
+
+      The commercial cadence observed from the lifecycle table was roughly semi-annual
+      through the 5.x line and stretched to about eleven months between 6.1 and 6.2.
+
+      One documentation observation is recorded because it affects a reader trying to
+      repeat this research. The release-notes pages carry publication dates later than
+      the general availability dates on the lifecycle page, by more than a year in two
+      cases. They read as last-rendered timestamps rather than release dates. The
+      lifecycle page dates were used here.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://www.suse.com/lifecycle/
+        type: vendor-docs
+        title: "SUSE product lifecycle, SUSE Linux Micro rows (version, FCS date, general support end)"
+        retrieved: "2026-09-22"
+        quote: >-
+          SUSE Linux Micro 6.0 06 Jun 2024 30 Jun 2028 SUSE Linux Micro 6.1 26 Nov
+          2024 30 Nov 2028 SUSE Linux Micro 6.2 04 Nov 2025 30 Nov 2029
+      - url: https://en.opensuse.org/Portal:MicroOS/Features
+        type: official-docs
+        title: "Portal:MicroOS, features"
+        retrieved: "2026-09-22"
+        quote: >-
+          Rolling Release: Every new openSUSE Tumbleweed snapshot also automatically
+          produces a new openSUSE MicroOS release.
+      - url: https://news.opensuse.org/2018/08/09/opensuse-kubic-moves-in-a-new-direction/
+        type: announcement
+        title: "openSUSE Kubic moves in a new direction"
+        retrieved: "2026-09-22"
+        quote: >-
+          When we started in May 2017 ... Kubic MicroOS now a fully integrated part
+          of the openSUSE Tumbleweed release process.
+      - url: https://en.opensuse.org/openSUSE:Roadmap
+        type: official-docs
+        title: "openSUSE roadmap, Leap Micro releases"
+        retrieved: "2026-09-22"
+        quote: >-
+          Leap Micro is a re-brand of SLE Micro RPMs with minor configuration tweaks.
+          Typically trails SLE Micro releases by ~1 month.
+      - url: https://en.opensuse.org/Lifetime
+        type: official-docs
+        title: "openSUSE Lifetime, Leap Micro support model"
+        retrieved: "2026-09-22"
+        quote: >-
+          This updated lifecycle also applies to Leap Micro 6.2 and newer, which
+          now follow the same support model as Leap.
+    unknowns:
+      - "Why the rolling image filenames now carry a Leap-style 16.0.0 version token, and what governs when it increments."
+      - "Whether the riscv64 and ppc64le cadence lags are structural. riscv64 was 15 days behind at collection and 20 days behind one week later, with no new build in between; ppc64le was 33 days behind on 2026-09-22."
+
+tradeoffs:
+  buys:
+    - "A full general-purpose package set is installable on the host without giving up the immutability property. An install happens inside a snapshot, so a driver, an agent or a debugging tool is a first-class path rather than an image rebuild."
+    - "Rollback is a snapshot boot rather than a slot swap, so the number of rollback targets is a retention policy rather than a fixed one or two, and any retained snapshot is reachable from the boot menu."
+    - "Automatic rollback keyed to extensible health checks rather than to a fixed early boot milestone. What counts as a good boot can be made to mean more than the root mounting."
+    - "Secure Boot works on stock firmware with no key enrolment, through a Microsoft-signed shim chaining to an openSUSE certificate."
+    - "Machine-readable CycloneDX and SPDX bills of materials, plus a PGP-signed checksum, ship beside every official image on every architecture, by default. This was verified against live artifacts rather than taken from a documentation claim."
+    - "Released, signed OS images on six architectures including riscv64 and s390x, more than the project's own download page advertises."
+    - "Configuration reverts with the OS, because /etc is snapshotted, while container and application data in /var deliberately does not."
+    - "An elected board with a published decision process and community volunteers on it, and a published statement of where community stewardship ends and commercial support begins."
+    - "Three release vehicles over one architecture let an adopter move between a free rolling build and a four-year commercial commitment without changing the operational model."
+  costs:
+    - "No dm-verity and no runtime integrity verification of the root on any vehicle. Immutability rests on a read-only mount and snapshots."
+    - "The community Kubernetes story is a wiki page the project itself marks unmaintained, after the archiving of the Kubernetes variant that preceded it."
+    - "The commercial vehicle requires product registration for its update repositories, so its update path depends on a subscription and vendor infrastructure or a local mirror of it."
+    - "No FIPS 140-3 or Common Criteria certificate names either Micro product. The vendor's certificates belong to its enterprise server."
+    - "Every fleet-scale capability belongs to a separate commercial product. The open-source projects ship four single-node tools and nothing that manages a fleet."
+    - "Ownership is single-vendor: a vendor legal entity holds the trademark and the infrastructure."
+    - "Published architecture cadence is not uniform. riscv64 was 15 days behind the other architectures at collection and 20 days behind a week later, and ppc64le was 33 days behind on 2026-09-22, against a design claim that every snapshot produces every image."
+    - "No published vulnerability response commitment or service level for either Micro product."
+    - "The downloads page calls the versioned community vehicle experimental, while that vehicle's portal publishes GA and end-of-life dates."
+maintainers_fact:
+  text: "Single vendor."
+  evidence: DOCUMENTED
+  sources:
+    - url: "https://en.opensuse.org/openSUSE:License"
+      type: "governance-doc"
+      title: "openSUSE licence and stewardship"
+      retrieved: "2026-09-22"
+      quote: "SUSE Software Solutions Ireland Limited ... acts as an open-source software steward by providing infrastructure, resources and sponsorship to support The openSUSE Project... openSUSE Distributions are supported by the openSUSE community; they are not commercially supported by SUSE."
+known_issues:
+  - text: "The community vehicle's only documented Kubernetes path, a k3s deployment guide, carries a banner that reads \"This is unmaintained\". openSUSE Kubic, the kubeadm-based variant that preceded it, is archived."
+    kind: maintenance-stopped
+    sources:
+      - url: "https://en.opensuse.org/SDB:K3s_cluster_deployment_on_MicroOS"
+        type: "official-docs"
+        title: "Deploying a k3s cluster on MicroOS"
+        retrieved: "2026-09-22"
+        quote: "This is unmaintained."
+      - url: "https://en.opensuse.org/Archive:Kubic/Intro"
+        type: "official-docs"
+        title: "Archive:Kubic, introduction"
+        retrieved: "2026-09-22"
+        quote: "kubeadm - a Kubernetes cluster bootstrapping tool integrated as part of openSUSE Kubic to run atop openSUSE MicroOS."
+  - text: "The project states that every Tumbleweed snapshot produces a new MicroOS release. The published cadence is not uniform across architectures: on 2026-09-22, riscv64 images were 20 days behind and ppc64le images 33 days behind the other architectures."
+    kind: stated-vs-delivered
+    sources:
+      - url: "https://en.opensuse.org/Portal:MicroOS/Features"
+        type: "official-docs"
+        title: "Portal:MicroOS, features"
+        retrieved: "2026-09-22"
+        quote: "Rolling Release: Every new openSUSE Tumbleweed snapshot also automatically produces a new openSUSE MicroOS release."
+      - url: "https://download.opensuse.org/ports/riscv/tumbleweed/appliances/"
+        type: "release-notes"
+        title: "openSUSE riscv64 appliance directory (filename observed 2026-09-22; the same snapshot was current at collection)"
+        retrieved: "2026-09-22"
+        quote: "openSUSE-MicroOS.riscv64-16.0.0-kvm-and-xen-grub-bls-Snapshot20260830.qcow2.sha256.asc"
+      - url: "https://download.opensuse.org/ports/ppc/tumbleweed/appliances/"
+        type: "release-notes"
+        title: "openSUSE ppc64le appliance directory (filename observed 2026-09-22)"
+        retrieved: "2026-09-22"
+        quote: "openSUSE-MicroOS.ppc64le-16.0.0-ppc64le-512B-Snapshot20260817.raw.xz"
+open_questions:
+  - "Is openSUSE MicroOS the upstream of SUSE Linux Micro, or are they siblings sharing components? No primary source found states a lineage, and the only documented relationship is Leap Micro as a rebrand of SUSE Linux Micro."
+  - "What is the default snapshot retention policy on openSUSE MicroOS, and therefore how many rollback targets does a stock community installation keep? The commercial vehicle's 6.2 documentation publishes snapper defaults of 2 to 10; no community page does."
+  - "Does SUSE Linux Micro 6.x still ship health-checker and automatic rollback on boot failure? It is documented for 5.x, the 6.2 article index has no article for it, and the 6.x release notes do not mention it."
+  - "What does the shipped health-checker plugin set actually check, and therefore what does a successful boot really assert?"
+  - "Is / read-only on SUSE Linux Micro 6.x, or only /usr? The 6.2 documentation says read-only root file system, documents the /etc overlay under /var/lib/overlay and the /var exclusion, but does not name the boundary."
+  - "Can immutability be disabled on any of the three vehicles, and if so how?"
+  - "Is transactional-update.timer enabled by default on a stock openSUSE MicroOS image? The commercial vehicle documents it as daily and enabled by default; no community page names it."
+  - "Is there a documented factory reset, or any remote or out-of-band recovery path, for any of the three vehicles?"
+  - "Does FIPS mode on SUSE Linux Micro inherit the enterprise server's validated cryptographic modules, and is that inheritance documented anywhere?"
+  - "Was SELinux enforcing by default ever announced for MicroOS by name, or is it purely inherited from the shared Tumbleweed installer default?"
+  - "Why do the rolling image filenames carry a Leap-style 16.0.0 token, and what governs when it increments?"
+  - "Are the riscv64 and ppc64le image cadence lags structural? riscv64 had no new build between 2026-08-30 and 2026-09-22; ppc64le had none between 2026-08-17 and 2026-09-22."
+  - "Will the successor to SUSE Linux Micro 6.2 ship as SUSE Linux Micro 6.3, the name the 6.2 release notes use for the SLE merge, or as SUSE Linux Enterprise Server 16.1 (Immutable), the name the February 2026 announcement uses? The lifecycle page lists neither."
+  - "What is the ppc64le baseline for SUSE Linux Micro, where the 6.1 release notes say both at least Power9 and POWER10 or higher?"
+  - "Has any openSUSE trademark or infrastructure ownership moved to the Geeko Foundation, or is its role limited to sponsorship? Two current project pages disagree on whether a foundation exists."
+  - "Is the SUSE Linux Micro product build itself done in a public build-service project, or only the shared core it draws from?"
+  - "Does RKE2 have any documented deployment path on the community vehicles?"
+  - "Who owns support for an image an adopter builds with KIWI or Edge Image Builder, and does customization affect a commercial entitlement?"
+  - "What happens to openSUSE MicroOS, the rolling vehicle, as the commercial one converges into the enterprise server's immutable mode and Leap Micro 6.3 becomes an appliance image of Leap 16.1? No statement about the rolling vehicle was found."
+  - "Does any vehicle publish logging, metrics or monitoring documentation?"
+
+follow_up_research:
+  - FR-01
+  - FR-02
+  - FR-03
+  - FR-05
+  - FR-06
+  - FR-08
+  - FR-09
+  - FR-13
+  - FR-14
+  - FR-15
+  - FR-16
+  - FR-17
+  - FR-18
+  - FR-19
+
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Cost audit under methodology section 9, rule 15. c0 reworded: removed the comparison with a verified root (N6); the absence of dm-verity stays (C2). Moved c1 (default snapshot retention on the community vehicle) to q1, which carries the same facts (N1). Removed c2 ('The rolling vehicle publishes no support window...') and c3 ('No stable ABI is promised at the base OS layer...'), N2: documented design choices with a supported alternative path, the versioned and commercial vehicles. c6 reworded; inheritance of the enterprise certificates is q8 (N1). c10 reworded; the logging, metrics and monitoring part is a new open question (N1). c11 reworded; the foundation disagreement is q14."
+  - date: '2026-10-06'
+    field: dimensions.d04_upgrade.normalized.scope
+    change: Was whole-root-plus-etc (Root snapshot, with /etc). Now root-snapshot-etc (Root snapshot with /etc), from the independent check of what one update replaces (closed six-value vocabulary).
+    source:
+      url: https://github.com/openSUSE/transactional-update/blob/ef8af9f/doc/transactional-update.xml
+      type: source-repo
+      title: openSUSE transactional-update documentation, /etc
+      retrieved: '2026-10-06'
+      quote: /etc is created as a nested BTRFS subvolume of the root file system.
+  - date: "2026-09-22"
+    field: version_observed.version
+    change: "Moved since collection: 16.0.0-Snapshot20260914 (released 2026-09-14) at collection; 16.0.0-Snapshot20260919 (released 2026-09-19) on 2026-09-22. SBOM MicroOS-release moved from 20260914-4303.1 to 20260919-4313.1."
+    source:
+      url: https://download.opensuse.org/tumbleweed/appliances/
+      type: release-notes
+      title: openSUSE Tumbleweed appliance directory
+      retrieved: "2026-09-22"
+      quote: "openSUSE-MicroOS.x86_64-16.0.0-kvm-and-xen-Snapshot20260919.qcow2"
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.normalized.current_version
+    change: "Moved since collection: 16.0.0-Snapshot20260914 (2026-09-14) to 16.0.0-Snapshot20260919 (2026-09-19). Same lookup as version_observed."
+    source:
+      url: https://download.opensuse.org/tumbleweed/iso/
+      type: release-notes
+      title: openSUSE Tumbleweed ISO directory
+      retrieved: "2026-09-22"
+      quote: "openSUSE-MicroOS-DVD-x86_64-Snapshot20260919-Media.iso"
+  - date: "2026-09-22"
+    field: dimensions.d08_hardware_platform.notes
+    change: "Said ppc64le images were current to 2026-09-14 at collection. On 2026-09-22 the ppc64le port directory holds only Snapshot20260817, which predates collection, and the directory keeps one build per image, so the collection-day claim could not be confirmed. Notes now record ppc64le at 33 days behind and riscv64 at 20 days behind. The architecture list itself is unchanged."
+    source:
+      url: https://download.opensuse.org/ports/ppc/tumbleweed/appliances/
+      type: release-notes
+      title: openSUSE ppc64le appliance directory
+      retrieved: "2026-09-22"
+      quote: "openSUSE-MicroOS.ppc64le-16.0.0-ppc64le-512B-Snapshot20260817.raw.xz"
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.normalized.observed_intervals
+    change: "Listed ppc64le among the architectures current to 2026-09-14; corrected per the d08 entry above, and the 2026-09-22 observation appended (four architectures at Snapshot20260919, riscv64 at Snapshot20260830, ppc64le at Snapshot20260817). release_cadence no longer says daily, since the observed intervals do not support that word."
+    source:
+      url: https://download.opensuse.org/ports/riscv/tumbleweed/appliances/
+      type: release-notes
+      title: openSUSE riscv64 appliance directory
+      retrieved: "2026-09-22"
+      quote: "openSUSE-MicroOS.riscv64-16.0.0-kvm-and-xen-grub-bls-Snapshot20260830.qcow2"
+  - date: "2026-09-22"
+    field: dimensions.d10_security.normalized.mandatory_access_control
+    change: "Said the commercial vehicle states SELinux enabled by default at 6.2 without naming the mode. The 6.0 release notes, live at collection, state SELinux in enforced mode as the default and that AppArmor is not supported on SUSE Linux Micro. Value now records the two vehicles separately; the matching unknown and open question are removed."
+    source:
+      url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.0/index.html
+      type: vendor-docs
+      title: SUSE Linux Micro 6.0 release notes, security framework
+      retrieved: "2026-09-22"
+      quote: "SUSE Linux Micro 6.0 will have SELinux in enforced mode as a default."
+  - date: "2026-09-22"
+    field: dimensions.d10_security.notes
+    change: "Said USGv6 and IPv6 Ready certifications are listed for SUSE Linux Micro 6.1 and 6.2. The certifications page lists one entry, for 6.2, dated 2026-01-26; no 6.1 entry appears. The sources[3] quote was a paraphrase and is replaced by two verbatim entries (the Micro entry and the FIPS 140-3 entry)."
+    source:
+      url: https://www.suse.com/support/security/certifications/
+      type: vendor-docs
+      title: SUSE certifications
+      retrieved: "2026-09-22"
+      quote: "01/26/2026 - SUSE Linux Micro 6.2 (SL Micro) has been certified by the University of New Hampshire Interoperability Laboratory (UNH-IOL) against the technical requirements of the USGv6-R1 profile and the IPv6 Readiness Program."
+  - date: "2026-09-22"
+    field: dimensions.d06_customization.sources[3].quote
+    change: "The quote \"Most of our pre-built MicroOS system images use Ignition for configuration on first boot.\" was attributed to Portal:MicroOS/Ignition; it is on Portal:MicroOS/Design. The Ignition source now carries a sentence from its own page and the Design page is added as a source with the original quote."
+    source:
+      url: https://en.opensuse.org/Portal:MicroOS/Design
+      type: official-docs
+      title: "Portal:MicroOS, design"
+      retrieved: "2026-09-22"
+      quote: "Most of our pre-built MicroOS system images use Ignition for configuration on first boot."
+  - date: "2026-09-22"
+    field: dimensions.d05_rollback_recovery.normalized.retained_versions
+    change: "Said unknown, and notes said the default policy was published nowhere. The commercial vehicle's 6.2 snapper article, live at collection, publishes the defaults (NUMBER_LIMIT 2 to 10, NUMBER_LIMIT_IMPORTANT 4 to 10). Value is now configurable, with a per-vehicle field for the commercial default and unknown kept for openSUSE MicroOS. tradeoffs.costs and open_questions adjusted to match."
+    source:
+      url: https://documentation.suse.com/sle-micro/6.2/html/Micro-snapper-basic-concepts/index.html
+      type: vendor-docs
+      title: SUSE Linux Micro 6.2, snapper default settings
+      retrieved: "2026-09-22"
+      quote: "The default values are 2–10 for NUMBER_LIMIT and 4–10 for NUMBER_LIMIT_IMPORTANT, meaning that only the youngest snapshots are kept."
+  - date: "2026-09-22"
+    field: dimensions.d02_immutability.notes
+    change: "Said the commercial pages did not state how /etc and /var are layered. The 6.2 transactional-update article, already cited, states /var is not included in the snapshot and that /etc overlay layers live under /var/lib/overlay. Notes and the unknown now record that; the / versus /usr boundary question stays open."
+    source:
+      url: https://documentation.suse.com/sle-micro/6.2/html/Micro-transactional-updates/index.html
+      type: vendor-docs
+      title: SUSE Linux Micro 6.2, transactional updates
+      retrieved: "2026-09-22"
+      quote: "From within the snapshot, you cannot access the /var directory. This directory is also not included in the snapshot."
+  - date: "2026-09-22"
+    field: dimensions.d04_upgrade.normalized.initiator
+    change: "Said systemd timer without a name. The 6.2 transactional-update article names transactional-update.timer, daily and enabled by default, on the commercial vehicle. Value and unknown now say so; the community vehicle's default remains unknown."
+    source:
+      url: https://documentation.suse.com/sle-micro/6.2/html/Micro-transactional-updates/index.html
+      type: vendor-docs
+      title: SUSE Linux Micro 6.2, transactional updates, automatic updates
+      retrieved: "2026-09-22"
+      quote: "The automatic updates are enabled by default."
+  - date: "2026-09-22"
+    field: dimensions.d01_os_model.notes
+    change: "Said the community vehicles are not affected by the SLES 16.1 convergence statement. The openSUSE roadmap states Leap Micro 6.3 will be an appliance image of Leap 16.1 installable as Immutable, and that Leap Micro 6.2 adopts the Leap 16.0 schedule. Notes now record that for Leap Micro and say nothing was found for the rolling vehicle."
+    source:
+      url: https://en.opensuse.org/openSUSE:Roadmap
+      type: official-docs
+      title: openSUSE roadmap
+      retrieved: "2026-09-22"
+      quote: "Important: Leap Micro 6.2 adopts the Leap 16.0 schedule. Leap Micro 6.3 will follow Leap 16.1."
+  - date: "2026-09-22"
+    field: dimensions.d01_os_model.notes
+    change: "Convergence paragraph now carries the dated facts the cited pages already held at collection: the announcement places SLES 16.1 in November 2026, the lifecycle page lists 16.1 FCS as Nov 2026, a public beta opened 2026-05-28, and the 6.2 release notes (published 2026-09-08) call the successor SL Micro 6.3 (SLE merge). The successor's name is added as an unknown and an open question. The 6.2 release notes quote in sources was a paraphrase of a table and is now the verbatim sentence."
+    source:
+      url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.2/index.html
+      type: vendor-docs
+      title: SUSE Linux Micro 6.2 release notes
+      retrieved: "2026-09-22"
+      quote: "In the future, when upgrading from SL Micro to SL Micro 6.3 (so-called \"SLE merge\"), some systems will have net.ifnames=0 set on their kernel command line"
+  - date: "2026-09-22"
+    field: dimensions.d13_governance.normalized.contribution_diversity.value
+    change: "Moved since collection: transactional-update 966 commits with top two at 861 (2026-09-15) to 1042 with top two at 938 (2026-09-22); health-checker 97 with top two at 78 to 106 with top two at 85. combustion unchanged at 73 and 68. Contributor counts unchanged at 26, 11 and 4."
+    source:
+      url: https://github.com/openSUSE/transactional-update
+      type: source-repo
+      title: transactional-update, GitHub contributors API
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d08_hardware_platform.normalized.gpu
+    change: "Said NVIDIA open driver in the commercial vehicle's core repositories from 6.2. No cited source supported the repository or the from-6.2 claim. The SUSE Edge 3.5 guide documents pre-built open-source NVIDIA drivers on SUSE Linux Micro 6.2 behind a subscription; the value now says that and the guide is added as a source."
+    source:
+      url: https://documentation.suse.com/suse-edge/3.6/html/edge/nvidia-on-slemicro.html
+      type: vendor-docs
+      title: SUSE Edge 3.5, NVIDIA GPUs on SUSE Linux Micro
+      retrieved: "2026-09-22"
+      quote: "This guide demonstrates how to implement host-level NVIDIA GPU support via the pre-built open-source drivers on SUSE Linux Micro 6.2."
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.normalized.commercial[0].note
+    change: "The Multi-Linux Manager client-support claim had no source in the dimension. The 5.1 supported-clients page is added; it lists SL Micro 6.0, 6.1 and 6.2 and requires 5.1.2 or later for 6.2."
+    source:
+      url: https://documentation.suse.com/multi-linux-manager/5.1/en/docs/client-configuration/supported-features.html
+      type: vendor-docs
+      title: SUSE Multi-Linux Manager 5.1, supported client systems
+      retrieved: "2026-09-22"
+      quote: "SL Micro 6.0, 6.1, 6.2"
+  - date: "2026-09-22"
+    field: dimensions.d12_fleet_management.normalized.oss_companion[4].note
+    change: "Said the Edge Image Builder licence was read from package metadata rather than the repository's own licence file. On 2026-09-22 the repository root carries a LICENSE file that GitHub reports as Apache-2.0. Whether the file existed at collection was not determined; the note records both readings."
+    source:
+      url: https://github.com/suse-edge/edge-image-builder
+      type: source-repo
+      title: edge-image-builder repository root
+      retrieved: "2026-09-22"
+  - date: "2026-09-22"
+    field: dimensions.d09_provisioning.notes
+    change: "PXE for the commercial vehicle was recorded without its limit. The 6.1 release notes state PXE boot images are provided for all architectures except ppc64le; added with source and quote, and the 6.1 deployment-images source now carries a verbatim quote."
+    source:
+      url: https://documentation.suse.com/releasenotes/sle-micro/html/releasenotes_sle-micro_6.1/index.html
+      type: vendor-docs
+      title: SUSE Linux Micro 6.1 release notes, installation media
+      retrieved: "2026-09-22"
+      quote: "we are adding PXE boot images (network boot .tar) for all architectures except ppc64le."
+  - date: "2026-09-22"
+    field: dimensions.d14_maturity.sources[0].quote
+    change: "The lifecycle quote was a paraphrase with reformatted dates. Replaced by the verbatim row text for 6.0, 6.1 and 6.2. Values unchanged: the rows confirm the recorded GA and general-support dates."
+    source:
+      url: https://www.suse.com/lifecycle/
+      type: vendor-docs
+      title: SUSE product lifecycle
+      retrieved: "2026-09-22"
+      quote: "SUSE Linux Micro 6.2 04 Nov 2025 30 Nov 2029"
+  - date: "2026-09-22"
+    field: dimensions.d03_artifact.sources[0].quote
+    change: "The directory-listing quotes in d03 sources[0] and d08 sources[0] and [1] were observation notes, not page text. Replaced by verbatim filenames observed on 2026-09-22, with the collection-day snapshot named in each title. The companion-file claim (sha256, sha256.asc, cdx.json, spdx.json) was re-verified for Snapshot20260919."
+    source:
+      url: https://download.opensuse.org/tumbleweed/appliances/
+      type: release-notes
+      title: openSUSE Tumbleweed appliance directory
+      retrieved: "2026-09-22"
+      quote: "openSUSE-MicroOS.x86_64-16.0.0-kvm-and-xen-Snapshot20260919.qcow2.sha256.asc"
+  - date: "2026-10-05"
+    field: dimensions.d04_upgrade.normalized.self_hostable_update_server
+    change: >-
+      Added a value for the self-hostable update source column, which rendered as Not collected. The value is true and the label is INFERRED. MicroOS shares the Tumbleweed repositories, and the project invites anyone to mirror them. No page states the private mirror case for MicroOS itself. The commercial vehicle needs product registration and is not covered by this value.
+    source:
+      url: https://mirrors.opensuse.org/
+      type: official-docs
+      title: "openSUSE mirrors"
+      retrieved: "2026-10-05"
+      quote: >-
+        If you have a server with some space left, and want to help with making the openSUSE experience better for other users, become a mirror!
+  - date: "2026-10-05"
+    field: dimensions.d05_rollback_recovery.normalized
+    change: >-
+      Added health_checker_installed_by_default and health_checker_enabled_by_default. Installation is documented: the microos_base pattern requires health-checker and its MicroOS plugins. Default enablement stays unknown. This settles half of the open review flag on the automatic rollback cell.
+    source:
+      url: https://api.opensuse.org/public/source/openSUSE:Factory/patterns-microos/patterns-microos.spec
+      type: source-repo
+      title: "patterns-microos spec, package base (microos_base)"
+      retrieved: "2026-10-05"
+      quote: >-
+        Requires: health-checker
+  - date: "2026-10-06"
+    field: "tradeoffs.costs"
+    change: "Methodology section 9, rule 16: a single-vendor entry says single vendor once, and a commit share is added only when it is measured the same way for every entry. Was 'The snapshot tooling has a small contributor base: 26 contributors on the updater, with two holding most commits, 11 on the health checker, and 4 on the first-boot tool.' Now 'Ownership is single-vendor: a vendor legal entity holds the trademark and the infrastructure.' (d13 vendor_neutral_ownership: single-vendor, and the d13 summary). The contributor and commit counts stay in d13 contribution_diversity."
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized.writable_and_persistent
+    change: Narrowed from /var, /etc, /root, /home and /boot/writable to /var and /etc (overlay). The Kubic transactional-update guide, which I could read, documents /var and the /etc overlay. It does not name /home, /root or /boot/writable, and the openSUSE wiki Design page that may name them blocks automated retrieval with a proof-of-work challenge on 2026-10-12. Those three are now unverified, not removed as wrong. Added configurable_paths (unknown).
+    source:
+      url: https://kubic.opensuse.org/documentation/transactional-update-guide/tu-setup.html
+      type: official-docs
+      title: 'transactional-update guide: /var'
+      retrieved: '2026-10-12'
+      quote: On a read-only system this directory has to be writable in any case, variable data is stored inside.
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized.writable_and_persistent
+    change: Restored /home and /root, and added /opt, /srv, /usr/local and /boot/writable, from the image definition, which lists each as a separate btrfs subvolume beside the read-only root snapshot (btrfs_root_is_readonly_snapshot="true"). /boot/writable appears in 20 of the 22 image profiles; the kvm-and-xen-sdboot and kvm-and-xen-grub-bls profiles do not have it. This replaces the earlier note that these paths were unverified because the openSUSE wiki blocked retrieval.
+    source:
+      url: https://api.opensuse.org/public/source/openSUSE:Factory/openSUSE-MicroOS/openSUSE-MicroOS.kiwi?rev=103
+      type: source-repo
+      title: openSUSE-MicroOS image definition (kiwi), openSUSE:Factory, revision 103
+      retrieved: '2026-10-12'
+      quote: <volume name="boot/writable"/>
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: 'Added the add_software field. It records how an adopter adds software to the OS itself, not workloads. Values: Transactional packages, systemd-sysext. Each value has its sources, read on 2026-10-12.'
+    source:
+      url: https://en.opensuse.org/Portal:MicroOS/Design
+      type: official-docs
+      title: openSUSE MicroOS design
+      retrieved: '2026-10-12'
+      quote: A MicroOS installation can be updated and new RPM packages can be installed using the transactional-update or the pkcon application.

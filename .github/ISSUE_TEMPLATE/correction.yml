@@ -1,0 +1,71 @@
+name: Correct a claim
+description: A claim in the Pulse is wrong or out of date.
+title: "[correction] <project>: <what is wrong>"
+labels: ["correction"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for checking the Pulse against its sources. A correction needs a primary source: the project's own docs, code, release notes or announcement. Marketing comparison pages are not accepted as a source.
+  - type: dropdown
+    id: project
+    attributes:
+      label: Project
+      options:
+        - AWS Bottlerocket
+        - Azure Container Linux (ACL)
+        - bootc
+        - EVE-OS
+        - Fedora CoreOS
+        - Flatcar Container Linux
+        - Google Container-Optimized OS
+        - Hadron Linux
+        - Kairos
+        - NixOS
+        - openSUSE MicroOS
+        - Talos Linux
+        - Ubuntu Core
+        - Unikraft
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where is the claim?
+      description: The matrix column, data sheet row, pair or section, or the profile field (for example d05 rollback).
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: What the Pulse says now
+    validations:
+      required: true
+  - type: textarea
+    id: correct
+    attributes:
+      label: What it should say
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Primary source
+      description: A URL that states the correct value. For code, link a specific file and ref.
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Is it wrong, or out of date?
+      options:
+        - Wrong
+        - Out of date (a newer release changed it)
+    validations:
+      required: true
+  - type: checkboxes
+    id: affiliation
+    attributes:
+      label: Affiliation
+      options:
+        - label: I am a maintainer of, or work for a company behind, this project.

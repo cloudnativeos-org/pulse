@@ -1,0 +1,1307 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: azure-container-linux
+name: Azure Container Linux (ACL)
+homepage: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+repository: https://github.com/microsoft/azure-container-linux
+collected_at: "2026-10-05"
+
+entry_kind:
+  - distribution
+  - platform-os
+
+category_fit:
+  comparable: partial
+  note: >-
+    ACL is an immutable, image-based container host, so it belongs to the same
+    category as the rest of this survey and is comparable on all fourteen
+    dimensions. It is "partial" because three things narrow the comparison.
+
+    First, most of its architecture is Flatcar's. Microsoft documents it as
+    derived from Flatcar Container Linux, and this profile records the places
+    where the ACL source says that is true, and the places where it differs. It
+    does not copy Flatcar facts across. Where ACL's own sources are silent, the
+    field is "unknown", not the Flatcar value.
+
+    Second, ACL has no release channel of its own. The repository publishes no
+    GitHub releases, and ACL versions surface as AKS node image versions (d14).
+
+    Third, fleet management and support are AKS services, not properties of the
+    operating system (d12, d14).
+
+    Support scope is Azure. The documented platforms are Azure and a QEMU/KVM
+    development target (d08).
+  dimensions_not_applicable: []
+
+self_description:
+  text: >-
+    Azure Container Linux (ACL) is a hardened, immutable, container host
+    operating system built for Azure Kubernetes Service (AKS).
+  source:
+    url: https://github.com/microsoft/azure-container-linux/blob/aclmain/README.md
+    type: source-repo
+    title: microsoft/azure-container-linux README
+    retrieved: "2026-10-05"
+    quote: >-
+      Azure Container Linux (ACL) is a hardened, immutable, container host
+      operating system built for Azure Kubernetes Service (AKS).
+
+version_observed:
+  version: "3.0.20260809 (os-release), in AKS node image 202609.23.0"
+  released: "2026-09-23"
+  channel: "AKS node image, weekly"
+  method: >-
+    The newest file in the AKS repository's vhd-notes/AzureContainerLinuxv3
+    directory, read through the GitHub contents API on 2026-10-05. The VHD note
+    for 202609.23.0 records the build start (2026-09-23 00:30 UTC), the
+    os-release VERSION field and the kernel (6.6.150.1-1.azl3). The release date
+    is the build date in that note. The ACL repository has no GitHub release to
+    read instead (d14).
+  source:
+    url: https://github.com/Azure/AKS/blob/master/vhd-notes/AzureContainerLinuxv3/202609.23.0.txt
+    type: release-notes
+    title: AKS VHD notes, Azure Container Linux 202609.23.0
+    retrieved: "2026-10-05"
+    quote: 'PRETTY_NAME="Microsoft Azure Container Linux 3.0.20260809"'
+  additional_channels: []
+
+taxonomy:
+  workload_scope: kubernetes-oriented-host
+  construction_model:
+    - vendor-fixed-image
+  root_state_substrate:
+    - ab-partition-image
+  notes: >-
+    ACL is documented as a node OS for AKS and does not bundle Kubernetes, so it
+    is a host and not an appliance. The published artifacts are vendor-built
+    images: the AKS node image and an Azure Marketplace image. The repository
+    also carries build tooling, but its own issue tracker records that no
+    comprehensive build documentation exists yet (d06), so the profile does not
+    claim a derivation model.
+
+    The A/B layout (USR-A and USR-B, each with a verity hash partition) is
+    documented in the ACL repository. The root state substrate is recorded from
+    that layout. Whether any shipping update path switches between the two slots
+    is a separate question, answered in d04.
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: kubernetes-oriented-host
+      ships_kubernetes: false
+      immutable: true
+      package_manager_at_runtime: false
+    summary: >-
+      A Microsoft-maintained immutable container host, derived from Flatcar
+      Container Linux and built from Azure Linux 3.0 RPM packages. It is
+      documented as the node OS for AKS, and a Marketplace VM image exists.
+    notes: >-
+      The lineage is stated by Microsoft in three places and is consistent. The
+      Learn overview says ACL is "derived from the Flatcar Container Linux
+      project". The repository README says it is built from Azure Linux packages
+      and inherits "core design principles and image composition SDK" from
+      Flatcar. The architecture document says it replaces the Portage build with
+      Azure Linux 3.0 RPMs.
+
+      The shipped os-release agrees: ID=azurelinux, ID_LIKE="flatcar", and a
+      version in the Azure Linux 3.0 numbering (3.0.20260809), not a Flatcar
+      version number.
+
+      The production image does not embed Docker. containerd is baked in as an
+      embedded system extension, and Docker is a separate, optional one (d06).
+    evidence: DOCUMENTED
+    sources:
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+        type: vendor-docs
+        title: Azure Container Linux overview
+        retrieved: "2026-10-05"
+        quote: >-
+          ACL is derived from the Flatcar Container Linux project, building on
+          Flatcar's proven, container-first immutable design while layering in
+          Azure Linux packages, servicing, and platform integration.
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/README.md
+        type: source-repo
+        title: microsoft/azure-container-linux README
+        retrieved: "2026-10-05"
+        quote: >-
+          while inheriting core design principles and image composition SDK from
+          the Flatcar Container Linux project
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/architecture.md
+        type: source-repo
+        title: ACL architecture
+        retrieved: "2026-10-05"
+        quote: >-
+          Package installation uses RPMs sourced from Azure Linux repositories
+          instead of Portage ebuilds.
+      - url: https://github.com/Azure/AKS/blob/master/vhd-notes/AzureContainerLinuxv3/202609.23.0.txt
+        type: release-notes
+        title: AKS VHD notes, Azure Container Linux 202609.23.0
+        retrieved: "2026-10-05"
+        quote: ID_LIKE="flatcar"
+
+  d02_immutability:
+    normalized:
+      immutable: true
+      integrity_mechanism: ["dm-verity"]
+      verity_failure_policy: "panic-on-corruption"
+      runtime_package_install: false
+      mandatory_access_control: selinux-enforcing
+      read_only:
+        - /usr
+      read_only_mechanism: btrfs filesystem under dm-verity
+      writable_and_persistent:
+        - /etc (overlay, upper layer persisted on the ROOT partition)
+        - the rest of the ROOT partition (the documents do not list which paths)
+      configurable_paths:
+        value: 'yes'
+        evidence: DOCUMENTED
+        how: Ignition can format and mount additional disks and set up mount points at first boot. The read-only /usr is fixed.
+        sources:
+          - url: https://github.com/microsoft/azure-container-linux/blob/4dd4f8b/acl/docs/architecture.md
+            type: source-repo
+            title: 'Azure Container Linux architecture: Ignition'
+            retrieved: '2026-10-12'
+            quote: Format and mount additional disks.
+      mounts_sources:
+        - url: https://github.com/microsoft/azure-container-linux/blob/4dd4f8b/acl/docs/architecture.md
+          type: source-repo
+          title: 'Azure Container Linux architecture: the /usr partition'
+          retrieved: '2026-10-12'
+          quote: The `/usr` partition (USR-A) is a read-only btrfs filesystem with zstd compression.
+        - url: https://github.com/microsoft/azure-container-linux/blob/4dd4f8b/acl/docs/architecture.md
+          type: source-repo
+          title: 'Azure Container Linux architecture: the /etc overlay'
+          retrieved: '2026-10-12'
+          quote: '**Upper (writable)**: persisted on the ROOT partition.'
+    summary: >-
+      /usr is a read-only btrfs filesystem under dm-verity with a signed root
+      hash, and corruption causes a kernel panic. /etc is an overlay whose lower
+      layer comes from /usr and whose upper layer persists on ROOT.
+    notes: >-
+      This is the mechanism the Flatcar profile records, and the ACL source
+      states each part of it independently. The verity hash tree sits in its
+      own partition (HASH-A after USR-A) and the slot-specific verity
+      parameters travel in a per-slot systemd-stub addon, not in the shared
+      kernel command line. The architecture document changed on 2026-10-02 to
+      say this. Before that date it described the hash tree as appended to the
+      USR partition and the parameters as embedded in the UKI. A reader who
+      compares older copies of the document will see the difference.
+
+      "Immutable" covers /usr only. State on ROOT persists, so ROOT can drift,
+      and rollback reverts /usr but not ROOT (see d05).
+
+      One operational friction is on record. An AKS user reported on
+      2026-09-17 that the Azure CNI installer cannot rename binaries under
+      /opt/cni/bin on an ACL node because the filesystem is read-only. An AKS
+      engineer replied that it is a known issue and that a fix is in
+      progress. The report does not say why the path is read-only, so the
+      profile records the symptom and not a cause.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/architecture.md
+        type: source-repo
+        title: ACL architecture, dm-verity for /usr and the /etc overlay
+        retrieved: "2026-10-05"
+        quote: >-
+          Any corruption of `/usr` causes an immediate kernel panic, preventing
+          the system from running a tampered image.
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+        type: vendor-docs
+        title: Azure Container Linux overview, key features
+        retrieved: "2026-10-05"
+        quote: >-
+          The '/usr' directory is mounted as a read-only volume protected by
+          dm-verity. At runtime, the kernel validates a signed root hash to
+          detect and block tampering
+      - url: https://github.com/microsoft/azure-container-linux/commit/6adc59d7c164456f8203b2651f787ccca8764331
+        type: source-repo
+        title: "feat: enable ABUpdate for UKI-based ACL images (#28)"
+        retrieved: "2026-10-05"
+        quote: "Slot-specific verity parameters are not baked into this shared command line"
+      - url: https://github.com/Azure/AKS/issues/5971
+        type: announcement
+        title: "[BUG] Azure-CNS daemonset container cni-installer fails to reach Ready state after pod restart on Azure Container Linux (ACL) due to read-only /opt/cni/bin"
+        retrieved: "2026-10-05"
+        quote: "failed to rename the /opt/cni/bin/azure-vnet to /opt/cni/bin/azure-vnet.old: rename /opt/cni/bin/azure-vnet /opt/cni/bin/azure-vnet.old: read-only file system"
+    unknowns:
+      - "Which paths other than /usr are read-only on a running ACL node, and why /opt/cni/bin is one of them."
+
+  d03_artifact:
+    normalized:
+      primary_artifact: "AKS node image VHD, Azure Compute Gallery VHD, Azure Marketplace image"
+      other_artifacts: "qcow2 for QEMU development and CI; a test-image variant"
+      oci_registry_distribution: "system extensions only: GPU extensions through Microsoft Artifact Registry; not the OS image"
+      content_addressable: unknown
+      mirrorable: "unknown"
+      signed: "signed unified kernel image, Secure Boot required"
+      air_gapped_capable: unknown
+    summary: >-
+      The OS reaches machines as an AKS node image, a Compute Gallery VHD or an
+      Azure Marketplace image. GPU system extensions come from Microsoft
+      Artifact Registry. The OS image itself is not distributed as an OCI
+      artifact.
+    notes: >-
+      The ACL image-preload guide documents the Marketplace listing: the
+      publisher is MicrosoftCBLMariner and the offer is azure-linux-3, with one
+      Generation 2 SKU per architecture (x64 and Arm64), versioned together. The
+      Learn pages describe only AKS usage, so the Marketplace image is a fact
+      from the repository, not from the product documentation.
+
+      content_addressable is unknown. No source describes a content addressed
+      store for the OS, and the documented architecture is a partitioned image.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/architecture.md
+        type: source-repo
+        title: ACL architecture, image outputs
+        retrieved: "2026-10-05"
+        quote: >-
+          Azure VHD — the production output, published to the Azure Compute
+          Gallery.
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/containerd-image-preload.md
+        type: source-repo
+        title: Preloading container images into an ACL image
+        retrieved: "2026-10-05"
+        quote: with a separate Generation 2 SKU per architecture
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/sysexts.md
+        type: source-repo
+        title: ACL system extensions
+        retrieved: "2026-10-05"
+        quote: "**GPU** (available through Microsoft Artifact Registry):"
+    unknowns:
+      - "Whether an ACL image can be mirrored or used in an air-gapped environment. No procedure was found."
+      - "Where signed images and their signatures are published for a user who builds or verifies images outside AKS."
+
+  d04_upgrade:
+    normalized:
+      fleet_upgrade:
+        self_update: "The OS has no update agent of its own. AKS acts when the node OS upgrade channel is NodeImage."
+        paths:
+          - kind: managed-service
+            name: "AKS NodeImage channel"
+            license: "service"
+            class: service
+            reconciliation: replacement
+            filter: true
+            note: "AKS replaces nodes with a new weekly VHD when the NodeImage channel is set."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/MicrosoftDocs/azure-aks-docs/blob/main/articles/aks/includes/azure-container-linux-limitations.md
+                title: "Azure Container Linux limitations (azure-aks-docs)"
+                retrieved: "2026-10-06"
+                quote: >-
+                  `NodeImage` and `None` are the only supported ... OS upgrade channels. `Unmanaged` and `SecurityPatch` are incompatible with ACL due to the immutable `/usr` directory.
+              - url: https://learn.microsoft.com/en-us/azure/aks/auto-upgrade-node-os-image
+                title: "Auto-upgrade node OS images (AKS)"
+                retrieved: "2026-10-06"
+      version_identity:
+        identifier: "AKS node image version and os-release VERSION"
+        condition: "No optional system extensions beyond those baked into the image."
+        evidence: DOCUMENTED
+        sources:
+          - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/build_library/set_lsb_release
+            type: source-code
+            title: "ACL build_library/set_lsb_release"
+            retrieved: "2026-10-06"
+          - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/sysexts.md
+            type: official-docs
+            title: "ACL system extensions"
+            retrieved: "2026-10-06"
+            quote: >-
+              ACL uses **systemd-sysext** squashfs images to deliver optional functionality on top of the read-only `/usr` partition.
+      mechanism:
+        - image-replacement-redeploy
+        - ab-partition-switch
+      scope_by_mode:
+        AKS node image: whole-node
+        In-node A/B: usr-only
+      scope_note: On AKS, ACL supports only full node image updates. The repository documents an in-node A/B /usr slot that Trident switches; no source says AKS uses it.
+      scope_sources:
+        - url: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+          type: vendor-docs
+          title: Azure Container Linux overview, versioning
+          retrieved: '2026-10-06'
+          quote: ACL currently only supports full node image updates.
+        - url: https://github.com/microsoft/azure-container-linux/blob/6adc59d/acl/docs/architecture.md
+          type: source-repo
+          title: ACL architecture, A/B slots
+          retrieved: '2026-10-06'
+          quote: Trident switches slots by swapping which addon is active in `<uki>.efi.extra.d/`, so the same signed UKI boots either A or B.
+      mechanism_in_use_on_aks: "image-replacement-redeploy"
+      initiator: aks-node-image-upgrade
+      requires_kubernetes: true
+      requires_vendor_infrastructure: true
+      self_hostable_update_server: unknown
+      self_hostable_update_server_evidence: UNKNOWN
+      self_hostable_update_server_note: "The documented update path is the AKS weekly node image, published by Microsoft. No page found says whether an operator can host an update source."
+      self_hostable_update_server_searched: "Read on 2026-10-05: the ACL overview on Microsoft Learn, the ACL migration and CVE pages, microsoft/azure-container-linux README and acl/docs/architecture.md, and the microsoft/trident README. None names an update server, a mirror, or a self-hosting path. The overview scopes ACL to AKS node images."
+      artifact_verification: "signed unified kernel image"
+      supported_upgrade_channels: ["NodeImage", "None"]
+      unsupported_upgrade_channels: ["SecurityPatch", "Unmanaged"]
+    summary: >-
+      On AKS, ACL updates by full node image replacement on a weekly image
+      cadence. No in-place package update exists. The image also carries an A/B
+      slot design, but no source says that AKS uses it.
+    notes: >-
+      The AKS documentation is explicit about the AKS path. ACL "currently only
+      supports full node image updates", and only the NodeImage and None
+      upgrade channels work, because the SecurityPatch and Unmanaged channels
+      depend on in-place patching that an immutable /usr rules out. A CVE fix
+      therefore reaches a node only through a new node image.
+
+      The A/B mechanism is documented in the ACL repository, and it is young.
+      The architecture document says a new image is written to the inactive
+      slot, verified, then switched atomically on reboot, and that a component
+      named Trident switches slots by swapping a systemd-stub addon. The commit
+      that enabled A/B update for UKI-based ACL images was merged on
+      2026-10-02, three days before this profile was written. The document does
+      not define Trident. The Trident repository describes itself as an "Azure
+      Linux servicing agent". Whether AKS runs it on ACL nodes is not stated
+      anywhere found.
+
+      The same pattern is on record for Flatcar on AKS, where the vendor page
+      says Flatcar's built-in A/B update was disabled in favour of full node
+      image updates (see the flatcar profile). No ACL source says the same, so
+      the profile does not assume it.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+        type: vendor-docs
+        title: Azure Container Linux overview, versioning
+        retrieved: "2026-10-05"
+        quote: ACL currently only supports full node image updates.
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/tutorial-migrate-azure-container-linux-aks
+        type: vendor-docs
+        title: "Tutorial: migrate existing nodes to ACL, considerations and limitations"
+        retrieved: "2026-10-05"
+        quote: >-
+          NodeImage and None are the only supported operating system (OS)
+          upgrade channels. Unmanaged and SecurityPatch are incompatible with
+          ACL due to the immutable /usr directory.
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/manage-cves
+        type: vendor-docs
+        title: Manage CVEs
+        retrieved: "2026-10-05"
+        quote: >-
+          ACL is an immutable, image-based operating system (OS); individual
+          packages aren't updated in place.
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/architecture.md
+        type: source-repo
+        title: ACL architecture, dm-verity for /usr
+        retrieved: "2026-10-05"
+        quote: >-
+          The A/B partition scheme (USR-A / USR-B) enables safe updates: the
+          inactive slot is written, verified, and then atomically switched on
+          reboot.
+      - url: https://github.com/microsoft/trident
+        type: source-repo
+        title: microsoft/trident
+        retrieved: "2026-10-05"
+        quote: Azure Linux servicing agent - security focused install, provisioning, and update
+    unknowns:
+      - "Whether AKS uses the A/B slot switch on ACL nodes, or replaces the whole node."
+      - "Whether Trident is a component of the shipped ACL image, and who runs it."
+      - "Whether the update payload can be verified or served outside the AKS service."
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: unknown
+      automatic_rollback_on_boot_failure: unknown
+      retained_versions: 2
+      recovery_environment: unknown
+      factory_reset: unknown
+      network_independent_recovery: unknown
+      aks_node_image_downgrade: "none"
+      aks_os_sku_rollback: "available at node-pool level, by reimaging to the previous OS SKU"
+    summary: >-
+      The ACL sources document a two-slot layout, but no source describes how an
+      operator or the platform returns a node to the previous slot, or whether a
+      failed boot falls back automatically. The documented rollback is coarser:
+      a node pool can be reimaged to its previous OS SKU.
+    notes: >-
+      The test list in the ACL repository includes A/B update lifecycle tests,
+      which fits a working slot design, but it is a test category name and not
+      a description of rollback behaviour. The profile does not infer rollback
+      from it.
+
+      AKS documents that a node image version cannot be downgraded. That
+      statement is generic to AKS node images and its examples are Ubuntu, so
+      it is recorded as the AKS-level rule and not as an ACL finding.
+
+      The one documented reversal is the OS SKU rollback in the ACL migration
+      tutorial. If an in-place migration to ACL causes problems, the operator
+      changes the OS SKU back to the previous value and AKS reimages the node
+      pool. That reverts the operating system kind. It is not a rollback to the
+      previous ACL image.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/tutorial-migrate-azure-container-linux-aks
+        type: vendor-docs
+        title: "Tutorial: migrate existing nodes to ACL, rolling back"
+        retrieved: "2026-10-05"
+        quote: >-
+          If you experience issues during the OS SKU migration, you can roll
+          back to your previous OS SKU.
+      - url: https://learn.microsoft.com/en-us/azure/aks/upgrade-node-image
+        type: vendor-docs
+        title: Upgrade the node image
+        retrieved: "2026-10-05"
+        quote: You can't downgrade a node image version
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/testing.md
+        type: source-repo
+        title: ACL testing
+        retrieved: "2026-10-05"
+        quote: "`cl.update.*` — A/B update lifecycle"
+    unknowns:
+      - "Whether ACL falls back automatically to the other /usr slot after a failed boot, and on what trigger."
+      - "Whether an operator can switch slots by hand, and with what tool."
+      - "Whether a recovery environment, a factory reset or an offline recovery procedure exists for ACL. None is documented."
+      - "Whether rollback reverts state on ROOT. The layout suggests it does not, but no source says so."
+
+  d06_customization:
+    normalized:
+      runtime_package_install: false
+      mechanisms:
+        - ignition-at-first-boot
+        - systemd-sysext
+        - uki-addons
+        - image-customizer
+        - build-from-source
+      customization_points:
+        - image-build
+        - provisioning
+        - runtime
+      documented_limits:
+        - "Individual packages are not updated in place; a CVE fix needs a new image."
+        - "Docker is not embedded; it is an optional, standalone system extension."
+        - "kdump ships disabled; enabling it means copying a signed UKI addon per kernel version, and a kernel update silently turns it off again."
+        - "ACL requires Trusted Launch, so a UKI addon must be signed by a key in the Secure Boot db."
+      add_software:
+      - kind: systemd-sysext
+        how: Sysext images merge over the read-only /usr. The image carries a containerd sysext. Standalone sysexts for NVIDIA drivers and Docker are downloaded on demand.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/microsoft/azure-container-linux/blob/4dd4f8b3b53d2aef5f342ffad5a0ce304c26c9ab/acl/docs/sysexts.md
+          type: source-repo
+          title: 'ACL docs: System Extensions (sysexts)'
+          retrieved: '2026-10-12'
+          quote: squashfs images to deliver optional functionality on top of the read-only
+        - url: https://github.com/microsoft/azure-container-linux/blob/4dd4f8b3b53d2aef5f342ffad5a0ce304c26c9ab/acl/docs/sysexts.md
+          type: source-repo
+          title: 'ACL docs: System Extensions (sysexts)'
+          retrieved: '2026-10-12'
+          quote: sysexts are built separately and downloaded on demand.
+      - kind: derive-image
+        how: Run the Azure Linux Image Customizer on an existing ACL image. The project's guide uses it to preload container images with a script that runs in a chroot on the image.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/microsoft/azure-container-linux/blob/4dd4f8b3b53d2aef5f342ffad5a0ce304c26c9ab/acl/docs/containerd-image-preload.md
+          type: source-repo
+          title: 'ACL docs: Preloading Container Images into an ACL Image'
+          retrieved: '2026-10-12'
+          quote: This guide shows how to bake OCI container images into the containerd content store of an existing Azure Container Linux (ACL) image
+    summary: >-
+      Customization is by Ignition at first boot, system extensions on the
+      read-only /usr, signed UKI addons for boot options, and image-time changes
+      with the Azure Linux Image Customizer. Installing a package on a running
+      node is not a supported path.
+    notes: >-
+      Base system extensions are baked in (containerd and the per-platform OEM
+      package). Standalone ones are downloaded on demand: the NVIDIA GPU set
+      (CUDA, vGPU, container toolkit, fabric manager) from Microsoft Artifact
+      Registry, and Docker. Sysexts are declared in a sysexts.yaml with a
+      required mode field, either embedded or standalone.
+
+      UKI addons add boot behaviour without a rebuild. The architecture lists
+      four: first boot, OEM selection, FIPS and kdump.
+
+      Image-time customization has a documented recipe. The preload guide uses
+      the Image Customizer to bake OCI images into the containerd store. It is a
+      repository guide, so it is a documented technique and not a stated
+      support boundary.
+
+      The repository has an RPM image build guide, but ACL's own issue tracker
+      has an open request (opened 2026-08-08, no replies) for "comprehensive"
+      build documentation, system requirements and a release and versioning
+      strategy. The build path exists and its support status is not stated.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/sysexts.md
+        type: source-repo
+        title: ACL system extensions
+        retrieved: "2026-10-05"
+        quote: >-
+          ACL uses **systemd-sysext** squashfs images to deliver optional
+          functionality on top of the read-only `/usr` partition.
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/kdump.md
+        type: source-repo
+        title: Kdump on ACL
+        retrieved: "2026-10-05"
+        quote: support built in, but it is **disabled by default**.
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/containerd-image-preload.md
+        type: source-repo
+        title: Preloading container images into an ACL image
+        retrieved: "2026-10-05"
+        quote: >-
+          The approach uses the [Azure Linux Image Customizer][ic] (IC).
+      - url: https://github.com/microsoft/azure-container-linux/issues/50
+        type: source-repo
+        title: Documentation and system requirements to build ACL images
+        retrieved: "2026-10-05"
+        quote: >-
+          There is currently not any comprehensive document about the system
+          requirements and how to build ACL images.
+    unknowns:
+      - "Whether an operator may build and run their own ACL image under Microsoft support. The Azure Linux support page says images built from scratch are not covered, and does not mention ACL."
+      - "Which kernel configuration options are available to an operator, and whether a custom kernel is possible."
+
+  d07_kubernetes:
+    normalized:
+      requirement: optional
+      bundled: "none"
+      independent_lifecycle: partial
+      os_manages_kubernetes: "no"
+      kubernetes_manages_os: "AKS node image upgrades on the NodeImage channel, maintenance windows, node auto-provisioning"
+      distributions:
+        - AKS
+      managed_kubernetes_default_node_os: "no; AKS defaults to Ubuntu when no OS SKU is given"
+      managed_kubernetes_default_on_automatic: "no; the AKS Automatic system node pool is preconfigured to the mutable Azure Linux, and an open feature request asks for ACL as the default"
+      managed_kubernetes_sole_node_os: "no mode of AKS restricts node pools to ACL"
+      selection: "opt-in, with os-sku AzureContainerLinux on a node pool or in a template"
+      aks_unsupported_with_acl:
+        - "SecurityPatch and Unmanaged upgrade channels"
+        - "Pod Sandboxing"
+        - "Confidential virtual machines"
+        - "Artifact Streaming"
+        - "Generation 1 virtual machines"
+        - "A node pool without Trusted Launch"
+    summary: >-
+      ACL is generally available on AKS from Kubernetes 1.34, and an operator
+      gets it only by naming it. It is not the default on any AKS mode, and
+      several AKS features do not work with it.
+    notes: >-
+      General availability is a support statement and not a placement
+      statement. The vendor says ACL "is generally available (GA) as an OS
+      option on AKS". The AKS node pool documentation says that without an OS
+      SKU, "AKS defaults to Ubuntu". The AKS Automatic comparison table
+      preconfigures the system node pool to Azure Linux, the mutable
+      distribution, and offers Azure Linux or Ubuntu for user nodes. It does not
+      list ACL. Azure/AKS#5918, opened 2026-08-12 and still open, asks for ACL
+      to become the AKS Automatic default, which confirms that it is not today.
+
+      Requirement is "optional" because the ACL documentation describes AKS use
+      and the repository documents a Marketplace image for virtual machines. No
+      source describes a self-managed Kubernetes distribution on ACL, so the
+      profile lists AKS as the only documented distribution.
+
+      Lifecycle independence is "partial". Node OS image upgrades on AKS do not
+      change the cluster's Kubernetes version. The two clocks are still tied at
+      the start: ACL is available only from AKS 1.34.
+
+      Pod Sandboxing, confidential VMs and Artifact Streaming are all listed as
+      unsupported. An existing cluster that uses one of them may be unable to
+      add an ACL node pool. On Arm64, ACL requires Cobalt-based (v6) VM sizes
+      for Trusted Launch.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+        type: vendor-docs
+        title: Azure Container Linux overview
+        retrieved: "2026-10-05"
+        quote: >-
+          ACL is generally available (GA) as an OS option on AKS starting AKS
+          v1.34.
+      - url: https://learn.microsoft.com/en-us/azure/aks/create-node-pools
+        type: vendor-docs
+        title: Create node pools, the default OS SKU and ACL limits
+        retrieved: "2026-10-05"
+        quote: If you don't specify an OS SKU, AKS defaults to Ubuntu.
+      - url: https://learn.microsoft.com/en-us/azure/aks/intro-aks-automatic
+        type: vendor-docs
+        title: AKS Automatic and Standard feature comparison, node operating system
+        retrieved: "2026-10-05"
+        quote: >-
+          Preconfigured for system node pool: Azure Linux  Optional for user
+          nodes:  • Azure Linux  • Ubuntu
+      - url: https://github.com/Azure/AKS/issues/5918
+        type: announcement
+        title: "[Feature] AKS Automatic: Azure Container Linux as the default node image type"
+        retrieved: "2026-10-05"
+        quote: >-
+          to be the default node image type so that my clusters run the most
+          secure, cloud-optimized, and operationally resilient host OS
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/tutorial-migrate-azure-container-linux-aks
+        type: vendor-docs
+        title: "Tutorial: migrate existing nodes to ACL, considerations and limitations"
+        retrieved: "2026-10-05"
+        quote: Pod Sandboxing isn't supported.
+    unknowns:
+      - "Whether ACL can be chosen for an AKS Automatic node pool. The comparison table lists only Azure Linux and Ubuntu for user nodes."
+      - "Whether a self-managed Kubernetes distribution on an ACL Marketplace image is supported."
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        items:
+          - vendor: nvidia-gpu
+            what: "NVIDIA GPU node pools"
+            arch: [amd64]
+            delivery: vendor-image
+            delivery_note: "vendor sysexts from Microsoft: nvidia-driver-cuda-open, nvidia-driver-cuda, nvidia-driver-vgpu, nvidia-container-toolkit, nvidia-fabric-manager"
+            secure_boot: inferred-signed
+            gpu_operator: not-supported
+            status: supported
+            note: "ACL requires Trusted Launch with Secure Boot and supports GPU node pools, but module signing is not stated. AKS lists the GPU Operator as unsupported for Flatcar Container Linux for AKS (preview); the page does not state it for GA ACL. The toolkit is a sysext. CDI is not stated."
+            evidence: INFERRED
+            sources:
+              - url: https://learn.microsoft.com/en-us/azure/aks/azure-container-linux-overview
+                title: "Azure Container Linux for AKS overview"
+                retrieved: "2026-10-06"
+                quote: >-
+                  ACL doesn't support ARM64 architectures for GPU-enabled node pools
+              - url: https://learn.microsoft.com/en-us/azure/aks/azure-container-linux-overview
+                title: "Azure Container Linux for AKS overview, GA release"
+                retrieved: "2026-10-06"
+                quote: >-
+                  ACL is the GA release of Flatcar Container Linux for AKS
+              - url: https://learn.microsoft.com/en-us/azure/aks/nvidia-gpu-operator
+                title: "AKS NVIDIA GPU Operator"
+                retrieved: "2026-10-06"
+                quote: >-
+                  NVIDIA GPU Operator isn't supported for the following OS options: Windows Server versions, Flatcar Container Linux for AKS (preview), and Azure Linux with OS Guard for AKS (preview)
+              - url: https://github.com/microsoft/azure-container-linux/blob/6adc59d/acl/docs/sysexts.md
+                title: "azure-container-linux acl/docs/sysexts.md at 6adc59d"
+                retrieved: "2026-10-06"
+      architectures_released:
+        - amd64
+        - arm64
+      platforms_supported:
+        - aks
+        - azure-vm-marketplace-documented-in-repository-guide
+        - qemu-kvm-development-and-ci
+      platforms_not_documented:
+        - bare-metal
+        - on-premises
+        - other-clouds
+      gpu: "NVIDIA GPU node pools on amd64 only; no GPU support on arm64"
+      tpm: "vTPM required; ACL requires Trusted Launch with Secure Boot and vTPM"
+      extension_mechanism: "systemd-sysext, including the NVIDIA GPU extensions"
+      arm64_constraint: "Cobalt-based (v6) VM sizes, for Trusted Launch"
+    summary: >-
+      amd64 and arm64, on Azure. The platform list in the repository has two
+      OEM targets: Azure as the primary target and QEMU/KVM for development and
+      CI. Trusted Launch is a hard requirement, which limits the VM sizes.
+    notes: >-
+      The repository's platform table lists two rows only: oem-azure ("Primary
+      target; VHD with optional Secure Boot") and oem-qemu ("Main development
+      and CI target"). The table says "optional Secure Boot" while the Learn
+      overview says ACL requires Trusted Launch with Secure Boot. Both are
+      recorded. The Learn statement is about AKS, which is the production
+      path.
+
+      "Not documented" is not "not supported". No ACL page says that bare metal
+      or other clouds are unsupported, in the way the base Azure Linux
+      documentation does. The profile records the gap and does not infer a
+      prohibition.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/platforms.md
+        type: source-repo
+        title: ACL supported platforms
+        retrieved: "2026-10-05"
+        quote: "Azure | `oem-azure` | Primary target; VHD with optional Secure Boot"
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+        type: vendor-docs
+        title: Azure Container Linux overview, key features
+        retrieved: "2026-10-05"
+        quote: >-
+          ACL doesn't support ARM64 architectures for GPU-enabled node pools.
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/tutorial-migrate-azure-container-linux-aks
+        type: vendor-docs
+        title: "Tutorial: migrate existing nodes to ACL, considerations and limitations"
+        retrieved: "2026-10-05"
+        quote: >-
+          ACL on Arm64 requires Cobalt-based (v6) SKUs to enable Trusted Launch
+          compatibility.
+    unknowns:
+      - "Whether ACL runs on bare metal, on-premises hardware or another cloud, and whether Microsoft supports it there."
+      - "Whether riscv64 is planned. No mention was found."
+
+  d09_provisioning:
+    normalized:
+      config_tools:
+        - name: "Ignition (shipped as ignition-flatcar)"
+          license: "Apache-2.0"
+          runs: [initramfs-before-root]
+          reruns: first-boot
+          runs_note: "Runs in the initramfs on first boot, gated by a UKI first-boot addon."
+          early_disk: "Formats and mounts additional disks and formats LUKS volumes in the initramfs; systemd-repart and growfs grow the root; Clevis/Tang disk encryption is not supported."
+          change_after_first_boot: "Reprovision"
+          evidence: INFERRED
+          sources:
+            - url: https://github.com/microsoft/azure-container-linux/blob/6adc59d/acl/docs/architecture.md
+              title: "ACL architecture"
+              retrieved: "2026-10-06"
+              quote: >-
+                is removed so subsequent boots skip provisioning
+            - url: https://github.com/microsoft/azure-container-linux/blob/6adc59d/build_library/rpm/additional_files/99-acl.conf
+              title: "ACL 99-acl.conf"
+              retrieved: "2026-10-06"
+              quote: >-
+                Ignition formats LUKS volumes in the initramfs (kola cl.ignition.luks)
+            - url: https://github.com/microsoft/azure-container-linux/blob/6adc59d/build_library/rpm/dracut_install.sh
+              title: "ACL dracut_install.sh"
+              retrieved: "2026-10-06"
+              quote: >-
+                (Clevis/Tang disk encryption is not supported)
+      methods:
+        - aks-node-provisioning
+        - azure-marketplace-image
+      config_mechanism: ignition
+      config_reapplied: "no; the first-boot addon is removed after first boot"
+      config_delivery: "Azure custom data, QEMU fw_cfg"
+    summary: >-
+      ACL provisions with Ignition on first boot. A UKI first-boot addon gates
+      it, and the addon is removed afterwards. AKS node provisioning hides this
+      from an AKS user.
+    notes: >-
+      The ACL tests include cloud-init scenarios, but the architecture document
+      names Ignition as the provisioning tool, so Ignition is recorded as the
+      mechanism. Whether cloud-init is a supported second path on ACL is an
+      unknown.
+
+      A single UKI adapts to several environments through the OEM selection
+      addon, which injects the oem_id and the Ignition platform identifier.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/architecture.md
+        type: source-repo
+        title: ACL architecture, Ignition and addons
+        retrieved: "2026-10-05"
+        quote: >-
+          In UKI mode, Ignition execution is gated by the first-boot addon
+          described above.
+    unknowns:
+      - "Whether cloud-init is a supported provisioning path on ACL, given the cl.cloudinit.* tests."
+      - "How an AKS user can pass an Ignition config, if at all."
+
+  d10_security:
+    normalized:
+      boot_trust_chain:
+        level: 3
+        how: platform-provided
+        route: verity-root-hash-in-signed-artifact
+        artifact: signed UKI and per-slot addon
+        note: Secure Boot and vTPM are required on AKS through Trusted Launch. The public build signs the UKI
+          only with a test key, so the vendor documents level 3 but it cannot be reproduced from the public
+          source
+        evidence: DOCUMENTED
+        sources:
+        - url: https://learn.microsoft.com/en-us/azure/aks/azure-container-linux-overview
+          type: official-docs
+          title: Azure Container Linux overview (AKS)
+          retrieved: '2026-10-06'
+          quote: the kernel validates a signed root hash
+        - url: https://github.com/microsoft/azure-container-linux/commit/6adc59d7c164456f8203b2651f787ccca8764331
+          type: source-code
+          title: 'azure-container-linux: per-slot verity addon'
+          retrieved: '2026-10-06'
+          quote: slot-specific verity params are delivered via a per-slot systemd-stub addon
+      secure_boot: "required, through Trusted Launch"
+      measured_boot: "signed UKI measured into the vTPM"
+      tpm: "vTPM required"
+      integrity: "dm-verity on /usr, panic on corruption"
+      artifact_verification: "signed unified kernel image"
+      sbom: unknown
+      provenance: "unknown; an open issue asks for traceability from the weekly AKS images to the repository"
+      fips: "available as a UKI addon; the 2026-09-23 node image has FIPS disabled"
+      mandatory_access_control: selinux-enforcing
+      default_on:
+        - selinux-enforcing
+        - dm-verity-usr
+        - secure-boot
+        - measured-boot
+        - persistent-journal
+      opt_in:
+        - fips-addon
+        - kdump-addon
+    summary: >-
+      Secure Boot, a measured signed UKI, dm-verity on /usr and SELinux in
+      enforcing mode are all on by default. FIPS and kdump are UKI addons that
+      the operator turns on. SBOM and provenance publication are not documented.
+    notes: >-
+      The CVE process is shared with Azure Linux. Packages are scanned twice a
+      day against the NVD, advisories are published in VEX format through MSRC,
+      and an ACL node gets a fix only through the weekly node image. The
+      vendor's CVE page promises "defined service level agreements (SLAs)" and
+      states no numbers, so the targets are unknown.
+
+      The SELinux document ships six container domains. container_t is the
+      default and the document says not to pick spc_t just to silence denials.
+      Operators can set permissive mode for troubleshooting.
+
+      The vendor calls the build chain a "sovereign supply chain". That is a
+      claim by the vendor, and the profile records it as one.
+
+      Traceability is a stated gap. An outside user filed it in the ACL
+      repository on 2026-08-08, and it is still open without replies. It says
+      the weekly AKS images are not correlated with the releases in the
+      repository. That is a request for a link between the two. It does not
+      show that the repository has no release process (see d14).
+    evidence: DOCUMENTED
+    sources:
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+        type: vendor-docs
+        title: Azure Container Linux overview, key features
+        retrieved: "2026-10-05"
+        quote: >-
+          ACL requires Trusted Launch with Secure Boot and vTPM, to ensure the
+          integrity of the boot chain before the OS loads.
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/selinux.md
+        type: source-repo
+        title: SELinux container domain reference
+        retrieved: "2026-10-05"
+        quote: >-
+          Azure Container Linux (ACL) enables SELinux in enforcing mode by
+          default.
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/manage-cves
+        type: vendor-docs
+        title: Manage CVEs
+        retrieved: "2026-10-05"
+        quote: >-
+          The Azure Linux team scans the packages it ships for security
+          vulnerabilities twice a day against the National Vulnerability
+          Database (NVD).
+      - url: https://github.com/microsoft/azure-container-linux/issues/49
+        type: source-repo
+        title: Lineage and traceability with ACL weekly images generated for AKS
+        retrieved: "2026-10-05"
+        quote: >-
+          Weekly ACL images generated for AKS on Azure clouds are not correlated
+          with the ACL releases in this repository.
+      - url: https://github.com/Azure/AKS/blob/master/vhd-notes/AzureContainerLinuxv3/202609.23.0.txt
+        type: release-notes
+        title: AKS VHD notes, Azure Container Linux 202609.23.0
+        retrieved: "2026-10-05"
+        quote: "FIPS enabled: false"
+    unknowns:
+      - "Where SBOMs and provenance attestations for ACL images are published."
+      - "Who owns the Secure Boot keys that sign the ACL UKI, and whether an operator can enrol their own."
+      - "The numeric CVE service level targets by severity."
+      - "Disk encryption options on ACL nodes."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: "available through the AKS node pool SSH setting with a local key; Entra ID SSH is not supported on ACL node pools"
+      local_shell: available
+      serial_console: unknown
+      debug_container: "kubectl debug node, which works without the SSH service"
+      access_note: "Through the AKS node pool SSH setting, or kubectl debug node. Entra ID SSH is not supported on ACL"
+      package_manager_at_runtime: "no"
+      support_bundle: unknown
+      works_without_kubernetes: "unknown"
+      crash_dump: "kdump available as a UKI addon, disabled by default"
+      log_storage: "persistent systemd journal under /var/log/journal"
+    summary: >-
+      Nodes are reached the AKS way: SSH through the node pool setting, or
+      kubectl debug node. Entra ID SSH is not supported on ACL node pools. There
+      is no package manager to use, kdump is available as an addon, and the
+      journal is persistent. Console access is not described in the sources read.
+    notes: >-
+      Microsoft states that an operator must not try to update individual
+      packages on ACL. Troubleshooting guidance in the ACL documents covers
+      SELinux (permissive mode, getenforce) and kdump, and not SSH or console
+      access.
+
+      The AKS SSH page names ACL only to exclude Entra ID SSH, because its
+      extension does not work on the immutable OS filesystem. That local-key SSH
+      works on ACL node pools is inferred from that page and from the AKS
+      default, not stated for ACL in so many words.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://learn.microsoft.com/en-us/azure/aks/manage-ssh-node-access
+        type: vendor-docs
+        title: Manage SSH for secure access to Azure Kubernetes Service (AKS) nodes
+        retrieved: "2026-10-06"
+        quote: >-
+          Entra ID SSH to nodes is not supported for Azure Container Linux (ACL)
+          node pools because the AADSSHLoginForLinux extension is not compatible
+          with the immutable OS filesystem.
+      - url: https://learn.microsoft.com/en-us/azure/aks/node-access
+        type: vendor-docs
+        title: Connect to Azure Kubernetes Service (AKS) cluster nodes
+        retrieved: "2026-10-06"
+        quote: >-
+          to connect directly to any AKS nodes, you need to use either kubectl
+          debug or the host's private IP address.
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/manage-cves
+        type: vendor-docs
+        title: Manage CVEs
+        retrieved: "2026-10-05"
+        quote: don't attempt to update individual packages on the immutable OS
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/selinux.md
+        type: source-repo
+        title: SELinux container domain reference, journal storage
+        retrieved: "2026-10-05"
+        quote: >-
+          ACL stores the systemd journal persistently under `/var/log/journal`.
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/kdump.md
+        type: source-repo
+        title: Kdump on ACL
+        retrieved: "2026-10-05"
+        quote: >-
+          No image rebuild is required to toggle kdump on or off.
+    unknowns:
+      - "How an operator gets a shell on an ACL node: SSH defaults, a debug container or the AKS node access routes."
+      - "Whether the Azure serial console works with ACL."
+      - "Whether ACL nodes are operable when the Kubernetes API is down."
+
+  d12_fleet_management:
+    normalized:
+      core_project: []
+      oss_companion: []
+      commercial:
+        - name: AKS node OS auto-upgrade
+          vendor: Microsoft
+          license: managed-service
+          self_hostable: false
+          note: "Channels NodeImage and None only on ACL."
+        - name: AKS node auto-provisioning
+          vendor: Microsoft
+          license: managed-service
+          self_hostable: false
+          note: "Listed as supported on ACL."
+      cluster_api:
+        os_specific_provider: "none found"
+        maintainer: "none found"
+        provisions: "no Cluster API path is documented for ACL"
+        image_builder_target: "none found"
+    summary: >-
+      Fleet management for ACL is an AKS service. No update service, controller
+      or reboot coordinator is documented as part of ACL itself, and no Cluster
+      API path exists in the documentation.
+    notes: >-
+      The vendor CVE page names the NodeImage channel as the way to take
+      security updates. Planned maintenance windows and surge settings are AKS
+      features, documented for AKS in general.
+
+      core_project is empty because no ACL document describes an update server
+      or an in-OS update client. It is not recorded as "none", because
+      Trident is named in the architecture document and its role on ACL is not
+      explained (d04).
+
+      The Cluster API row comes from two checks on 2026-10-05. The image-builder
+      Makefile has no ACL target, and a code search of the Cluster API provider
+      for Azure for "Azure Container Linux" and "AzureContainerLinux" returned
+      nothing. Both are negative results, so the field says "none found" and not
+      "none".
+    evidence: DOCUMENTED
+    sources:
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+        type: vendor-docs
+        title: Azure Container Linux overview, key features
+        retrieved: "2026-10-05"
+        quote: "Node auto-provisioning: ACL supports node auto-provisioning (NAP)."
+      - url: https://learn.microsoft.com/en-us/azure/azure-linux/manage-cves
+        type: vendor-docs
+        title: Manage CVEs
+        retrieved: "2026-10-05"
+        quote: >-
+          The SecurityPatch node OS upgrade channel isn't supported on ACL, so
+          use the NodeImage channel to pick up security updates.
+    unknowns:
+      - "Whether any self-hostable update service exists for ACL outside AKS."
+      - "Whether a Cluster API path is planned."
+
+  d13_governance:
+    normalized:
+      license: MIT
+      license_note: "MIT, plus BSD-3-Clause for files derived from Flatcar."
+      open_source: true
+      open_governance: undocumented
+      vendor_neutral_ownership: single-vendor
+      foundation: "none for ACL; the upstream, Flatcar, is a CNCF project (see the flatcar profile)"
+      primary_commercial_sponsor: Microsoft
+      contribution_diversity:
+        method: >-
+          Commits to the default branch of microsoft/azure-container-linux made
+          on or after 2026-05-21, the day the repository was created, listed
+          with the GitHub commits API on 2026-10-05, counting author logins and
+          the domain of the author email address. The GitHub contributors API is
+          not used, because the branch carries Flatcar's earlier history and the
+          API counts it (the top "contributor" there has 3,899 commits). Email
+          domains undercount people who use personal or noreply addresses.
+        value: >-
+          49 commits and 9 distinct author logins. One login made 31 of the 49,
+          and the next made 7. 40 of the 49 author email addresses are on the
+          microsoft.com domain, 7 are GitHub noreply addresses and 2 are on
+          gmail.com. The repository looks Microsoft-authored, and an outside
+          contribution is not visible in this count.
+    summary: >-
+      MIT licensed, with BSD-3-Clause for Flatcar-derived files. Microsoft owns
+      the repository and its review route, with no foundation and no governance
+      document.
+    notes: >-
+      There is no GOVERNANCE or MAINTAINERS file in the repository root.
+      CODEOWNERS names one team for every path. Contributions need a Microsoft
+      CLA, the contributing guide describes a pull-request workflow with a CLA
+      bot, and the only public statement of how decisions are made is that guide.
+      The commit counts below cover the aclmain branch only. The guide lists
+      release/3.0 as a second branch, so backports and promotions are not
+      counted.
+
+      Two public issues exist, both opened on 2026-08-08 by one outside user,
+      both still open with no comments. One asks for build documentation and the
+      other for traceability. The sample is too small to show how maintainers
+      respond to outside requests.
+
+      The README announces recurring community calls through 2027-05-27, run by
+      the Azure Linux team and shared with Azure Linux.
+
+      Both ACL and Flatcar document an upstream relationship. The architecture
+      document says ACL "both pushes its changes upstream and pulls in Flatcar
+      updates on a regular cadence", and the README thanks the Flatcar project.
+      The profile does not measure either direction. Whether ACL's divergences
+      reach Flatcar is a question for the maintainers.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/README.md
+        type: governance-doc
+        title: microsoft/azure-container-linux README, license
+        retrieved: "2026-10-05"
+        quote: >-
+          the content of the Azure Container Linux distribution and this
+          repository are distributed under an
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/.github/CODEOWNERS
+        type: governance-doc
+        title: CODEOWNERS
+        retrieved: "2026-10-05"
+        quote: "* @microsoft/azure-container-linux"
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/CONTRIBUTING.md
+        type: governance-doc
+        title: ACL contribution guide
+        retrieved: "2026-10-05"
+        quote: >-
+          This project welcomes contributions and suggestions. Most
+          contributions require you to agree to a Contributor License Agreement
+          (CLA)
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/architecture.md
+        type: source-repo
+        title: ACL architecture, relationship with Flatcar
+        retrieved: "2026-10-05"
+        quote: >-
+          it both pushes its changes upstream and pulls in Flatcar updates on a
+          regular cadence
+    unknowns:
+      - "Who the maintainers are. The CODEOWNERS team membership is not public."
+      - "Which of ACL's documented divergences from Flatcar are targeted for upstreaming, and which are permanent."
+      - "Whether a foundation home or a governance document is planned."
+
+  d14_maturity:
+    normalized:
+      first_release: "unknown; the repository has no GitHub release"
+      repository_created: "2026-05-21"
+      general_availability_on_aks: "2026-06-02"
+      current_version: "3.0.20260809 (os-release), AKS node image 202609.23.0"
+      current_version_date: "2026-09-23"
+      release_cadence: "weekly AKS node images"
+      observed_intervals: "9, 8, 8, 6, 6, 8, 6, 6, 8 days between the ten node image notes from 202607.20.0 to 202609.23.0"
+      support_model: vendor-lifecycle
+      support_window: "no ACL-specific calendar end-of-support found; the README says ACL follows the Azure Linux lifecycle and CVE servicing commitments"
+      commercial_support: unknown
+    summary: >-
+      A four-month-old repository and a four-month-old GA product built on an
+      older upstream. Node images ship weekly. The repository publishes no
+      release, and no ACL-specific support window is stated.
+    notes: >-
+      Dates. The repository was created on 2026-05-21. A comment on the ACL
+      announcement issue in the AKS tracker states general availability on
+      2026-06-02. The newest
+      node image note is 202609.23.0.
+
+      The cadence is read from the dates in the node image note filenames. The
+      directory held ten notes on 2026-10-05, and older notes may exist or may
+      have been removed, which the profile did not check.
+
+      The repository has no GitHub release. Its contributing guide lists a
+      release/3.0 branch as the "Staging branch for publishing", and that branch
+      has recent commits, so a publishing path exists and is not documented
+      further. It has one signed tag,
+      stable-4459.2.4, dated 2026-03-03, which is before the repository
+      was created. The tag name follows Flatcar's stable numbering.
+      The build guide targets Flatcar stable 4459.2.2 (its text says
+      "Currently targeting"), and the Flatcar profile records stable 4757.2.0
+      on 2026-09-14. So the repository's documented upstream pin is
+      substantially older than the current Flatcar stable. Which Flatcar
+      version a shipping node image is built from is not stated anywhere found.
+
+      The top-level CHANGELOG.md is empty, and a changelog directory holds
+      entries in four categories (changes, bugfixes, security, updates) in
+      Flatcar's format. An outside issue asks for a documented release and
+      versioning strategy.
+
+      Support: the repository's SUPPORT.md says support for ACL "is limited to
+      the resources listed above", meaning GitHub issues and the docs. The Azure
+      Linux support page describes Azure Support for production workloads and
+      does not mention ACL, so the profile does not state whether Azure Support
+      covers ACL nodes.
+
+      On 2026-12-10 AKS retires Azure Linux with OS Guard (preview) and names
+      ACL as the migration target. This is a note about a neighbouring product,
+      not an entry in the dataset.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/Azure/AKS/issues/5649
+        type: announcement
+        title: Azure Container Linux (ACL)
+        retrieved: "2026-10-05"
+        quote: >-
+          Azure Container Linux is now generally available.
+      - url: https://github.com/Azure/AKS/tree/master/vhd-notes/AzureContainerLinuxv3
+        type: release-notes
+        title: AKS VHD notes, Azure Container Linux, directory listing
+        retrieved: "2026-10-05"
+        quote: "Starting build on  Wed Sep 23 00:30:56 UTC 2026"
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/acl/docs/BUILD_RPM_IMAGE_README.md
+        type: source-repo
+        title: RPM-based image build system for ACL
+        retrieved: "2026-10-05"
+        quote: >-
+          Currently targeting `stable-4459.2.2` of Flatcar Linux upstream.
+      - url: https://github.com/microsoft/azure-container-linux/blob/aclmain/SUPPORT.md
+        type: governance-doc
+        title: ACL support
+        retrieved: "2026-10-05"
+        quote: Support for Azure Container Linux is limited to the resources listed above.
+      - url: https://learn.microsoft.com/en-us/azure/aks/auto-upgrade-node-os-image
+        type: vendor-docs
+        title: Node OS auto-upgrade, the OS Guard retirement notice
+        retrieved: "2026-10-05"
+        quote: To avoid disruption, migrate to Azure Container Linux (ACL).
+    unknowns:
+      - "The ACL calendar support window, and whether it is the Azure Linux 3.0 window."
+      - "Which Flatcar version a shipping ACL node image is built from."
+      - "Whether the repository will publish releases separate from AKS node image versions."
+      - "Whether Azure Support covers ACL nodes under the Azure Linux production support terms."
+
+tradeoffs:
+  buys:
+    - "An immutable /usr under dm-verity, a signed and measured boot chain, and SELinux enforcing, all on by default on an AKS node pool."
+    - "A weekly node image cadence, with CVE fixes delivered the same way, so a node never drifts from a known image."
+    - "Built from Azure Linux RPMs, so Microsoft's CVE pipeline covers every package in the image."
+    - "An immutable choice that is first-party to AKS, with a documented in-place migration from Ubuntu or Azure Linux and a documented route back."
+    - "NVIDIA GPU support delivered as system extensions, kept off the read-only /usr."
+  costs:
+    - "Several AKS features do not work with ACL: Pod Sandboxing, confidential VMs, Artifact Streaming, Generation 1 VMs, and the SecurityPatch and Unmanaged upgrade channels."
+    - "Trusted Launch is required, so some VM sizes are out, and Arm64 needs Cobalt-based sizes."
+    - "Governance is a single vendor team."
+    - "An open AKS bug reports that the Azure CNI installer cannot update binaries under a read-only /opt/cni/bin."
+    - "Support and fleet management are Azure services, and the documented platforms are Azure and a QEMU development target."
+maintainers_fact:
+  text: "Single vendor."
+  evidence: DOCUMENTED
+  sources:
+    - url: "https://github.com/microsoft/azure-container-linux/blob/aclmain/.github/CODEOWNERS"
+      type: "governance-doc"
+      title: "CODEOWNERS"
+      retrieved: "2026-10-05"
+      quote: "* @microsoft/azure-container-linux"
+    - url: "https://github.com/microsoft/azure-container-linux/blob/aclmain/CONTRIBUTING.md"
+      type: "governance-doc"
+      title: "ACL contribution guide"
+      retrieved: "2026-10-05"
+      quote: "This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA)"
+known_issues:
+  - text: "An open AKS bug reports that the Azure CNI installer cannot update binaries under a read-only /opt/cni/bin."
+    kind: defect
+    sources:
+      - url: "https://github.com/Azure/AKS/issues/5971"
+        type: "announcement"
+        title: "[BUG] Azure-CNS daemonset container cni-installer fails to reach Ready state after pod restart on Azure Container Linux (ACL) due to read-only /opt/cni/bin"
+        retrieved: "2026-10-05"
+        quote: "failed to rename the /opt/cni/bin/azure-vnet to /opt/cni/bin/azure-vnet.old: rename /opt/cni/bin/azure-vnet /opt/cni/bin/azure-vnet.old: read-only file system"
+open_questions:
+  - "Does ACL fall back to the other /usr slot automatically after a failed boot, does AKS use the A/B slot at all, or does it always replace the node? Is a recovery path documented?"
+  - "What is Trident's role on ACL, and does the shipped image include it?"
+  - "Which Flatcar version is a shipping ACL node image built from, given that the repository documents a stable 4459.x pin?"
+  - "Will ACL publish releases and a versioning strategy separate from AKS node image versions, and will the weekly images be traceable to the repository?"
+  - "Which of ACL's divergences from Flatcar are permanent, and which will go upstream?"
+  - "Can ACL be selected for an AKS Automatic node pool, and will it become the default there (Azure/AKS#5918)?"
+  - "Where are SBOMs and provenance for ACL images published, and who owns the Secure Boot signing keys?"
+  - "Is ACL supported on bare metal, on-premises hardware or another cloud?"
+  - "Does Azure Support cover ACL nodes, and what is the ACL calendar support window?"
+  - "How does an operator get a shell, a console or a debug container on an ACL node?"
+
+follow_up_research:
+  - FR-01
+  - FR-02
+  - FR-04
+  - FR-08
+  - FR-10
+  - FR-13
+  - FR-14
+  - FR-17
+
+corrections:
+  - date: "2026-10-06"
+    field: "tradeoffs"
+    change: "Cost audit under methodology section 9, rule 15. Removed cost 'To use ACL, an operator must name it. AKS defaults to Ubuntu, and AKS Automatic preconfigures the mutable Azure Linux.' (N6, a judgement, not a limit). Removed cost 'A CVE fix always needs a new node image, because nothing on /usr updates in place.' (N2, the documented image-based design, with the weekly node image as the supported path). Moved cost 'The documentation does not describe rollback, recovery, or SBOMs and provenance. Console access is not described in the sources read.' to open questions (N1): q0 now also asks about recovery; q6 covers SBOMs and provenance; q9 covers console access. Reworded cost to 'Governance is a single vendor team.': release traceability is q3, and the repository age was removed (N4). Reworded buy b2 to state the outcome; the Flatcar base is recorded in the profile's taxonomy and dimensions."
+  - date: '2026-10-06'
+    field: dimensions.d04_upgrade.normalized.scope_by_mode
+    change: 'Was no scope value (the cell showed the mechanism). Now scope_by_mode AKS node image: whole-node (Whole node (reimaged or replaced)), In-node A/B: usr-only (/usr only), from the independent check of what one update replaces (closed six-value vocabulary). Added scope_note.'
+    source:
+      url: https://learn.microsoft.com/en-us/azure/azure-linux/azure-container-linux-overview
+      type: vendor-docs
+      title: Azure Container Linux overview, versioning
+      retrieved: '2026-10-06'
+      quote: ACL currently only supports full node image updates.
+  - date: "2026-10-05"
+    field: dimensions.d04_upgrade.normalized.self_hostable_update_server
+    change: >-
+      Added a value for the self-hostable update source column, which rendered as Not collected. The value is unknown. Four primary sources were searched and none states whether an operator can host the update source. The ACL pages describe only the AKS node image path.
+  - date: "2026-10-06"
+    field: dimensions.d11_operations_debugging.normalized.ssh
+    change: "SSH, local shell and debug container were unknown. Microsoft's AKS SSH page names ACL node pools, excluding only Entra ID SSH, and the AKS node access page documents kubectl debug and SSH for any AKS node. Filled from those pages; local-key SSH on ACL is inferred, as the notes say."
+    source:
+      url: https://learn.microsoft.com/en-us/azure/aks/manage-ssh-node-access
+      type: vendor-docs
+      title: "Manage SSH for secure access to Azure Kubernetes Service (AKS) nodes"
+      retrieved: "2026-10-06"
+      quote: >-
+        Entra ID SSH to nodes is not supported for Azure Container Linux (ACL) node pools because the AADSSHLoginForLinux extension is not compatible with the immutable OS filesystem.
+  - date: "2026-10-06"
+    field: tradeoffs.costs
+    change: "The cost line said the documentation does not describe SSH and console access. Microsoft's AKS pages document SSH and kubectl debug for ACL node pools, so the line now says only that console access is not described in the sources read."
+    source:
+      url: https://learn.microsoft.com/en-us/azure/aks/manage-ssh-node-access
+      type: vendor-docs
+      title: "Manage SSH for secure access to Azure Kubernetes Service (AKS) nodes"
+      retrieved: "2026-10-06"
+      quote: >-
+        Entra ID SSH to nodes is not supported for Azure Container Linux (ACL) node pools because the AADSSHLoginForLinux extension is not compatible with the immutable OS filesystem.
+  - date: "2026-10-06"
+    field: tradeoffs.costs
+    change: "Removed the clause that ACL's upstream pin is far behind the current Flatcar stable. A pinned upstream is not a cost when the adopter can build their own image, and the profile records image-build as a customization point (methodology section 9, rule 14). It returns if a source shows AKS runs only Microsoft's published image."
+    source:
+      url: https://github.com/microsoft/azure-container-linux
+      type: source-repo
+      title: "microsoft/azure-container-linux"
+      retrieved: "2026-10-06"
+  - date: '2026-10-12'
+    field: dimensions.d02_immutability.normalized.writable
+    change: Renamed to writable_and_persistent, the key the Mounts row reads, and narrowed. The old list named /var as writable. No source read for this edition states that for Azure Container Linux. The architecture document states that /etc is an overlay persisted on the ROOT partition. The new list says that and says the documents do not list the other paths. Added read_only_mechanism and configurable_paths (yes, Ignition can format and mount additional disks).
+    source:
+      url: https://github.com/microsoft/azure-container-linux/blob/4dd4f8b/acl/docs/architecture.md
+      type: source-repo
+      title: 'Azure Container Linux architecture: the /etc overlay'
+      retrieved: '2026-10-12'
+      quote: '**Upper (writable)**: persisted on the ROOT partition.'
+  - date: '2026-10-12'
+    field: dimensions.d06_customization.normalized.add_software
+    change: 'Added the add_software field. It records how an adopter adds software to the OS itself, not workloads. Values: systemd-sysext, Derive the image. Each value has its sources, read on 2026-10-12.'
+    source:
+      url: https://github.com/microsoft/azure-container-linux/blob/4dd4f8b3b53d2aef5f342ffad5a0ce304c26c9ab/acl/docs/sysexts.md
+      type: source-repo
+      title: 'ACL docs: System Extensions (sysexts)'
+      retrieved: '2026-10-12'
+      quote: squashfs images to deliver optional functionality on top of the read-only
