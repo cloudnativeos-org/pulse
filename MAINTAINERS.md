@@ -7,6 +7,15 @@ becomes one.
 |---|---|---|---|
 | Mauro Morales | [@mauromorales](https://github.com/mauromorales) | Spectro Cloud | Kairos, Hadron Linux |
 
+## Owner
+
+Mauro Morales is the owner of the organization and the repository. See
+[GOVERNANCE.md](GOVERNANCE.md), section Ownership.
+
+## Administrators
+
+None yet. See [GOVERNANCE.md](GOVERNANCE.md), section Administrators.
+
 ## Profile reviewers
 
 A profile reviewer checks the facts of one project's profile and is not a
