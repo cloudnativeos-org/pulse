@@ -269,6 +269,10 @@ def check_config_tools(where: str, normalized: dict, report: Report) -> None:
             if raw is None:
                 report.error(at, f"{field} is missing; use 'unknown' when no source says")
                 continue
+            if field in ("repeat", "scope") and not isinstance(raw, list):
+                report.error(at, f"{field} must be a list")
+            if field in ("earliest", "latest") and not isinstance(raw, str):
+                report.error(at, f"{field} must be one value, not a list")
             values = [raw] if isinstance(raw, str) else list(raw)
             for v in values:
                 if v not in allowed:

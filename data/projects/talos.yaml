@@ -886,7 +886,7 @@ dimensions:
           latest: running-node
           repeat: [every-boot, on-demand]
           scope: [files-and-units]
-          cell_notes: "No reconcile: the node never fetches new configuration on its own. In the config, scope means files; no cited source shows units."
+          cell_notes: "No reconcile: the node never fetches new configuration on its own. The config writes files; no cited source shows it defining units, so the scope value is the nearest one, files and units."
           field_sources:
             - fields: [earliest]
               url: https://github.com/siderolabs/talos/blob/v1.14.1/internal/app/machined/pkg/runtime/v1alpha1/v1alpha1_sequencer.go
@@ -904,10 +904,10 @@ dimensions:
               retrieved: "2026-10-15"
               quote: "start always with loading config from disk"
             - fields: [scope]
-              url: https://github.com/siderolabs/talos/blob/v1.14.1/website/content/v1.14/reference/configuration/v1alpha1/config.md
-              title: "Talos: v1alpha1 configuration"
+              url: https://github.com/siderolabs/talos/blob/v1.14.1/website/content/v1.14/reference/configuration/runtime/etcfileconfig.md
+              title: "Talos: EtcFileConfig"
               retrieved: "2026-10-15"
-              note: "machine.files adds user-specified files with op create, overwrite or append. No command field was found."
+              note: "EtcFileConfig configures a user-managed file under /etc, with its path, mode and contents. No command field was found."
           runs_note: "Applied by machined in early userspace after switch_root, from a squashfs in RAM, before EPHEMERAL and user volumes mount; changed over the API with modes auto, no-reboot, staged and try."
           early_disk: "Install disk selection and wipe, volume partitions, and disk encryption for system and user volumes with static, nodeID, KMS or TPM keys."
           change_after_first_boot: "Yes, through the API; install keys have no effect after install"

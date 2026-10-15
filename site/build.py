@@ -684,11 +684,16 @@ def col_config(p, S):
                  "Repeat: " + ", ".join(CFG_REPEAT.get(v, v) for v in r), "Scope: " + ", ".join(CFG_SCOPE.get(v, v) for v in sc)]
         items.append('<li>%s%s <span class="v-tag">%s</span></li>' % (
             E(x["name"]), (' <span class="v-tag-inline">(%s)</span>' % E(x["license"])) if x.get("license") else "", E("; ".join(facts))))
-        srcs += (x.get("field_sources") or []) + (x.get("sources") or [])
+        srcs += (x.get("sources") or [])[:2] + (x.get("field_sources") or [])
     first = tools[0]
     notes = [x["cell_notes"] for x in tools if x.get("cell_notes")]
     detail = [s for s in (first.get("early_disk"), ("After first boot: " + first["change_after_first_boot"]) if first.get("change_after_first_boot") else "") if s] + notes
-    nums = [S.add(s, p["name"]) for s in srcs[:6] if s.get("url")]
+    seen_urls, uniq_srcs = set(), []
+    for s_ in srcs:
+        if s_.get("url") and s_["url"] not in seen_urls:
+            seen_urls.add(s_["url"])
+            uniq_srcs.append(s_)
+    nums = [S.add(s, p["name"]) for s in uniq_srcs[:8]]
     cite = ('<sup class="cite">[%s]</sup>' % ",".join('<a href="#src-%d" aria-label="Source %d">%d</a>' % (k, k, k) for k in nums)) if nums else ""
     ev = "DOCUMENTED" if any(x.get("evidence") == "DOCUMENTED" for x in tools) else "INFERRED"
     html_ = '<ul class="v v-list">%s</ul>' % "".join(items) + ('<span class="v-detail">%s</span>' % E(". ".join(d.rstrip(".") for d in detail) + ".") if detail else "")

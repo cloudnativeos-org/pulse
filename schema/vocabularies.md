@@ -313,7 +313,7 @@ and `scope` are lists. Every other field is one value. The old `runs` and
 
 - `earliest`: `initramfs` (one value, whether the root is mounted yet or not), `before-services` (before kubelet), `installer`, `userspace-boot`, `none-of-its-own`, `depends-on-tool`, `unknown`.
 - `latest`: `first-boot`, `every-boot`, `running-node`, `depends-on-tool`, `unknown`.
-- `repeat`: every documented way the config is applied. `once` is the first boot or install. `every-boot`, `on-demand` (API or CLI), `reconcile` (the node applies it again on its own), `depends-on-tool`, `unknown`.
+- `repeat`: every documented way the main config is applied. `once` is the first boot or install. Keys that apply only at install, such as the Kairos install keys, are not listed. `every-boot`, `on-demand` (API or CLI), `reconcile` (the node applies it again on its own), `depends-on-tool`, `unknown`.
 - `scope`: `settings-only`, `files-and-units`, `any-command`, `depends-on-tool`, `unknown`.
 
 Each value other than `unknown` needs a `field_sources` entry whose `fields`
