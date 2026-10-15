@@ -12,11 +12,11 @@ body:
     attributes:
       label: Which rule?
       options:
-        - "Rule 1: whole-system updates"
-        - "Rule 2: immutable at runtime"
-        - "Rule 3: rollback"
+        - "Rule 1: atomic updates (versioned OS)"
+        - "Rule 2: immutable at runtime (read-only OS files)"
+        - "Rule 3: rollback (to a version)"
         - "Rule 4: declarative provisioning"
-        - "Rule 5: runs Kubernetes"
+        - "Rule 5: Kubernetes ready"
         - A new rule
         - Something else (scope, openness, the groups beside the matrix)
     validations:

@@ -1529,8 +1529,8 @@ def what_is():
              % (g("General-purpose OS", "general-purpose-os"), g("cloud native OS", "cloud-native-os"),
                 "".join('<tr><th scope="row">%s</th><td>%s</td><td>%s</td></tr>' % r for r in rows), g("Immutable", "immutable")))
     rules = [("Atomic updates (versioned OS)", "The OS version is one artifact, built once, that every node in a fleet runs. A fleet updates or rolls back by pointing it at a version, for example an OCI image, an image file or an OSTree commit. A node that assembles its own update from packages does not meet this rule. It is enough that the project documents a way to run it like this."),
-             ("Immutable (read-only OS files)", "The OS part, the root or <code>/usr</code>, is read-only on a running node."),
-             ("Rollback", "Rollback goes back to the previous version, the artifact the whole fleet ran. Each node keeps that version locally, ready to boot."),
+             ("Immutable at runtime (read-only OS files)", "The OS part, the root or <code>/usr</code>, is read-only on a running node."),
+             ("Rollback (to a version)", "Rollback goes back to the previous OS version, the artifact the whole fleet ran. Each node keeps that version locally, ready to boot. It is a rollback to a version, not to a snapshot of one node."),
              ("Declarative provisioning", "A node configures itself at first boot from a declarative input, with no interactive install."),
              ("Kubernetes ready", "The project, or its vendor, documents running Kubernetes on it: bundled, installed on it, or as the node OS of a Kubernetes service. "
               "A framework such as Kairos or bootc meets this rule through the images built with it. Running containers alone is not enough.")]
@@ -1562,7 +1562,7 @@ def what_is():
 
 GLOSSARY = [
     ("General-purpose OS", "An operating system built to run anything, such as Ubuntu, Debian or Fedora. It is installed once and then maintained by changing it in place for the rest of its life."),
-    ("cloud native OS", "In the Pulse, an OS that meets the five inclusion criteria across a fleet, not on a single node: atomic updates (versioned OS), read-only OS files, rollback, declarative provisioning, and documented Kubernetes use."),
+    ("cloud native OS", "In the Pulse, an OS that meets the five inclusion criteria across a fleet, not on a single node: atomic updates (versioned OS), immutable at runtime (read-only OS files), rollback (to a version), declarative provisioning, and Kubernetes ready."),
     ("In-place upgrade", "An upgrade that changes the running system piece by piece, for example package by package. The result depends on the state the machine was in before."),
     ("Atomic upgrade", "An upgrade that applies the new version as a whole or not at all. If it fails, the old version is still intact. Atomic alone does not meet the first criterion: the version must also be one artifact, built once, that every node in a fleet runs."),
     ("Image-based", "The OS is built ahead of time as one complete image, and that image is what gets installed and updated."),

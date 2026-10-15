@@ -469,8 +469,8 @@ An entry in the comparison matrix meets all five inclusion criteria, with one ex
 | Rule | Name | Meaning |
 |---|---|---|
 | R1 | Atomic updates (versioned OS) | The OS version is one artifact, built once, that every node in a fleet runs. A fleet updates or rolls back by pointing it at a version. Examples: an OCI image, an image file, an OSTree commit. Extensions on top of the base, such as system extensions or layering, are allowed and recorded as conditions. A node that assembles its own update from packages does not meet R1, also when the packages come from a pinned repository. The local per-node rollback is R3. The test is capability: the project documents a way to run it like this. A cloud native OS is judged across a fleet, not on a single node. |
-| R2 | Immutable (read-only OS files) | The OS part (the root or `/usr`) is read-only on a running node. |
-| R3 | Rollback | Rollback goes back to the previous version, the artifact the whole fleet ran. Each node keeps that previous version locally, ready to boot. A snapshot of a node's own state is not this rollback. |
+| R2 | Immutable at runtime (read-only OS files) | The OS part (the root or `/usr`) is read-only on a running node. |
+| R3 | Rollback (to a version) | Rollback goes back to the previous OS version, the artifact the whole fleet ran. Each node keeps that previous version locally, ready to boot. A snapshot of a node's own state is not this rollback: R3 is a rollback to a version, not to a snapshot of one node. |
 | R4 | Declarative provisioning | A node configures itself at first boot from a declarative input, with no interactive install. |
 | R5 | Kubernetes ready | The project, or its vendor, documents running Kubernetes on it: bundled, installed on it, or as the node OS of a Kubernetes service. |
 
@@ -934,6 +934,11 @@ Recorded so a reader can audit the reasoning rather than trust it.
     ready. The ids R1 to R5 stay. The old names stay as aliases: Versioned whole-system updates (R1), Immutable at runtime (R2), Rollback (R3), Declarative provisioning (R4) and Runs Kubernetes (R5). R1 always shows as
     "Atomic updates (versioned OS)" and never as "Atomic updates" alone, because
     MicroOS updates are atomic and still do not meet R1.
+    On 2026-10-15 the names changed to match the KCD UK talk. R2 shows as
+    Immutable at runtime (read-only OS files) and R3 as Rollback (to a version).
+    R3 is a rollback to the previous OS version, not to a snapshot of one node.
+    R1 and R5 keep the names above, and the ids R1 to R5 stay. Immutable
+    (read-only OS files) and Rollback are now old names of R2 and R3.
     Results. openSUSE MicroOS leaves the matrix: each node builds its next
     snapshot from packages, also from a pinned repository. SUSE still has an
     entry, because Elemental enters as SUSE's fleet-image path on the same base.
