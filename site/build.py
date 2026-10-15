@@ -2129,7 +2129,17 @@ def finish(page, P, gen, sha):
     # The deep dimension sections are not built yet, so a dimension reference is plain text, not a dead link.
     page = re.sub(r'<a href="#d\d\d">([^<]*)</a>', r'<span class="to-dim">\1</span>', page)
     page = page.replace('__BUILD__', 'Rolling release · commit <span class="mono">%s</span> · generated <time datetime="%s">%s</time>' % (sha, gen, gen), 1)
-    if os.environ.get("PULSE_PREVIEW"):
+    mode = os.environ.get("PULSE_PREVIEW")
+    if mode == "public":
+        # A public preview: the site is out in public but not released. Say so, and stay visible to search engines.
+        page = re.sub(r"<title>(.*?)</title>", r'<title>\1 (public preview)</title>', page, count=1)
+        page = re.sub(r"(<h1>.*?)(</h1>)", r'\1 <span class="preview-tag">Public preview</span>\2', page, count=1)
+        page = re.sub(r'<div class="banner" role="note">.*?</div>',
+                      '<div class="banner" role="note"><b>Public preview</b><span>Not released yet. The data is still under review by the projects\' maintainers, '
+                      'and it can change. <a href="guide.html#fix-h">Corrections</a> are welcome.</span></div>', page, count=1, flags=re.S)
+        page = re.sub(r'\s*<p class="review">.*?</p>', "", page, flags=re.S)
+        page = re.sub(r'\s*<form class="review-bar[^"]*".*?</form>', "", page, flags=re.S)
+    elif mode:
         # A review preview: say so in the title, the heading and a banner, and keep it out of search engines.
         page = re.sub(r"<title>(.*?)</title>", r'<title>\1 (preview, not released)</title><meta name="robots" content="noindex, nofollow">', page, count=1)
         page = re.sub(r"(<h1>.*?)(</h1>)", r'\1 <span class="preview-tag">Preview</span>\2', page, count=1)

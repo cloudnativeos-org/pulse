@@ -8,6 +8,7 @@ The site is two pages: index.html (the matrix page) and guide.html (the guide).
 Fails (exit 1) if:
 - a page lacks the two tabs, Matrix and Guide, or does not mark its own tab with aria-current="page";
 - the preview build lacks noindex or the preview banner on either page (a preview is detected on either page);
+- the public preview build lacks the "Public preview" label or banner, carries noindex, or asks readers not to share it;
 - the matrix page holds a guide section, or the guide holds the matrix or a data sheet;
 - a link does not resolve: #id must exist on its own page, file#id must exist on the page it names;
 - a link to a section that lives on the other page has no file name;
@@ -71,7 +72,8 @@ def main():
     errors = []
 
     # ---- both pages
-    preview = any("noindex" in p or "Preview, not released" in p for p in pages.values())
+    public = any("Public preview" in p for p in pages.values())
+    preview = not public and any("noindex" in p or "Preview, not released" in p for p in pages.values())
     for name, p in pages.items():
         tab = re.search(r'<nav class="tabs[^"]*" aria-label="Pages">(.*?)</nav>', p, re.S)
         if not tab:
@@ -93,6 +95,13 @@ def main():
                 errors.append("%s is a preview build but carries no noindex" % name)
             if "Preview, not released" not in p or 'class="banner"' not in p:
                 errors.append("%s is a preview build but carries no preview banner" % name)
+        if public:
+            if "noindex" in p:
+                errors.append("%s is a public preview build but carries noindex" % name)
+            if 'class="banner"' not in p or 'class="preview-tag">Public preview<' not in p:
+                errors.append("%s is a public preview build but carries no public preview label or banner" % name)
+            if "do not share" in p.lower():
+                errors.append("%s is a public preview build but still asks readers not to share it" % name)
         if "html.toc-open .sec-matrix .mx-wrap" not in raw[name]:
             errors.append("%s: the rule that keeps the matrix clear of the open contents panel is missing" % name)
 
