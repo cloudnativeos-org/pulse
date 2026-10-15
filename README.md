@@ -2,7 +2,7 @@
 
 A sourced comparison of cloud native operating systems.
 
-By Mauro Morales, CNCF Ambassador.
+By [Mauro Morales](https://github.com/mauromorales), CNCF Ambassador.
 
 If the Pulse helps you, please star this repository. It helps more people find it.
 
