@@ -19,14 +19,23 @@
 # affiliation to Kairos, Hadron Linux or Spectro Cloud replaces @mauromorales on
 # these lines as the required approver. Adding them next to @mauromorales would
 # not make their approval required, because any one owner on a line is enough.
-# data/lineage.yaml and site/projects_meta.yaml state facts about Kairos, Hadron
-# and Spectro Cloud next to facts about the other projects. GitHub cannot
-# protect one entry of a file, so the whole file is listed. Only a change that
-# touches an entry about Kairos, Hadron or Spectro Cloud is conflicted.
+# data/lineage.yaml, site/projects_meta.yaml, site/content.py and
+# site/drafts/base_choice.yaml state facts about Kairos, Hadron and Spectro Cloud
+# next to facts about the other projects. GitHub cannot protect one entry of a
+# file, so the whole file is listed. Only a change that touches an entry about
+# Kairos, Hadron or Spectro Cloud is conflicted. This file and MAINTAINERS.md
+# are listed so that the hand-over cannot be undone by one approval. Any other
+# file that states a fact about these projects counts the same way. For
+# example site/build.py holds one such label, the fleet server name of Kairos.
+# It is code, so it is not listed here, and the rule still applies to it.
 /data/projects/kairos.yaml           @mauromorales
 /data/projects/hadron.yaml           @mauromorales
 /data/lineage.yaml                   @mauromorales
 /site/projects_meta.yaml             @mauromorales
+/site/content.py                     @mauromorales
+/site/drafts/base_choice.yaml        @mauromorales
+/.github/CODEOWNERS                  @mauromorales
+/MAINTAINERS.md                      @mauromorales
 /docs/methodology.md                 @mauromorales
 /schema/                             @mauromorales
 /GOVERNANCE.md                       @mauromorales

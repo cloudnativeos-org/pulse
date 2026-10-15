@@ -45,8 +45,10 @@ they work on it themselves.
 
 A change is **conflicted** when it touches the profile of a project that the
 author or the merging maintainer is affiliated with, or an entry about that
-project in another file that states facts about projects, such as
-`data/lineage.yaml` and `site/projects_meta.yaml`. A conflicted change:
+project in another file that states facts about projects. Any file that states
+a fact about a project counts, whether or not it is listed. Today the listed
+files are `data/lineage.yaml`, `site/projects_meta.yaml`, `site/content.py` (the
+written comparisons) and `site/drafts/base_choice.yaml`. A conflicted change:
 
 1. Goes through a public pull request. Nobody pushes it directly to `main`.
 2. Carries the `conflict-of-interest` label.
@@ -109,11 +111,15 @@ During the bootstrap:
 - Mauro merges pull requests.
 - Every change to `data/projects/kairos.yaml` or `data/projects/hadron.yaml` is
   conflicted, and so is every change to an entry about Kairos, Hadron or Spectro
-  Cloud in `data/lineage.yaml` or `site/projects_meta.yaml`. That includes
-  corrections that Mauro did not write but merges.
+  Cloud in `data/lineage.yaml`, `site/projects_meta.yaml`, `site/content.py` or
+  `site/drafts/base_choice.yaml`. That includes corrections that Mauro did not
+  write but merges.
+- A change to `.github/CODEOWNERS` or `MAINTAINERS.md` is conflicted too, so
+  that Mauro cannot put himself back on these lines alone after the hand-over.
 - The first maintainer who has no affiliation with Kairos, Hadron or Spectro
   Cloud replaces Mauro as the required approver of the Kairos and Hadron
-  profiles, and of the methodology.
+  profiles, of the conflicted entries in the files above, of the methodology and
+  the schema, and of `.github/CODEOWNERS`, `MAINTAINERS.md` and this document.
 - Mauro proposes the new maintainers, so he picks the people who will oversee
   him. Each proposal is a public issue, open 14 days, and anyone can object to
   it there.
