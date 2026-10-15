@@ -1,11 +1,17 @@
 # Who is asked to review what. See GOVERNANCE.md.
 #
-# Each project profile has one slot for a profile reviewer: a person who works
-# on that project and checks its facts. Until a reviewer takes a slot, the line
-# names the maintainers. Do not leave a line with no owner: GitHub then treats
-# the file as having no code owner at all. To take a slot, open a pull request
-# that adds your handle to the line, and add your affiliation to MAINTAINERS.md
-# in the same pull request.
+# Each project profile has one slot for profile reviewers. There are two kinds
+# (GOVERNANCE.md, Profile reviewers): a representative, who works on that
+# project, and an external steward, who has no tie to it and looks after the
+# profile when no representative is interested. The slot can hold either kind
+# or both. Until a reviewer takes a slot, the line names the maintainers. Do not
+# leave a line with no owner: GitHub then treats the file as having no code
+# owner at all. To take a slot, open a pull request that adds your handle to the
+# line, and add your affiliation and your kind to MAINTAINERS.md in the same
+# pull request. An external steward is appointed by the maintainers first,
+# through a public issue.
+# Do not add a representative to a conflicted line below. Their fact check is
+# welcome as a review comment, but it does not replace the required approval.
 #
 # GitHub requests a review from the owners of a file when a pull request is
 # ready for review (not while it is a draft). Branch protection decides whether

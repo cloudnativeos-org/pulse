@@ -19,10 +19,12 @@ None yet. See [GOVERNANCE.md](GOVERNANCE.md), section Administrators.
 ## Profile reviewers
 
 A profile reviewer checks the facts of one project's profile and is not a
-maintainer. See [GOVERNANCE.md](GOVERNANCE.md).
+maintainer. A representative works on the project. An external steward has no
+tie to it and looks after the profile when no representative is interested. See
+[GOVERNANCE.md](GOVERNANCE.md).
 
-| Name | GitHub | Employer | Project reviewed | Affiliations in the Pulse |
-|---|---|---|---|---|
+| Name | GitHub | Kind | Employer | Project reviewed | Affiliations in the Pulse |
+|---|---|---|---|---|---|
 
 None yet.
 
