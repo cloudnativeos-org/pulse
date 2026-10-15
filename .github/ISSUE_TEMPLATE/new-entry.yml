@@ -23,7 +23,7 @@ body:
     id: r1
     attributes:
       label: "Rule 1: atomic updates (versioned OS)"
-      description: How the OS updates as one unit (an image, a deployment or a snapshot), with a source.
+      description: "The OS version is one artifact, built once, that every node in a fleet runs. A fleet updates or rolls back by pointing it at a version. A node that assembles its own update from packages does not meet Rule 1, also when the packages come from a pinned repository. Say how the project documents running it like this, with a source."
     validations:
       required: true
   - type: textarea
