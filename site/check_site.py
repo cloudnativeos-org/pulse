@@ -80,16 +80,23 @@ def main():
             errors.append("%s has no tab bar" % name)
         else:
             links = re.findall(r'<a class="tab" href="([^"]+)"( aria-current="page")?>([^<]+)</a>', tab.group(1))
-            if [(h, t) for h, _, t in links] != [("index.html", "Matrix"), ("guide.html", "Guide")]:
-                errors.append("%s: the tabs are not Matrix then Guide: %s" % (name, links))
+            if [(h, t) for h, _, t in links] != [("index.html", "Matrix"), ("guide.html", "Guide"), ("https://github.com/cloudnativeos-org/pulse", "Source")]:
+                errors.append("%s: the tabs are not Matrix, Guide, then Source (the repository): %s" % (name, links))
             cur = [h for h, c, _ in links if c]
             if cur != [name]:
                 errors.append("%s: the current tab is %s, not %s" % (name, cur or "unmarked", name))
         if "—" in p:
             errors.append("em dash found on %s" % name)
-        for old_name in ("From base distro", "From your base distribution", "Released architectures"):
+        for old_name in ("From base distro", "From your base distribution", "Released architectures",
+                         "Versioned whole-system updates", "R3 (Rollback)", "Immutable (read-only OS files)", "Runs Kubernetes"):
             if old_name in p:
                 errors.append("%s still says %r" % (name, old_name))
+        # The build line links the commit it was built from, unless the build had no git checkout.
+        build = re.search(r'commit (<a class="mono" href="https://github\.com/cloudnativeos-org/pulse/commit/([0-9a-f]{40})">([0-9a-f]+)</a>|<span class="mono">unknown</span>)', p)
+        if not build:
+            errors.append("%s: the build line does not link its commit" % name)
+        elif build.group(2) and not build.group(2).startswith(build.group(3)):
+            errors.append("%s: the build line shows %s but links %s" % (name, build.group(3), build.group(2)))
         if preview:
             if '<meta name="robots" content="noindex, nofollow">' not in p:
                 errors.append("%s is a preview build but carries no noindex" % name)
@@ -173,7 +180,7 @@ def main():
         errors.append("contents order does not follow the page order")
     if 'class="toc-toggle' not in guide or "Show contents" not in guide:
         errors.append("the contents toggle is not the edge tab")
-    want = ["h-what", "h-myths", "h-start", "h-review", "h-pair", "h-origins", "h-alt", "h-worth", "h-excluded", "h-who", "h-made", "h-why", "h-wishes", "h-gloss", "h-dims", "h-src"]
+    want = ["h-what", "h-myths", "h-start", "h-pair", "h-origins", "h-alt", "h-worth", "h-excluded", "h-who", "h-made", "h-why", "h-wishes", "h-review", "h-gloss", "h-dims", "h-src"]
     if gsec != want:
         errors.append("the guide's sections are %s, not %s" % (gsec, want))
 

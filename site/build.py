@@ -1806,11 +1806,12 @@ def tokens_css(tok, selector_map=None):
 GUIDE_TOC = [("What is a cloud native OS?", ["h-what", "WHATS"]),
              ("Misconceptions", ["h-myths"]),
              ("Start from your situation", ["h-start", "STARTS"]),
-             ("Is your project here?", ["h-review"]),
              ("Looks alike, differs on", ["h-pair", "PAIRS"]),
              ("Where they came from", ["h-origins"]),
              ("Beyond the matrix", ["h-alt", "h-worth", "h-excluded"]),
-             ("About", ["h-who", "h-made", "h-why", "h-wishes", "h-gloss", "h-dims", "h-src"])]
+             ("About", ["h-who", "h-made", "h-why", "h-wishes"]),
+             ("Is your project here?", ["h-review"]),
+             ("Reference", ["h-gloss", "h-dims", "h-src"])]
 TOC_GROUPS = GUIDE_TOC
 
 
@@ -1885,13 +1886,17 @@ def matrix_list(P):
         parts.append(s)
     words = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen".split()
     count = words[len(ids)].capitalize() if len(ids) < len(words) else str(len(ids))
-    return ("%s entries meet them today: %s, and %s. R3 (Rollback) is not yet documented for Azure Container Linux and Container-Optimized OS, so for those two the entry rests on the other four criteria." % (count, ", ".join(parts[:-1]), parts[-1]))
+    return ("%s entries meet them today: %s, and %s. R3 (Rollback, to a version) is not yet documented for Azure Container Linux and Container-Optimized OS, so for those two the entry rests on the other four criteria." % (count, ", ".join(parts[:-1]), parts[-1]))
+
+
+REPO_URL = "https://github.com/cloudnativeos-org/pulse"
 
 
 def tabs(current):
     def tab(href, label, key):
         return '<a class="tab" href="%s"%s>%s</a>' % (href, ' aria-current="page"' if key == current else "", label)
-    return '<nav class="tabs no-print" aria-label="Pages">%s%s</nav>' % (tab("index.html", "Matrix", "matrix"), tab("guide.html", "Guide", "guide"))
+    source = '<a class="tab" href="%s">Source</a>' % REPO_URL
+    return '<nav class="tabs no-print" aria-label="Pages">%s%s%s</nav>' % (tab("index.html", "Matrix", "matrix"), tab("guide.html", "Guide", "guide"), source)
 
 
 # The cloud native OS mark, two slashes (brand/README.md). Drawn inline so it follows the page theme.
@@ -2028,11 +2033,6 @@ def site(P, tok, css, js):
   {start_here()}{render_start_here(E)}
 </section>
 
-<section class="sec" aria-labelledby="h-review">
-  <h2 id="h-review">Is your project here?</h2>
-  <div class="prose">{open(os.path.join(HERE, "maintainers.html")).read()}</div>
-</section>
-
 <section class="sec" aria-labelledby="h-pair">
   <h2 id="h-pair">Looks alike, differs on</h2>
   <p class="lede">Pairs of entries that share a design and part ways on one property a reader acts on.</p>
@@ -2082,6 +2082,11 @@ def site(P, tok, css, js):
 <section class="sec" aria-labelledby="h-wishes">
   <h2 id="h-wishes">What I'd like to see</h2>
   <div class="prose">{open(os.path.join(HERE, "wishes.html")).read()}</div>
+</section>
+
+<section class="sec" aria-labelledby="h-review">
+  <h2 id="h-review">Is your project here?</h2>
+  <div class="prose">{open(os.path.join(HERE, "maintainers.html")).read()}</div>
 </section>
 
 <section class="sec" aria-labelledby="h-gloss">
@@ -2140,11 +2145,12 @@ def site(P, tok, css, js):
                      '<script>document.documentElement.classList.add("js")</script>', guide_body))
 
 
-def finish(page, P, gen, sha):
+def finish(page, P, gen, sha, full=""):
     """The steps that apply to both pages: the build stamp, the preview changes and the final checks."""
     # The deep dimension sections are not built yet, so a dimension reference is plain text, not a dead link.
     page = re.sub(r'<a href="#d\d\d">([^<]*)</a>', r'<span class="to-dim">\1</span>', page)
-    page = page.replace('__BUILD__', 'Rolling release · commit <span class="mono">%s</span> · generated <time datetime="%s">%s</time>' % (sha, gen, gen), 1)
+    commit = ('<a class="mono" href="%s/commit/%s">%s</a>' % (REPO_URL, full, sha)) if re.fullmatch(r"[0-9a-f]{40}", full) else '<span class="mono">%s</span>' % sha
+    page = page.replace('__BUILD__', 'Rolling release · commit %s · generated <time datetime="%s">%s</time>' % (commit, gen, gen), 1)
     mode = os.environ.get("PULSE_PREVIEW")
     if mode == "public":
         # A public preview: the site is out in public but not released. Say so, and stay visible to search engines.
@@ -2189,14 +2195,15 @@ def main():
     import subprocess
     try:
         sha = subprocess.run(["git", "-C", src, "rev-parse", "--short", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
+        full = subprocess.run(["git", "-C", src, "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
     except Exception:
-        sha = "unknown"
+        sha, full = "unknown", ""
     gen = dt.date.today().isoformat()
     css = css.replace('content: "cloud native OS Pulse 2026"', 'content: "cloud native OS Pulse"')
     css = css.replace('content: "Data as of 22 Sep 2026"', 'content: "Data as of %s"' % fmt_date(data_dates(P)[1]))
     css = css.replace('content: "Illustrative, data under fact-fix"', 'content: "Generated %s from commit %s. Illustrative, data under fact-fix"' % (gen, sha))
     index_page, guide_page = site(P, tok, css, js)
-    index_page, guide_page = finish(index_page, P, gen, sha), finish(guide_page, P, gen, sha)
+    index_page, guide_page = finish(index_page, P, gen, sha, full), finish(guide_page, P, gen, sha, full)
     # The deploy must copy both files. Neither page needs any other file.
     open(os.path.join(out, "site", "index.html"), "w").write(index_page)
     open(os.path.join(out, "site", "guide.html"), "w").write(guide_page)
