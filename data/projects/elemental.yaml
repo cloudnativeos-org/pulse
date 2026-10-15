@@ -443,7 +443,7 @@ dimensions:
       mechanism:
         - ab-partition-switch
         - transactional-snapshot
-      mechanism_note: "The closest closed-vocabulary values. ab-partition-switch is the label Kairos uses for the same toolkit lineage. transactional-snapshot is kept for the btrfs snapshotter only. The toolkit pulls an OCI image and unpacks it into a new image slot or snapshot that becomes the next boot target. It does not use bootc."
+      mechanism_note: "The closest closed-vocabulary values. ab-partition-switch covers the switch to a new image slot. transactional-snapshot is kept for the btrfs snapshotter only. The toolkit pulls an OCI image and unpacks it into a new image slot or snapshot that becomes the next boot target. It does not use bootc."
       scope: whole-root
       scope_note: "The root image is replaced. The COS_PERSISTENT and COS_OEM partitions are not."
       scope_sources:
@@ -1066,10 +1066,22 @@ dimensions:
         retrieved: "2026-10-14"
         version: "v2.3.4"
         quote: cmd.Flags().Bool("verify", false, "Enable mtree checksum verification
+      - url: https://documentation.suse.com/sle-micro/6.1/html/Micro-deployment-raw-images-virtual-machines/index.html
+        type: vendor-docs
+        title: SUSE Linux Micro 6.1, deploying raw images, encrypted image
+        retrieved: "2026-10-15"
+        version: "SL Micro 6.1"
+        quote: "Adds a secondary key slot to the LUKS header and seals it against the TPM device."
+      - url: https://documentation.suse.com/sle-micro/6.1/html/Micro-keylime/index.html
+        type: vendor-docs
+        title: Securing SUSE Linux Micro Using Keylime
+        retrieved: "2026-10-15"
+        version: "SL Micro 6.1"
+        quote: "Keylime is a TPM-based remote boot attestation and runtime integrity measurement."
     unknowns:
       - "Whether SUSE states Secure Boot support for the Elemental OS images. The toolkit installs shim and MokManager by default, but no support statement was found."
       - "Measured boot, disk encryption and FIPS status."
-      - "Whether the SL Micro base documents these capabilities and whether Elemental keeps them."
+      - "Whether Elemental keeps the SL Micro disk encryption and attestation features. The SL Micro 6.1 documentation describes them for the images SL Micro deploys itself."
 
   d11_operations_debugging:
     normalized:
@@ -1113,6 +1125,18 @@ dimensions:
         retrieved: "2026-10-14"
         version: "v2.3.4"
         quote: "`rd.break=pre-pivot rd.shell`: Drop a shell before switch-root"
+      - url: https://elemental.docs.rancher.com/cloud-config-reference
+        type: official-docs
+        title: Elemental cloud-config reference, Set serial console
+        retrieved: "2026-10-15"
+        version: "1.9"
+        quote: 'grub2-editenv /oem/grubenv set extra_cmdline="console=ttyS0"'
+      - url: https://elemental.docs.rancher.com/machineregistration-reference
+        type: official-docs
+        title: Elemental MachineRegistration reference, install tty field
+        retrieved: "2026-10-15"
+        version: "1.9"
+        quote: "tty | string | empty | Add named tty to grub"
     unknowns:
       - "Local shell behavior on the Elemental OS image."
 
@@ -1173,6 +1197,12 @@ dimensions:
         retrieved: "2026-10-14"
         version: "1.9"
         quote: embeds the Elemental Kubernetes controllers to manage all the [Elemental CRDs]
+      - url: https://documentation.suse.com/cloudnative/os-manager/1.9/en/release-notes.html
+        type: vendor-docs
+        title: "SUSE Rancher Prime: OS Manager 1.9 release notes"
+        retrieved: "2026-10-15"
+        version: "1.9"
+        quote: "SUSE Rancher Prime: OS Manager Operator v1.9.2"
       - url: https://elemental.docs.rancher.com/upgrade-lifecycle
         type: official-docs
         title: Upgrade lifecycle, components
@@ -1328,6 +1358,12 @@ dimensions:
         title: Elemental operator releases
         retrieved: "2026-10-14"
         quote: v1.9.2 Latest 2026-06-18
+      - url: https://documentation.suse.com/cloudnative/os-manager/1.9/en/release-notes.html
+        type: vendor-docs
+        title: "SUSE Rancher Prime: OS Manager 1.9 release notes"
+        retrieved: "2026-10-15"
+        version: "1.9"
+        quote: "SUSE Rancher Prime: OS Manager Operator v1.9.2"
       - url: https://github.com/rancher/elemental/releases
         type: release-notes
         title: Elemental Linux releases
