@@ -102,8 +102,10 @@ any covered project is conflicted for rules 1, 2 and 3, even when it changes
 the profile of a project they are not affiliated with. Editing a competitor is
 as conflicted as editing your own project, for example a Talos maintainer who
 edits the Kairos profile. Every value it changes must carry a primary source,
-and the pull request states the author's affiliations. Rule 4 asks for approval
-from a maintainer with no affiliation with the project that is changed.
+and the pull request states the author's affiliations. When the author is
+affiliated with any covered project, rule 4 asks for approval from a maintainer
+with no affiliation with any covered project. A Talos maintainer cannot approve
+a Bottlerocket maintainer's edit to the Kairos profile.
 
 A change to the methodology, the inclusion criteria, the schema or the
 vocabularies affects every project at once. It carries the
@@ -234,8 +236,12 @@ A removal for a breach needs all three of these:
 1. A public issue that names the cause and the evidence. It stays open for at
    least **30 days**, and the person concerned can answer in it.
 2. A written finding of a breach from the enforcement contact named in
-   `CODE_OF_CONDUCT.md`, or from an outside person named in MAINTAINERS.md. That
-   person is not a maintainer and has no affiliation with any covered project.
+   `CODE_OF_CONDUCT.md`, or from an outside person named in MAINTAINERS.md.
+   Neither of them is a maintainer, neither has an affiliation with any covered
+   project, and neither votes in the removal. Naming or replacing either one
+   follows the rule for becoming a maintainer: a public issue open for 14 days,
+   and one maintainer's objection is a veto. Both are protected text, and so is
+   the contact named in `CODE_OF_CONDUCT.md`.
 3. The votes of at least **two thirds** of the active maintainers other than the
    person concerned, rounded up. The two thirds are counted against that whole
    group, not against the votes cast. The vote cap applies, so the yes votes of
@@ -329,14 +335,16 @@ The **protected text** is:
 - the vote rules in "Decisions", including the vote cap;
 - the rule in "Conflict of interest" that changes to CODEOWNERS and
   MAINTAINERS.md are always conflicted;
-- the choice of code of conduct;
+- the choice of code of conduct, the enforcement contact named in
+  `CODE_OF_CONDUCT.md`, and the outside person named in MAINTAINERS.md;
 - the date recorded in the Bootstrap section.
 
 For the first 24 months after the bootstrap ends, two things need the owner's
 agreement: any change to the protected text, and removing the owner from any
-role. "Needs the owner's agreement" means an approving review from the owner on
-the pull request. The recorded date is the exception: it changes only with an
-approving review from the owner, and this does not lapse.
+role. "Needs the owner's agreement" means a pull request opened or approved by
+the owner. GitHub does not let an author approve their own pull request, so a
+pull request that the owner opens counts. The recorded date follows its own rule
+in the Bootstrap section, and that rule does not lapse.
 
 The clause is not in force during the bootstrap. The owner merges then, so
 nothing changes without him. The clause lapses on its own 24 months after the
@@ -347,7 +355,7 @@ only the owner changes it.
 GitHub cannot enforce this clause. CODEOWNERS accepts any one owner on a line,
 and after the hand-over the line names the maintainer with no affiliation. So
 the clause rests on one thing: the owner's power as organization owner to
-revert a change that was made without his review. The same holds for
+revert a change that was made without his involvement. The same holds for
 MAINTAINERS.md.
 
 ## Bootstrap
@@ -361,7 +369,8 @@ independent.
 
 During the bootstrap:
 
-- Mauro merges pull requests.
+- Mauro merges pull requests. The one exception is the pull request that
+  records the end of the bootstrap under rule 3 below.
 - Every change to `data/projects/kairos.yaml` or `data/projects/hadron.yaml` is
   conflicted, and so is every change to an entry about Kairos, Hadron or Spectro
   Cloud in `data/lineage.yaml`, `site/projects_meta.yaml`, `site/content.py` or
@@ -376,6 +385,12 @@ During the bootstrap:
 - Mauro proposes the new maintainers, so he picks the people who will oversee
   him. Each proposal is a public issue, open 14 days, and one maintainer's
   objection is a veto.
+- If the owner has been unreachable for 6 months, the second owner may merge
+  pull requests and propose maintainers under these rules. Unreachable means no
+  commit, review or comment anywhere in the organization, stated in a public
+  issue that stays unanswered for 30 days. The second owner never touches the
+  Ownership section. If there is no second owner, nobody can act: that is a
+  residual risk, and it is listed under "Known limits".
 
 **The end condition** is that the Pulse has at least two maintainers besides
 Mauro, who work on two different projects, and neither of whom is employed by
@@ -383,20 +398,28 @@ Spectro Cloud, and at least one of whom has no affiliation with any covered
 project. Without that last part the bootstrap could end with nobody allowed to
 approve a change to the Kairos and Hadron profiles.
 
-The owner alone decides when the bootstrap ends. He ends it with a pull request
-that records the day in this section, which he approves. From then on, the
-decision rules above apply in full, and this section is reduced to a record of
-when the bootstrap ended.
+**How the bootstrap ends.** There is one rule, in five parts:
 
-The owner does not control the end without limit. The bootstrap ends 90 days
-after the end condition holds, unless the owner states a public reason in an
-issue, before then, why it should continue. Each reason delays the end by at
-most 90 days, and he can renew it the same way. If no reason is stated, any
-maintainer may open the pull request that records the day, and it does not need
-the owner's review.
+1. The bootstrap ends on the day a pull request that records that day in this
+   section is merged.
+2. Once the end condition holds, the owner can end it at any time. He opens or
+   approves that pull request.
+3. If the end condition has held for 90 days and the owner has not recorded the
+   day, any maintainer may ask him in a public issue. If he has not acted within
+   14 days of that request, the maintainer opens the recording pull request. An
+   administrator or the second owner merges it. If there is neither, a
+   maintainer who is not employed by Spectro Cloud, and who did not open it,
+   merges it. Nobody else can.
+4. The owner can delay the end only by publishing a reason in a public issue
+   before the 90 days run out. Each reason delays the end by at most 90 days.
+   He can do this at most twice, so the delay is at most 180 days. After that,
+   rule 3 applies with no further delay.
+5. The recorded date is protected text. After it is recorded, it changes only
+   through a pull request opened or approved by the owner. The first recording
+   under rule 3 is the one exception.
 
-The recorded date changes only with an approving review from the owner. This
-does not lapse.
+From the day it is recorded, the decision rules above apply in full, and this
+section is reduced to a record of when the bootstrap ended.
 
 Bootstrap ended on: not yet.
 
@@ -406,3 +429,26 @@ A change to this document is treated like a change to the methodology: it
 follows the conflict-of-interest rules above, whoever writes it. A change to the
 protected text also follows the founder clause. A change to the Ownership
 section follows only that section: the owner opens or approves it.
+
+## Known limits
+
+A governance document cannot be perfect. These limits are known and accepted
+for now:
+
+- After the founder clause lapses, only the Ownership section and the recorded
+  date stay under the owner's control. A majority of the maintainers can then
+  rewrite the Removing a maintainer and Becoming a maintainer sections.
+- One maintainer's veto can freeze all growth, and it can keep the end condition
+  from ever holding. That is the price of the rule against packing the
+  maintainers with a majority.
+- While the owner is the only maintainer, every profile change that he writes or
+  approves waits 7 days. This is intended.
+- If the owner is unreachable and there is no second owner, nobody can act
+  during the bootstrap.
+- A group of more than one third of the active maintainers can block any
+  removal, and two employers together can reach two thirds. The written finding
+  from an outside person is the only check.
+- GitHub cannot enforce the founder clause. It rests on the owner's power as
+  organization owner.
+- The rules are only as strong as the organization settings behind them. The
+  Administrators section says which settings.
