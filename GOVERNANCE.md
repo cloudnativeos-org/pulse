@@ -25,12 +25,21 @@ Ambassador, and that role gives the Pulse no standing with the CNCF.
 **Maintainers** decide what is merged, and they own the methodology, the schema,
 the tools and the site. The current list is in [MAINTAINERS.md](MAINTAINERS.md).
 
-**Profile reviewers** are people who work on a project the Pulse covers. A
-profile reviewer checks the factual profile of that project,
-`data/projects/<id>.yaml`, and is asked to review every change to it. A profile
-reviewer checks facts only. Reviewing a profile does not mean the project
-endorses the Pulse or agrees with its analysis. Profile reviewers are listed in
-[CODEOWNERS](.github/CODEOWNERS), one slot per project.
+**Profile reviewers** look after the factual profile of one covered project,
+`data/projects/<id>.yaml`, and are asked to review every change to it. A
+profile reviewer checks facts only. Reviewing a profile does not mean the
+project endorses the Pulse or agrees with its analysis. Profile reviewers are
+listed in [CODEOWNERS](.github/CODEOWNERS), one slot per project. They come in
+two kinds:
+
+- A **representative** works on that project. They are a maintainer or a
+  contributor named in the project's own docs.
+- An **external steward** has no tie to that project. They look after the
+  profile when no representative is interested.
+
+Both kinds can exist for the same project at once. A profile with neither has
+the maintainers as its reviewers. No project is forced to have a
+representative. Neither kind becomes a maintainer by this role.
 
 **Contributors** are everybody else. Anyone can open a pull request or an issue.
 
@@ -40,8 +49,10 @@ not decide what goes into the data.
 
 ## Affiliations
 
-Every maintainer and every profile reviewer states, in MAINTAINERS.md, the
-projects they work on and the organization that employs them.
+Every maintainer and every profile reviewer, of either kind, states in
+MAINTAINERS.md the projects they work on and the organization that employs them.
+An external steward also states any affiliation with a competing or related
+project.
 An affiliation is any project in the Pulse that a person maintains, contributes
 to as part of their job, or is paid to promote. A person is also affiliated with
 every project that their employer develops, sells or supports, whether or not
@@ -100,8 +111,9 @@ needs, and no open objection, is merged. When maintainers disagree, the
 majority of maintainers decides. No organization may cast more than half of
 the votes in one decision, however many of its employees are maintainers.
 
-Removing a maintainer, appointing an administrator and changing the ownership
-have their own rules below. The majority rule does not apply to them.
+Removing a maintainer, appointing an administrator or an external steward, and
+changing the ownership have their own rules below. The majority rule does not
+apply to them.
 
 ## Becoming a maintainer
 
@@ -109,9 +121,59 @@ A contributor becomes a maintainer when an existing maintainer proposes them in
 a public issue and no maintainer objects within 14 days. A maintainer steps
 down by opening a pull request against MAINTAINERS.md.
 
-A person who works on a covered project becomes a profile reviewer for that
-project on request, through a pull request against CODEOWNERS. They do not have
-to become a maintainer.
+## Profile reviewers
+
+### Representatives
+
+A person who works on a covered project can become its representative on
+request. They open a pull request against CODEOWNERS and MAINTAINERS.md. The
+pull request links the project's own docs that name them, for example its
+maintainers file or its contributor list. A representative fact-checks the
+profile in public, in comments or reviews on the pull request. That is welcome
+at any time and does not need a slot.
+
+A representative's fact check is not an approval under the conflict-of-interest
+rules. Those rules ask for a maintainer with no affiliation with the project. A
+representative is affiliated with it by definition.
+
+### External stewards
+
+An external steward is a person with no tie to the project: they do not work on
+it, and no organization that employs them develops, sells or supports it. They
+look after the profile when no representative is interested. A steward has
+these duties:
+
+1. Every value they change carries a primary source, as for any other project's
+   profile.
+2. They declare in MAINTAINERS.md any affiliation with a competing or related
+   project.
+3. They answer a representative's correction in the pull request, before its
+   objection window closes. The window is the same as for any other change.
+4. They step aside for a representative who appears. The representative takes
+   the lead on the profile. The steward leaves the CODEOWNERS line when the
+   representative asks, and may stay on it otherwise.
+
+The maintainers appoint an external steward through a public issue that stays
+open for 14 days. Any maintainer can object there. A steward never needs a
+representative's consent. A steward steps down by opening a pull request
+against MAINTAINERS.md, and the maintainers replace one who stops meeting these
+duties through the same public issue process.
+
+Both kinds can exist for one project at once. A person can be a representative
+of one project and an external steward of another, if they state both
+affiliations.
+
+### Who may do what
+
+| Role | Propose a correction | Fact-check | Approve a change to a profile | Vote on governance |
+|---|---|---|---|---|
+| Representative | Yes | Yes, their project | No | No |
+| External steward | Yes | Yes, the profiles they look after | Yes for those profiles, unless the change is conflicted | No |
+| Maintainer | Yes | Yes | Yes. A conflicted change needs a maintainer with no affiliation | Yes |
+| Administrator | Yes | Yes | As a maintainer | As a maintainer. Admin rights add no vote |
+| Owner | Yes | Yes | As a maintainer | As a maintainer, plus the founder clause |
+
+Anyone else can propose a correction in a pull request or an issue.
 
 ## Removing a maintainer
 
