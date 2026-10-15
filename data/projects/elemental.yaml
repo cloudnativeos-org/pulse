@@ -292,9 +292,10 @@ dimensions:
       The installation state doc says a digest is recorded only "if the source
       is an image". The fleet upgrade job runs elemental upgrade from dir:/
       inside the System Upgrade Controller job, so on the ManagedOSImage path
-      the source is a directory. Whether a digest is recorded on that path is
-      not shown in the sources read. Whether an upgrade pins the digest is not
-      stated. A ManagedOSImage normally names a tag.
+      the source is a directory. The toolkit code sets the digest only in the
+      branch for an image source (SetDigest, elemental.go lines 570-588), so a
+      snapshot made on that path records no digest. Whether an upgrade pins
+      the digest is not stated. A ManagedOSImage normally names a tag.
 
       Install and upgrade have optional cosign verification (--cosign) and
       mtree checksum verification (--verify). The fleet upgrade job passes
@@ -339,6 +340,12 @@ dimensions:
         retrieved: "2026-10-14"
         version: "v2.3.4"
         quote: "# If the source is an image, digest is provided."
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/pkg/elemental/elemental.go#L570-L588
+        type: source-repo
+        title: Toolkit, digest set only for an image source
+        retrieved: "2026-10-15"
+        version: "v2.3.4"
+        quote: imgSrc.SetDigest(digest)
       - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Getting%20started/install.md
         type: official-docs
         title: Installing
@@ -378,7 +385,6 @@ dimensions:
     unknowns:
       - "Whether the Elemental OS images on registry.suse.com carry signatures that --cosign can verify."
       - "Whether an upgrade is pinned to an image digest or follows a tag."
-      - "Whether a digest is recorded in the installation state on the ManagedOSImage path, where the upgrade source is dir:/."
 
   d04_upgrade:
     normalized:
@@ -418,7 +424,7 @@ dimensions:
                 retrieved: "2026-10-14"
                 quote: '- "/usr/sbin/suc-upgrade"'
       version_identity:
-        identifier: "IMAGE, IMAGE_REPO and IMAGE_TAG in /etc/os-release of the OS image. elemental state records the source for each snapshot, and a digest only if the source is an image. The fleet job upgrades from dir:/, so a digest is not shown for that path"
+        identifier: "IMAGE, IMAGE_REPO and IMAGE_TAG in /etc/os-release of the OS image. elemental state records the source for each snapshot, and a digest only if the source is an image. The fleet job upgrades from dir:/, and the toolkit sets a digest only for an image source, so a snapshot made that way records none"
         condition: "Rancher Manager v2.14 or later, because operator 1.9.x must be paired with it. No cloud-config hooks that install packages in the new snapshot. The docs show after-upgrade-chroot hooks and rpm installs that run on every upgrade and change the snapshot contents."
         evidence: DOCUMENTED
         sources:
@@ -440,6 +446,12 @@ dimensions:
             retrieved: "2026-10-14"
             version: "1.9"
             quote: "# Install the package after upgrading to a new image"
+          - url: https://elemental.docs.rancher.com/release-notes
+            type: release-notes
+            title: "Release notes, Rancher compatibility"
+            retrieved: "2026-10-14"
+            version: "1.9"
+            quote: Since version v1.9.x Elemental Operator must be paired with Rancher v2.14 or superior.
       mechanism:
         - ab-partition-switch
         - transactional-snapshot
@@ -510,6 +522,12 @@ dimensions:
         retrieved: "2026-10-14"
         version: "v2.3.4"
         quote: "fromAction: upgrade"
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/pkg/elemental/elemental.go#L570-L588
+        type: source-repo
+        title: Toolkit, digest set only for an image source
+        retrieved: "2026-10-15"
+        version: "v2.3.4"
+        quote: imgSrc.SetDigest(digest)
       - url: https://github.com/rancher/elemental/blob/v2.3.1/framework/files/usr/sbin/suc-upgrade#L71-L105
         type: source-repo
         title: suc-upgrade, version check, FORCE and reboot
@@ -522,8 +540,6 @@ dimensions:
         retrieved: "2026-10-14"
         version: "v2.3.1"
         quote: "echo \"Upgrade already done with release:\""
-    unknowns:
-      - "Whether a digest is recorded for a snapshot made by the fleet upgrade job, whose source is dir:/."
 
   d05_rollback_recovery:
     normalized:
@@ -1426,7 +1442,7 @@ known_issues:
 
 open_questions:
   - "Which SL Micro release do the current Elemental OS images use? The 1.9 channel table lists 6.1. The Elemental Linux v2.3.1 release note says SL Micro 6.2 is GA. The SUSE documentation page for Elemental is written for SLE Micro 5.5."
-  - "Are the Elemental OS images signed, and can elemental upgrade --cosign verify them? The fleet upgrade job passes no --cosign or --verify. Is an upgrade pinned to a digest or to a tag, and is a digest recorded when the source is dir:/?"
+  - "Are the Elemental OS images signed, and can elemental upgrade --cosign verify them? The fleet upgrade job passes no --cosign or --verify. Is an upgrade pinned to a digest or to a tag?"
   - "Does SUSE state Secure Boot support for the Elemental OS images? The toolkit installs shim and MokManager by default (grub.go), but no support statement was found. Are measured boot, disk encryption and FIPS available? These pages were not found in the Elemental docs."
   - "Is dm-verity or any other root integrity check planned or present? No source read mentions it."
   - "Which per-architecture tags are published for the Elemental OS images? The docs state x86-64 as production ready and ARM as development, and the base image Dockerfile has ExclusiveArch x86_64 aarch64. The toolkit builds a riscv64 binary, but the OS image recipe does not list riscv64."
