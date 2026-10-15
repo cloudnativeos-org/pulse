@@ -26,14 +26,13 @@ jobs:
         run: pip install pyyaml jsonschema
       - name: Validate profiles
         run: python3 tools/validate_profiles.py data/projects
-      - name: Build the preview site
+      - name: Build the public preview site
         env:
-          PULSE_PREVIEW: "1"
+          PULSE_PREVIEW: public
         run: |
           python3 site/build.py data/projects out
           python3 site/check_site.py out/site
           rm -f out/site/artifact.html
-          printf 'User-agent: *\nDisallow: /\n' > out/site/robots.txt
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out/site

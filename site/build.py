@@ -1897,7 +1897,7 @@ def favicon_links():
 
 
 def head_top(current):
-    return ('<div class="head-top">%s%s<div class="theme no-print" role="group" aria-label="Colour theme">'
+    return ('<div class="head-top"><div class="brand-row">%s</div>%s<div class="theme no-print" role="group" aria-label="Colour theme">'
             '<button type="button" value="system">System</button><button type="button" value="light">Light</button><button type="button" value="dark">Dark</button></div></div>'
             % (brand(), tabs(current)))
 
@@ -1946,7 +1946,7 @@ def site(P, tok, css, js):
 <header>
   {head_top("matrix")}
   <span class="eyebrow build-eyebrow">__BUILD__</span>
-  <h1>cloud native OS Pulse</h1>
+  <h1 class="visually-hidden">cloud native OS Pulse</h1>
   <p class="tagline">A sourced comparison of cloud native operating systems. Every cell carries an evidence label and a source. Click a project name to open its data sheet.</p>
   <p class="guide-link"><a href="guide.html">Read the guide: what a cloud native OS is, how this was built, and how to read the matrix.</a></p>
   <p class="byline-coi">I am one of the maintainers of Kairos and Hadron, two of the entries, and I work for Spectro Cloud. See <a href="#h-who">Who is behind it</a>.</p>
@@ -1985,7 +1985,7 @@ def site(P, tok, css, js):
 <header>
   {head_top("guide")}
   <span class="eyebrow build-eyebrow">__BUILD__</span>
-  <h1>cloud native OS Pulse guide</h1>
+  <h1>Guide</h1>
   <p class="tagline">What a cloud native OS is, how the Pulse was made, and how to read the matrix.</p>
   <p class="byline">by Mauro Morales, CNCF Ambassador</p>
   <p class="byline-coi">I am one of the maintainers of Kairos and Hadron, two of the entries, and I work for Spectro Cloud. See <a href="#h-who">Who is behind it</a>.</p>
@@ -2129,10 +2129,20 @@ def finish(page, P, gen, sha):
     # The deep dimension sections are not built yet, so a dimension reference is plain text, not a dead link.
     page = re.sub(r'<a href="#d\d\d">([^<]*)</a>', r'<span class="to-dim">\1</span>', page)
     page = page.replace('__BUILD__', 'Rolling release · commit <span class="mono">%s</span> · generated <time datetime="%s">%s</time>' % (sha, gen, gen), 1)
-    if os.environ.get("PULSE_PREVIEW"):
+    mode = os.environ.get("PULSE_PREVIEW")
+    if mode == "public":
+        # A public preview: the site is out in public but not released. Say so, and stay visible to search engines.
+        page = re.sub(r"<title>(.*?)</title>", r'<title>\1 (public preview)</title>', page, count=1)
+        page = page.replace("</a></div>", '</a><span class="preview-tag">Public preview</span></div>', 1)
+        page = re.sub(r'<div class="banner" role="note">.*?</div>',
+                      '<div class="banner" role="note"><b>Public preview</b><span>Not released yet. The data is still under review by the projects\' maintainers, '
+                      'and it can change. Corrections are welcome: <a href="https://github.com/cloudnativeos-org/pulse/issues/new/choose">open an issue</a>.</span></div>', page, count=1, flags=re.S)
+        page = re.sub(r'\s*<p class="review">.*?</p>', "", page, flags=re.S)
+        page = re.sub(r'\s*<form class="review-bar[^"]*".*?</form>', "", page, flags=re.S)
+    elif mode:
         # A review preview: say so in the title, the heading and a banner, and keep it out of search engines.
         page = re.sub(r"<title>(.*?)</title>", r'<title>\1 (preview, not released)</title><meta name="robots" content="noindex, nofollow">', page, count=1)
-        page = re.sub(r"(<h1>.*?)(</h1>)", r'\1 <span class="preview-tag">Preview</span>\2', page, count=1)
+        page = page.replace("</a></div>", '</a><span class="preview-tag">Preview</span></div>', 1)
         page = re.sub(r'<div class="banner" role="note">.*?</div>',
                       '<div class="banner" role="note"><b>Preview, not released</b><span>This is a work in progress shared for review. '
                       'Facts are still being checked and may change. Please do not share it widely yet. '
