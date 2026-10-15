@@ -1350,7 +1350,7 @@ follow_up_research:
 corrections:
   - date: "2026-10-14"
     field: "dimensions.d05_rollback_recovery.normalized.gke_node_pool_downgrade"
-    change: "Added the documented GKE rollback path. The GKE page 'Upgrading a cluster' says a node pool can be downgraded to an earlier patch release or minor version. That recreates the nodes. R3 stays 'unknown' under the fleet reading of 2026-10-14, because no document says a node boots its previous COS image. The question is in open_questions. Reason: methodology note of 2026-10-14, section 11, item 13."
+    change: "Added the documented GKE rollback path. The GKE page 'Upgrading a cluster' says a node pool can be downgraded to an earlier patch release or minor version. That recreates the nodes. R3 stays 'unknown' under the fleet reading of 2026-10-14, because no document says a node boots its previous COS image. The question is in open_questions. Reason: methodology note of 2026-10-14, section 11, item 12."
     source:
       url: https://docs.cloud.google.com/kubernetes-engine/docs/how-to/upgrading-a-cluster
       type: vendor-docs

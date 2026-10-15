@@ -1485,7 +1485,7 @@ EXCLUDED = [
      "Each node builds its next snapshot from packages with transactional-update, also when the repository is pinned. No artifact is built once for the fleet, so it does not meet R1. "
      "SUSE's fleet-image path, one OCI image rolled to every node, is the Elemental entry. The profile and the data sheet stay, so the evidence is still there.",
      [("transactional-update man page", "https://github.com/openSUSE/transactional-update/blob/ef8af9f/man/transactional-update.8.xml"),
-      ("Methodology, section 11, item 13", "https://github.com/cloudnativeos-org/pulse/blob/main/docs/methodology.md")], "14 Oct 2026", "microos"),
+      ("Methodology, section 11, item 12", "https://github.com/cloudnativeos-org/pulse/blob/main/docs/methodology.md")], "6 Oct 2026", "microos"),
     ("balenaOS", "excluded: does not meet R5",
      "balenaOS is a Yocto-built host OS for running containers on embedded devices. It has a read-only root filesystem and A/B root partitions, "
      "and a failed update boots back into the previous OS version. Its container engine is balenaEngine, based on Moby. "
@@ -1504,7 +1504,7 @@ def excluded():
         more = (" " + sheet_link(PROFILES[sheet], "Open the data sheet") + ".") if sheet else ""
         items.append('<dt>%s<span class="tag">%s</span></dt><dd>%s%s <span class="t-meta">Sources, retrieved %s: %s.</span></dd>' % (E(name), E(kind), E(txt), more, when, refs))
     return ('<aside class="ctx" aria-label="Considered and excluded"><div class="ctx-head">'
-            '<p>Not profiled. Released, and looked at, but it fails one of the five inclusion criteria. The reason is stated with each project.</p></div>'
+            '<p>Released and looked at, but it fails one of the five inclusion criteria. The reason is stated with each project.</p></div>'
             '<dl>%s</dl></aside>' % "".join(items))
 
 
@@ -1528,7 +1528,6 @@ def what_is():
              ("Immutable (read-only OS files)", "The OS part, the root or <code>/usr</code>, is read-only on a running node."),
              ("Rollback", "Rollback goes back to the previous version, the artifact the whole fleet ran. Each node keeps that version locally, ready to boot."),
              ("Declarative provisioning", "A node configures itself at first boot from a declarative input, with no interactive install."),
-    ('Ignition', 'A provisioning tool that runs once, in the initramfs at first boot. It reads a JSON configuration and can partition disks, format filesystems, write files and create users before the root filesystem is in use.'),
              ("Kubernetes ready", "The project, or its vendor, documents running Kubernetes on it: bundled, installed on it, or as the node OS of a Kubernetes service. "
               "A framework such as Kairos or bootc meets this rule through the images built with it. Running containers alone is not enough.")]
     return ('<div class="prose">'
@@ -1643,7 +1642,7 @@ MISCONCEPTIONS = [
      "<a href=\"https://microos.opensuse.org/\">openSUSE MicroOS</a> is a distribution, described as &ldquo;Micro Service OS built by the openSUSE community&rdquo;. "
      "Both have a data sheet in the Pulse. <a class=\"proj-open\" href=\"#tc-elemental\">Elemental</a> is an entry: it rolls one OCI image to every node in a fleet. "
      "<a class=\"proj-open\" href=\"#tc-microos\">openSUSE MicroOS</a> is not in the matrix, because each node builds its own update from packages, which does not meet the first criterion. "
-     "The reason is in the <a href=\"https://github.com/cloudnativeos-org/pulse/blob/main/docs/methodology.md\">methodology</a>, section 11, item 13."),
+     "The reason is in the <a href=\"https://github.com/cloudnativeos-org/pulse/blob/main/docs/methodology.md\">methodology</a>, section 11, item 12."),
     ("Fedora CoreOS and bootc are the same thing.",
      "Today they are not. Fedora CoreOS fetches its updates as an OCI image, but it applies them on disk as an OSTree deployment through rpm-ostree. "
      "The Fedora <a href=\"https://fedoraproject.org/wiki/Changes/CoreOSOstree2OCIUpdates\">change proposal</a> says it keeps using rpm-ostree &ldquo;and not yet bootc&rdquo;. "
@@ -1754,7 +1753,7 @@ def made(P):
             '<h3>The process</h3><ol class="steps">%s</ol>'
             '<h3>Tools and models</h3><div class="prose"><p>The agents were Anthropic\'s Claude models, running in Claude Code. Each task had a written brief, its own agent session, '
             'its own branch and its own pull request. I merged every change. For this first version, Anthropic provided the model access, through its Claude for Open Source program. Anthropic had no say in the content.</p>'
-            '<p>Claude Opus 5 wrote the method, the first ten profiles and the first article draft. Claude Sonnet 5 did the rest: the two added profiles, the re-verification, Hadron, the rollback experiments and the Elemental profile. '
+            '<p>Claude Opus 5 wrote the method, the first ten profiles and the first article draft. Claude Sonnet 5 did the rest: the two added profiles, the re-verification, Hadron and the rollback experiments. Claude Sonnet 5.5 wrote the Elemental profile and the fleet-reading changes, and a second pass on Claude Opus checked the Elemental profile against its sources. '
             'Two of those briefs asked for a stronger model than the one that ran. The rollback experiments and the re-verification both ran on Sonnet 5. '
             'Every commit names the assisting model in a <code>Co-developed-by:</code> trailer, and the full history is public in <a href="https://github.com/cloudnativeos-org/pulse">the Pulse repository</a>. Commits from the <code>mauro-agent</code> account were made by an AI agent that I operate. I am the person behind that account and I answer for its work. '
             'The task briefs are kept. The exact prompts each session received are not, and neither is which model ran each fact-check pass.</p></div>'
@@ -1882,7 +1881,7 @@ def matrix_list(P):
         parts.append(s)
     words = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen".split()
     count = words[len(ids)].capitalize() if len(ids) < len(words) else str(len(ids))
-    return "%s entries meet them today: %s, and %s." % (count, ", ".join(parts[:-1]), parts[-1])
+    return ("%s entries meet them today: %s, and %s. R3 (Rollback) is not yet documented for Azure Container Linux and Container-Optimized OS, so for those two the entry rests on the other four criteria." % (count, ", ".join(parts[:-1]), parts[-1]))
 
 
 def tabs(current):

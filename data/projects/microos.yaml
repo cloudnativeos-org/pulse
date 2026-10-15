@@ -1881,7 +1881,7 @@ follow_up_research:
 corrections:
   - date: "2026-10-14"
     field: "inclusion.R1"
-    change: "Was: in the matrix, R1 met with a condition (move nodes together to a pinned snapshot repository). Now: does not meet R1, so the entry leaves the matrix and is listed under Considered and excluded. R1 now asks for one OS artifact, built once, that every node in a fleet runs. An update here applies package changes inside a new snapshot on each node, also when the repository is pinned. The profile and its data sheet stay. SUSE's fleet-image path, an OCI image rolled to every node, is the Elemental entry (data/projects/elemental.yaml). The methodology note of 2026-10-14 (section 11, item 13) gives the reasoning."
+    change: "Was: in the matrix, R1 met with a condition (move nodes together to a pinned snapshot repository). Now: does not meet R1, so the entry leaves the matrix and is listed under Considered and excluded. R1 now asks for one OS artifact, built once, that every node in a fleet runs. An update here applies package changes inside a new snapshot on each node, also when the repository is pinned. The profile and its data sheet stay. SUSE's fleet-image path, an OCI image rolled to every node, is the Elemental entry (data/projects/elemental.yaml). The methodology note of 2026-10-14 (section 11, item 12) gives the reasoning."
     source:
       url: https://github.com/openSUSE/transactional-update/blob/ef8af9f/man/transactional-update.8.xml
       type: source-repo

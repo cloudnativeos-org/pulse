@@ -464,7 +464,7 @@ validator enforces them rather than relying on the author's good intentions.
 
 ### Inclusion criteria
 
-An entry in the comparison matrix meets all five inclusion criteria.
+An entry in the comparison matrix meets all five inclusion criteria, with one exception that is stated openly: R3 is not yet documented for Azure Container Linux and Container-Optimized OS. It is recorded as "unknown" in their profiles, and a missing document is not read as a "no" (section 4).
 
 | Rule | Name | Meaning |
 |---|---|---|
@@ -617,7 +617,7 @@ discipline as the Talos provider deprecations.
 
 Elemental entered the matrix on 2026-10-14, when openSUSE MicroOS left it. The
 reason for both moves is the same change to R1, recorded in the dated note in
-section 11 (item 13): a cloud native OS is judged across a fleet, not on a
+section 11 (item 12): a cloud native OS is judged across a fleet, not on a
 single node.
 
 **What the entry is.** Elemental is the operator, the toolkit and the Elemental
@@ -737,7 +737,7 @@ because they do not meet R1. Each node builds its next snapshot from packages wi
 `transactional-update`, also when the repository is pinned. The profile
 `microos.yaml` and its data sheet stay, so a reader can see the evidence. SUSE
 still has an entry in the matrix: Elemental, its fleet-image path on the same
-base. See "The fourteenth entry: Elemental" and item 13 in section 11. "The two
+base. See "The fourteenth entry: Elemental" and item 12 in section 11. "The two
 entries added after the first draft" explains why these three vehicles are one
 profile.
 
@@ -923,7 +923,7 @@ Recorded so a reader can audit the reasoning rather than trust it.
     that one version names the whole OS), all eleven pass, some with a
     condition. R1 uses the capability reading, the same rule the matrix
     columns follow: they record what is possible, not what ships switched on.
-13. **On 2026-10-14, R1 and R3 changed to a fleet reading.** A cloud native OS
+12. **On 2026-10-14, R1 and R3 changed to a fleet reading.** A cloud native OS
     is judged across a fleet, not on a single node. R1 now asks for one OS
     artifact, built once, that every node in a fleet runs. A fleet updates or
     rolls back by pointing it at a version. A node that assembles its own update
@@ -931,7 +931,7 @@ Recorded so a reader can audit the reasoning rather than trust it.
     fleet version, which each node keeps locally, ready to boot. The five
     criteria carry the display names Atomic updates (versioned OS), Immutable
     (read-only OS files), Rollback, Declarative provisioning and Kubernetes
-    ready. The ids R1 to R5 and the old names stay as aliases. R1 always shows as
+    ready. The ids R1 to R5 stay. The old names stay as aliases: Versioned whole-system updates (R1), Immutable at runtime (R2), Rollback (R3), Declarative provisioning (R4) and Runs Kubernetes (R5). R1 always shows as
     "Atomic updates (versioned OS)" and never as "Atomic updates" alone, because
     MicroOS updates are atomic and still do not meet R1.
     Results. openSUSE MicroOS leaves the matrix: each node builds its next
@@ -946,7 +946,7 @@ Recorded so a reader can audit the reasoning rather than trust it.
     "unknown", because the method never reads a missing document as a "no"
     (section 4). Their documented rollback happens at the node pool, and the
     profiles record that as an open question.
-14. The remaining challenges appear in each profile's `open_questions` and in
+13. The remaining challenges appear in each profile's `open_questions` and in
     `follow-up-research.md`.
 
 ## 12. Correcting this

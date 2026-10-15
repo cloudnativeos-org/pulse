@@ -17,7 +17,7 @@ category_fit:
     openSUSE MicroOS left the matrix. The entry is the Elemental operator, the
     Elemental toolkit and the Elemental OS images. It is not SUSE Edge and it
     is not SL Micro alone. See the methodology, section 10, "The fourteenth
-    entry: Elemental", and section 11 item 13.
+    entry: Elemental", and section 11 item 12.
 
 self_description:
   text: >-
@@ -298,8 +298,9 @@ dimensions:
 
       Install and upgrade have optional cosign verification (--cosign) and
       mtree checksum verification (--verify). The fleet upgrade job passes
-      neither flag, so on the ManagedOSImage path as shipped no artifact
-      verification applies. Both are off for a direct elemental upgrade unless
+      neither flag, so on the ManagedOSImage path as shipped no signature or
+      mtree verification applies (the container runtime still checks layer
+      digests when it pulls). Both are off for a direct elemental upgrade unless
       asked for, and cosign needs images that carry signatures.
 
       The docs and the code disagree on mtree. The toolkit upgrading page says
@@ -440,9 +441,9 @@ dimensions:
             version: "1.9"
             quote: "# Install the package after upgrading to a new image"
       mechanism:
-        - bootc-container-deployment
+        - ab-partition-switch
         - transactional-snapshot
-      mechanism_note: "The closest closed-vocabulary values. The toolkit pulls an OCI image and unpacks it into a new snapshot that becomes the next boot target. It does not use bootc."
+      mechanism_note: "The closest closed-vocabulary values. ab-partition-switch is the label Kairos uses for the same toolkit lineage. transactional-snapshot is kept for the btrfs snapshotter only. The toolkit pulls an OCI image and unpacks it into a new image slot or snapshot that becomes the next boot target. It does not use bootc."
       scope: whole-root
       scope_note: "The root image is replaced. The COS_PERSISTENT and COS_OEM partitions are not."
       scope_sources:
@@ -456,7 +457,7 @@ dimensions:
       requires_vendor_infrastructure: false
       self_hostable_update_server: true
       self_hostable_update_source: "A private OCI registry and a channel image you build (airgap script)"
-      artifact_verification: "cosign and mtree flags exist on elemental upgrade and are off in the code. The fleet upgrade job passes neither (it runs elemental upgrade from dir:/), so none applies on the ManagedOSImage path as shipped. The toolkit docs say mtree is on by default; the code says off"
+      artifact_verification: "cosign and mtree flags exist on elemental upgrade and are off in the code. The fleet upgrade job passes neither (it runs elemental upgrade from dir:/), so no signature or mtree verification applies on the ManagedOSImage path as shipped (layer digests are still checked when the image is pulled). The toolkit docs say mtree is on by default; the code says off"
       same_or_older_version: "an upgrade to the identical os-release is always skipped, FORCE or not. An older version is skipped unless FORCE is true. The version check is also skipped when IMAGE_REPO differs from the one on the host"
     summary: >-
       A ManagedOSImage points a set of clusters at one OCI image. Each node
@@ -958,7 +959,7 @@ dimensions:
       tpm: "TPM 2.0 attestation authenticates a machine when it registers. TPM use for disk encryption or measured boot is not documented in the sources read."
       integrity: read-only-mount
       disk_encryption: unknown
-      artifact_verification: "cosign and mtree flags exist and are off in the code; the fleet upgrade job passes neither, so none applies on the ManagedOSImage path as shipped. Toolkit docs say mtree is on by default for upgrade; the code says off"
+      artifact_verification: "cosign and mtree flags exist and are off in the code; the fleet upgrade job passes neither, so no signature or mtree verification applies on the ManagedOSImage path as shipped (layer digests are still checked when the image is pulled). Toolkit docs say mtree is on by default for upgrade; the code says off"
       sbom: "operator release builds produce an .sbom file (goreleaser config)"
       fips: unknown
       mandatory_access_control: "SELinux. The 1.9 release notes say enforcing mode is not supported for Elemental today. The toolkit docs describe how a derivative can enable enforcing."
@@ -992,8 +993,12 @@ dimensions:
 
       Measured boot, disk encryption and FIPS are not described in the
       Elemental 1.9 docs or the toolkit docs read. They are recorded as
-      unknown. SL Micro itself may document them, and that was not read for
-      this entry.
+      unknown. The SL Micro 6.1 docs were read on 2026-10-15. They describe
+      LUKS disk encryption sealed to the TPM, and Keylime attestation, for
+      images that SL Micro deploys itself (the "encrypted" raw images and
+      JeOS Firstboot). Elemental partitions the disk with its own installer,
+      and no source says these features carry over, so disk_encryption and
+      measured_boot stay unknown. They are not recorded as "no".
 
       mtree conflict: the toolkit upgrading page says elemental upgrade
       --system verifies by default and --verify disables it. The code
@@ -1070,7 +1075,7 @@ dimensions:
     normalized:
       ssh: "available; root password login disabled in current images, use a key or a user"
       local_shell: unknown
-      serial_console: unknown
+      serial_console: "available: a documented MachineRegistration cloud-config example ('Set serial console') sets extra_cmdline=console=ttyS0 in /oem/grubenv"
       debug_container: none-documented
       support_bundle: "elemental-support"
       works_without_kubernetes: "partial: elemental-support runs without kubectl and collects less"
@@ -1109,7 +1114,7 @@ dimensions:
         version: "v2.3.4"
         quote: "`rd.break=pre-pivot rd.shell`: Drop a shell before switch-root"
     unknowns:
-      - "Local shell and serial console behavior on the Elemental OS image."
+      - "Local shell behavior on the Elemental OS image."
 
   d12_fleet_management:
     normalized:
@@ -1138,8 +1143,13 @@ dimensions:
           license: Apache-2.0
           org: rancher
           note: "Rancher UI plugin for registration, inventory and update groups. Version v3.0.1 in the 1.9 release table."
-      commercial: []
-      commercial_note: "No commercial product is named in the Elemental 1.9 docs read. SUSE Edge is out of scope for this entry."
+      commercial:
+        - name: "SUSE Rancher Prime: OS Manager"
+          vendor: SUSE
+          license: proprietary
+          self_hostable: true
+          note: "SUSE's product name for Elemental 1.9, part of SUSE Rancher Prime. The SUSE documentation lists the same component versions as the open-source release table (operator v1.9.2, toolkit v2.3.4, Linux v2.3.1, UI v3.0.1). Source: https://documentation.suse.com/cloudnative/os-manager/1.9/en/release-notes.html (retrieved 2026-10-15)."
+      commercial_note: "SUSE sells Elemental 1.9 as SUSE Rancher Prime: OS Manager. SUSE Edge is out of scope for this entry."
     summary: >-
       Fleet management is the operator inside Rancher. It keeps an inventory of
       machines, groups them by labels, and applies OS versions to clusters
@@ -1275,7 +1285,7 @@ dimensions:
       observed_intervals: "operator: 1.7.3 (patch) 2025-06-17, 1.8.0 2026-01-16, 1.9.0 2026-03-26 with 1.9.1 and 1.8.1 the same day; patch wave across operator and toolkit 2026-06-18. Git tags newer than the latest release exist without a GitHub release (see version_observed.method)"
       support_model: unknown
       support_window: "No end-of-support dates are published in the sources read. Older branches (operator 1.6 to 1.8, toolkit 2.1 and 2.2) still received patch releases on 2026-06-18."
-      commercial_support: unknown
+      commercial_support: "available from SUSE, as SUSE Rancher Prime: OS Manager (part of Rancher Prime)"
     summary: >-
       The toolkit's first listed release is from June 2021 and the operator's
       from July 2022. Releases continue, and security fixes were backported to
@@ -1299,7 +1309,10 @@ dimensions:
 
       The 1.9 docs state x86-64 as production ready and fully supported with
       Rancher v2.7.0 and later. They do not name a support plan, a price or a
-      lifecycle table, so commercial_support is recorded as unknown. The
+      lifecycle table, so support_model stays unknown. The SUSE documentation
+      for OS Manager 1.9 (documentation.suse.com/cloudnative/os-manager/1.9)
+      names the same component versions under the product name SUSE Rancher
+      Prime: OS Manager, so commercial_support is available from SUSE. The
       documentation.suse.com Rancher Guide for Elemental is for SLE Micro 5.5
       and has a publication date of 2026-10-08, which is an older base than the
       1.9 channels.
@@ -1333,7 +1346,7 @@ dimensions:
         quote: The Elemental stack provides the means to deploy SLE Micro through a container image.
     unknowns:
       - "The support lifecycle of each Elemental release line."
-      - "Whether commercial support for Elemental is sold on its own."
+      - "Whether SUSE publishes a support lifecycle for SUSE Rancher Prime: OS Manager release lines."
 
 tradeoffs:
   buys:
@@ -1345,7 +1358,7 @@ tradeoffs:
     - "Two ways to extend the OS: derive an image from the SL Micro base, or add packages with cloud-config hooks that run in every new snapshot."
   costs:
     - "Rancher Manager is required for the managed flow. Operator 1.9.x needs Rancher Manager v2.14 or later, and Kubernetes provisioning does not work with an older Rancher."
-    - "The 1.9 release notes list SELinux enforcing mode as not supported, and OS Images based on SL Micro 6.0 can fail to boot with a kernel panic on virtual machines using an unsupported CPU type, because the x86-64-v2 instruction set is required."
+    - "The 1.9 release notes list SELinux enforcing mode as not supported, and OS Images based on SL Micro 6.0 (the 1.9 channels ship 6.1) can fail to boot with a kernel panic on virtual machines using an unsupported CPU type, because the x86-64-v2 instruction set is required."
     - "x86-64 is the only production architecture. ARM is in development and tested on Raspberry Pi 4 only."
     - "The default registration method needs a TPM 2.0 device. The alternatives are not recommended for production."
     - "Package hooks reinstall the package on every upgrade, so the running snapshot can differ from the published image."
@@ -1382,7 +1395,7 @@ open_questions:
   - "Is dm-verity or any other root integrity check planned or present? No source read mentions it."
   - "Which per-architecture tags are published for the Elemental OS images? The docs state x86-64 as production ready and ARM as development, and the base image Dockerfile has ExclusiveArch x86_64 aarch64. The toolkit builds a riscv64 binary, but the OS image recipe does not list riscv64."
   - "Is a systemd-sysext or other extension mechanism supported on the Elemental OS images?"
-  - "What is the support lifecycle of each Elemental release line, and is commercial support for Elemental sold on its own or only inside other SUSE products?"
+  - "What is the support lifecycle of each Elemental release line, and does SUSE publish a lifecycle for SUSE Rancher Prime: OS Manager?"
   - "Who holds the Elemental trademark, and who are the members of the @rancher/elemental team?"
   - "The toolkit reference page immutable_rootfs.md lists /etc as ephemeral and /usr as read-only. The 1.9 installation page lists the full path table. Which path list does the installed Elemental OS image follow for /root and /usr/libexec? The toolkit recovery layout file lists /root as an ephemeral tmpfs path and the 1.9 table lists /root as persistent. That layout file is in cloud-config-defaults, which the Elemental OS base image build does not initialize, so it may not be present in Elemental OS images."
 

@@ -1820,7 +1820,7 @@ follow_up_research:
 corrections:
   - date: "2026-10-14"
     field: "dimensions.d04_upgrade.normalized.version_identity.condition"
-    change: "R1 now asks for one OS artifact, built once, that every node in a fleet runs. Ubuntu Core meets it with a condition: the fleet's OS version is the own-brand model assertion plus an enforced validation set that pins the snap revisions. The condition was reworded from 'an own-brand model with an enforced validation set' to name that version, and to say the public Snap Store is enough. The same condition applies to R3, because the previous snap revisions are kept per device. Reason: methodology note of 2026-10-14, section 11, item 13."
+    change: "R1 now asks for one OS artifact, built once, that every node in a fleet runs. Ubuntu Core meets it with a condition: the fleet's OS version is the own-brand model assertion plus an enforced validation set that pins the snap revisions. The condition was reworded from 'an own-brand model with an enforced validation set' to name that version, and to say the public Snap Store is enough. The same condition applies to R3, because the previous snap revisions are kept per device. Reason: methodology note of 2026-10-14, section 11, item 12."
     source:
       url: https://documentation.ubuntu.com/core/reference/assertions/model/
       type: vendor-docs
