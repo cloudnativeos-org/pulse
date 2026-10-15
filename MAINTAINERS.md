@@ -37,8 +37,10 @@ None yet.
 
 None named yet. A removal for a breach of the code of conduct needs a written
 finding from the enforcement contact in `CODE_OF_CONDUCT.md` or from this person.
-The person is not a maintainer and has no affiliation with any covered project.
-See [GOVERNANCE.md](GOVERNANCE.md), section Removing a maintainer.
+Neither is a maintainer, neither has an affiliation with any covered project, and
+neither votes in the removal. Naming or replacing either one needs a public issue
+open for 14 days, and one maintainer's objection is a veto. See
+[GOVERNANCE.md](GOVERNANCE.md), section Removing a maintainer.
 
 ## Emeritus
 
