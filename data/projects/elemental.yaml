@@ -419,7 +419,7 @@ dimensions:
                 quote: '- "/usr/sbin/suc-upgrade"'
       version_identity:
         identifier: "IMAGE, IMAGE_REPO and IMAGE_TAG in /etc/os-release of the OS image. elemental state records the source for each snapshot, and a digest only if the source is an image. The fleet job upgrades from dir:/, so a digest is not shown for that path"
-        condition: "No cloud-config hooks that install packages in the new snapshot. The docs show after-upgrade-chroot hooks and rpm installs that run on every upgrade and change the snapshot contents."
+        condition: "Rancher Manager v2.14 or later, because operator 1.9.x must be paired with it. No cloud-config hooks that install packages in the new snapshot. The docs show after-upgrade-chroot hooks and rpm installs that run on every upgrade and change the snapshot contents."
         evidence: DOCUMENTED
         sources:
           - url: https://elemental.docs.rancher.com/custom-images

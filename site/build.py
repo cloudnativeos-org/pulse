@@ -886,7 +886,7 @@ def col_own(p, S):
     n = norm(p, "d13")
     o = n.get("vendor_neutral_ownership", "unknown")
     f = n.get("foundation")
-    detail = ("%s, %s" % (f.get("name"), f.get("level"))) if isinstance(f, dict) else (n.get("trademark_holder") or "")
+    detail = ", ".join(str(x) for x in (f.get("name"), f.get("level")) if x) if isinstance(f, dict) else (n.get("trademark_holder") or "")
     if o == "single-vendor" and (not detail or detail == "unknown") and n.get("primary_commercial_sponsor") not in (None, "", "unknown"):
         # The trademark holder is not recorded: name the vendor from the sponsor field, and say which field it is.
         detail = "Vendor: %s" % n["primary_commercial_sponsor"]
@@ -1253,8 +1253,12 @@ def version_identity(p, S):
     vi = n.get("version_identity")
     crit = '<span class="v-detail">Inclusion criterion 1: <a href="#w-criteria">atomic updates (versioned OS)</a>.</span>'
     if vi and vi.get("meets_r1") is False:
+        cite = ""
+        if vi.get("sources"):
+            num = S.add(vi["sources"][0], p["name"])
+            cite = '<sup class="cite">[<a href="#src-%d" aria-label="Source %d">%d</a>]</sup>' % (num, num, num)
         return (value("value", "Does not meet criterion 1. %s" % E(vi.get("r1_reason", ""))) + crit
-                + '<span class="cell-meta">%s</span>' % badge(vi["evidence"], compact=True))
+                + '<span class="cell-meta">%s%s</span>' % (badge(vi["evidence"], compact=True), cite))
     if not vi:
         prov = n.get("provided_by")
         if not prov or prov not in PROFILES:
