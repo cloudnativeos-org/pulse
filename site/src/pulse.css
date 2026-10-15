@@ -262,6 +262,8 @@ th[aria-sort="descending"] .mx-sort::after { content: "\2193"; color: var(--acce
 .head-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2); align-items: center; }
 /* Brand: the cloud native OS mark with the product name. Ink and accent come from the theme tokens. */
 .pl a.brand { text-decoration: none; color: var(--ink); }
+.brand-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-right: auto; }
+.brand-row .preview-tag { margin-left: 0; }
 .brand { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--ink); text-decoration: none; margin-right: auto; }
 .brand:hover .brand-name { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .brand .mark { flex: none; }
@@ -336,6 +338,7 @@ th[aria-sort="descending"] .mx-sort::after { content: "\2193"; color: var(--acce
 }
 
 .build-eyebrow .mono { text-transform: none; }
+.page > header > .build-eyebrow { justify-self: end; text-align: right; }
 .tagline { font: 400 18px/26px var(--font-serif); color: var(--ink); margin: var(--space-2) 0 var(--space-1); max-width: 68ch; }
 .h1-by { font: 400 18px/26px var(--font-sans); color: var(--ink-muted); white-space: nowrap; margin-left: var(--space-2); }
 @media (max-width: 640px) { .h1-by { display: block; margin-left: 0; white-space: normal; } }
