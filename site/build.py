@@ -1253,10 +1253,7 @@ def version_identity(p, S):
     vi = n.get("version_identity")
     crit = '<span class="v-detail">Inclusion criterion 1: <a href="#w-criteria">atomic updates (versioned OS)</a>.</span>'
     if vi and vi.get("meets_r1") is False:
-        cite = ""
-        if vi.get("sources"):
-            num = S.add(vi["sources"][0], p["name"])
-            cite = '<sup class="cite">[<a href="#src-%d" aria-label="Source %d">%d</a>]</sup>' % (num, num, num)
+        cite = cite_all(p, S, vi.get("sources"))
         return (value("value", "Does not meet criterion 1. %s" % E(vi.get("r1_reason", ""))) + crit
                 + '<span class="cell-meta">%s%s</span>' % (badge(vi["evidence"], compact=True), cite))
     if not vi:
@@ -1277,11 +1274,7 @@ def version_identity(p, S):
         cond = "No condition " + cond[5:] + "."
     else:
         cond = "Condition: " + cond + "."
-    cite = ""
-    srcs = vi.get("sources") or []
-    if srcs:
-        num = S.add(srcs[0], p["name"])
-        cite = '<sup class="cite">[<a href="#src-%d" aria-label="Source %d">%d</a>]</sup>' % (num, num, num)
+    cite = cite_all(p, S, vi.get("sources"))
     return (value("value", "Named by %s. %s" % (E(ident), E(cond))) + crit
             + '<span class="cell-meta">%s%s</span>' % (badge(vi["evidence"], compact=True), cite))
 

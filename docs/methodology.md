@@ -624,10 +624,12 @@ single node.
 OS images on the SUSE Linux Micro base. It is not SUSE Edge, and it is not SL
 Micro alone. A `ManagedOSImage` names one OCI image, and the operator rolls it
 to every node in the selected clusters. That is R1. Each upgrade unpacks the new
-image into a new snapshot that records its image source, and a digest when the source is an image. The fleet job upgrades from a directory, so a snapshot made that way has no digest. The toolkit
-keeps a set number of snapshots (default 2, or 4 on `btrfs`), and the boot menu
-has one entry for each kept snapshot. That is R3. Rancher provisions RKE2 or K3s
-on the nodes. That is R5. Rancher Manager v2.14 or later is a condition on R1,
+image into a new snapshot that records its image source, and a digest when the
+source is an image. The fleet job upgrades from a directory, so a snapshot made
+that way has no digest (the toolkit sets the digest only for an image source).
+The toolkit keeps a set number of snapshots (default 2, or 4 on `btrfs`), and the
+boot menu has one entry for each kept snapshot. That is R3. Rancher provisions
+RKE2 or K3s on the nodes. That is R5. Rancher Manager v2.14 or later is a condition on R1,
 because the 1.9 operator must be paired with it.
 
 **Why it is not a second MicroOS.** `microos.yaml` covers SUSE Linux Micro as a
