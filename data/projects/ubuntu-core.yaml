@@ -1039,7 +1039,7 @@ dimensions:
           license: "GPL-3.0"
           earliest: installer
           latest: running-node
-          repeat: [on-demand]
+          repeat: [once, on-demand]
           scope: [settings-only]
           cell_notes: "A gadget that ships cloud-init configuration can run any command; snapd copies the gadget cloud config unfiltered. No doc names runcmd."
           field_sources:

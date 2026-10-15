@@ -789,13 +789,13 @@ dimensions:
       config_tools:
         - name: "cloud-init (instance metadata) and startup scripts"
           license: "GPL-3.0 OR Apache-2.0"
-          earliest: userspace-boot
+          earliest: unknown
           latest: every-boot
           repeat: [every-boot]
           scope: [any-command]
-          cell_notes: "No doc names the boot stage. Userspace is inferred, because cloud-init reads instance metadata."
+          cell_notes: "Earliest is unknown: no doc names the boot stage where cloud-init runs."
           field_sources:
-            - fields: [earliest]
+            - fields: [latest, repeat]
               url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/disks-and-filesystem
               title: "Container-Optimized OS: disks and filesystem"
               retrieved: "2026-10-15"

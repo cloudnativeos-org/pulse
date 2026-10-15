@@ -176,6 +176,8 @@ def check_dimension(profile_id: str, name: str, dimension, report: Report) -> No
         check_via_base(where, normalized, report)
     if name.startswith("d06_"):
         check_add_software(profile_id, where, normalized, report)
+    if name.startswith("d09_"):
+        check_config_tools(where, normalized, report)
 
 
 MOUNTS_CONFIGURABLE = ("yes", "no", "unknown", "via-lifecycle-manager")
@@ -236,6 +238,45 @@ def check_via_base(where: str, normalized: dict, report: Report) -> None:
 
 ADD_SOFTWARE_KINDS = ("systemd-sysext", "vendor-extensions", "derive-image", "package-layering", "transactional-packages",
                       "snaps", "build-time-only", "not-supported", "unknown")
+
+
+CONFIG_FIELDS = {
+    "earliest": ("initramfs", "before-services", "installer", "userspace-boot", "none-of-its-own", "depends-on-tool", "unknown"),
+    "latest": ("first-boot", "every-boot", "running-node", "depends-on-tool", "unknown"),
+    "repeat": ("once", "every-boot", "on-demand", "reconcile", "depends-on-tool", "unknown"),
+    "scope": ("settings-only", "files-and-units", "any-command", "depends-on-tool", "unknown"),
+}
+
+
+def check_config_tools(where: str, normalized: dict, report: Report) -> None:
+    """The matrix column 'Configuration tool' reads d09.normalized.config_tools. Each tool has four fields, each from a
+    closed vocabulary. A value other than 'unknown' needs a field_sources entry that names that field."""
+    for i, tool in enumerate(normalized.get("config_tools") or []):
+        at = f"{where}.config_tools[{i}]"
+        for old in ("runs", "reruns"):
+            if old in tool:
+                report.error(at, f"'{old}' is retired; use earliest, latest, repeat and scope")
+        sourced = set()
+        for src in tool.get("field_sources") or []:
+            if not src.get("url") or not src.get("retrieved"):
+                report.error(at, "a field_sources entry needs url and retrieved")
+            if not (src.get("quote") or src.get("note")):
+                report.error(at, "a field_sources entry needs a quote or a note")
+            for f in src.get("fields") or []:
+                sourced.add(f)
+        for field, allowed in CONFIG_FIELDS.items():
+            raw = tool.get(field)
+            if raw is None:
+                report.error(at, f"{field} is missing; use 'unknown' when no source says")
+                continue
+            values = [raw] if isinstance(raw, str) else list(raw)
+            for v in values:
+                if v not in allowed:
+                    report.error(at, f"{field} must be one of {', '.join(allowed)}, got {v!r}")
+            if "unknown" in values and len(values) > 1:
+                report.error(at, f"{field}: 'unknown' stands alone")
+            if values != ["unknown"] and field not in sourced:
+                report.error(at, f"{field} has no field_sources entry; a cell without a source is 'unknown'")
 
 
 def check_add_software(profile_id: str, where: str, normalized: dict, report: Report) -> None:

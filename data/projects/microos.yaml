@@ -1069,11 +1069,11 @@ dimensions:
       config_tools:
         - name: "Combustion"
           license: "GPL-2.0-or-later"
-          earliest: initramfs
+          earliest: unknown
           latest: unknown
           repeat: [unknown]
           scope: [unknown]
-          cell_notes: "Only the earliest stage is filled, from the earlier record. The other cells were not researched in this edition."
+          cell_notes: "All four cells are unknown: they were not researched in this edition."
           runs_note: "A dracut module that runs on first boot and can perform tasks before /sysroot is mounted."
           early_disk: "Can re-partition the hard disk; TPM2 or FIDO2 enrollment of an existing LUKS2 device happens in userspace."
           change_after_first_boot: "No (INFERRED); later changes go through transactional-update"
@@ -1085,11 +1085,11 @@ dimensions:
               quote: >-
                 re-partition the hard disk
         - name: "Ignition"
-          earliest: initramfs
+          earliest: unknown
           latest: unknown
           repeat: [unknown]
           scope: [unknown]
-          cell_notes: "Only the earliest stage is filled, from the earlier record. The other cells were not researched in this edition."
+          cell_notes: "All four cells are unknown: they were not researched in this edition."
           runs_note: "Runs on first boot only."
           early_disk: "Not covered in the collected sources."
           change_after_first_boot: "No (INFERRED)"
@@ -1099,11 +1099,11 @@ dimensions:
               title: "openSUSE MicroOS: Ignition"
               retrieved: "2026-10-06"
         - name: "cloud-init (OpenStack images)"
-          earliest: userspace-boot
+          earliest: unknown
           latest: unknown
           repeat: [unknown]
           scope: [unknown]
-          cell_notes: "Only the earliest stage is filled, from the earlier record. The other cells were not researched in this edition."
+          cell_notes: "All four cells are unknown: they were not researched in this edition."
           runs_note: "Runs on first boot only."
           early_disk: "Not covered in the collected sources."
           change_after_first_boot: "No (INFERRED)"
@@ -1114,11 +1114,11 @@ dimensions:
               retrieved: "2026-10-06"
         - name: "jeos-firstboot (interactive)"
           license: "MIT"
-          earliest: userspace-boot
+          earliest: unknown
           latest: unknown
           repeat: [unknown]
           scope: [unknown]
-          cell_notes: "Only the earliest stage is filled, from the earlier record. The other cells were not researched in this edition."
+          cell_notes: "All four cells are unknown: they were not researched in this edition."
           runs_note: "Interactive; runs on first boot only."
           early_disk: "Not covered in the collected sources."
           change_after_first_boot: "No (INFERRED)"

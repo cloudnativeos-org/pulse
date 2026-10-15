@@ -718,6 +718,11 @@ dimensions:
               title: "Flatcar: Ignition boot process"
               retrieved: "2026-10-15"
               quote: "To trigger a new Ignition run, you should use the `flatcar-reset` tool"
+            - fields: [scope]
+              url: https://github.com/flatcar/flatcar-website/blob/6e71d13/content/docs/latest/fb-provision/ignition/_index.md
+              title: "Flatcar: Ignition"
+              retrieved: "2026-10-15"
+              quote: "writing files (regular files, systemd units, networkd units, and more), and configuring users"
           runs_note: "Runs in the initramfs on first boot; it re-runs only through flatcar-reset."
           early_disk: "Partitions, filesystems and LUKS with Clevis or systemd-cryptenroll; TPM2 root encryption from 3913.0.1."
           change_after_first_boot: "flatcar-reset"

@@ -684,10 +684,11 @@ def col_config(p, S):
                  "Repeat: " + ", ".join(CFG_REPEAT.get(v, v) for v in r), "Scope: " + ", ".join(CFG_SCOPE.get(v, v) for v in sc)]
         items.append('<li>%s%s <span class="v-tag">%s</span></li>' % (
             E(x["name"]), (' <span class="v-tag-inline">(%s)</span>' % E(x["license"])) if x.get("license") else "", E("; ".join(facts))))
-        srcs += x.get("sources") or []
+        srcs += (x.get("field_sources") or []) + (x.get("sources") or [])
     first = tools[0]
-    detail = [s for s in (first.get("early_disk"), ("After first boot: " + first["change_after_first_boot"]) if first.get("change_after_first_boot") else "") if s]
-    nums = [S.add(s, p["name"]) for s in srcs[:2] if s.get("url")]
+    notes = [x["cell_notes"] for x in tools if x.get("cell_notes")]
+    detail = [s for s in (first.get("early_disk"), ("After first boot: " + first["change_after_first_boot"]) if first.get("change_after_first_boot") else "") if s] + notes
+    nums = [S.add(s, p["name"]) for s in srcs[:6] if s.get("url")]
     cite = ('<sup class="cite">[%s]</sup>' % ",".join('<a href="#src-%d" aria-label="Source %d">%d</a>' % (k, k, k) for k in nums)) if nums else ""
     ev = "DOCUMENTED" if any(x.get("evidence") == "DOCUMENTED" for x in tools) else "INFERRED"
     html_ = '<ul class="v v-list">%s</ul>' % "".join(items) + ('<span class="v-detail">%s</span>' % E(". ".join(d.rstrip(".") for d in detail) + ".") if detail else "")
@@ -992,7 +993,7 @@ DEFAULT_COLS = ["project", "byod", "update", "rollback", "k8s", "arch"]
 
 FILTERS = [
     ("byod", "Bring your own distro", [("yes", "Yes"), ("no", "No")]),
-    ("cfgrun", "Configuration runs", [(k, v[0].upper() + v[1:]) for k, v in CFG_EARLIEST.items() if k not in ("depends-on-tool", "unknown")]),
+    ("cfgrun", "Configuration first runs", [(k, v[0].upper() + v[1:]) for k, v in CFG_EARLIEST.items() if k not in ("depends-on-tool", "unknown")]),
     ("cfglatest", "Configuration runs until", [(k, v[0].upper() + v[1:]) for k, v in CFG_LATEST.items() if k != "unknown"]),
     ("cfgrepeat", "Configuration repeats", [(k, v[0].upper() + v[1:]) for k, v in CFG_REPEAT.items() if k != "unknown"]),
     ("cfgscope", "Configuration can change", [(k, v[0].upper() + v[1:]) for k, v in CFG_SCOPE.items() if k != "unknown"]),

@@ -822,7 +822,7 @@ dimensions:
           latest: first-boot
           repeat: [once]
           scope: [files-and-units]
-          cell_notes: "A live ISO or PXE boot runs Ignition on every boot (live-booting.adoc @ 1fec1ac)."
+          cell_notes: "A live ISO or PXE boot runs Ignition on every boot."
           field_sources:
             - fields: [earliest, latest]
               url: https://github.com/coreos/fedora-coreos-docs/blob/1fec1ac/modules/ROOT/pages/producing-ign.adoc

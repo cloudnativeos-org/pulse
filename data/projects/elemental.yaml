@@ -905,7 +905,7 @@ dimensions:
           license: "Apache-2.0"
           earliest: initramfs
           latest: running-node
-          repeat: [every-boot, reconcile, on-demand]
+          repeat: [every-boot, reconcile]
           scope: [any-command]
           field_sources:
             - fields: [earliest]

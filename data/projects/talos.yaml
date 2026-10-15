@@ -886,25 +886,25 @@ dimensions:
           latest: running-node
           repeat: [every-boot, on-demand]
           scope: [files-and-units]
-          cell_notes: "No reconcile: the node never fetches new configuration on its own."
+          cell_notes: "No reconcile: the node never fetches new configuration on its own. In the config, scope means files; no cited source shows units."
           field_sources:
             - fields: [earliest]
-              url: https://github.com/siderolabs/talos/blob/v1.11.0/internal/app/machined/pkg/runtime/v1alpha1/v1alpha1_sequencer.go
+              url: https://github.com/siderolabs/talos/blob/v1.14.1/internal/app/machined/pkg/runtime/v1alpha1/v1alpha1_sequencer.go
               title: "Talos: boot sequencer"
               retrieved: "2026-10-15"
               note: "The sequencer runs LoadConfig and WriteUserFiles before StartAllServices, after init has switched into the new root."
             - fields: [latest, repeat]
               url: https://github.com/siderolabs/talos/blob/v1.11.0/website/content/v1.11/talos-guides/configuration/editing-machine-configuration.md
-              title: "Talos: editing machine configuration"
+              title: "Talos: editing machine configuration (v1.11 docs)"
               retrieved: "2026-10-15"
-              quote: "apply change immediately (`--mode=no-reboot`)"
+              quote: "apply change immediately (`--mode=no-reboot` flag)"
             - fields: [repeat]
-              url: https://github.com/siderolabs/talos/blob/v1.14.2/internal/app/machined/pkg/controllers/config/acquire.go
+              url: https://github.com/siderolabs/talos/blob/v1.14.1/internal/app/machined/pkg/controllers/config/acquire.go
               title: "Talos: config acquire controller"
               retrieved: "2026-10-15"
               quote: "start always with loading config from disk"
             - fields: [scope]
-              url: https://github.com/siderolabs/talos/blob/v1.11.0/website/content/v1.11/reference/configuration/v1alpha1/config.md
+              url: https://github.com/siderolabs/talos/blob/v1.14.1/website/content/v1.14/reference/configuration/v1alpha1/config.md
               title: "Talos: v1alpha1 configuration"
               retrieved: "2026-10-15"
               note: "machine.files adds user-specified files with op create, overwrite or append. No command field was found."

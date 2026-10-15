@@ -736,7 +736,6 @@ dimensions:
           latest: first-boot
           repeat: [once]
           scope: [files-and-units]
-          cell_notes: "The root-mount detail for the initramfs is inferred from the Ignition flow."
           field_sources:
             - fields: [earliest]
               url: https://github.com/microsoft/azure-container-linux/blob/6adc59d/acl/docs/architecture.md

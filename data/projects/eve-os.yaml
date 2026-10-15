@@ -801,9 +801,9 @@ dimensions:
           license: "Apache-2.0"
           earliest: installer
           latest: running-node
-          repeat: [reconcile]
+          repeat: [once, reconcile]
           scope: [settings-only]
-          cell_notes: "A reconciler was confirmed for network configuration only. The bootstrap config is applied once."
+          cell_notes: "Once is the bootstrap config. Reconcile is the periodic fetch of the controller config. Settings only: bootstrap config is limited to connectivity attributes, and no host command mechanism was found."
           field_sources:
             - fields: [earliest]
               url: https://github.com/lf-edge/eve/blob/17.0.0-lts/docs/CONFIG.md
@@ -815,6 +815,11 @@ dimensions:
               title: "EVE-OS: zedagent"
               retrieved: "2026-10-15"
               quote: "Periodically fetches device configuration from the cloud controller"
+            - fields: [repeat]
+              url: https://github.com/lf-edge/eve/blob/17.0.0-lts/docs/CONFIG.md
+              title: "EVE-OS: configuration"
+              retrieved: "2026-10-15"
+              note: "The bootstrap configuration is used and applied only once."
             - fields: [scope]
               url: https://github.com/lf-edge/eve/blob/17.0.0-lts/docs/CONFIG.md
               title: "EVE-OS: configuration"
