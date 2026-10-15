@@ -90,7 +90,7 @@ It is not a request to endorse, approve, or agree with any analysis.
 
 ## Who is behind it
 
-Mauro Morales, CNCF Ambassador. I am one of the Kairos maintainers and work as a Staff Engineer
+Mauro Morales, CNCF Ambassador. I am one of the Kairos and Hadron Linux maintainers and work as a Staff Engineer
 for Spectro Cloud, so I cannot be fully unbiased. The site's "How it was made"
 section says what I did about that.
 
@@ -99,6 +99,11 @@ AI agents did most of the reading and the first drafts. Commits from the
 behind that account and I answer for its work. The history before the first
 public version is not public. It came in as one commit. Every commit other than
 a merge since then names the assisting model in a `Co-developed-by:` trailer.
+
+The cloud native OS Pulse is not a CNCF project, and the CNCF does not endorse
+it. [GOVERNANCE.md](GOVERNANCE.md) says who decides what goes in, and how a
+change to the Kairos or Hadron profile is handled while I am the only
+maintainer.
 
 ## License
 
