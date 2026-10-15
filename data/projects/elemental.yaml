@@ -452,6 +452,12 @@ dimensions:
             retrieved: "2026-10-14"
             version: "1.9"
             quote: Since version v1.9.x Elemental Operator must be paired with Rancher v2.14 or superior.
+          - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/pkg/elemental/elemental.go#L570-L588
+            type: source-repo
+            title: "Toolkit, digest set only for an image source"
+            retrieved: "2026-10-15"
+            version: "v2.3.4"
+            quote: imgSrc.SetDigest(digest)
       mechanism:
         - ab-partition-switch
         - transactional-snapshot
