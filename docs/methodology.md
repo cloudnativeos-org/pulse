@@ -471,7 +471,7 @@ An entry in the comparison matrix meets all five inclusion criteria, with one ex
 | R1 | Atomic updates (versioned OS) | The OS version is one artifact, built once, that every node in a fleet runs. A fleet updates or rolls back by pointing it at a version. Examples: an OCI image, an image file, an OSTree commit. Extensions on top of the base, such as system extensions or layering, are allowed and recorded as conditions. A node that assembles its own update from packages does not meet R1, also when the packages come from a pinned repository. The local per-node rollback is R3. The test is capability: the project documents a way to run it like this. A cloud native OS is judged across a fleet, not on a single node. |
 | R2 | Immutable at runtime (read-only OS files) | The OS part (the root or `/usr`) is read-only on a running node. |
 | R3 | Rollback (to a version) | Rollback goes back to the previous OS version, the artifact the whole fleet ran. Each node keeps that previous version locally, ready to boot. A snapshot of a node's own state is not this rollback: R3 is a rollback to a version, not to a snapshot of one node. |
-| R4 | Declarative provisioning | A node configures itself at first boot from a declarative input, with no interactive install. |
+| R4 | Config-driven provisioning | A node sets itself up from a written config when it is installed or first boots, with no interactive install. Some projects apply the config again at every boot, on demand, or by reconcile. The config can be one file or several. The old name, Declarative provisioning, stays as an alias. |
 | R5 | Kubernetes ready | The project, or its vendor, documents running Kubernetes on it: bundled, installed on it, or as the node OS of a Kubernetes service. |
 
 R5 needs two notes.
@@ -955,7 +955,20 @@ Recorded so a reader can audit the reasoning rather than trust it.
     "unknown", because the method never reads a missing document as a "no"
     (section 4). Their documented rollback happens at the node pool, and the
     profiles record that as an open question.
-13. The remaining challenges appear in each profile's `open_questions` and in
+13. **On 2026-10-15, R4 was renamed Config-driven provisioning.** Not every
+    tool is declarative. Ignition, Bottlerocket settings and Talos machine
+    config describe an end state. yip and cloud-init also run commands in
+    order, and the configuration management tools are mixed too: Puppet is
+    declarative, Ansible and Chef run steps. What all eleven matrix entries
+    share is a written config that the node applies with no hands on it. The
+    old name, Declarative provisioning, stays as an alias. No entry entered or
+    left the matrix. The `runs` and `reruns` fields of `d09_provisioning` became
+    four fields per tool: `earliest`, `latest`, `repeat` and `scope`, each with
+    a source in `field_sources`. A cell without a source is `unknown`. The
+    filter no longer splits Kairos from the Ignition projects: all of them run
+    before switch_root. The Elemental value `initramfs-before-root` was wrong,
+    because the earliest stage runs after the root is mounted in /sysroot.
+14. The remaining challenges appear in each profile's `open_questions` and in
     `follow-up-research.md`.
 
 ## 12. Correcting this

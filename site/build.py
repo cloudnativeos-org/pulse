@@ -655,45 +655,57 @@ def col_fleet(p, S):
                                                                "fleetlic": " ".join(sorted(classes)) or "none"})
 
 
-CFG_RUN = {"initramfs-before-root": "initramfs, before the root is mounted", "initramfs-after-root": "initramfs, after the root is mounted",
-           "userspace": "userspace", "api": "API or controller", "install": "installer"}
-CFG_RUN_TAG = {"initramfs-before-root": "initramfs", "initramfs-after-root": "initramfs", "userspace": "userspace", "api": "API", "install": "installer"}
+CFG_EARLIEST = {"initramfs": "initramfs", "before-services": "before services (before kubelet)", "installer": "installer", "userspace-boot": "userspace boot",
+                "none-of-its-own": "none of its own", "depends-on-tool": "depends on the tool", "unknown": "unknown"}
+CFG_LATEST = {"first-boot": "first boot", "every-boot": "every boot", "running-node": "running node", "depends-on-tool": "depends on the tool", "unknown": "unknown"}
+CFG_REPEAT = {"once": "once", "every-boot": "every boot", "on-demand": "on demand (API or CLI)", "reconcile": "reconcile (the node re-applies on its own)",
+              "depends-on-tool": "depends on the tool", "unknown": "unknown"}
+CFG_SCOPE = {"settings-only": "settings only", "files-and-units": "files and units", "any-command": "any command", "depends-on-tool": "depends on the tool", "unknown": "unknown"}
 CFG_TAG_NAME = {"Installer grub options, bootstrap-config.pb and controller EdgeDevConfig": "Installer options and controller",
                 "snapd install mode with gadget.yaml": "gadget.yaml"}
-CFG_RERUN = {"first-boot": "first boot only", "every-boot": "every boot", "lifecycle": "every boot, lifecycle stages and a periodic reconcile",
-             "continuous": "reconciled continuously", "any-time": "changed at any time", "depends": "depends on the tool"}
+
+
+def cfg_list(x, key):
+    v = x.get(key) or ["unknown"]
+    return [v] if isinstance(v, str) else list(v)
 
 
 def col_config(p, S):
-    """The configuration tool, when it runs, when it re-runs, and what disk work it can do early."""
+    """The configuration tool and four facts about it: the earliest and latest point it runs, how it repeats and what it can change."""
     tools = norm(p, "d09").get("config_tools")
     if not tools:
         return Cell(value("notcollected", "Not collected"), "9", {"cfgrun": "nc"}, tags=[("Not collected", "notcollected")])
-    items, runs, reruns, srcs = [], set(), set(), []
+    items, fil, srcs = [], {"cfgrun": set(), "cfglatest": set(), "cfgrepeat": set(), "cfgscope": set()}, []
     for x in tools:
-        r = x.get("runs") or []
-        runs.update(r)
-        if x.get("reruns"):
-            reruns.add(x["reruns"])
-        tag = "; ".join(b for b in (", then ".join(CFG_RUN.get(v, v) for v in r), CFG_RERUN.get(x.get("reruns"), "")) if b)
+        e, l, r, sc = cfg_list(x, "earliest"), cfg_list(x, "latest"), cfg_list(x, "repeat"), cfg_list(x, "scope")
+        for k, v in zip(fil, (e, l, r, sc)):
+            fil[k].update(v)
+        facts = ["Earliest: " + ", ".join(CFG_EARLIEST.get(v, v) for v in e), "Latest: " + ", ".join(CFG_LATEST.get(v, v) for v in l),
+                 "Repeat: " + ", ".join(CFG_REPEAT.get(v, v) for v in r), "Scope: " + ", ".join(CFG_SCOPE.get(v, v) for v in sc)]
         items.append('<li>%s%s <span class="v-tag">%s</span></li>' % (
-            E(x["name"]), (' <span class="v-tag-inline">(%s)</span>' % E(x["license"])) if x.get("license") else "", E(tag)))
-        srcs += x.get("sources") or []
+            E(x["name"]), (' <span class="v-tag-inline">(%s)</span>' % E(x["license"])) if x.get("license") else "", E("; ".join(facts))))
+        srcs += (x.get("sources") or [])[:2] + (x.get("field_sources") or [])
     first = tools[0]
-    detail = [s for s in (first.get("early_disk"), ("After first boot: " + first["change_after_first_boot"]) if first.get("change_after_first_boot") else "") if s]
-    nums = [S.add(s, p["name"]) for s in srcs[:2] if s.get("url")]
+    notes = [x["cell_notes"] for x in tools if x.get("cell_notes")]
+    detail = [s for s in (first.get("early_disk"), ("After first boot: " + first["change_after_first_boot"]) if first.get("change_after_first_boot") else "") if s] + notes
+    seen_urls, uniq_srcs = set(), []
+    for s_ in srcs:
+        if s_.get("url") and s_["url"] not in seen_urls:
+            seen_urls.add(s_["url"])
+            uniq_srcs.append(s_)
+    nums = [S.add(s, p["name"]) for s in uniq_srcs[:8]]
     cite = ('<sup class="cite">[%s]</sup>' % ",".join('<a href="#src-%d" aria-label="Source %d">%d</a>' % (k, k, k) for k in nums)) if nums else ""
     ev = "DOCUMENTED" if any(x.get("evidence") == "DOCUMENTED" for x in tools) else "INFERRED"
     html_ = '<ul class="v v-list">%s</ul>' % "".join(items) + ('<span class="v-detail">%s</span>' % E(". ".join(d.rstrip(".") for d in detail) + ".") if detail else "")
-    order = ["initramfs-before-root", "initramfs-after-root", "install", "userspace", "api"]
-    earliest = min((order.index(r) for r in runs if r in order), default=9)
+    order = ["initramfs", "before-services", "installer", "userspace-boot", "none-of-its-own", "depends-on-tool", "unknown"]
+    earliest = min((order.index(r) for r in fil["cfgrun"] if r in order), default=9)
     tagl = []
     for x in tools[:3]:
         name = CFG_TAG_NAME.get(x["name"]) or re.sub(r"\s*\(.*?\)", "", x["name"]).strip()
-        run = " + ".join(uniq(CFG_RUN_TAG.get(v, v) for v in x.get("runs") or []))
+        run = " + ".join(uniq(CFG_EARLIEST.get(v, v).split(" (")[0] for v in cfg_list(x, "earliest")))
         tagl.append(("%s, %s" % (name, run) if run else name, "value"))
-    return Cell(html_ + meta(ev, cite), str(earliest) + first["name"], tags=tagl, filt={"cfgrun": " ".join(sorted(runs)) or "none",
-                                                                      "cfgrerun": " ".join(sorted(reruns)) or "none"})
+    return Cell(html_ + meta(ev, cite), str(earliest) + first["name"], tags=tagl,
+                filt={k: " ".join(sorted(v)) or "none" for k, v in fil.items()})
 
 
 AI_VENDOR = {"nvidia-gpu": "NVIDIA GPU", "nvidia-jetson": "NVIDIA Jetson", "amd": "AMD", "intel": "Intel", "aws-neuron": "AWS Neuron",
@@ -954,7 +966,7 @@ COLUMNS = [
     ("constr", "Who owns the artifact", "Who builds and patches what you run.", col_constr, False),
     ("byod", "Bring your own distro", "Can the entry run on a base distribution you choose?", col_byod, True),
     ("day0", "Day-0 paths", "How a node gets its first install and bootstrap. The data sheet names the configuration it reads.", col_day0, False),
-    ("config", "Configuration tool", "The declarative configuration tool and when it runs: in the initramfs before or after the root is mounted, in userspace, or through an API. The data sheet gives its license, when it re-runs, and what disk work it can do early.", col_config, True),
+    ("config", "Configuration tool", "The config-driven provisioning tool, with four facts: the earliest point it runs, the latest, how it repeats and what it can change. The data sheet gives its license and what disk work it can do early. Both a configuration management tool and config-driven provisioning can configure a running node. A configuration management tool also changes the OS itself, such as packages and system files. Config-driven provisioning sets the node's settings. On some projects, it can also write files or run commands in the writable parts. The OS image changes only with a new version. On some projects, provisioning can also run before the OS starts.", col_config, True),
     ("update", "Update unit", "What one update replaces. The data sheet names the mechanism and the longest hold.", col_update, False),
     ("addsw", "Adding software to the OS", "How an adopter adds software to the OS itself. This means host-level software, not workloads. One tag per documented way. "
      + " ".join("%s: %s" % (lab, txt) for k, lab, txt in ADDSW if k != "unknown") + " Unknown: nothing was found. "
@@ -975,7 +987,7 @@ COLUMNS = [
 ]
 # Glossary terms that explain a column, linked from "What the columns mean".
 COL_GLOSS = {"project": [("Entry kind", "entry-kind")], "constr": [("Framework or mechanism", "framework-or-mechanism")],
-             "day0": [("Day 0", "day-0-day-2")], "config": [("Declarative provisioning", "declarative-provisioning")],
+             "day0": [("Day 0", "day-0-day-2")], "config": [("Config-driven provisioning", "config-driven-provisioning")],
              "update": [("Image-based", "image-based"), ("A/B partitions", "a-b-partitions")],
              "boot": [("Boot trust chain", "boot-trust-chain"), ("UKI", "uki"), ("Pivot", "pivot"), ("dm-verity", "dm-verity")],
              "rollback": [("Rollback", "rollback")], "capi": [("Cluster API", "cluster-api")],
@@ -986,8 +998,10 @@ DEFAULT_COLS = ["project", "byod", "update", "rollback", "k8s", "arch"]
 
 FILTERS = [
     ("byod", "Bring your own distro", [("yes", "Yes"), ("no", "No")]),
-    ("cfgrun", "Configuration runs", [("initramfs-before-root", "Initramfs, before the root is mounted"), ("initramfs-after-root", "Initramfs, after the root is mounted"), ("install", "Installer"), ("userspace", "Userspace"), ("api", "API or controller")]),
-    ("cfgrerun", "Configuration re-runs", [("first-boot", "First boot only"), ("every-boot", "Every boot"), ("lifecycle", "Lifecycle stages"), ("continuous", "Continuously"), ("any-time", "At any time"), ("depends", "Depends on the tool")]),
+    ("cfgrun", "Configuration first runs", [(k, v[0].upper() + v[1:]) for k, v in CFG_EARLIEST.items() if k not in ("depends-on-tool", "unknown")]),
+    ("cfglatest", "Configuration runs until", [(k, v[0].upper() + v[1:]) for k, v in CFG_LATEST.items() if k != "unknown"]),
+    ("cfgrepeat", "Configuration repeats", [(k, v[0].upper() + v[1:]) for k, v in CFG_REPEAT.items() if k != "unknown"]),
+    ("cfgscope", "Configuration can change", [(k, v[0].upper() + v[1:]) for k, v in CFG_SCOPE.items() if k != "unknown"]),
     ("update", "Update unit", [(k, v) for k, v in UPDATE_SCOPE.items()]),
     ("addsw", "Adding software to the OS", [(k, lab) for k, lab, _ in ADDSW]),
     ("rollback", "Automatic rollback", [("yes", "Yes"), ("partial", "Partial or conditional"), ("no", "No"), ("unknown", "Unknown")]),
@@ -1011,8 +1025,10 @@ FILTERS = [
 # One neutral sentence per filter, shown under its title in the Filters panel.
 FILTER_DESC = {
     "byod": "Whether you can build on top of a base distribution you already use.",
-    "cfgrun": "Where in the boot or install flow the configuration tool runs.",
-    "cfgrerun": "How often the configuration tool applies its configuration again after the first run.",
+    "cfgrun": "The earliest point in the boot or install flow where the configuration runs.",
+    "cfglatest": "The latest point at which the configuration can still be applied.",
+    "cfgrepeat": "How the configuration is applied again after the first run.",
+    "cfgscope": "What the configuration can change: settings only, files and units, or any command.",
     "update": "What one update replaces, for example the whole image or a package set.",
     "addsw": "How you add host software to the OS image or the running system.",
     "rollback": "Whether the machine reverts to the previous version by itself when a new one fails to boot.",
@@ -1034,7 +1050,7 @@ FILTER_DESC = {
 }
 
 # The column a filter reads. A filter on a hidden column shows that column.
-FILTER_COL = {"update": "update", "addsw": "addsw", "byod": "byod", "cfgrun": "config", "cfgrerun": "config", "rollback": "rollback", "verified": "verified", "boot": "boot",
+FILTER_COL = {"update": "update", "addsw": "addsw", "byod": "byod", "cfgrun": "config", "cfglatest": "config", "cfgrepeat": "config", "cfgscope": "config", "rollback": "rollback", "verified": "verified", "boot": "boot",
               "fleet": "fleet", "fleetrec": "fleet", "fleetlic": "fleet", "k8s": "k8s", "access": "access", "capi": "capi",
               "ai": "ai", "aidel": "ai", "aiop": "ai", "arch": "arch", "day0": "day0", "selfhost": "selfhost", "own": "own"}
 
@@ -1515,7 +1531,7 @@ def what_is():
              g("Roll back", "rollback") + ": boot into a previous version"),
             ("First install", "An installer, or an automated install", "A versioned " + g("image", "image-based")),
             ("Configuration", "Applied on top and changed over time, so nodes can " + g("drift", "drift") + " apart",
-             g("Declared", "declarative-provisioning") + ", applied at first boot, and on some systems re-applied later"),
+             g("Written config", "config-driven-provisioning") + ", applied at install or first boot, and on some systems applied again later"),
             ("Main job", "Anything", "Running cloud native workloads")]
     table = ('<table class="cmp"><thead><tr><th scope="col"></th><th scope="col">%s</th><th scope="col">%s</th></tr></thead><tbody>%s</tbody></table>'
              '<p class="t-meta" id="cmp-note">* Only part of the OS is read-only, and which part varies by system. See %s in the glossary.</p>'
@@ -1524,7 +1540,7 @@ def what_is():
     rules = [("Atomic updates (versioned OS)", "The OS version is one artifact, built once, that every node in a fleet runs. A fleet updates or rolls back by pointing it at a version, for example an OCI image, an image file or an OSTree commit. A node that assembles its own update from packages does not meet this rule. It is enough that the project documents a way to run it like this."),
              ("Immutable at runtime (read-only OS files)", "The OS part, the root or <code>/usr</code>, is read-only on a running node."),
              ("Rollback (to a version)", "Rollback goes back to the previous OS version, the artifact the whole fleet ran. Each node keeps that version locally, ready to boot. It is a rollback to a version, not to a snapshot of one node."),
-             ("Declarative provisioning", "A node configures itself at first boot from a declarative input, with no interactive install."),
+             ("Config-driven provisioning", "A node sets itself up from a written config when it is installed or first boots, with no interactive install. Some projects apply the config again at every boot, on demand, or by reconcile. The config can be one file or several. The old name, Declarative provisioning, stays as an alias."),
              ("Kubernetes ready", "The project, or its vendor, documents running Kubernetes on it: bundled, installed on it, or as the node OS of a Kubernetes service. "
               "A framework such as Kairos or bootc meets this rule through the images built with it. Running containers alone is not enough.")]
     return ('<div class="prose">'
@@ -1544,7 +1560,7 @@ def what_is():
             '<h3 id="w-criteria">The five inclusion criteria</h3>'
             '<div class="prose"><p>Most rows of that table are also a test. An OS is in the matrix when it meets all five inclusion criteria:</p><ol class="rules">%s</ol>'
             '<p>__MATRIX_LIST__</p>'
-            '<p>A general-purpose OS can be made to work this way. With enough configuration, and tooling built around it, you can produce images, update them atomically, keep the OS read-only, roll back and provision declaratively. Many teams do. The Pulse does not say that is the wrong choice. It lists the projects built to meet the five criteria by design, so you do not have to configure the OS yourself or build that tooling to get there.</p>'
+            '<p>A general-purpose OS can be made to work this way. With enough configuration, and tooling built around it, you can produce images, update them atomically, keep the OS read-only, roll back and provision from a written config. Many teams do. The Pulse does not say that is the wrong choice. It lists the projects built to meet the five criteria by design, so you do not have to configure the OS yourself or build that tooling to get there.</p>'
             '<p>Openness is not a criterion. A closed or single-vendor OS that meets the five criteria is in, and the matrix shows its governance next to every other entry.</p>'
             '<p>Some projects sit beside the matrix. <a href="#h-alt">Alternative paradigms</a> aim at the same goal and do not meet the first four rules as the project ships them: NixOS, Unikraft and the Yocto Project. '
             '<a href="#h-worth">Worth mentioning</a> lists public work with nothing released to profile yet. <a href="#h-excluded">Considered and excluded</a> names released projects that fail a criterion, with the reason. Conventional mutable distributions are out, '
@@ -1555,7 +1571,7 @@ def what_is():
 
 GLOSSARY = [
     ("General-purpose OS", "An operating system built to run anything, such as Ubuntu, Debian or Fedora. It is installed once and then maintained by changing it in place for the rest of its life."),
-    ("cloud native OS", "In the Pulse, an OS that meets the five inclusion criteria across a fleet, not on a single node: atomic updates (versioned OS), immutable at runtime (read-only OS files), rollback (to a version), declarative provisioning, and Kubernetes ready."),
+    ("cloud native OS", "In the Pulse, an OS that meets the five inclusion criteria across a fleet, not on a single node: atomic updates (versioned OS), immutable at runtime (read-only OS files), rollback (to a version), config-driven provisioning, and Kubernetes ready."),
     ("In-place upgrade", "An upgrade that changes the running system piece by piece, for example package by package. The result depends on the state the machine was in before."),
     ("Atomic upgrade", "An upgrade that applies the new version as a whole or not at all. If it fails, the old version is still intact. Atomic alone does not meet the first criterion: the version must also be one artifact, built once, that every node in a fleet runs."),
     ("Image-based", "The OS is built ahead of time as one complete image, and that image is what gets installed and updated."),
@@ -1569,8 +1585,8 @@ GLOSSARY = [
     ("Immutable", "Part of the OS is read-only on a running machine, and changes to that part arrive only through an update. Which part varies by system: the whole root filesystem on some, only <code>/usr</code> on others, and some keep <code>/etc</code> or a data volume writable. Writable does not always mean persistent: some paths are writable through a temporary overlay or an in-memory filesystem, and changes there are lost at the next boot. The matrix shows what each entry protects."),
     ("Drift", "Machines that should be the same become different over time, through changes that were not planned or not recorded."),
     ("Day 0, day 2", "Day 0 is when a node is first set up. Day 2 is everything after that: upgrades, fixes, changes, decommissioning."),
-    ("Declarative provisioning", "You describe the state a machine should have, and the machine sets itself up to match it at first boot, with no interactive install."),
-    ("Configuration management", "Tools such as Ansible, Puppet or Chef that apply changes to machines to bring them toward a described state."),
+    ("Config-driven provisioning", "A node sets itself up from a written config when it is installed or first boots, with no interactive install. Some projects apply the config again at every boot, on demand, or by reconcile. The config can be one file or several. Also called declarative provisioning. Both a configuration management tool and config-driven provisioning can configure a running node. A configuration management tool also changes the OS itself, such as packages and system files. Config-driven provisioning sets the node's settings. On some projects, it can also write files or run commands in the writable parts. The OS image changes only with a new version. On some projects, provisioning can also run before the OS starts."),
+    ("Configuration management", "Tools such as Ansible, Puppet or Chef that apply changes to machines to bring them toward a described state. Puppet is declarative, while Ansible and Chef run steps in order. See also config-driven provisioning."),
     ('Cluster API', 'A Kubernetes project that creates, upgrades and deletes Kubernetes clusters through declarative Kubernetes resources. Providers adapt it to an infrastructure, a bootstrap method or a control plane.'),
     ('One-shot run', 'A fleet upgrade that runs once when someone or something triggers it, and then stops. A node that joins later, or changes afterwards, stays where it is until the next run.'),
     ('Reconciled in place', 'A controller keeps comparing the declared OS version with each node, and upgrades the existing node whenever the two differ.'),

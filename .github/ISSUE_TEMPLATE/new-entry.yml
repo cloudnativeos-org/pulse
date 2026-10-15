@@ -43,8 +43,8 @@ body:
   - type: textarea
     id: r4
     attributes:
-      label: "Rule 4: declarative provisioning"
-      description: How a node configures itself at first boot from a declarative input, with a source.
+      label: "Rule 4: config-driven provisioning"
+      description: How a node sets itself up from a written config when it is installed or first boots, with a source.
     validations:
       required: true
   - type: textarea

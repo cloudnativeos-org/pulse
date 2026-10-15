@@ -732,8 +732,31 @@ dimensions:
       config_tools:
         - name: "Ignition (shipped as ignition-flatcar)"
           license: "Apache-2.0"
-          runs: [initramfs-before-root]
-          reruns: first-boot
+          earliest: initramfs
+          latest: first-boot
+          repeat: [once]
+          scope: [files-and-units]
+          field_sources:
+            - fields: [earliest]
+              url: https://github.com/microsoft/azure-container-linux/blob/6adc59d/acl/docs/architecture.md
+              title: "Azure Container Linux: architecture"
+              retrieved: "2026-10-15"
+              quote: "Flatcar's bootengine is still included for the `/etc` overlay setup and Ignition provisioning"
+            - fields: [latest, repeat]
+              url: https://github.com/microsoft/azure-container-linux/blob/6adc59d/acl/docs/architecture.md
+              title: "Azure Container Linux: architecture"
+              retrieved: "2026-10-15"
+              quote: "After first-boot processing completes, the addon is removed so subsequent boots skip provisioning."
+            - fields: [repeat]
+              url: https://github.com/microsoft/azure-container-linux/blob/6adc59d/build_library/rpm/build_image_util.sh
+              title: "Azure Container Linux: image build"
+              retrieved: "2026-10-15"
+              note: "The build removes flatcar-reset, so there is no shipped way to run Ignition again."
+            - fields: [scope]
+              url: https://github.com/microsoft/azure-container-linux/blob/6adc59d/acl/docs/architecture.md
+              title: "Azure Container Linux: architecture"
+              retrieved: "2026-10-15"
+              note: "Ignition writes files, creates users, sets up systemd units and mount points, and formats and mounts disks."
           runs_note: "Runs in the initramfs on first boot, gated by a UKI first-boot addon."
           early_disk: "Formats and mounts additional disks and formats LUKS volumes in the initramfs; systemd-repart and growfs grow the root; Clevis/Tang disk encryption is not supported."
           change_after_first_boot: "Reprovision"

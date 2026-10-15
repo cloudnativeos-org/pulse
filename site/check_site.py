@@ -246,6 +246,11 @@ def main():
                 errors.append("the column %s has no definition for the modal" % c)
         if "mx-det-btn" in table or 'class="mx-details"' in table or "mx-sheet" in table:
             errors.append("the matrix still carries the old Details toggle, details rows or a separate Data sheet link")
+        # the four configuration filters must carry real values: a renamed field would turn every cell into "unknown"
+        for fk in ("cfgrun", "cfglatest", "cfgrepeat", "cfgscope"):
+            vals = set(re.findall(r'data-f%s="([^"]*)"' % fk, table))
+            if not any(v not in ("", "none", "unknown", "nc") for v in vals):
+                errors.append("no matrix row carries a known value for the %s filter" % fk)
         entries = re.findall(r'<tr data-id="([^"]+)"[^>]*>(.*?)</tr>', table, re.S)
         sheets = dict(re.findall(r'<article class="tc" aria-labelledby="tc-([a-z0-9-]+)">(.*?)</article>', index, re.S))
         for pid, row in entries:

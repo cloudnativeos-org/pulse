@@ -882,8 +882,32 @@ dimensions:
       config_tools:
         - name: "Machine configuration (machined, gRPC API)"
           license: "MPL-2.0"
-          runs: [api]
-          reruns: continuous
+          earliest: before-services
+          latest: running-node
+          repeat: [every-boot, on-demand]
+          scope: [files-and-units]
+          cell_notes: "No reconcile: the node never fetches new configuration on its own. The config writes files; no cited source shows it defining units, so the scope value is the nearest one, files and units."
+          field_sources:
+            - fields: [earliest]
+              url: https://github.com/siderolabs/talos/blob/v1.14.1/internal/app/machined/pkg/runtime/v1alpha1/v1alpha1_sequencer.go
+              title: "Talos: boot sequencer"
+              retrieved: "2026-10-15"
+              note: "The sequencer runs LoadConfig and WriteUserFiles before StartAllServices, after init has switched into the new root."
+            - fields: [latest, repeat]
+              url: https://github.com/siderolabs/talos/blob/v1.11.0/website/content/v1.11/talos-guides/configuration/editing-machine-configuration.md
+              title: "Talos: editing machine configuration (v1.11 docs)"
+              retrieved: "2026-10-15"
+              quote: "apply change immediately (`--mode=no-reboot` flag)"
+            - fields: [repeat]
+              url: https://github.com/siderolabs/talos/blob/v1.14.1/internal/app/machined/pkg/controllers/config/acquire.go
+              title: "Talos: config acquire controller"
+              retrieved: "2026-10-15"
+              quote: "start always with loading config from disk"
+            - fields: [scope]
+              url: https://github.com/siderolabs/talos/blob/v1.14.1/website/content/v1.14/reference/configuration/runtime/etcfileconfig.md
+              title: "Talos: EtcFileConfig"
+              retrieved: "2026-10-15"
+              note: "EtcFileConfig configures a user-managed file under /etc, with its path, mode and contents. No command field was found."
           runs_note: "Applied by machined in early userspace after switch_root, from a squashfs in RAM, before EPHEMERAL and user volumes mount; changed over the API with modes auto, no-reboot, staged and try."
           early_disk: "Install disk selection and wipe, volume partitions, and disk encryption for system and user volumes with static, nodeID, KMS or TPM keys."
           change_after_first_boot: "Yes, through the API; install keys have no effect after install"

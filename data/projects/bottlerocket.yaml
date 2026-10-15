@@ -843,8 +843,37 @@ dimensions:
       config_tools:
         - name: "TOML settings (early-boot-config and the API)"
           license: "Apache-2.0 OR MIT"
-          runs: [userspace]
-          reruns: any-time
+          earliest: before-services
+          latest: running-node
+          repeat: [once, every-boot, on-demand]
+          scope: [any-command]
+          cell_notes: "User data is read once. Stored settings are rendered again at every boot. Bootstrap containers run once or at every boot."
+          field_sources:
+            - fields: [earliest]
+              url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/v17.2.0/packages/early-boot-config/early-boot-config.service
+              title: "Bottlerocket: early-boot-config service"
+              retrieved: "2026-10-15"
+              note: "The service runs after apiserver.service and before the preconfigured target."
+            - fields: [latest, repeat]
+              url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/v17.2.0/sources/api/thar-be-settings/README.md
+              title: "Bottlerocket: thar-be-settings"
+              retrieved: "2026-10-15"
+              note: "thar-be-settings runs after a settings commit."
+            - fields: [repeat]
+              url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/v17.2.0/packages/early-boot-config/early-boot-config.service
+              title: "Bottlerocket: early-boot-config service"
+              retrieved: "2026-10-15"
+              quote: "We only want to run once, at first boot"
+            - fields: [repeat]
+              url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/v17.2.0/packages/os/settings-applier.service
+              title: "Bottlerocket: settings-applier service"
+              retrieved: "2026-10-15"
+              note: "settings-applier runs thar-be-settings --all at each boot, so stored settings are rendered again every boot."
+            - fields: [scope]
+              url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/v17.2.0/sources/api/bootstrap-containers/README.md
+              title: "Bottlerocket: bootstrap containers"
+              retrieved: "2026-10-15"
+              note: "A bootstrap container is a user-supplied container that runs on the host before orchestration starts; its example writes and changes permissions in the host /var through /.bottlerocket/rootfs."
           runs_note: "Runs in userspace after the network is online; early-boot-config runs once and settings re-render config files each boot (INFERRED)."
           early_disk: "In userspace, user data can run apiclient ephemeral-storage init through settings.bootstrap-commands, which sets up devices as a RAID array and formats them; TPM2 data encryption is a build feature (INFERRED)."
           change_after_first_boot: "apiclient set, at any time"

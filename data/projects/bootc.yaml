@@ -656,8 +656,16 @@ dimensions:
     normalized:
       config_tools:
         - name: "None of its own (agnostic)"
-          runs: []
-          reruns: depends
+          earliest: none-of-its-own
+          latest: depends-on-tool
+          repeat: [depends-on-tool]
+          scope: [depends-on-tool]
+          field_sources:
+            - fields: [earliest, latest, repeat, scope]
+              url: https://github.com/bootc-dev/bootc/blob/v1.17.1/docs/src/bootc-installation.7.md
+              title: "bootc: installation, provisioning and first boot"
+              retrieved: "2026-10-15"
+              quote: "The choice of provisioning tool depends on your base image and deployment environment—bootc itself is agnostic."
           runs_note: "Depends on the tool the image uses: cloud-init, Ignition, systemd-firstboot or units baked into the image."
           early_disk: "At install: bootc install --block-setup tpm2-luks, kickstart --encrypted, or a bootc-image-builder disk layout."
           change_after_first_boot: "A new image through bootc upgrade or bootc switch"

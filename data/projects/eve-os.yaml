@@ -799,8 +799,32 @@ dimensions:
       config_tools:
         - name: "Installer grub options, bootstrap-config.pb and controller EdgeDevConfig"
           license: "Apache-2.0"
-          runs: [install, api]
-          reruns: continuous
+          earliest: installer
+          latest: running-node
+          repeat: [once, reconcile]
+          scope: [settings-only]
+          cell_notes: "Once is the bootstrap config. Reconcile is the periodic fetch of the controller config. Settings only: bootstrap config is limited to connectivity attributes, and no host command mechanism was found."
+          field_sources:
+            - fields: [earliest]
+              url: https://github.com/lf-edge/eve/blob/17.0.0-lts/docs/CONFIG.md
+              title: "EVE-OS: configuration"
+              retrieved: "2026-10-15"
+              note: "Config files are baked into the EVE installer images and copied into the CONFIG partition on install."
+            - fields: [latest, repeat]
+              url: https://github.com/lf-edge/eve/blob/17.0.0-lts/pkg/pillar/docs/zedagent.md
+              title: "EVE-OS: zedagent"
+              retrieved: "2026-10-15"
+              quote: "Periodically fetches device configuration from the cloud controller"
+            - fields: [repeat]
+              url: https://github.com/lf-edge/eve/blob/17.0.0-lts/docs/CONFIG.md
+              title: "EVE-OS: configuration"
+              retrieved: "2026-10-15"
+              note: "The bootstrap configuration is used and applied only once."
+            - fields: [scope]
+              url: https://github.com/lf-edge/eve/blob/17.0.0-lts/docs/CONFIG.md
+              title: "EVE-OS: configuration"
+              retrieved: "2026-10-15"
+              note: "Bootstrap config is limited to connectivity attributes. Edge apps are VMs or containers. No host command mechanism was found."
           runs_note: "Installer options apply at install; bootstrap config is applied once; controller config is polled every 60 s by default (timer.config.interval, 5 to 86400)."
           early_disk: "The installer chooses disks, can wipe them and set ZFS RAID; /persist/vault encryption is automatic (fscrypt or ZFS, TPM-sealed) and not configurable."
           change_after_first_boot: "Through the controller only"

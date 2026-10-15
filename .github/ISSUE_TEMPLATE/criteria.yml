@@ -15,7 +15,7 @@ body:
         - "Rule 1: atomic updates (versioned OS)"
         - "Rule 2: immutable at runtime (read-only OS files)"
         - "Rule 3: rollback (to a version)"
-        - "Rule 4: declarative provisioning"
+        - "Rule 4: config-driven provisioning"
         - "Rule 5: Kubernetes ready"
         - A new rule
         - Something else (scope, openness, the groups beside the matrix)

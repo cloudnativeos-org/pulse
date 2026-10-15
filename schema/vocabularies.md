@@ -303,3 +303,20 @@ personal addresses, and that caveat is recorded with the value.
 
 GitHub stars, download counts, and contributor counts are not recorded as quality
 signals anywhere in this dataset.
+
+### Configuration tools (dimension 9, added 2026-10-15)
+
+`d09.normalized.config_tools` is a list. Each entry is one config-driven
+provisioning tool. It has four fields, each from a closed vocabulary. `repeat`
+and `scope` are lists. Every other field is one value. The old `runs` and
+`reruns` fields are retired.
+
+- `earliest`: `initramfs` (one value, whether the root is mounted yet or not), `before-services` (before kubelet), `installer`, `userspace-boot`, `none-of-its-own`, `depends-on-tool`, `unknown`.
+- `latest`: `first-boot`, `every-boot`, `running-node`, `depends-on-tool`, `unknown`.
+- `repeat`: every documented way the main config is applied. `once` is the first boot or install. Keys that apply only at install, such as the Kairos install keys, are not listed. `every-boot`, `on-demand` (API or CLI), `reconcile` (the node applies it again on its own), `depends-on-tool`, `unknown`.
+- `scope`: `settings-only`, `files-and-units`, `any-command`, `depends-on-tool`, `unknown`.
+
+Each value other than `unknown` needs a `field_sources` entry whose `fields`
+list names it, with a `url`, `retrieved` and a `quote` or a `note`. `unknown`
+stands alone in its field. A cell without a source is `unknown`. `cell_notes`
+holds caveats that the cell cannot show.
