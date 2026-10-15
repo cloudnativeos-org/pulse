@@ -698,8 +698,26 @@ dimensions:
       config_tools:
         - name: "Ignition"
           license: "Apache-2.0"
-          runs: [initramfs-before-root]
-          reruns: first-boot
+          earliest: initramfs
+          latest: first-boot
+          repeat: [once, on-demand]
+          scope: [files-and-units]
+          field_sources:
+            - fields: [earliest, latest]
+              url: https://github.com/flatcar/flatcar-website/blob/6e71d13/content/docs/latest/fb-provision/ignition/_index.md
+              title: "Flatcar: Ignition"
+              retrieved: "2026-10-15"
+              quote: "Ignition only runs once"
+            - fields: [earliest]
+              url: https://github.com/flatcar/flatcar-website/blob/6e71d13/content/docs/latest/fb-provision/ignition/_index.md
+              title: "Flatcar: Ignition"
+              retrieved: "2026-10-15"
+              note: "Ignition runs in the initramfs."
+            - fields: [repeat]
+              url: https://github.com/flatcar/flatcar-website/blob/6e71d13/content/docs/latest/fb-provision/ignition/boot-process.md
+              title: "Flatcar: Ignition boot process"
+              retrieved: "2026-10-15"
+              quote: "To trigger a new Ignition run, you should use the `flatcar-reset` tool"
           runs_note: "Runs in the initramfs on first boot; it re-runs only through flatcar-reset."
           early_disk: "Partitions, filesystems and LUKS with Clevis or systemd-cryptenroll; TPM2 root encryption from 3913.0.1."
           change_after_first_boot: "flatcar-reset"
@@ -713,8 +731,26 @@ dimensions:
               retrieved: "2026-10-06"
         - name: "coreos-cloudinit (legacy, not Canonical cloud-init)"
           license: "Apache-2.0"
-          runs: [userspace]
-          reruns: every-boot
+          earliest: userspace-boot
+          latest: every-boot
+          repeat: [every-boot]
+          scope: [any-command]
+          field_sources:
+            - fields: [earliest]
+              url: https://github.com/flatcar/flatcar-website/blob/6e71d13/content/docs/latest/fb-provision/cl-config/from-cloud-config.md
+              title: "Flatcar: from cloud-config"
+              retrieved: "2026-10-15"
+              note: "coreos-cloudinit runs after the machine has fully booted."
+            - fields: [latest, repeat]
+              url: https://github.com/flatcar/coreos-cloudinit/blob/fb2cd66/Documentation/cloud-config.md
+              title: "coreos-cloudinit: cloud-config"
+              retrieved: "2026-10-15"
+              quote: "Your cloud-config is processed during each boot"
+            - fields: [scope]
+              url: https://github.com/flatcar/coreos-cloudinit/blob/fb2cd66/Documentation/cloud-config.md
+              title: "coreos-cloudinit: cloud-config"
+              retrieved: "2026-10-15"
+              note: "A cloud-config that starts with #! is run as a script in a transient systemd service. There is no runcmd."
           runs_note: "Runs in userspace after the machine has fully booted, on every boot."
           early_disk: "None documented beyond what Ignition does earlier."
           change_after_first_boot: "Change the cloud-config; it applies on each boot"

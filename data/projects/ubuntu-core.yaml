@@ -1037,8 +1037,32 @@ dimensions:
       config_tools:
         - name: "snapd install mode with gadget.yaml"
           license: "GPL-3.0"
-          runs: [install]
-          reruns: any-time
+          earliest: installer
+          latest: running-node
+          repeat: [on-demand]
+          scope: [settings-only]
+          cell_notes: "A gadget that ships cloud-init configuration can run any command; snapd copies the gadget cloud config unfiltered. No doc names runcmd."
+          field_sources:
+            - fields: [earliest]
+              url: https://documentation.ubuntu.com/core/explanation/how-installation-works/
+              title: "Ubuntu Core: how installation works"
+              retrieved: "2026-10-15"
+              note: "The system runs in install mode, then installs the run-mode system."
+            - fields: [latest, repeat]
+              url: https://documentation.ubuntu.com/core/how-to-guides/manage-ubuntu-core/set-system-options/
+              title: "Ubuntu Core: set system options"
+              retrieved: "2026-10-15"
+              note: "Options are changed with snap set and snap get, with a target of system."
+            - fields: [repeat]
+              url: https://documentation.ubuntu.com/core/reference/gadget-snap-format/
+              title: "Ubuntu Core: gadget snap format"
+              retrieved: "2026-10-15"
+              note: "Gadget defaults are only applied during the first boot."
+            - fields: [scope]
+              url: https://documentation.ubuntu.com/core/reference/gadget-snap-format/
+              title: "Ubuntu Core: gadget snap format"
+              retrieved: "2026-10-15"
+              note: "snapd's own mechanism sets options. Gadget cloud-init is a second path."
           runs_note: "Runs in snapd install mode from tmpfs; gadget defaults are only applied during the first boot; system options change at any time through snap set system."
           early_disk: "snapd creates partitions, encrypts ubuntu-data and ubuntu-save and seals keys in the TPM."
           change_after_first_boot: "snap set system"

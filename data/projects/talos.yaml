@@ -882,8 +882,32 @@ dimensions:
       config_tools:
         - name: "Machine configuration (machined, gRPC API)"
           license: "MPL-2.0"
-          runs: [api]
-          reruns: continuous
+          earliest: before-services
+          latest: running-node
+          repeat: [every-boot, on-demand]
+          scope: [files-and-units]
+          cell_notes: "No reconcile: the node never fetches new configuration on its own."
+          field_sources:
+            - fields: [earliest]
+              url: https://github.com/siderolabs/talos/blob/v1.11.0/internal/app/machined/pkg/runtime/v1alpha1/v1alpha1_sequencer.go
+              title: "Talos: boot sequencer"
+              retrieved: "2026-10-15"
+              note: "The sequencer runs LoadConfig and WriteUserFiles before StartAllServices, after init has switched into the new root."
+            - fields: [latest, repeat]
+              url: https://github.com/siderolabs/talos/blob/v1.11.0/website/content/v1.11/talos-guides/configuration/editing-machine-configuration.md
+              title: "Talos: editing machine configuration"
+              retrieved: "2026-10-15"
+              quote: "apply change immediately (`--mode=no-reboot`)"
+            - fields: [repeat]
+              url: https://github.com/siderolabs/talos/blob/v1.14.2/internal/app/machined/pkg/controllers/config/acquire.go
+              title: "Talos: config acquire controller"
+              retrieved: "2026-10-15"
+              quote: "start always with loading config from disk"
+            - fields: [scope]
+              url: https://github.com/siderolabs/talos/blob/v1.11.0/website/content/v1.11/reference/configuration/v1alpha1/config.md
+              title: "Talos: v1alpha1 configuration"
+              retrieved: "2026-10-15"
+              note: "machine.files adds user-specified files with op create, overwrite or append. No command field was found."
           runs_note: "Applied by machined in early userspace after switch_root, from a squashfs in RAM, before EPHEMERAL and user volumes mount; changed over the API with modes auto, no-reboot, staged and try."
           early_disk: "Install disk selection and wipe, volume partitions, and disk encryption for system and user volumes with static, nodeID, KMS or TPM keys."
           change_after_first_boot: "Yes, through the API; install keys have no effect after install"

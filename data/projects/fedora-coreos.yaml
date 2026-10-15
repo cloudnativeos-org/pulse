@@ -818,8 +818,32 @@ dimensions:
       config_tools:
         - name: "Ignition (written as Butane)"
           license: "Apache-2.0"
-          runs: [initramfs-before-root]
-          reruns: first-boot
+          earliest: initramfs
+          latest: first-boot
+          repeat: [once]
+          scope: [files-and-units]
+          cell_notes: "A live ISO or PXE boot runs Ignition on every boot (live-booting.adoc @ 1fec1ac)."
+          field_sources:
+            - fields: [earliest, latest]
+              url: https://github.com/coreos/fedora-coreos-docs/blob/1fec1ac/modules/ROOT/pages/producing-ign.adoc
+              title: "Fedora CoreOS: producing an Ignition config"
+              retrieved: "2026-10-15"
+              quote: "Ignition runs only once during the first boot of the system (while in the initramfs)"
+            - fields: [earliest]
+              url: https://github.com/coreos/ignition/blob/v2.27.0/docs/ignition-flow.md
+              title: "Ignition flow"
+              retrieved: "2026-10-15"
+              note: "The flow runs ignition-disks, ignition-mount and ignition-files in the initramfs, then pivots to the real root."
+            - fields: [repeat]
+              url: https://github.com/coreos/ignition/blob/v2.27.0/docs/ignition-flow.md
+              title: "Ignition flow"
+              retrieved: "2026-10-15"
+              note: "GRUB checks for /ignition.firstboot. Without it, the boot goes to ignition-subsequent.target."
+            - fields: [scope]
+              url: https://github.com/coreos/ignition/blob/v2.27.0/docs/configuration-v3_5.md
+              title: "Ignition configuration spec v3.5.0"
+              retrieved: "2026-10-15"
+              note: "The top-level keys are ignition, storage, systemd, passwd and kernelArguments. There is no command field."
           runs_note: "Runs in the initramfs on first boot, before switch_root; ignition-disks has Before=sysroot.mount."
           early_disk: "Partitions, RAID, filesystems and LUKS with Clevis TPM2 or Tang, including the root."
           change_after_first_boot: "Reprovision"

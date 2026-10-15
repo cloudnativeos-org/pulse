@@ -789,8 +789,27 @@ dimensions:
       config_tools:
         - name: "cloud-init (instance metadata) and startup scripts"
           license: "GPL-3.0 OR Apache-2.0"
-          runs: [userspace]
-          reruns: every-boot
+          earliest: userspace-boot
+          latest: every-boot
+          repeat: [every-boot]
+          scope: [any-command]
+          cell_notes: "No doc names the boot stage. Userspace is inferred, because cloud-init reads instance metadata."
+          field_sources:
+            - fields: [earliest]
+              url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/disks-and-filesystem
+              title: "Container-Optimized OS: disks and filesystem"
+              retrieved: "2026-10-15"
+              quote: "cloud-init is applied when an instance is newly created as well as when an instance is restarted"
+            - fields: [latest, repeat]
+              url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/create-configure-instance
+              title: "Container-Optimized OS: create and configure an instance"
+              retrieved: "2026-10-15"
+              quote: "write_files and runcmd, which are typically run once-per-instance on other distros, are run on every boot on Container-Optimized OS"
+            - fields: [scope]
+              url: https://docs.cloud.google.com/container-optimized-os/docs/how-to/create-configure-instance
+              title: "Container-Optimized OS: create and configure an instance"
+              retrieved: "2026-10-15"
+              note: "The page documents runcmd, bootcmd, write_files and users."
           runs_note: "Runs in userspace on every boot."
           early_disk: "Fixed boot disk; extra disks through bootcmd in userspace; encryption is not documented in the COS docs."
           change_after_first_boot: "Edit the metadata, applied on the next boot (INFERRED)"

@@ -1126,10 +1126,53 @@ dimensions:
       config_tools:
         - name: "yip (cloud-config stages)"
           license: "Apache-2.0"
-          runs: [initramfs-after-root, userspace]
-          reruns: lifecycle
+          earliest: initramfs
+          latest: running-node
+          repeat: [every-boot, reconcile, on-demand]
+          scope: [any-command]
+          field_sources:
+            - fields: [early_disk]
+              url: https://github.com/kairos-io/kairos-docs/blob/0db8614/docs/installation/edge-devices/raspberry.md
+              title: "Kairos docs: Raspberry Pi"
+              retrieved: "2026-10-15"
+              quote: "During the first boot, the system will enter recovery mode and create the `COS_STATE` and `COS_PERSISTENT` volumes."
+            - fields: [early_disk]
+              url: https://github.com/kairos-io/kairos-docs/blob/0db8614/docs/reference/stage_modules.md
+              title: "Kairos docs: stage modules (layout)"
+              retrieved: "2026-10-15"
+              note: "The layout module partitions disks and is shown under the boot stage; custom partitions can be set in the kairos-install.pre.before stage."
+            - fields: [earliest]
+              url: https://github.com/kairos-io/kairos-docs/blob/0db8614/docs/architecture/cloud-init.md
+              title: "Kairos docs: cloud-init architecture"
+              retrieved: "2026-10-15"
+              quote: "This is the earliest stage, running before switching root, just right after the root is mounted in /sysroot"
+            - fields: [earliest]
+              url: https://github.com/kairos-io/kairos/blob/4433f21/immucore/pkg/state/steps_shared.go
+              title: "immucore: shared boot steps"
+              retrieved: "2026-10-15"
+              note: "immucore runs the rootfs stage (RunStageOp) before switching root."
+            - fields: [latest, repeat]
+              url: https://github.com/kairos-io/kairos-docs/blob/0db8614/docs/architecture/cloud-init.md
+              title: "Kairos docs: cloud-init architecture"
+              retrieved: "2026-10-15"
+              quote: "This stage is executed 5m after boot and periodically each 60m"
+            - fields: [latest, repeat]
+              url: https://github.com/kairos-io/kairos/blob/4433f21/kairos-init/pkg/bundled/cloudconfigs/09_systemd_services.yaml
+              title: "kairos-init: reconcile timer"
+              retrieved: "2026-10-15"
+              note: "The timer has OnBootSec=5min and OnUnitActiveSec=60min and runs kairos-agent run-stage reconcile."
+            - fields: [repeat]
+              url: https://github.com/kairos-io/kairos-docs/blob/0db8614/docs/architecture/cloud-init.md
+              title: "Kairos docs: cloud-init architecture"
+              retrieved: "2026-10-15"
+              note: "Files in /oem are executed during the boot stages; kairos-agent run-stage runs one stage by hand."
+            - fields: [scope]
+              url: https://github.com/kairos-io/kairos-docs/blob/0db8614/docs/reference/stage_modules.md
+              title: "Kairos docs: stage modules"
+              retrieved: "2026-10-15"
+              quote: "A list of arbitrary commands to run after file writes and directory creation"
           runs_note: "The rootfs and initramfs stages run in the initramfs after the root is mounted; boot, fs, network and reconcile stages run in userspace; user data that arrives at the network stage runs there."
-          early_disk: "The layout module partitions and formats; it is documented in the boot stage and at kairos-install.pre.before. LUKS with TPM or KMS is set at install and covers user-data partitions; first-boot encryption in the initramfs is on master only, not in v4.3.0."
+          early_disk: "The layout module partitions and formats in any stage; it is documented in the boot stage and at kairos-install.pre.before. From a raw image, the first boot enters recovery mode and creates COS_STATE (active and passive images) and COS_PERSISTENT. LUKS with TPM or KMS is set at install and covers user-data partitions; first-boot encryption in the initramfs is on master only, not in v4.3.0."
           change_after_first_boot: "Add or edit files in /oem; applied on the next boot or reconcile; install-time keys apply only at install, upgrade or reset"
           evidence: DOCUMENTED
           sources:
