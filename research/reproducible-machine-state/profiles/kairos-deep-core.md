@@ -361,7 +361,7 @@ Evidence: **DOCUMENTED**.
 The root image constant is 3072 MiB (`sdk/constants/constants.go:58`) and the OEM
 partition is 64 MiB (`OEMSize = uint(64)`). Neither appears in the documentation.
 
-the Pulse brief records the 3072 figure as "a 3072 MiB ceiling on the root image". **It is not a
+The Pulse brief records the 3072 figure as "a 3072 MiB ceiling on the root image". **It is not a
 ceiling.** `agent/pkg/config/spec.go:173-182` seeds the three images at 3072 and then
 overwrites all three with the measured source size, from a heuristic at `spec.go:879-942`
 (compressed layer sum times 2.5 for a registry source, tar size times 2.0 for an OCI file,
