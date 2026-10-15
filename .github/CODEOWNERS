@@ -1,0 +1,48 @@
+# Who is asked to review what. See GOVERNANCE.md.
+#
+# Each project profile has one slot for a profile reviewer: a person who works
+# on that project and checks its facts. Until a reviewer takes a slot, the line
+# names the maintainers. Do not leave a line with no owner: GitHub then treats
+# the file as having no code owner at all. To take a slot, open a pull request
+# that adds your handle to the line, and add your affiliation to MAINTAINERS.md
+# in the same pull request.
+#
+# GitHub requests a review from the owners of a file when a pull request is
+# ready for review (not while it is a draft). Branch protection decides whether
+# that review is required. When it is required, an approval from any one owner
+# on the line is enough. GitHub ignores an owner with no write access to this
+# repository.
+
+*                                    @mauromorales
+
+# Conflicted files (GOVERNANCE.md, "Bootstrap"). The first maintainer with no
+# affiliation to Kairos, Hadron Linux or Spectro Cloud replaces @mauromorales on
+# these lines as the required approver. Adding them next to @mauromorales would
+# not make their approval required, because any one owner on a line is enough.
+# data/lineage.yaml and site/projects_meta.yaml state facts about Kairos, Hadron
+# and Spectro Cloud next to facts about the other projects. GitHub cannot
+# protect one entry of a file, so the whole file is listed. Only a change that
+# touches an entry about Kairos, Hadron or Spectro Cloud is conflicted.
+/data/projects/kairos.yaml           @mauromorales
+/data/projects/hadron.yaml           @mauromorales
+/data/lineage.yaml                   @mauromorales
+/site/projects_meta.yaml             @mauromorales
+/docs/methodology.md                 @mauromorales
+/schema/                             @mauromorales
+/GOVERNANCE.md                       @mauromorales
+
+# Profile reviewer slots. Add the reviewer's handle after the maintainer.
+/data/projects/azure-container-linux.yaml @mauromorales
+/data/projects/bootc.yaml            @mauromorales
+/data/projects/bottlerocket.yaml     @mauromorales
+/data/projects/cos.yaml              @mauromorales
+/data/projects/elemental.yaml        @mauromorales
+/data/projects/eve-os.yaml           @mauromorales
+/data/projects/fedora-coreos.yaml    @mauromorales
+/data/projects/flatcar.yaml          @mauromorales
+/data/projects/microos.yaml          @mauromorales
+/data/projects/nixos.yaml            @mauromorales
+/data/projects/talos.yaml            @mauromorales
+/data/projects/ubuntu-core.yaml      @mauromorales
+/data/projects/unikraft.yaml         @mauromorales
+/data/projects/yocto.yaml            @mauromorales
