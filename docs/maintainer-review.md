@@ -16,10 +16,11 @@ article, and we will not present it that way.
 ## Who reviews a profile
 
 Each profile can have a representative, a person who works on the project, and
-an external steward, a person with no tie to it who looks after the profile when
-no representative is interested. No project has to have a representative. A
-profile with neither is reviewed by the maintainers. The rules are in
-[GOVERNANCE.md](../GOVERNANCE.md).
+an external steward, a person with no affiliation with any covered project who
+looks after the profile when no representative is interested. No project has to
+have a representative. A profile with neither is reviewed by the maintainers. A
+maintainer requests each reviewer's review by hand, and the request is recorded
+in the pull request. The rules are in [GOVERNANCE.md](../GOVERNANCE.md).
 
 ## What to send
 

@@ -1,17 +1,16 @@
 # Who is asked to review what. See GOVERNANCE.md.
 #
-# Each project profile has one slot for profile reviewers. There are two kinds
-# (GOVERNANCE.md, Profile reviewers): a representative, who works on that
-# project, and an external steward, who has no tie to it and looks after the
-# profile when no representative is interested. The slot can hold either kind
-# or both. Until a reviewer takes a slot, the line names the maintainers. Do not
-# leave a line with no owner: GitHub then treats the file as having no code
-# owner at all. To take a slot, open a pull request that adds your handle to the
-# line, and add your affiliation and your kind to MAINTAINERS.md in the same
-# pull request. An external steward is appointed by the maintainers first,
-# through a public issue.
-# Do not add a representative to a conflicted line below. Their fact check is
-# welcome as a review comment, but it does not replace the required approval.
+# Each project profile has one line. The maintainers own it. Do not leave a line
+# with no owner: GitHub then treats the file as having no code owner at all.
+#
+# Profile reviewers are NOT listed here (GOVERNANCE.md, Profile reviewers). There
+# are two kinds: a representative, who works on the project, and an external
+# steward, who has no affiliation with any covered project and looks after the
+# profile when no representative is interested. GitHub requires a code owner to
+# have write access, and one code owner on a line is enough for GitHub. A code
+# owner's approval would then count as the approval of the profile. So their
+# reviews are requested by hand, recorded in the pull request, and listed in
+# MAINTAINERS.md.
 #
 # GitHub requests a review from the owners of a file when a pull request is
 # ready for review (not while it is a draft). Branch protection decides whether
@@ -22,9 +21,11 @@
 *                                    @mauromorales
 
 # Conflicted files (GOVERNANCE.md, "Bootstrap"). The first maintainer with no
-# affiliation to Kairos, Hadron Linux or Spectro Cloud replaces @mauromorales on
-# these lines as the required approver. Adding them next to @mauromorales would
-# not make their approval required, because any one owner on a line is enough.
+# affiliation to any covered project, and not employed by Spectro Cloud, replaces
+# @mauromorales on these lines as the required approver. Adding them next to
+# @mauromorales would not make their approval required, because any one owner on
+# a line is enough. GitHub enforces the symmetric rule only for the lines listed
+# here. Everywhere else it rests on the maintainers and the public record.
 # data/lineage.yaml, site/projects_meta.yaml, site/content.py and
 # site/drafts/base_choice.yaml state facts about Kairos, Hadron and Spectro Cloud
 # next to facts about the other projects. GitHub cannot protect one entry of a
@@ -49,7 +50,7 @@
 /schema/                             @mauromorales
 /GOVERNANCE.md                       @mauromorales
 
-# Profile reviewer slots. Add the reviewer's handle after the maintainer.
+# Profile lines. The maintainers own them. Reviewers are not listed here.
 /data/projects/azure-container-linux.yaml @mauromorales
 /data/projects/bootc.yaml            @mauromorales
 /data/projects/bottlerocket.yaml     @mauromorales
