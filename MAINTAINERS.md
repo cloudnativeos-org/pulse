@@ -12,6 +12,9 @@ becomes one.
 Mauro Morales is the owner of the organization and the repository. See
 [GOVERNANCE.md](GOVERNANCE.md), section Ownership.
 
+Second owner: none named yet. When the owner names one, this section lists their
+name and GitHub handle.
+
 ## Administrators
 
 None yet. See [GOVERNANCE.md](GOVERNANCE.md), section Administrators.
