@@ -937,8 +937,10 @@ Recorded so a reader can audit the reasoning rather than trust it.
     On 2026-10-15 the names changed to match the KCD UK talk. R2 shows as
     Immutable at runtime (read-only OS files) and R3 as Rollback (to a version).
     R3 is a rollback to the previous OS version, not to a snapshot of one node.
-    R1 and R5 keep the names above, and the ids R1 to R5 stay. Immutable
-    (read-only OS files) and Rollback are now old names of R2 and R3.
+    R1 and R5 keep the names above, and the ids R1 to R5 stay. The new R2
+    name only adds "(read-only OS files)" to Immutable at runtime, the name R2
+    had before 2026-10-14. Immutable (read-only OS files) and Rollback, as the
+    site showed them on 2026-10-14, are old names of R2 and R3.
     Results. openSUSE MicroOS leaves the matrix: each node builds its next
     snapshot from packages, also from a pinned repository. SUSE still has an
     entry, because Elemental enters as SUSE's fleet-image path on the same base.
