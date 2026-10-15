@@ -22,21 +22,21 @@ body:
   - type: textarea
     id: r1
     attributes:
-      label: "Rule 1: whole-system updates"
+      label: "Rule 1: atomic updates (versioned OS)"
       description: How the OS updates as one unit (an image, a deployment or a snapshot), with a source.
     validations:
       required: true
   - type: textarea
     id: r2
     attributes:
-      label: "Rule 2: immutable at runtime"
+      label: "Rule 2: immutable at runtime (read-only OS files)"
       description: Which part of the OS is read-only on a running node, with a source.
     validations:
       required: true
   - type: textarea
     id: r3
     attributes:
-      label: "Rule 3: rollback"
+      label: "Rule 3: rollback (to a version)"
       description: How at least one previous OS version is kept and can be booted, with a source.
     validations:
       required: true
@@ -50,7 +50,7 @@ body:
   - type: textarea
     id: r5
     attributes:
-      label: "Rule 5: runs Kubernetes"
+      label: "Rule 5: Kubernetes ready"
       description: Where the project or its vendor documents running Kubernetes on it, with a source.
     validations:
       required: true
