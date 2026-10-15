@@ -46,12 +46,17 @@ def main():
                 .replace("{preview_url}", PREVIEW_URL)
                 .replace("{open_questions}", "\n".join(lines)))
         if pid in ("kairos", "hadron"):
-            # The author maintains these two, so another Kairos maintainer reviews them.
+            # The author maintains these two, so a change to their profiles follows the
+            # conflict-of-interest rules in GOVERNANCE.md. A review by a maintainer of
+            # either project is a fact check, not the approval those rules ask for.
             text = text.replace(
                 "Up front: I am one of the maintainers of Kairos and Hadron, two of the other entries, and I work for Spectro Cloud. "
                 "That is why every project gets this same request, Kairos and Hadron included.",
                 "As you know, I am one of the Kairos and Hadron maintainers too, and I work for Spectro Cloud, "
-                "so I am asking you to review them instead of doing it myself. Every project gets this same request.")
+                "so a change to these two profiles follows the conflict-of-interest rules in GOVERNANCE.md: it goes "
+                "through a public pull request that stays open for at least seven days. Your check is a fact check. "
+                "It is welcome, and it is not the approval those rules ask for from a maintainer with no tie to the "
+                "project. Every project gets this same request.")
         who = names.get(pid)
         text = text.replace("Hi {name},", "Hi %s," % who if who else "Hi,")
         path = os.path.join(a.out, pid + ".txt")
