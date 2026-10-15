@@ -3,8 +3,10 @@
 The cloud native OS Pulse compares projects, and the person who runs it,
 Mauro Morales, maintains two of them. This document says who owns the Pulse, who decides what goes into it,
 how, and what stops that person from tilting the data toward his own projects.
-It also says what protects every maintainer, the owner included, from being
-removed without a cause.
+It also says what protects a maintainer from being removed without a cause.
+The owner has a stronger protection: the owner role cannot be taken away by a
+vote, and the founder clause adds more for 24 months. The owner started the
+Pulse, and the organization and the repository are his.
 
 ## When these rules apply
 
@@ -29,13 +31,13 @@ the tools and the site. The current list is in [MAINTAINERS.md](MAINTAINERS.md).
 `data/projects/<id>.yaml`, and are asked to review every change to it. A
 profile reviewer checks facts only. Reviewing a profile does not mean the
 project endorses the Pulse or agrees with its analysis. Profile reviewers are
-listed in [CODEOWNERS](.github/CODEOWNERS), one slot per project. They come in
-two kinds:
+listed in [MAINTAINERS.md](MAINTAINERS.md). They are not listed in CODEOWNERS:
+their reviews are requested by hand. They come in two kinds:
 
 - A **representative** works on that project. They are a maintainer or a
   contributor named in the project's own docs.
-- An **external steward** has no tie to that project. They look after the
-  profile when no representative is interested.
+- An **external steward** has no affiliation with any covered project. They look
+  after the profile when no representative is interested.
 
 Both kinds can exist for the same project at once. A profile with neither has
 the maintainers as its reviewers. No project is forced to have a
@@ -51,12 +53,11 @@ not decide what goes into the data.
 
 Every maintainer and every profile reviewer, of either kind, states in
 MAINTAINERS.md the projects they work on and the organization that employs them.
-An external steward also states any affiliation with a competing or related
-project.
 An affiliation is any project in the Pulse that a person maintains, contributes
 to as part of their job, or is paid to promote. A person is also affiliated with
 every project that their employer develops, sells or supports, whether or not
-they work on it themselves.
+they work on it themselves. A **covered project** is a project that has a profile
+in `data/projects/`.
 
 ## Conflict of interest
 
@@ -65,13 +66,16 @@ author or the merging maintainer is affiliated with, or an entry about that
 project in another file that states facts about projects. Any file that states
 a fact about a project counts, whether or not it is listed. Today the listed
 files are `data/lineage.yaml`, `site/projects_meta.yaml`, `site/content.py` (the
-written comparisons) and `site/drafts/base_choice.yaml`. A conflicted change:
+written comparisons) and `site/drafts/base_choice.yaml`. Mauro decided to list
+these files, although it makes his own changes harder, because readers who find
+facts they can check will trust the Pulse little by little. A conflicted change:
 
 1. Goes through a public pull request. Nobody pushes it directly to `main`.
 2. Carries the `conflict-of-interest` label.
 3. Stays open for at least **7 days** after the label is added, so that anyone
    can object. An objection with a primary source blocks the merge until it is
    resolved, or until the profile records the disagreement with both sources.
+   That includes an objection from the project's representative.
 4. Needs approval from a maintainer who has no affiliation with that project,
    once such a maintainer exists. Until then, the 7 days and the public record
    are the only safeguard, and the bootstrap section below says so.
@@ -85,16 +89,21 @@ without that affiliation exists, the bootstrap section says what applies. A
 maintainer who works on Talos does not approve a conflicted change to the Talos
 profile either.
 
+GitHub enforces the symmetric rule only for the conflicted lines that CODEOWNERS
+covers. Everywhere else it rests on the maintainers and the public record.
+
 A change to `.github/CODEOWNERS` or `MAINTAINERS.md` is always conflicted,
 before the bootstrap ends and after it, so that nobody can put themselves back
 on the conflicted lines alone. It follows the four rules above, and for the
 first 24 months after the bootstrap ends the founder clause also applies.
 
-A change by an affiliated author to the profile of a project they are not
-affiliated with, for example a Kairos maintainer who edits the Talos profile,
-is not conflicted. Every value it changes must carry a primary source, and the
-pull request states the author's affiliations. Without that rule, nobody could
-keep the other profiles current while the Pulse has one maintainer.
+A change to a profile by an author, or with an approver, who is affiliated with
+any covered project is conflicted for rules 1, 2 and 3, even when it changes
+the profile of a project they are not affiliated with. Editing a competitor is
+as conflicted as editing your own project, for example a Talos maintainer who
+edits the Kairos profile. Every value it changes must carry a primary source,
+and the pull request states the author's affiliations. Rule 4 asks for approval
+from a maintainer with no affiliation with the project that is changed.
 
 A change to the methodology, the inclusion criteria, the schema or the
 vocabularies affects every project at once. It carries the
@@ -122,26 +131,36 @@ reduced to the number that everyone else casts together. If all maintainers
 work for one employer, no vote can be held, and the bootstrap section says who
 decides. The cap applies to every vote in this document.
 
-Removing a maintainer, appointing an administrator or an external steward, and
-changing the ownership have their own rules below. The majority rule does not
-apply to them.
+Becoming a maintainer, removing a maintainer, appointing an administrator or an
+external steward, and changing the ownership have their own rules below. The
+majority rule does not apply to them.
 
 ## Becoming a maintainer
 
 A contributor becomes a maintainer when an existing maintainer proposes them in
-a public issue and no maintainer objects within 14 days. A maintainer steps
-down by opening a pull request against MAINTAINERS.md.
+a public issue that stays open for 14 days and no maintainer objects. One
+maintainer's objection is a veto. The objection and the answer stay in the
+issue. A maintainer steps down by opening a pull request against
+MAINTAINERS.md.
 
 ## Profile reviewers
 
 ### Representatives
 
 A person who works on a covered project can become its representative on
-request. They open a pull request against CODEOWNERS and MAINTAINERS.md. The
+request. They open a pull request against MAINTAINERS.md that adds a row. The
 pull request links the project's own docs that name them, for example its
-maintainers file or its contributor list. A representative fact-checks the
-profile in public, in comments or reviews on the pull request. That is welcome
-at any time and does not need a slot.
+maintainers file or its contributor list.
+
+A maintainer requests the representative's review by hand on every pull request
+that changes that profile, and the request is recorded in the pull request. A
+representative can also fact-check at any time, in public, in comments or
+reviews. An objection from a representative that cites a primary source blocks
+the change, as in rule 3 of the conflict-of-interest rules.
+
+Representatives are not code owners. GitHub requires code owners to have write
+access, and one code owner on a line is enough for GitHub. A code owner's
+approval would then count as the approval of the profile.
 
 A representative's fact check is not an approval under the conflict-of-interest
 rules. Those rules ask for a maintainer with no affiliation with the project. A
@@ -149,37 +168,38 @@ representative is affiliated with it by definition.
 
 ### External stewards
 
-An external steward is a person with no tie to the project: they do not work on
-it, and no organization that employs them develops, sells or supports it. They
-look after the profile when no representative is interested. A steward has
-these duties:
+An external steward has no affiliation with any covered project. They do not
+work on one, and no organization that employs them develops, sells or supports
+one. They look after a profile when no representative is interested. A steward
+has these duties:
 
 1. Every value they change carries a primary source, as for any other project's
    profile.
-2. They declare in MAINTAINERS.md any affiliation with a competing or related
-   project.
+2. They declare in MAINTAINERS.md the organization that employs them and any
+   tie to a project outside the Pulse that competes with or relates to the
+   covered project.
 3. They answer a representative's correction in the pull request, before its
    objection window closes. The window is the same as for any other change.
 4. They step aside for a representative who appears. The representative takes
-   the lead on the profile. The steward leaves the CODEOWNERS line when the
-   representative asks, and may stay on it otherwise.
+   the lead on the profile. The steward stays on the list in MAINTAINERS.md, or
+   leaves it when the representative asks.
 
 The maintainers appoint an external steward through a public issue that stays
-open for 14 days. Any maintainer can object there. A steward never needs a
-representative's consent. A steward steps down by opening a pull request
-against MAINTAINERS.md, and the maintainers replace one who stops meeting these
-duties through the same public issue process.
+open for 14 days. One maintainer's objection is a veto. A steward never needs a
+representative's consent. Stewards are not code owners, for the same reason as
+representatives. A steward steps down by opening a pull request against
+MAINTAINERS.md. The maintainers replace one who stops meeting these duties
+through the same public issue process.
 
-Both kinds can exist for one project at once. A person can be a representative
-of one project and an external steward of another, if they state both
-affiliations.
+Both kinds can exist for one project at once. A representative of one covered
+project is affiliated with it, so they cannot be an external steward of another.
 
 ### Who may do what
 
 | Role | Propose a correction | Fact-check | Approve a change to a profile | Vote on governance |
 |---|---|---|---|---|
 | Representative | Yes | Yes, their project | No | No |
-| External steward | Yes | Yes, the profiles they look after | Yes for those profiles, unless the change is conflicted | No |
+| External steward | Yes | Yes, the profiles they look after | No. Their review is requested and recorded. A maintainer approves and merges | No |
 | Maintainer | Yes | Yes | Yes. A conflicted change needs a maintainer with no affiliation | Yes |
 | Administrator | Yes | Yes | As a maintainer | As a maintainer. Admin rights add no vote |
 | Owner | Yes | Yes | As a maintainer | As a maintainer, plus the founder clause |
@@ -198,7 +218,10 @@ A maintainer leaves only for a stated cause. There are two.
 months, any maintainer opens a public issue that names them and tries to reach
 them. If they have not answered and have done nothing 30 days after that issue,
 they move to the emeritus list. An emeritus maintainer who asks to come back
-becomes a maintainer again if no maintainer objects within 14 days.
+becomes a maintainer again if no maintainer objects within 14 days. The owner is
+exempt: the 12-month rule does not move the owner to the emeritus list. The
+owner holds the organization, and a role that could be lost by being quiet
+would let anyone take over the Pulse by waiting.
 
 **A breach of the code of conduct.** The code of conduct is the Contributor
 Covenant, version 2.1, named by its version. The Pulse does not write its own.
@@ -206,20 +229,29 @@ This cause cannot be used until the repository has a `CODE_OF_CONDUCT.md` file
 that names that version. Changing the version is a change to the protected text
 (see the founder clause).
 
-A removal for a breach goes through a public issue that names the cause and the
-evidence. The issue stays open for at least **30 days**, and the person
-concerned can answer in it. A removal needs the votes of at least **two
-thirds** of the active maintainers other than the person concerned, rounded up.
-The vote cap applies.
+A removal for a breach needs all three of these:
+
+1. A public issue that names the cause and the evidence. It stays open for at
+   least **30 days**, and the person concerned can answer in it.
+2. A written finding of a breach from the enforcement contact named in
+   `CODE_OF_CONDUCT.md`, or from an outside person named in MAINTAINERS.md. That
+   person is not a maintainer and has no affiliation with any covered project.
+3. The votes of at least **two thirds** of the active maintainers other than the
+   person concerned, rounded up. The two thirds are counted against that whole
+   group, not against the votes cast. The vote cap applies, so the yes votes of
+   one employer are reduced as described under Decisions.
+
+Residual risk. A group of more than one third of that group can block any
+removal. Two employers acting together can reach two thirds. The written
+finding is the check on that: they cannot remove anyone without it.
 
 A vote that says only that the others no longer want a person removes nobody.
 A cause has to be stated and shown.
 
-With fewer than two active maintainers besides the person concerned, no vote is
-held. Then the owner and one other maintainer together can remove a maintainer,
-for a breach of the code of conduct only, after the same 30-day public issue.
-The owner cannot be removed this way. With fewer than two other active
-maintainers, nobody can remove the owner from a role.
+With fewer than two active maintainers other than the person concerned, no vote
+can be held and nobody is removed. That includes the case of exactly two
+maintainers in all: the owner alone cannot remove the other one. The remedy is
+to appoint another maintainer first.
 
 ## Ownership
 
@@ -239,7 +271,7 @@ the organization or the repository. Only the owner gives up that role.
 
 **Only the owner changes this section, by a pull request that he opens or
 approves. This does not lapse.** The rules in "Changes to this document" do not
-apply to it.
+apply to it. No other section limits or overrides this section.
 
 ## Administrators
 
@@ -250,15 +282,18 @@ documentation. They were not tested on this organization:
 - The admin role is full access to the repository. It includes sensitive and
   destructive actions, such as managing security settings or deleting the
   repository.
-- An administrator can merge a pull request into a protected branch even
-  without the approving reviews that the branch rules ask for, unless the rules
-  cannot be bypassed.
+- Branch protection rules do not apply to administrators by default. A setting
+  can stop them from bypassing the rules, but an administrator can switch
+  repository rules off. Only an organization-level ruleset stops an
+  administrator. Owners manage it, and so do users with the permission "Manage
+  organization ref update rules and rulesets".
 - Whether members can delete or transfer repositories is an organization
   setting.
 
-So the owner keeps three things set. The organization setting "Allow members to
-delete or transfer repositories" is off. The rules for `main` cannot be
-bypassed by administrators. Nobody relies on a CODEOWNERS line alone to stop an
+So the owner keeps two things set. The organization setting "Allow members to
+delete or transfer repositories" is off. An organization-level ruleset protects
+`main`, and administrators cannot bypass it. Whether the organization's plan has
+rulesets is not verified. Nobody relies on a CODEOWNERS line alone to stop an
 administrator, because it does not bind one.
 
 Administrators come from the maintainers who have shown skin in the game after
@@ -274,7 +309,7 @@ The owner appoints an administrator after a public issue that has stayed open
 for 14 days. Anyone can object in that issue, and the owner answers each
 objection there. An administrator steps down by opening a pull request against
 MAINTAINERS.md. The owner adds or removes an administrator only through the
-same public process, with one exception.
+same public process. Three more rules apply:
 
 - Admin rights end on the same day a person stops being a maintainer or moves to
   the emeritus list.
@@ -288,16 +323,20 @@ same public process, with one exception.
 
 The **protected text** is:
 
-- the Ownership, Administrators, Removing a maintainer and Founder clause
-  sections;
+- the Ownership, Administrators, Removing a maintainer, Becoming a maintainer and
+  Founder clause sections;
 - the section "Changes to this document";
 - the vote rules in "Decisions", including the vote cap;
-- the choice of code of conduct.
+- the rule in "Conflict of interest" that changes to CODEOWNERS and
+  MAINTAINERS.md are always conflicted;
+- the choice of code of conduct;
+- the date recorded in the Bootstrap section.
 
 For the first 24 months after the bootstrap ends, two things need the owner's
 agreement: any change to the protected text, and removing the owner from any
 role. "Needs the owner's agreement" means an approving review from the owner on
-the pull request.
+the pull request. The recorded date is the exception: it changes only with an
+approving review from the owner, and this does not lapse.
 
 The clause is not in force during the bootstrap. The owner merges then, so
 nothing changes without him. The clause lapses on its own 24 months after the
@@ -328,24 +367,36 @@ During the bootstrap:
   Cloud in `data/lineage.yaml`, `site/projects_meta.yaml`, `site/content.py` or
   `site/drafts/base_choice.yaml`. That includes corrections that Mauro did not
   write but merges.
-- The first maintainer who has no affiliation with Kairos, Hadron or Spectro
-  Cloud replaces Mauro as the required approver of the Kairos and Hadron
-  profiles, of the conflicted entries in the files above, of the methodology and
-  the schema, and of `.github/CODEOWNERS`, `MAINTAINERS.md` and this document.
+- The first maintainer who has no affiliation with any covered project and is
+  not employed by Spectro Cloud replaces Mauro as the required approver of the
+  Kairos and Hadron profiles, of the conflicted entries in the files above, of
+  the methodology and the schema, and of `.github/CODEOWNERS`, `MAINTAINERS.md`
+  and this document. A maintainer who works on another covered project, a
+  competitor of Kairos or Hadron for example, does not qualify.
 - Mauro proposes the new maintainers, so he picks the people who will oversee
-  him. Each proposal is a public issue, open 14 days, and anyone can object to
-  it there.
+  him. Each proposal is a public issue, open 14 days, and one maintainer's
+  objection is a veto.
 
-**The bootstrap ends** when the Pulse has at least two maintainers besides Mauro,
-who work on two different projects, and neither of whom is employed by Spectro
-Cloud, and at least one of whom has no affiliation with Kairos, Hadron or
-Spectro Cloud. Without that last condition the bootstrap could end with nobody
-allowed to approve a change to the Kairos and Hadron profiles.
+**The end condition** is that the Pulse has at least two maintainers besides
+Mauro, who work on two different projects, and neither of whom is employed by
+Spectro Cloud, and at least one of whom has no affiliation with any covered
+project. Without that last part the bootstrap could end with nobody allowed to
+approve a change to the Kairos and Hadron profiles.
 
-The bootstrap does not end by itself, and nobody else can end it. It ends on the
-day a pull request that records that day in this section, approved by the
-owner, is merged. From then on, the decision rules above apply in full, and
-this section is reduced to a record of when the bootstrap ended.
+The owner alone decides when the bootstrap ends. He ends it with a pull request
+that records the day in this section, which he approves. From then on, the
+decision rules above apply in full, and this section is reduced to a record of
+when the bootstrap ended.
+
+The owner does not control the end without limit. The bootstrap ends 90 days
+after the end condition holds, unless the owner states a public reason in an
+issue, before then, why it should continue. Each reason delays the end by at
+most 90 days, and he can renew it the same way. If no reason is stated, any
+maintainer may open the pull request that records the day, and it does not need
+the owner's review.
+
+The recorded date changes only with an approving review from the owner. This
+does not lapse.
 
 Bootstrap ended on: not yet.
 

@@ -23,13 +23,22 @@ None yet. See [GOVERNANCE.md](GOVERNANCE.md), section Administrators.
 
 A profile reviewer checks the facts of one project's profile and is not a
 maintainer. A representative works on the project. An external steward has no
-tie to it and looks after the profile when no representative is interested. See
-[GOVERNANCE.md](GOVERNANCE.md).
+affiliation with any covered project and looks after the profile when no
+representative is interested. Reviewers are not listed in CODEOWNERS: a
+maintainer requests their review by hand and records the request in the pull
+request. See [GOVERNANCE.md](GOVERNANCE.md).
 
 | Name | GitHub | Kind | Employer | Project reviewed | Affiliations in the Pulse |
 |---|---|---|---|---|---|
 
 None yet.
+
+## Outside person for code of conduct findings
+
+None named yet. A removal for a breach of the code of conduct needs a written
+finding from the enforcement contact in `CODE_OF_CONDUCT.md` or from this person.
+The person is not a maintainer and has no affiliation with any covered project.
+See [GOVERNANCE.md](GOVERNANCE.md), section Removing a maintainer.
 
 ## Emeritus
 
