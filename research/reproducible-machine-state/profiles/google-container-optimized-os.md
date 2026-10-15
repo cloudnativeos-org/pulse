@@ -1,7 +1,6 @@
 # Google Container-Optimized OS: platform profile
 
-Tracked as ,
-the research epic, Reproducible
+Part of the research epic, Reproducible
 Machine State.
 
 Container-Optimized OS (COS) is Google's own minimal container host. It is a fork of the

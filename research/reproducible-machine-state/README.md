@@ -1,6 +1,5 @@
 # Reproducible Machine State — investigation funnel
 
-Tracked as .
 Source documents in this directory: `persona-strategy-v3-source.txt` (the uploaded
 public-persona strategy, extracted from `.docx`) and `research-framework.md` (the
 22-dimension research prompt Mauro pasted directly in chat). This file is the synthesis
@@ -87,9 +86,9 @@ own sub-issue.
 ## Deliverable 1 replaced — resolved
 
 Mauro gave a fully-specified first deliverable directly, 2026-09-15: **Cloud Native OS
-Pulse 2026** (),
+Pulse 2026**,
 superseding the open-ended "methodology and research plan" sub-issue
-(, closed). The Pulse is deliberately narrower and more concrete than
+(closed). The Pulse is deliberately narrower and more concrete than
 this file's original deliverable-1 description: a compact, sourced, publishable snapshot
 of the ecosystem — explicitly not the full architectural comparison, no destructive
 experiments, no rankings. It reuses this funnel's ten-platform landscape and bias-control

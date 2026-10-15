@@ -1,8 +1,6 @@
 # Unikraft: is the general-purpose host OS the right unit of deployment?
 
-Boundary-case profile for the Reproducible Machine State investigation
-(),
-written for .
+Boundary-case profile for the Reproducible Machine State investigation.
 Seeds public series post #8.
 
 Research date: 2026-09-16. Versions examined: Unikraft core `v0.21.0` (Ijiraq, released
@@ -12,19 +10,19 @@ Research date: 2026-09-16. Versions examined: Unikraft core `v0.21.0` (Ijiraq, r
 
 This is not a survey. A compact fourteen-dimension factual profile of Unikraft already
 exists as part of the cloud native OS Pulse 2026
-(, file
+(file
 `data/projects/unikraft.yaml`, unmerged on `feat/issue-813-pulse-profiles`),
 and this document does not repeat it. Where the Pulse establishes a fact, this document
 cites it and moves on. Where a fact is load-bearing for an argument here, it was re-verified
 against a primary source on 2026-09-16 and is cited to that source directly.
 
-**On document structure.**  was supposed to produce a standardised
+**On document structure.** The methodology plan was supposed to produce a standardised
 project-profile template and was closed without producing one, superseded by the Pulse brief. There is
-therefore no template to follow.  (the NixOS sub-issue under the same
+therefore no template to follow. The NixOS profile (under the same
 epic) hit the same gap and resolved it by designing a structure appropriate to its own
 question and recording that as an explicit decision. This document follows that precedent.
 The structure here is organised around the research framework's twenty-two dimensions used
-as an applicability checklist, which is what the platform-profile task asks for, rather than around a profile
+as an applicability checklist, which is what the brief for this profile asks for, rather than around a profile
 shape that would imply Unikraft is being scored against the other nine projects. It is not.
 
 **Evidence labels** follow `research-framework.md`, evidence standard section: DOCUMENTED,
@@ -73,7 +71,7 @@ A production image "contains no shell, no unneeded system services, no unneeded 
 or OS features."
 [DOCUMENTED — [unikraft.org/docs/concepts/security](https://unikraft.org/docs/concepts/security)]
 
-One correction to the common description, including the one in the platform-profile task's own ticket text.
+One correction to the common description, including the one in this profile's own brief.
 Saying there is "no process model at all" is too strong. `lib/posix-process` exists in the
 tree and its Kconfig exposes `LIBPOSIX_PROCESS_MULTITHREADING`, `LIBPOSIX_PROCESS_EXECVE`,
 `LIBPOSIX_PROCESS_SIGNAL` (marked EXPERIMENTAL) and `LIBPOSIX_PROCESS_MULTIPROCESS`, the

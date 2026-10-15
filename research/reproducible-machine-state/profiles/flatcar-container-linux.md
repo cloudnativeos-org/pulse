@@ -1,7 +1,6 @@
 # Flatcar Container Linux: platform profile
 
-Tracked as ,
-the research epic, Reproducible
+Part of the research epic, Reproducible
 Machine State.
 
 Flatcar Container Linux is a minimal, container-oriented Linux distribution built from a ChromiumOS
@@ -29,7 +28,7 @@ posture.
 **Depth tier: deep experimental core. This pass is the architecture study only.** The epic's
 stratification puts Flatcar at "full build / provision / extend / update / break / recover cycle plus
 both standardized experiment protocols". None of that was run here. That is a scope decision recorded
-on the platform-profile task and on the epic before the
+on the epic before the
 research started, not an omission: no experiment-report template is ratified for this tier, and the
 four infrastructure decisions that gate a real experiment pass are open on
 the research epic. The section "What a full
@@ -1293,7 +1292,7 @@ weekend.
 ## 21. Failure experiments
 
 **Tier scope, stated first.** The ten destructive experiments the framework lists were NOT RUN. That
-is the scope decision recorded on the platform-profile task
+is the scope decision recorded
 before the work started: no experiment-report template is ratified, and the four infrastructure
 decisions on the research epic are open. Every
 scenario below is therefore **NOT TESTED / OUT OF TIER SCOPE** for observed behaviour. What is
@@ -1547,7 +1546,7 @@ UNKNOWN.
 ### The decisions that block the experiment pass
 
 All four are already recorded on the research epic,
-raised from the platform-profile task, and are not re-derived
+raised from this profile, and are not re-derived
 here: (1) ratify an experiment-report template for this tier; (2) decide whether a local-QEMU or
 dev-variant result counts as REPRODUCED or only as evidence about the mechanism; (3) decide whether
 real cloud infrastructure is in scope and with what budget cap; (4) decide build-host allocation for

@@ -1,7 +1,6 @@
 # FR-14 — Secure Boot key ownership across five projects
 
-Backlog id **FR-14**, tracked as
-, a follow-up
+Backlog id **FR-14**, a follow-up
 from the cloud native OS Pulse 2026 (the Pulse brief),
 under the Reproducible Machine State epic (the research epic).
 
@@ -61,7 +60,7 @@ boot, with no documentation anywhere explaining why.
 ## Why this document is shaped the way it is
 
 No standardized project-profile template survives from the methodology plan — that ticket was closed and
-superseded by the Pulse brief before producing one. the platform-profile task (NixOS), the platform-profile task (Unikraft) and the platform-profile task (Azure Linux)
+superseded by the Pulse brief before producing one. The NixOS, Unikraft and Azure Linux profiles
 each hit the same gap, designed a structure for their own question, and recorded the choice
 in-doc. Same precedent here.
 

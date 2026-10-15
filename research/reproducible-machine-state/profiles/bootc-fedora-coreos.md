@@ -1,7 +1,6 @@
 # bootc and Fedora CoreOS: platform profile
 
-Tracked as ,
-the research epic, Reproducible
+Part of the research epic, Reproducible
 Machine State.
 
 **bootc** is a mechanism, not an operating system: a Rust command-line tool and library that deploys
@@ -33,8 +32,8 @@ pre-built by Fedora." DOCUMENTED,
 
 **Depth tier: deep experimental core. This pass is the architecture study only.** The epic puts bootc
 at "full build / provision / extend / update / break / recover cycle plus both standardized experiment
-protocols". None of that was run — a scope decision recorded on
-the platform-profile task before the research started: no
+protocols". None of that was run, a scope decision recorded
+before the research started: no
 experiment-report template is ratified for this tier, and the four infrastructure decisions gating a
 real pass are open on the research epic. "What a full
 experimental pass needs" scopes and prices the missing half. Same posture as the sibling Bottlerocket
@@ -3208,7 +3207,7 @@ CoreOS's ceiling is probably higher than the organization needs.
 ## 21. Failure experiments
 
 **Tier scope, stated first.** The ten destructive experiments were **NOT RUN** — the scope decision
-recorded on the platform-profile task before the work started.
+recorded before the work started.
 Every scenario below is **NOT TESTED / OUT OF TIER SCOPE** for observed behaviour. What is recorded is
 what documentation and source say the *expected* behaviour is, DOCUMENTED where a primary source states
 it explicitly and INFERRED where this profile reasons from documented mechanics. Each scenario is
@@ -3598,8 +3597,7 @@ and disruption budgets; `bootc-operator` and `poseidon/fleetlock` both need a cl
 ### The decisions that block the experiment pass
 
 All four are recorded on the research epic, raised from
-the platform-profile task and extended from
-the platform-profile task, and are not re-derived: (1) ratify an
+earlier profile work and extended here, and are not re-derived: (1) ratify an
 experiment-report template for this tier; (2) decide whether a local-QEMU or dev-variant result counts as
 REPRODUCED or only as evidence about the mechanism; (3) decide whether real cloud infrastructure is in
 scope and with what budget cap; (4) decide build-host allocation for multi-hour, tens-of-GB builds — to

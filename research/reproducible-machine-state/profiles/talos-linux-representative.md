@@ -1,7 +1,7 @@
 # Talos Linux: what the API-only management contract actually buys
 
 Platform profile, "representative" tier.
-Tracked as , sub-issue of the research epic.
+Part of the research epic.
 Research date: 2026-09-16.
 Versions: `talosctl` v1.14.1 (client), node image `ghcr.io/siderolabs/talos:v1.14.1`, source read at tag `v1.14.1` of `siderolabs/talos`, documentation read at `docs.siderolabs.com/talos/v1.14`.
 Seeds public series post #5 ("Talos: what changes when Kubernetes becomes part of the machine-management contract").
@@ -10,7 +10,7 @@ Seeds public series post #5 ("Talos: what changes when Kubernetes becomes part o
 
 ## Why this document has the structure it has
 
-No project-profile template exists.  was meant to produce one and was closed, superseded by the Pulse brief, before it did. the platform-profile task (NixOS), the platform-profile task (Unikraft), the platform-profile task (Azure Linux) and the Secure Boot key-ownership task (Secure Boot key ownership) each designed a structure for their own question and recorded that choice in-document. This follows the same precedent rather than inventing a shared template nobody asked for.
+No project-profile template exists. The methodology plan was meant to produce one and was closed, superseded by the Pulse brief, before it did. The NixOS, Unikraft, Azure Linux and Secure Boot key-ownership profiles each designed a structure for their own question and recorded that choice in-document. This follows the same precedent rather than inventing a shared template nobody asked for.
 
 The structure here is driven by one thing that makes this profile different from its siblings: **the evidence comes from two sources with different strengths, and they do not overlap.**
 
@@ -92,7 +92,7 @@ Under GRUB the `BOOT` partition holds two directories, `A` and `B`, each with a 
 
 Under sd-boot there are no A and B labels. UKIs are files on the ESP named `Talos-<version>.efi`, with `Talos-<version>~<n>.efi` when the same version is installed more than once. Rollback globs that directory, skips the entry that is currently set to boot next, and writes the first other one it finds into the `LoaderEntryDefault` EFI variable ([`bootloader/sdboot/sdboot.go:627-670`](https://github.com/siderolabs/talos/blob/v1.14.1/internal/app/machined/pkg/runtime/v1alpha1/bootloader/sdboot/sdboot.go#L627-L670); DOCUMENTED). If no other UKI is present it returns `previous UKI not found`.
 
-That is a real behavioural difference worth carrying into the comparison: under GRUB, "the previous version" is a fixed slot; under sd-boot it is whichever other UKI file happens to still be on the ESP. the Secure Boot key-ownership task already established that Talos ships a Sidero-signed UKI with no separate shim, so the sd-boot path is the one Secure Boot users are on. How many UKIs the ESP retains in practice, and therefore how many versions back a Secure Boot node can actually roll, is UNKNOWN from source reading alone and is a good target for the QEMU pass.
+That is a real behavioural difference worth carrying into the comparison: under GRUB, "the previous version" is a fixed slot; under sd-boot it is whichever other UKI file happens to still be on the ESP. The Secure Boot key-ownership task already established that Talos ships a Sidero-signed UKI with no separate shim, so the sd-boot path is the one Secure Boot users are on. How many UKIs the ESP retains in practice, and therefore how many versions back a Secure Boot node can actually roll, is UNKNOWN from source reading alone and is a good target for the QEMU pass.
 
 `talosctl rollback` requires the `os:admin` role, probes the bootloader on the system disk, calls `Revert`, then triggers a reboot ([`v1alpha1_server.go:367-400`](https://github.com/siderolabs/talos/blob/v1.14.1/internal/app/machined/internal/server/v1alpha1/v1alpha1_server.go#L367-L400); DOCUMENTED).
 
