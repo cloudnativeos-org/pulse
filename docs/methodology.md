@@ -471,7 +471,7 @@ An entry in the comparison matrix meets all five inclusion criteria, with one ex
 | R1 | Atomic updates (versioned OS) | The OS version is one artifact, built once, that every node in a fleet runs. A fleet updates or rolls back by pointing it at a version. Examples: an OCI image, an image file, an OSTree commit. Extensions on top of the base, such as system extensions or layering, are allowed and recorded as conditions. A node that assembles its own update from packages does not meet R1, also when the packages come from a pinned repository. The local per-node rollback is R3. The test is capability: the project documents a way to run it like this. A cloud native OS is judged across a fleet, not on a single node. |
 | R2 | Immutable at runtime (read-only OS files) | The OS part (the root or `/usr`) is read-only on a running node. |
 | R3 | Rollback (to a version) | Rollback goes back to the previous OS version, the artifact the whole fleet ran. Each node keeps that previous version locally, ready to boot. A snapshot of a node's own state is not this rollback: R3 is a rollback to a version, not to a snapshot of one node. |
-| R4 | Declarative provisioning | A node configures itself at first boot from a declarative input, with no interactive install. |
+| R4 | Declarative provisioning | A node configures itself at first boot from a declarative input, with no interactive install. The input can be one file or several, for example a base configuration plus drop-ins. |
 | R5 | Kubernetes ready | The project, or its vendor, documents running Kubernetes on it: bundled, installed on it, or as the node OS of a Kubernetes service. |
 
 R5 needs two notes.
@@ -941,6 +941,9 @@ Recorded so a reader can audit the reasoning rather than trust it.
     name only adds "(read-only OS files)" to Immutable at runtime, the name R2
     had before 2026-10-14. Immutable (read-only OS files) and Rollback, as the
     site showed them on 2026-10-14, are old names of R2 and R3.
+    Also on 2026-10-15, R4 says outright that its declarative input can be one
+    file or several. The wording already allowed it, and no profile treats the
+    number of config files as a limit or a condition, so no profile changed.
     Results. openSUSE MicroOS leaves the matrix: each node builds its next
     snapshot from packages, also from a pinned repository. SUSE still has an
     entry, because Elemental enters as SUSE's fleet-image path on the same base.
