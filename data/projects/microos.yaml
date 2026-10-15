@@ -506,6 +506,8 @@ dimensions:
       version_identity:
         identifier: "os-release VERSION_ID, the Tumbleweed snapshot date, for example 20261003"
         condition: "Deploy every node from one appliance image, add no packages with transactional-update pkg install, use no system extensions, and move nodes together to a pinned snapshot repository."
+        meets_r1: false
+        r1_reason: "Each node builds its next snapshot from packages with transactional-update, also from a pinned repository. No artifact is built once for the fleet."
         evidence: DOCUMENTED
         sources:
           - url: https://download.opensuse.org/tumbleweed/appliances/
@@ -1858,6 +1860,7 @@ open_questions:
   - "Who owns support for an image an adopter builds with KIWI or Edge Image Builder, and does customization affect a commercial entitlement?"
   - "What happens to openSUSE MicroOS, the rolling vehicle, as the commercial one converges into the enterprise server's immutable mode and Leap Micro 6.3 becomes an appliance image of Leap 16.1? No statement about the rolling vehicle was found."
   - "Does any vehicle publish logging, metrics or monitoring documentation?"
+  - "Can SUSE Linux Micro be updated as one centrally built image through Elemental, and does that make the commercial vehicle meet R1 on its own? This profile judges the update tool of the vehicle, transactional-update. The Elemental path is profiled as its own entry, data/projects/elemental.yaml."
 
 follow_up_research:
   - FR-01
@@ -1876,6 +1879,14 @@ follow_up_research:
   - FR-19
 
 corrections:
+  - date: "2026-10-14"
+    field: "inclusion.R1"
+    change: "Was: in the matrix, R1 met with a condition (move nodes together to a pinned snapshot repository). Now: does not meet R1, so the entry leaves the matrix and is listed under Considered and excluded. R1 now asks for one OS artifact, built once, that every node in a fleet runs. An update here applies package changes inside a new snapshot on each node, also when the repository is pinned. The profile and its data sheet stay. SUSE's fleet-image path, an OCI image rolled to every node, is the Elemental entry (data/projects/elemental.yaml). The methodology note of 2026-10-14 (section 11, item 12) gives the reasoning."
+    source:
+      url: https://github.com/openSUSE/transactional-update/blob/ef8af9f/man/transactional-update.8.xml
+      type: source-repo
+      title: "transactional-update man page"
+      retrieved: "2026-10-06"
   - date: "2026-10-06"
     field: "tradeoffs.costs"
     change: "Cost audit under methodology section 9, rule 15. c0 reworded: removed the comparison with a verified root (N6); the absence of dm-verity stays (C2). Moved c1 (default snapshot retention on the community vehicle) to q1, which carries the same facts (N1). Removed c2 ('The rolling vehicle publishes no support window...') and c3 ('No stable ABI is promised at the base OS layer...'), N2: documented design choices with a supported alternative path, the versioned and commercial vehicles. c6 reworded; inheritance of the enterprise certificates is q8 (N1). c10 reworded; the logging, metrics and monitoring part is a new open question (N1). c11 reworded; the foundation disagreement is q14."

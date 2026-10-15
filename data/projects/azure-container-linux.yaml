@@ -411,7 +411,7 @@ dimensions:
       recovery_environment: unknown
       factory_reset: unknown
       network_independent_recovery: unknown
-      aks_node_image_downgrade: "none"
+      aks_node_image_downgrade: "available at node-pool level since the AKS page 'Roll back node pool versions': back to the previous node image version (N-1), within seven days, and it replaces the nodes"
       aks_os_sku_rollback: "available at node-pool level, by reimaging to the previous OS SKU"
     summary: >-
       The ACL sources document a two-slot layout, but no source describes how an
@@ -1221,6 +1221,7 @@ known_issues:
         retrieved: "2026-10-05"
         quote: "failed to rename the /opt/cni/bin/azure-vnet to /opt/cni/bin/azure-vnet.old: rename /opt/cni/bin/azure-vnet /opt/cni/bin/azure-vnet.old: read-only file system"
 open_questions:
+  - "Does a node keep the previous fleet version locally, ready to boot, as R3 asks? AKS rolls a node pool back to the previous node image (N-1, seven days), but that replaces the nodes. No document says a node boots its previous slot, so R3 stays unknown."
   - "Does ACL fall back to the other /usr slot automatically after a failed boot, does AKS use the A/B slot at all, or does it always replace the node? Is a recovery path documented?"
   - "What is Trident's role on ACL, and does the shipped image include it?"
   - "Which Flatcar version is a shipping ACL node image built from, given that the repository documents a stable 4459.x pin?"
@@ -1243,6 +1244,15 @@ follow_up_research:
   - FR-17
 
 corrections:
+  - date: "2026-10-14"
+    field: "dimensions.d05_rollback_recovery.normalized.aks_node_image_downgrade"
+    change: "Was 'none', from the AKS statement that a node image version cannot be downgraded. The AKS page 'Roll back node pool versions' (updated 2026-10-10) now documents a node pool rollback that restores the Kubernetes and node image versions to their previous state, for all OS SKUs, only to N-1, only for seven days, and it replaces the nodes. R3 for ACL stays 'unknown': no document says a node boots its previous slot, and a rollback that replaces nodes is not a local boot. The question is in open_questions."
+    source:
+      url: https://learn.microsoft.com/en-us/azure/aks/roll-back-node-pool-version
+      type: vendor-docs
+      title: "Roll back node pool versions"
+      retrieved: "2026-10-14"
+      quote: "Rollback replaces the nodes in the node pool."
   - date: "2026-10-06"
     field: "tradeoffs"
     change: "Cost audit under methodology section 9, rule 15. Removed cost 'To use ACL, an operator must name it. AKS defaults to Ubuntu, and AKS Automatic preconfigures the mutable Azure Linux.' (N6, a judgement, not a limit). Removed cost 'A CVE fix always needs a new node image, because nothing on /usr updates in place.' (N2, the documented image-based design, with the weekly node image as the supported path). Moved cost 'The documentation does not describe rollback, recovery, or SBOMs and provenance. Console access is not described in the sources read.' to open questions (N1): q0 now also asks about recovery; q6 covers SBOMs and provenance; q9 covers console access. Reworded cost to 'Governance is a single vendor team.': release traceability is q3, and the repository age was removed (N4). Reworded buy b2 to state the outcome; the Flatcar base is recorded in the profile's taxonomy and dimensions."

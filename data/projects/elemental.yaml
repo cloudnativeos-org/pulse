@@ -1,0 +1,1443 @@
+schema_version: "1.0.0"
+edition: "2026"
+id: elemental
+name: Elemental
+homepage: https://elemental.docs.rancher.com/
+repository: https://github.com/rancher/elemental
+collected_at: "2026-10-14"
+
+entry_kind:
+  - distribution
+  - framework
+
+category_fit:
+  comparable: full
+  note: >-
+    Added 2026-10-14 as SUSE's fleet-image path on the SL Micro base, when
+    openSUSE MicroOS left the matrix. The entry is the Elemental operator, the
+    Elemental toolkit and the Elemental OS images. It is not SUSE Edge and it
+    is not SL Micro alone. See the methodology, section 10, "The fourteenth
+    entry: Elemental", and section 11 item 12.
+
+self_description:
+  text: >-
+    Elemental is a software stack enabling centralized, full cloud-native OS
+    management with Kubernetes.
+  source:
+    url: https://elemental.docs.rancher.com/
+    type: official-docs
+    title: OS Management for Rancher, Welcome to Elemental
+    retrieved: "2026-10-14"
+    version: "1.9"
+    quote: Elemental is a software stack enabling centralized, full cloud-native OS management with Kubernetes.
+
+version_observed:
+  version: "elemental-operator v1.9.2; elemental-toolkit v2.3.4; Elemental OS (Elemental Linux) v2.3.1"
+  released: "2026-06-18"
+  channel: stable
+  method: >-
+    gh release list --repo rancher/elemental-operator, gh release list --repo
+    rancher/elemental-toolkit and gh release list --repo rancher/elemental,
+    read on 2026-10-14. In each list the release marked Latest is the one
+    recorded: operator v1.9.2, toolkit v2.3.4, Elemental Linux v2.3.1. All three
+    were published 2026-06-18. The 1.9 release notes page lists the same three
+    versions. Rancher Manager v2.14 or later is required by operator 1.9.x.
+    Newer git tags exist without a GitHub release and are not recorded as the
+    latest release: operator v1.9.3 and v1.8.3 (2026-09-24), toolkit v2.3.5
+    (2026-09-23) and v2.2.10 (2026-10-13), and rancher/elemental v2.3.2
+    (2026-09-23). Checked with git ls-remote --tags and the commit date of each
+    tag on 2026-10-14.
+  source:
+    url: https://elemental.docs.rancher.com/release-notes
+    type: release-notes
+    title: Elemental release notes
+    retrieved: "2026-10-14"
+    version: "1.9"
+    quote: "| [Elemental Operator](https://github.com/rancher/elemental-operator/) | v1.9.2  |"
+  additional_channels:
+    - channel: operator 1.8 maintenance branch
+      version: "v1.8.2"
+      released: "2026-06-18"
+    - channel: operator 1.7 maintenance branch
+      version: "v1.7.5"
+      released: "2026-06-18"
+    - channel: operator 1.6 maintenance branch
+      version: "v1.6.11"
+      released: "2026-06-18"
+    - channel: toolkit 2.2 maintenance branch
+      version: "v2.2.9"
+      released: "2026-06-18"
+    - channel: toolkit 2.1 maintenance branch
+      version: "v2.1.6"
+      released: "2026-06-18"
+
+taxonomy:
+  workload_scope: kubernetes-oriented-host
+  construction_model:
+    - vendor-fixed-image
+    - vendor-base-plus-derivation
+    - framework
+  root_state_substrate:
+    - ab-partition-image
+    - transactional-snapshot
+  notes: >-
+    The docs call the result an "OS appliance for Kubernetes nodes". The image
+    is built on SL Micro and its docs show zypper and RPM install paths, so it
+    is recorded as a host optimized for Kubernetes and not as a node with no
+    general user space. Root state is a set of image snapshots on a state
+    partition. Each snapshot is a loop-mounted ext4 image (default) or a btrfs
+    subvolume.
+
+    ab-partition-image is the closest value. Elemental keeps N image files or
+    btrfs subvolumes on one COS_STATE partition and not two fixed partitions.
+    The docs still call it A/B ("an A/B install and upgrade system" in the
+    docs index, "A/B bootable file system images" in the installation
+    partition table).
+
+dimensions:
+  d01_os_model:
+    normalized:
+      workload_scope: kubernetes-oriented-host
+      ships_kubernetes: false
+      base_os: "SLE Micro (SUSE Linux Micro)"
+      components:
+        - "elemental-operator: Kubernetes controllers and registration endpoint, runs on the Rancher cluster"
+        - "elemental-toolkit and the elemental CLI: install, upgrade and reset on the node"
+        - "elemental-register and elemental-system-agent: node-side clients"
+        - "Elemental OS container images, flavors base, baremetal, kvm and rt"
+    summary: >-
+      A stack of three parts. The toolkit boots and upgrades a node from an OCI
+      image. The operator connects those nodes to Rancher. The Elemental OS
+      images are that toolkit applied to SL Micro. Kubernetes (RKE2 or K3s) is
+      not in the image. Rancher installs it on the node.
+    notes: >-
+      The Elemental OS image is described as an opinionated toolkit image based
+      on SLE Micro. The 1.9 channel table names SL Micro 6.1 as the base OS. The
+      v2.3.1 Elemental Linux release note mentions SL Micro 6.2, see
+      open_questions.
+
+      The toolkit is also published on its own as a way to build derivatives
+      from container images, so Elemental is both a vendor image and a
+      framework.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://elemental.docs.rancher.com/
+        type: official-docs
+        title: Welcome to Elemental
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: The Elemental Stack consists of a handful of packages on top of SLE Micro
+      - url: https://elemental.docs.rancher.com/architecture-components
+        type: official-docs
+        title: Elemental components
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: containing all the files that will make up the OS of the target host
+      - url: https://elemental.docs.rancher.com/channels
+        type: official-docs
+        title: Channels, flavors
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: "| SL Micro         | 6.1            | Bare-metal | registry.suse.com/rancher/elemental-channel/sl-micro:6.1-baremetal |"
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Getting%20started/_index.md
+        type: official-docs
+        title: Elemental toolkit, getting started
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: 'Philosophy behind elemental-toolkit is simple: it allows you to create Linux derivatives from container images.'
+    unknowns:
+      - "Which SL Micro release the current Elemental OS images use. The 1.9 channel table lists 6.1 only."
+
+  d02_immutability:
+    normalized:
+      read_only:
+        - /
+        - /usr
+      read_only_mechanism: "the root image or btrfs snapshot is mounted read-only in the initramfs (sysroot mount with Options=ro)"
+      ephemeral:
+        - /etc
+        - /srv
+        - /var
+      ephemeral_mechanism: "overlayfs on tmpfs. The toolkit default layout file sets size 25%, but that file is in the cloud-config-defaults feature, which the Elemental OS image build does not initialize (see notes)"
+      writable_and_persistent:
+        - /etc/cni (overlay)
+        - /etc/iscsi (overlay)
+        - /etc/rancher (overlay)
+        - /etc/ssh (overlay)
+        - /etc/systemd (overlay)
+        - /home
+        - /opt
+        - /root
+        - /usr/libexec
+        - /var/lib/cni (overlay)
+        - /var/lib/kubelet (overlay)
+        - /var/lib/rancher (overlay)
+        - /var/lib/elemental (overlay)
+        - /var/lib/NetworkManager (overlay)
+        - /var/lib/calico (overlay)
+        - /var/log (overlay)
+        - /oem (COS_OEM partition)
+        - /usr/local (COS_PERSISTENT partition)
+      integrity_mechanism:
+        - read-only-mount
+      integrity_note: "No dm-verity or composefs is documented in the sources read."
+      survives_upgrade:
+        - "the COS_PERSISTENT and COS_OEM partitions"
+      immutability_can_be_disabled: true
+      immutability_disable_where: "boot parameter rd.cos.debugrw, active and passive only, documented for debugging"
+      configurable_paths:
+        value: 'yes'
+        how: 'The writable and persistent paths are set in an immutable-layout cloud-config (RW_PATHS and PERSISTENT_STATE_PATHS), which a derivative or an OEM file can override.'
+        evidence: DOCUMENTED
+        sources:
+          - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Examples/embedded_images.md
+            type: official-docs
+            title: Elemental toolkit, embedded images example
+            retrieved: "2026-10-14"
+            version: "v2.3.4"
+            quote: 'RW_PATHS: "/var /etc /srv"'
+      mounts_sources:
+        - url: https://elemental.docs.rancher.com/installation
+          type: official-docs
+          title: Installation, Elemental Immutable Root
+          retrieved: "2026-10-14"
+          version: "1.9"
+          quote: One of the characteristics of Elemental OSes is the setup of an immutable root
+        - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/pkg/features/embedded/elemental-sysroot/usr/lib/dracut/modules.d/20elemental-sysroot/sysroot-generator.sh
+          type: source-repo
+          title: elemental-sysroot dracut generator
+          retrieved: "2026-10-14"
+          version: "v2.3.4"
+          quote: echo "Options=ro"
+        - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/pkg/features/embedded/cloud-config-defaults/system/oem/00_layout.yaml
+          type: source-repo
+          title: Default layout OEM file
+          retrieved: "2026-10-14"
+          version: "v2.3.4"
+          quote: "paths: ['/srv', '/etc', '/var', '/root']"
+    summary: >-
+      The root filesystem is mounted read-only from the active snapshot. /etc,
+      /srv and /var are discarded on reboot, except a list of paths kept as
+      persistent overlays, and /home, /opt and /root persist. Two separate
+      partitions hold persistent data. The adopter can change the layout in
+      cloud-config.
+    notes: >-
+      The toolkit reference page (immutable_rootfs.md) lists /etc as ephemeral
+      and /usr as read-only. The Elemental 1.9 installation page has the full
+      path table and shows /root as persistent. The recovery layout file lists
+      /root among the ephemeral tmpfs paths. This entry follows the 1.9 table
+      for the installed system. Persistent overlay paths are the ones the table
+      marks persistent under an ephemeral parent.
+
+      The default layout file cited above (00_layout.yaml, the source for the
+      tmpfs 25% size and for /root as ephemeral in recovery mode) belongs to
+      the toolkit feature cloud-config-defaults. The Elemental OS base image
+      build runs elemental init with the features elemental-rootfs,
+      elemental-sysroot, grub-config, dracut-config, cloud-config-essentials,
+      elemental-setup and boot-assessment. That list does not include
+      cloud-config-defaults. So the tmpfs size and the /root detail may not
+      apply to Elemental OS images. They are recorded as toolkit defaults only.
+
+      The SELinux doc states that SELinux labels are applied at install and
+      upgrade time for the read-only areas, and at boot for the overlay paths.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://elemental.docs.rancher.com/installation
+        type: official-docs
+        title: Installation, Elemental Immutable Root
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: filesystem where some ephemeral or persistent locations are applied on top of
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Reference/immutable_rootfs.md
+        type: official-docs
+        title: Immutable root filesystem
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: By default, `elemental` and derivatives will inherit an immutable setup.
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Reference/troubleshooting.md
+        type: official-docs
+        title: Troubleshooting, disable immutability
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: By adding `rd.cos.debugrw` to the boot parameters read only mode will be disabled.
+      - url: https://github.com/rancher/elemental/blob/v2.3.1/.obs/dockerfile/SL-Micro-base-container/Dockerfile#L107
+        type: source-repo
+        title: Elemental OS base image Dockerfile, elemental init features
+        retrieved: "2026-10-14"
+        version: "v2.3.1"
+        quote: "RUN elemental init --force elemental-rootfs,elemental-sysroot,grub-config,dracut-config,cloud-config-essentials,elemental-setup,boot-assessment"
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Customizing/selinux_support.md
+        type: official-docs
+        title: SELinux support
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: Since the rootfs is readonly they can't be easily applied at runtime or at boot time.
+    unknowns:
+      - "The root hash or digest of the running snapshot is not checked at boot in the sources read. No dm-verity documentation was found."
+
+  d03_artifact:
+    normalized:
+      primary_artifact: oci-container-image
+      oci_registry_distribution: "yes"
+      content_addressable: "partial"
+      mirrorable: true
+      signed: "toolkit and operator release binaries are cosign-signed; signing of the Elemental OS images is not stated in the sources read"
+      air_gapped_capable: true
+    summary: >-
+      The OS is an OCI container image that holds the full root, including
+      kernel and initrd. It is published to registry.suse.com, tracked as
+      ManagedOSVersion objects, and turned into an ISO or raw disk by a
+      SeedImage. An air-gap path with a private registry is documented.
+    notes: >-
+      The installation state doc says a digest is recorded only "if the source
+      is an image". The fleet upgrade job runs elemental upgrade from dir:/
+      inside the System Upgrade Controller job, so on the ManagedOSImage path
+      the source is a directory. Whether a digest is recorded on that path is
+      not shown in the sources read. Whether an upgrade pins the digest is not
+      stated. A ManagedOSImage normally names a tag.
+
+      Install and upgrade have optional cosign verification (--cosign) and
+      mtree checksum verification (--verify). The fleet upgrade job passes
+      neither flag, so on the ManagedOSImage path as shipped no signature or
+      mtree verification applies (the container runtime still checks layer
+      digests when it pulls). Both are off for a direct elemental upgrade unless
+      asked for, and cosign needs images that carry signatures.
+
+      The docs and the code disagree on mtree. The toolkit upgrading page says
+      elemental upgrade --system runs an mtree checksum verification by
+      default and that --verify disables it. The code defines --verify as a
+      Bool flag with default false, and the install page describes it as
+      "Enable mtree checksum verification". This profile follows the code and
+      records the conflict.
+
+      The airgap script builds a channel image that points at the private
+      registry, because the official channel references absolute registry.suse.com
+      URLs.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://elemental.docs.rancher.com/architecture-components
+        type: official-docs
+        title: Elemental OS container image
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: containing all the files that will make up the OS of the target host
+      - url: https://elemental.docs.rancher.com/custom-images
+        type: official-docs
+        title: Build custom OS images
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: FROM registry.suse.com/suse/sl-micro/6.1/baremetal-os-container:latest
+      - url: https://elemental.docs.rancher.com/airgap
+        type: official-docs
+        title: Air-gapped installation
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: In order to run Elemental in an air-gapped environment the following artifacts are needed
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Reference/installation_state.md
+        type: official-docs
+        title: Installation state
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: "# If the source is an image, digest is provided."
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Getting%20started/install.md
+        type: official-docs
+        title: Installing
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: "| --cosign                     | Enable cosign verification (requires images with signatures)"
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/.goreleaser.yaml
+        type: source-repo
+        title: Toolkit goreleaser config
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: 'signature: "${artifact}.sig"'
+      - url: https://github.com/rancher/elemental-operator/blob/v1.9.2/.goreleaser.yaml#L88-L93
+        type: source-repo
+        title: Operator goreleaser config, cosign signing
+        retrieved: "2026-10-14"
+        version: "v1.9.2"
+        quote: 'signature: "${artifact}.sig"'
+      - url: https://github.com/rancher/elemental/blob/v2.3.1/framework/files/usr/sbin/suc-upgrade#L99
+        type: source-repo
+        title: suc-upgrade, upgrade command
+        retrieved: "2026-10-14"
+        version: "v2.3.1"
+        quote: elemental --debug upgrade --bootloader --system dir:/
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Getting%20started/upgrading.md#L23
+        type: official-docs
+        title: Toolkit upgrading, mtree note
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: by default `elemental upgrade --system` runs an mtree checksum verificatiom
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/cmd/flags.go#L59
+        type: source-repo
+        title: Toolkit flags, verify
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: cmd.Flags().Bool("verify", false, "Enable mtree checksum verification
+    unknowns:
+      - "Whether the Elemental OS images on registry.suse.com carry signatures that --cosign can verify."
+      - "Whether an upgrade is pinned to an image digest or follows a tag."
+      - "Whether a digest is recorded in the installation state on the ManagedOSImage path, where the upgrade source is dir:/."
+
+  d04_upgrade:
+    normalized:
+      fleet_upgrade:
+        self_update: "Not applicable. A node upgrades when a ManagedOSImage targets it or when elemental upgrade is run on it."
+        paths:
+          - kind: fleet-server
+            name: "Elemental operator ManagedOSImage"
+            license: "Apache-2.0"
+            class: open-source
+            reconciliation: in-place
+            filter: true
+            note: "A ManagedOSImage names one OCI image (osImage) or a ManagedOSVersion. The operator creates a Fleet Bundle that applies an upgrade.cattle.io Plan to each targeted cluster, and the System Upgrade Controller runs it on the nodes. Targets are clusters (clusterTargets) and an optional nodeSelector. Default concurrency 1, cordon and drain on. Needs Rancher Manager v2.14 or later for operator 1.9.x."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://elemental.docs.rancher.com/upgrade-lifecycle
+                title: "Elemental upgrade lifecycle"
+                retrieved: "2026-10-14"
+                quote: Whenever a new `ManagedOSIMage` is defined, a related Fleet `Bundle` is also generated by the Elemental Operator.
+              - url: https://elemental.docs.rancher.com/managedosimage-reference
+                title: "ManagedOSImage reference"
+                retrieved: "2026-10-14"
+                quote: The ManagedOSImage resource is responsible of defining an OS image or image version that needs to be applied to each node in a set of targeted Clusters.
+          - kind: reboot-coordination
+            name: "System Upgrade Controller plan with cordon and drain"
+            license: "Apache-2.0"
+            class: open-source
+            filter: true
+            note: "Concurrency, cordon and drain are fields of the ManagedOSImage. The toolkit docs also show a hand-written SUC Plan that runs /usr/sbin/suc-upgrade."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/rancher/system-upgrade-controller
+                title: "System Upgrade Controller repository"
+                retrieved: "2026-10-14"
+              - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Getting%20started/upgrading.md
+                title: "Toolkit upgrading, Integration with System Upgrade Controller"
+                retrieved: "2026-10-14"
+                quote: '- "/usr/sbin/suc-upgrade"'
+      version_identity:
+        identifier: "IMAGE, IMAGE_REPO and IMAGE_TAG in /etc/os-release of the OS image. elemental state records the source for each snapshot, and a digest only if the source is an image. The fleet job upgrades from dir:/, so a digest is not shown for that path"
+        condition: "Rancher Manager v2.14 or later, because operator 1.9.x must be paired with it. No cloud-config hooks that install packages in the new snapshot. The docs show after-upgrade-chroot hooks and rpm installs that run on every upgrade and change the snapshot contents."
+        evidence: DOCUMENTED
+        sources:
+          - url: https://elemental.docs.rancher.com/custom-images
+            type: official-docs
+            title: "Build custom OS images"
+            retrieved: "2026-10-14"
+            version: "1.9"
+            quote: "# IMPORTANT: /etc/os-release is used for versioning/upgrade."
+          - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Reference/installation_state.md
+            type: official-docs
+            title: "Installation state"
+            retrieved: "2026-10-14"
+            version: "v2.3.4"
+            quote: "source: oci://my-os-image:v1.2.3"
+          - url: https://elemental.docs.rancher.com/extra-rpms
+            type: official-docs
+            title: "Add third party RPMs"
+            retrieved: "2026-10-14"
+            version: "1.9"
+            quote: "# Install the package after upgrading to a new image"
+      mechanism:
+        - ab-partition-switch
+        - transactional-snapshot
+      mechanism_note: "The closest closed-vocabulary values. ab-partition-switch covers the switch to a new image slot. transactional-snapshot is kept for the btrfs snapshotter only. The toolkit pulls an OCI image and unpacks it into a new image slot or snapshot that becomes the next boot target. It does not use bootc."
+      scope: whole-root
+      scope_note: "The root image is replaced. The COS_PERSISTENT and COS_OEM partitions are not."
+      scope_sources:
+        - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Getting%20started/upgrading.md
+          type: official-docs
+          title: Toolkit upgrading
+          retrieved: "2026-10-14"
+          quote: Elemental considers the container image as a new system where to boot into.
+      initiator: "controller-push through System Upgrade Controller, or operator-run elemental upgrade on the node"
+      requires_kubernetes: "for the fleet path only. elemental upgrade on a node needs no cluster."
+      requires_vendor_infrastructure: false
+      self_hostable_update_server: true
+      self_hostable_update_source: "A private OCI registry and a channel image you build (airgap script)"
+      artifact_verification: "cosign and mtree flags exist on elemental upgrade and are off in the code. The fleet upgrade job passes neither (it runs elemental upgrade from dir:/), so no signature or mtree verification applies on the ManagedOSImage path as shipped (layer digests are still checked when the image is pulled). The toolkit docs say mtree is on by default; the code says off"
+      same_or_older_version: "an upgrade to the identical os-release is always skipped, FORCE or not. An older version is skipped unless FORCE is true. The version check is also skipped when IMAGE_REPO differs from the one on the host"
+    summary: >-
+      A ManagedOSImage points a set of clusters at one OCI image. Each node
+      pulls the image, unpacks it into a new snapshot and boots it next. The
+      node reboots by itself at the end of the job. An older version is skipped
+      unless FORCE is set. The same version is skipped even with FORCE.
+    notes: >-
+      Updating an existing ManagedOSImage starts a new upgrade cycle for all
+      targeted nodes. If both osImage and a ManagedOSVersion are set, osImage
+      wins. The upgrade container is not meant to be edited except its env
+      keys FORCE, UPGRADE_RECOVERY and UPGRADE_RECOVERY_ONLY.
+
+      The recovery partition is upgraded only when asked (UPGRADE_RECOVERY).
+
+      The docs (upgrade.md) say FORCE forces upgrades to older versions. The
+      suc-upgrade script in rancher/elemental v2.3.1 checks isEqualVersion
+      first and exits before it reads FORCE, so FORCE does not re-apply the
+      same version. The older-version check is skipped when IMAGE_REPO differs.
+      The script ends with a reboot of the host (nsenter into PID 1, then
+      reboot), after elemental upgrade finishes. So the node does not wait for
+      a separate reboot step.
+
+      The fleet path runs through Fleet and the System Upgrade Controller on the
+      downstream cluster, both managed by Rancher. A node with no working
+      Kubernetes cluster can still be upgraded by running elemental upgrade on
+      it.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://elemental.docs.rancher.com/upgrade
+        type: official-docs
+        title: Upgrade
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: When upgrading to an older version or the same version that is already running the upgrade-procedure will be skipped.
+      - url: https://elemental.docs.rancher.com/upgrade
+        type: official-docs
+        title: Upgrade
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: Updating an existing `ManagedOSImage` will trigger a new upgrade cycle
+      - url: https://elemental.docs.rancher.com/release-notes
+        type: release-notes
+        title: Release notes, Rancher compatibility
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: Since version v1.9.x Elemental Operator must be paired with Rancher v2.14 or superior.
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Reference/installation_state.md
+        type: official-docs
+        title: Installation state
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: "fromAction: upgrade"
+      - url: https://github.com/rancher/elemental/blob/v2.3.1/framework/files/usr/sbin/suc-upgrade#L71-L105
+        type: source-repo
+        title: suc-upgrade, version check, FORCE and reboot
+        retrieved: "2026-10-14"
+        version: "v2.3.1"
+        quote: nsenter -i -m -t 1 -- reboot
+      - url: https://github.com/rancher/elemental/blob/v2.3.1/framework/files/usr/sbin/suc-upgrade#L71-L76
+        type: source-repo
+        title: suc-upgrade, same version exit
+        retrieved: "2026-10-14"
+        version: "v2.3.1"
+        quote: "echo \"Upgrade already done with release:\""
+    unknowns:
+      - "Whether a digest is recorded for a snapshot made by the fleet upgrade job, whose source is dir:/."
+
+  d05_rollback_recovery:
+    normalized:
+      rollback_to_previous: available
+      rollback_note: "Pick the previous snapshot in the GRUB menu, or set saved_entry. One boot menu entry exists per kept passive snapshot. A fleet-wide rollback means pointing a ManagedOSImage at the older image with FORCE set."
+      automatic_rollback_on_boot_failure: available
+      automatic_rollback_trigger: "Boot assessment (a toolkit feature, listed in the elemental init features of the Elemental OS base image): after an upgrade, install or reset a health check runs, a failed boot reboots, and GRUB tries the next entry. Fallback order is active, then the passive snapshots, then recovery."
+      automatic_rollback_attempts: "one step per boot attempt through the active entry and the passive snapshots"
+      retained_versions: configurable
+      retained_versions_note: "In the Elemental (operator) flow maxSnaps is 2 by default and at least 2, because the operator CRD defaults the snapshotter to loopdevice with maxSnaps 2 and always passes ELEMENTAL_SNAPSHOTTER_MAX_SNAPS. Only the bare toolkit defaults to 4 on btrfs (2 on loopdevice)"
+      recovery_environment: dedicated-partition
+      factory_reset: available
+      network_independent_recovery: partial
+    summary: >-
+      Each upgrade keeps the earlier snapshots, up to maxSnaps (default 2 in the
+      Elemental flow; 4 on btrfs only for the bare toolkit), and the boot menu has an entry for each passive snapshot. A
+      separate recovery partition can reset the machine. An optional boot
+      assessment feature reboots into the next entry when a new snapshot fails
+      its health check.
+    notes: >-
+      Boot order after a failure is active, then the passive snapshots, then
+      recovery. The default grub.cfg sets fallback to "0 recovery", but only
+      when default_fallback is unset. The snapshotter writes default_fallback to
+      the grub OEM env file at each snapshot change, as the list active,
+      passives, recovery (loopdevice.go L492-502, btrfs.go L404). That matches
+      configure_grub.md. Boot assessment ships in the Elemental OS image.
+
+      The operator CRD default is snapshotter loopdevice with maxSnaps 2 and a
+      minimum of 2. The operator always passes the value to the elemental CLI.
+      The MachineRegistration reference also says 2. The toolkit defaults of
+      2 (loopdevice) and 4 (btrfs) apply only when the toolkit is used on its
+      own.
+
+      Rollback restores the OS root. COS_PERSISTENT and COS_OEM are not rolled
+      back. A reset is different: operator-driven reset is off by default
+      (reset enabled is false), and when enabled it formats COS_PERSISTENT and
+      COS_OEM by default (reset-persistent and reset-oem are true).
+
+      Reset from the recovery partition rebuilds the state images from the
+      recovery image. Through the operator, reset is triggered by deleting a
+      MachineInventory or a cluster, and it re-applies the MachineRegistration
+      cloud-config. The network value is partial: GRUB rollback and elemental
+      reset from the recovery boot need no registry, but the fleet-driven reset
+      fetches the registration from Rancher.
+
+      The toolkit test suite has a case "boots in fallback when rootfs is
+      damaged", which exercises the boot assessment path.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/pkg/features/embedded/grub-config/etc/elemental/grub.cfg#L113-L122
+        type: source-repo
+        title: Default grub.cfg, one entry per passive snapshot
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: 'menuentry "${display_name} (snapshot ${passive_snap})" --id passive${passive_snap} ${passive_snap} {'
+      - url: https://elemental.docs.rancher.com/machineregistration-reference
+        type: official-docs
+        title: MachineRegistration reference, snapshotter
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: "| maxSnaps | int    | 2             | Maximum amount of snapshots to keep.                                            |"
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/pkg/constants/constants.go#L187-L188
+        type: source-repo
+        title: Snapshotter constants
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: LoopDeviceMaxSnaps        = 2
+      - url: https://github.com/rancher/elemental-operator/blob/v1.9.2/api/v1beta1/types.go#L56-L68
+        type: source-repo
+        title: Operator CRD snapshotter defaults
+        retrieved: "2026-10-14"
+        version: "v1.9.2"
+        quote: '+kubebuilder:default:={"type": "loopdevice", "maxSnaps": 2}'
+      - url: https://github.com/rancher/elemental-operator/blob/v1.9.2/pkg/elementalcli/elementalcli.go#L104
+        type: source-repo
+        title: Operator passes max snaps to the CLI
+        retrieved: "2026-10-14"
+        version: "v1.9.2"
+        quote: ELEMENTAL_SNAPSHOTTER_MAX_SNAPS
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/pkg/snapshotter/loopdevice.go#L492-L502
+        type: source-repo
+        title: Snapshotter writes the fallback list
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: // We count first is active, then all passives and finally the recovery
+      - url: https://github.com/rancher/elemental/blob/v2.3.1/.obs/dockerfile/SL-Micro-base-container/Dockerfile#L107
+        type: source-repo
+        title: Elemental OS base image Dockerfile, boot-assessment feature
+        retrieved: "2026-10-14"
+        version: "v2.3.1"
+        quote: "RUN elemental init --force elemental-rootfs,elemental-sysroot,grub-config,dracut-config,cloud-config-essentials,elemental-setup,boot-assessment"
+      - url: https://elemental.docs.rancher.com/machineregistration-reference
+        type: official-docs
+        title: MachineRegistration reference, reset
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: MachineInventories created from this MachineRegistration will have reset functionality enabled
+      - url: https://elemental.docs.rancher.com/reset
+        type: official-docs
+        title: Machine reset, partitions
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: the `COS_PERSISTENT` and `COS_OEM` partition will be cleared by default if reset is `enabled`
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/pkg/features/embedded/boot-assessment/system/oem/08_boot_assessment.yaml
+        type: source-repo
+        title: Boot assessment feature
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: On boot failure a reboot is triggered and grub will compute the next boot option from
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Customizing/embedded_features.md
+        type: official-docs
+        title: Embedded features
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: "boot-assessment: add boot assessment logic during install and upgrades."
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Customizing/configure_grub.md
+        type: official-docs
+        title: GRUB configuration, fallback logic
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: By default Elemental boots into active, and if there are failures will boot into the passive, and finally if keeps failing, will boot into recovery.
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/pkg/features/embedded/grub-config/etc/elemental/grub.cfg#L40-L45
+        type: source-repo
+        title: Default grub.cfg, fallback
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: set fallback="0 recovery"
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Getting%20started/recovery.md
+        type: official-docs
+        title: Recovery
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: A derivative can be recovered anytime by booting into the ` recovery` partition and by running `elemental reset` from it.
+      - url: https://elemental.docs.rancher.com/reset
+        type: official-docs
+        title: Machine reset
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: When deleting a Cluster, all associated machines will be reset
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/tests/fallback/fallback_test.go
+        type: source-repo
+        title: Fallback test
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: boots in fallback when rootfs is damaged, triggered by missing files
+
+  d06_customization:
+    normalized:
+      runtime_package_install: "through cloud-config hooks that run in the new snapshot at install, upgrade and reset"
+      mechanisms:
+        - derive-image-from-oci
+        - cloud-config-at-install-upgrade-reset
+        - oem-cloud-config
+        - extra-rpms-at-install
+      customization_points:
+        - build-time
+        - image-time
+        - first-boot
+        - upgrade-time
+      add_software:
+        - kind: derive-image
+          how: Write a Dockerfile FROM the SL Micro base OS container, run zypper or rpm in it, set IMAGE in /etc/os-release, re-run elemental init, push the image. The new image is then listed as a ManagedOSVersion.
+          evidence: DOCUMENTED
+          sources:
+            - url: https://elemental.docs.rancher.com/custom-images
+              type: official-docs
+              title: Build custom OS images
+              retrieved: "2026-10-14"
+              version: "1.9"
+              quote: Since OS images provided by Elemental are container images, they can also be used as a base image
+        - kind: transactional-packages
+          how: A cloud-config with after-upgrade-chroot, after-install-chroot and after-reset-chroot commands, for example zypper in or rpm -iv, runs in the new snapshot each time. The package is reinstalled on every upgrade.
+          evidence: DOCUMENTED
+          sources:
+            - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Customizing/runtime_persistent_changes.md
+              type: official-docs
+              title: Runtime persistent changes
+              retrieved: "2026-10-14"
+              version: "v2.3.4"
+              quote: Elemental allows to apply a set of commands, or cloud-init steps, during upgrade, deploy, install and reset in the context of the target image
+            - url: https://elemental.docs.rancher.com/extra-rpms
+              type: official-docs
+              title: Add third party RPMs
+              retrieved: "2026-10-14"
+              version: "1.9"
+              quote: How to add third party RPMs at install time
+    summary: >-
+      The main route is to derive a new OCI image from the Elemental base and
+      push it. For small changes, cloud-config hooks install packages into each
+      new snapshot at install, upgrade and reset. Cloud-config also sets files,
+      users, services and network at boot.
+    notes: >-
+      The toolkit also lets an adopter build a derivative from other container
+      bases and ships a green example for that. In that case the adopter owns
+      the image, its tests, its signing and its CVE response.
+
+      Four image flavors are published: base, baremetal, kvm and rt. The rt
+      flavor carries a real-time kernel.
+
+      Cloud-config files in /oem persist. Files in /system/oem are part of the
+      image and are reset on upgrade.
+
+      No systemd-sysext or vendor extension mechanism is documented in the
+      sources read.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://elemental.docs.rancher.com/custom-images
+        type: official-docs
+        title: Build custom OS images
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: "* rt: Based on the baremetal image, but contains the real-time kernel."
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Customizing/configuration_persistency.md
+        type: official-docs
+        title: Configuration persistency
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: the `/oem` folder instead is reserved for persistent cloud-init files that can be extended in runtime.
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Getting%20started/_index.md
+        type: official-docs
+        title: Elemental toolkit, getting started
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: The only requirement to build derivatives with `elemental-toolkit` is Docker installed.
+    unknowns:
+      - "Whether any system extension mechanism (for example systemd-sysext) is supported on the Elemental OS images."
+
+  d07_kubernetes:
+    normalized:
+      requirement: optional
+      bundled: separately-installed
+      independent_lifecycle: "yes"
+      os_manages_kubernetes: "no"
+      kubernetes_manages_os: "yes: a ManagedOSImage becomes a Fleet Bundle and a System Upgrade Controller Plan on the downstream cluster"
+      distributions:
+        - RKE2
+        - K3s
+    summary: >-
+      Rancher provisions RKE2 or K3s on the registered nodes through the
+      rancher-system-agent. The Kubernetes version is set on the Rancher cluster
+      and the OS version on a ManagedOSImage, so they change separately. The
+      elemental CLI can install, upgrade and reset a node with no cluster.
+    notes: >-
+      The cluster phase uses a MachineInventorySelectorTemplate and a Rancher
+      Cluster with machinePools. Valid kubernetesVersion values come from Rancher
+      metadata.
+
+      Requirement is recorded as optional on the node because the elemental
+      CLI works on a node with no cluster. In the normal Elemental flow Rancher
+      Manager is required. The unmanaged-OS page is about Toolkitless systems
+      (not Elemental OS images) that run only elemental-register. It is cited
+      only to show that the operator can be used for inventory without
+      provisioning Kubernetes on such systems. It is not evidence for the
+      Elemental OS.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://elemental.docs.rancher.com/architecture-clusterdeployment
+        type: official-docs
+        title: Kubernetes cluster provisioning
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: The goal of the Kubernetes Cluster deployment phase is to create a new RKE2 or K3s cluster
+      - url: https://elemental.docs.rancher.com/cluster-reference
+        type: official-docs
+        title: Cluster reference
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: A `Cluster` definition includes a `kubernetesVersion` and a list of `machinePools` to deploy the cluster to.
+      - url: https://elemental.docs.rancher.com/unmanaged-os
+        type: official-docs
+        title: Register an unmanaged OS (Toolkitless systems)
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: can only be used for OS Inventory purposes only.
+
+  d08_hardware_platform:
+    normalized:
+      ai_accelerators:
+        items: []
+        note: "No accelerator support is documented in the sources read. The docs only list GPU vendor and model as machine label variables."
+      architectures_released:
+        - amd64
+      architectures_development:
+        - arm64
+      architectures_not_stated: "riscv64 for the OS images. The toolkit builds a riscv64 binary and its green example has a riscv64 path, which is not a statement of OS image support."
+      platforms:
+        - bare-metal
+        - virtual-machines
+        - sbc-experimental
+      gpu: "not documented"
+      tpm: "TPM 2.0 is used to authenticate registering machines, see d10"
+      extension_mechanism: "extra RPMs through cloud-config hooks; hardware drivers are an example in the docs"
+    summary: >-
+      x86-64 is documented as production ready and fully supported with Rancher
+      v2.7.0 and later. ARM (aarch64) is called functional in development and is
+      tested only on Raspberry Pi 4 Model B. The docs say Elemental targets edge
+      and does not support other hardware.
+    notes: >-
+      Four image flavors exist: base, baremetal (firmware and drivers for bare
+      metal), kvm and rt. A raw disk image for a Raspberry Pi can be built with a
+      SeedImage with targetPlatform linux/arm64.
+
+      Build fact: the rancher/elemental v2.3.1 base image Dockerfile for SL
+      Micro has "#!ExclusiveArch: x86_64 aarch64". The image build recipe
+      therefore targets x86_64 and aarch64 and not riscv64. This supports arm64
+      under architectures_development. It does not show which tags are
+      published, or the support level.
+
+      The operator ships binaries for amd64, arm and arm64. The toolkit ships
+      binaries for amd64, arm64 and riscv64. These are the tools, not the OS
+      image.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://elemental.docs.rancher.com/
+        type: official-docs
+        title: Welcome to Elemental, hardware
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: Elemental is production ready and fully supported on x86-64 starting with Rancher v2.7.0.
+      - url: https://elemental.docs.rancher.com/
+        type: official-docs
+        title: Welcome to Elemental, ARM
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: ARM (aarch64) is functional in the development stage.
+      - url: https://elemental.docs.rancher.com/
+        type: official-docs
+        title: Welcome to Elemental, other hardware
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: Elemental is currently targeting 'edge' scenarios and does therefore not support other hardware.
+      - url: https://elemental.docs.rancher.com/raspi-disk
+        type: official-docs
+        title: Raw disk images for Raspberry Pi
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: "targetPlatform: linux/arm64"
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/.goreleaser.yaml
+        type: source-repo
+        title: Toolkit goreleaser config
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: "- riscv64"
+      - url: https://github.com/rancher/elemental/blob/v2.3.1/.obs/dockerfile/SL-Micro-base-container/Dockerfile#L8
+        type: source-repo
+        title: Elemental OS base image Dockerfile, architectures
+        retrieved: "2026-10-14"
+        version: "v2.3.1"
+        quote: "#!ExclusiveArch: x86_64 aarch64"
+    unknowns:
+      - "Which per-architecture image tags are published on registry.suse.com. The build recipe covers x86_64 and aarch64, but the sources read do not list the tags."
+
+  d09_provisioning:
+    normalized:
+      config_tools:
+        - name: "MachineRegistration cloud-config (cloud-init and yip syntax)"
+          license: "Apache-2.0"
+          runs: [initramfs-before-root, userspace]
+          reruns: every-boot
+          runs_note: "The MachineRegistration cloud-config is not evaluated during install. It is added to the node and evaluated on reboot, and again after a reset."
+          early_disk: "install.device or install.device-selector, partition sizes through a config.yaml, snapshotter type and maxSnaps"
+          change_after_first_boot: "Edit the MachineRegistration labels and annotations (nodes re-register every 30 minutes), or reset the machine to re-apply the cloud-config"
+          evidence: DOCUMENTED
+          sources:
+            - url: https://elemental.docs.rancher.com/machineregistration-reference
+              title: "MachineRegistration reference"
+              retrieved: "2026-10-14"
+              quote: The cloud-configuration provided in this field is not evaluated during the installation
+      methods:
+        - iso-live
+        - raw-disk-image
+        - pxe
+        - install-to-disk
+      config_mechanism: "MachineRegistration resource and cloud-config"
+      config_reapplied: true
+      machine_authentication: "TPM 2.0 attestation by default; MAC, SMBIOS UUID and emulated TPM exist and are not recommended for production"
+    summary: >-
+      A MachineRegistration holds the install settings, the cloud-config and
+      the network config. A SeedImage builds an ISO or raw disk image that
+      carries the registration URL. A machine that boots it authenticates with
+      its TPM, fetches the registration, installs the OS to disk and joins the
+      inventory with no interactive step.
+    notes: >-
+      Declarative networking is in the MachineRegistration (nmc, nmstate or
+      nmconnections) with IP pools. The live ISO supports PXE booting for
+      integration with SUSE Manager. A raw image for Raspberry Pi boots into the
+      recovery system first, grows the partitions, then registers.
+
+      The default authentication needs a TPM 2.0 device on every machine. The
+      docs call the alternatives "not recommended for production use".
+
+      Machine labels are templated from SMBIOS and hardware data, and the
+      hostname is set from a template, default m-UUID.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/rancher/elemental-operator/blob/v1.9.2/README.md
+        type: source-repo
+        title: Elemental operator README
+        retrieved: "2026-10-14"
+        version: "v1.9.2"
+        quote: Machines booting from an Elemental live ISO register to the Elemental Operator, get provisioned
+      - url: https://elemental.docs.rancher.com/architecture-machineonboarding
+        type: official-docs
+        title: Machine onboarding
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: The self-installing image can be used to onboard any number of hosts.
+      - url: https://elemental.docs.rancher.com/authentication
+        type: official-docs
+        title: Authentication
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: The only officially supported registration method is based on TPM attestation
+      - url: https://elemental.docs.rancher.com/installation
+        type: official-docs
+        title: Installation, installation media
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: The live ISO supports PXE booting for direct integration with
+      - url: https://elemental.docs.rancher.com/raspi-disk
+        type: official-docs
+        title: Raw disk images for Raspberry Pi
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: On first boot the system will boot into the recovery system
+    unknowns:
+      - "How a machine without a TPM 2.0 device is supported in production. The docs name TPM attestation as the only supported method."
+
+  d10_security:
+    normalized:
+      secure_boot: unknown
+      measured_boot: unknown
+      tpm: "TPM 2.0 attestation authenticates a machine when it registers. TPM use for disk encryption or measured boot is not documented in the sources read."
+      integrity: read-only-mount
+      disk_encryption: unknown
+      artifact_verification: "cosign and mtree flags exist and are off in the code; the fleet upgrade job passes neither, so no signature or mtree verification applies on the ManagedOSImage path as shipped (layer digests are still checked when the image is pulled). Toolkit docs say mtree is on by default for upgrade; the code says off"
+      sbom: "operator release builds produce an .sbom file (goreleaser config)"
+      fips: unknown
+      mandatory_access_control: "SELinux. The 1.9 release notes say enforcing mode is not supported for Elemental today. The toolkit docs describe how a derivative can enable enforcing."
+      default_on:
+        - read-only-root
+        - tpm-registration-authentication
+      opt_in:
+        - cosign-verification
+        - mtree-verification
+    summary: >-
+      Machine registration is authenticated by TPM 2.0 attestation by default.
+      The root is mounted read-only. Image signature checks are optional flags.
+      SELinux enforcing mode is listed as not supported in the 1.9 release
+      notes.
+    notes: >-
+      Known issue in the 1.9 release notes: setting SELinux to enforcing is not
+      supported as of today. The toolkit doc says a derivative can reach
+      enforcing mode with a policy module and a config change. Both statements
+      are recorded and they cover different images.
+
+      The SL Micro images in the current channel do not allow root SSH access by
+      password. Use an SSH key or add a user.
+
+      Source evidence for Secure Boot: toolkit v2.3.4 grub.go sets secureBoot
+      to true for every architecture except riscv64, then installs shim and
+      MokManager into the EFI partition. This shows a Secure Boot capable
+      boot chain is installed by default. It is not a support statement, and
+      it does not show that the Elemental OS images are signed for it. The
+      VMware how-to turns on Secure Boot in a test VM, which is not a support
+      statement either. secure_boot stays unknown.
+
+      Measured boot, disk encryption and FIPS are not described in the
+      Elemental 1.9 docs or the toolkit docs read. They are recorded as
+      unknown. The SL Micro 6.1 docs were read on 2026-10-15. They describe
+      LUKS disk encryption sealed to the TPM, and Keylime attestation, for
+      images that SL Micro deploys itself (the "encrypted" raw images and
+      JeOS Firstboot). Elemental partitions the disk with its own installer,
+      and no source says these features carry over, so disk_encryption and
+      measured_boot stay unknown. They are not recorded as "no".
+
+      mtree conflict: the toolkit upgrading page says elemental upgrade
+      --system verifies by default and --verify disables it. The code
+      (cmd/flags.go, Bool verify, default false) and the install page say it is
+      off by default. The fleet job also passes neither --verify nor --cosign.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://elemental.docs.rancher.com/authentication
+        type: official-docs
+        title: Authentication
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: Elemental by default authenticates hosts through the _Trusted Platform Module_ (TPM)
+      - url: https://elemental.docs.rancher.com/release-notes
+        type: release-notes
+        title: Release notes, SELinux
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: Setting selinux in enforcing mode is not supported as of today with Elemental.
+      - url: https://elemental.docs.rancher.com/release-notes
+        type: release-notes
+        title: Release notes, SSH root access
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: do not allow ssh root access
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Customizing/selinux_support.md
+        type: official-docs
+        title: SELinux support
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: Enable selinux in enforcing mode
+      - url: https://github.com/rancher/elemental-operator/blob/v1.9.2/.goreleaser.yaml
+        type: source-repo
+        title: Operator goreleaser config, sboms
+        retrieved: "2026-10-14"
+        version: "v1.9.2"
+        quote: sboms
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Getting%20started/install.md
+        type: official-docs
+        title: Installing, verification flags
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: Enable mtree checksum verification
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/pkg/bootloader/grub.go#L74-L79
+        type: source-repo
+        title: Toolkit bootloader, secure boot default
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: secureBoot := true
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/pkg/bootloader/grub.go#L240-L280
+        type: source-repo
+        title: Toolkit bootloader, shim and MokManager copy
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: g.logger.Debugf("Copying %s to %s", g.shimImg, shimImg)
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Getting%20started/upgrading.md#L23
+        type: official-docs
+        title: Toolkit upgrading, mtree note
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: by default `elemental upgrade --system` runs an mtree checksum verificatiom
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/cmd/flags.go#L59
+        type: source-repo
+        title: Toolkit flags, verify
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: cmd.Flags().Bool("verify", false, "Enable mtree checksum verification
+      - url: https://documentation.suse.com/sle-micro/6.1/html/Micro-deployment-raw-images-virtual-machines/index.html
+        type: vendor-docs
+        title: SUSE Linux Micro 6.1, deploying raw images, encrypted image
+        retrieved: "2026-10-15"
+        version: "SL Micro 6.1"
+        quote: "Adds a secondary key slot to the LUKS header and seals it against the TPM device."
+      - url: https://documentation.suse.com/sle-micro/6.1/html/Micro-keylime/index.html
+        type: vendor-docs
+        title: Securing SUSE Linux Micro Using Keylime
+        retrieved: "2026-10-15"
+        version: "SL Micro 6.1"
+        quote: "Keylime is a TPM-based remote boot attestation and runtime integrity measurement."
+    unknowns:
+      - "Whether SUSE states Secure Boot support for the Elemental OS images. The toolkit installs shim and MokManager by default, but no support statement was found."
+      - "Measured boot, disk encryption and FIPS status."
+      - "Whether Elemental keeps the SL Micro disk encryption and attestation features. The SL Micro 6.1 documentation describes them for the images SL Micro deploys itself."
+
+  d11_operations_debugging:
+    normalized:
+      ssh: "available; root password login disabled in current images, use a key or a user"
+      local_shell: unknown
+      serial_console: "available: a documented MachineRegistration cloud-config example ('Set serial console') sets extra_cmdline=console=ttyS0 in /oem/grubenv"
+      debug_container: none-documented
+      support_bundle: "elemental-support"
+      works_without_kubernetes: "partial: elemental-support runs without kubectl and collects less"
+    summary: >-
+      The node runs a systemd userspace. The elemental-support tool collects
+      logs, config files and the state of the Elemental services into a tar.gz,
+      and adds Kubernetes data if kubectl is present. The toolkit documents
+      dracut break parameters for early boot problems.
+    notes: >-
+      The support archive may hold sensitive data such as access tokens for the
+      management cluster. The docs warn about this.
+
+      The toolkit troubleshooting page marks itself "Section under construction".
+      It describes rd.break parameters, and a way to boot read-write with
+      rd.cos.debugrw.
+
+      No toolbox or debug container is described in the sources read.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://elemental.docs.rancher.com/troubleshooting-support
+        type: official-docs
+        title: Elemental support
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: it is possible to generate a compressed file containing logs and config files.
+      - url: https://elemental.docs.rancher.com/troubleshooting-support
+        type: official-docs
+        title: Elemental support, requirements
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: Optionally, the `elemental-support` utility needs `kubectl` to be available on the target machine
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/docs/content/en/docs/Reference/troubleshooting.md
+        type: official-docs
+        title: Toolkit troubleshooting
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: "`rd.break=pre-pivot rd.shell`: Drop a shell before switch-root"
+      - url: https://elemental.docs.rancher.com/cloud-config-reference
+        type: official-docs
+        title: Elemental cloud-config reference, Set serial console
+        retrieved: "2026-10-15"
+        version: "1.9"
+        quote: 'grub2-editenv /oem/grubenv set extra_cmdline="console=ttyS0"'
+      - url: https://elemental.docs.rancher.com/machineregistration-reference
+        type: official-docs
+        title: Elemental MachineRegistration reference, install tty field
+        retrieved: "2026-10-15"
+        version: "1.9"
+        quote: "tty | string | empty | Add named tty to grub"
+    unknowns:
+      - "Local shell behavior on the Elemental OS image."
+
+  d12_fleet_management:
+    normalized:
+      core_project:
+        - "elemental-operator: MachineRegistration, MachineInventory, MachineInventorySelectorTemplate, ManagedOSImage, ManagedOSVersion, ManagedOSVersionChannel and SeedImage resources"
+        - "elemental-register and elemental-system-agent on the node"
+        - "ManagedOSVersionChannel: a subscribable list of OS images, with a default channel in every operator install"
+      oss_companion:
+        - name: Rancher Manager
+          repo: https://github.com/rancher/rancher
+          license: Apache-2.0
+          org: rancher
+          note: "Required. The operator runs on the Rancher cluster and Rancher provisions RKE2 or K3s. Operator 1.9.x needs v2.14 or later."
+        - name: Fleet
+          repo: https://github.com/rancher/fleet
+          license: Apache-2.0
+          org: rancher
+          note: "Applies the upgrade Plan to each targeted cluster. Its version is controlled by Rancher."
+        - name: System Upgrade Controller
+          repo: https://github.com/rancher/system-upgrade-controller
+          license: Apache-2.0
+          org: rancher
+          note: "Runs the upgrade Plan on the downstream Elemental nodes."
+        - name: Elemental UI extension
+          repo: https://github.com/rancher/elemental-ui
+          license: Apache-2.0
+          org: rancher
+          note: "Rancher UI plugin for registration, inventory and update groups. Version v3.0.1 in the 1.9 release table."
+      commercial:
+        - name: "SUSE Rancher Prime: OS Manager"
+          vendor: SUSE
+          license: proprietary
+          self_hostable: true
+          note: "SUSE's product name for Elemental 1.9, part of SUSE Rancher Prime. The SUSE documentation lists the same component versions as the open-source release table (operator v1.9.2, toolkit v2.3.4, Linux v2.3.1, UI v3.0.1). Source: https://documentation.suse.com/cloudnative/os-manager/1.9/en/release-notes.html (retrieved 2026-10-15)."
+      commercial_note: "SUSE sells Elemental 1.9 as SUSE Rancher Prime: OS Manager. SUSE Edge is out of scope for this entry."
+    summary: >-
+      Fleet management is the operator inside Rancher. It keeps an inventory of
+      machines, groups them by labels, and applies OS versions to clusters
+      through Fleet and the System Upgrade Controller. All parts named here are
+      Apache-2.0 repositories.
+    notes: >-
+      Rancher backup covers the Elemental resources, because they are part of
+      Rancher.
+
+      Backup and restore of Elemental resources depends on the Rancher backup
+      operator. Machine inventory selection uses labels templated from SMBIOS
+      and hardware data.
+
+      Multi-cluster rollout can use a clusterRolloutStrategy, which is Fleet's
+      rollout strategy.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://elemental.docs.rancher.com/architecture-components
+        type: official-docs
+        title: Elemental operator daemon
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: embeds the Elemental Kubernetes controllers to manage all the [Elemental CRDs]
+      - url: https://documentation.suse.com/cloudnative/os-manager/1.9/en/release-notes.html
+        type: vendor-docs
+        title: "SUSE Rancher Prime: OS Manager 1.9 release notes"
+        retrieved: "2026-10-15"
+        version: "1.9"
+        quote: "SUSE Rancher Prime: OS Manager Operator v1.9.2"
+      - url: https://elemental.docs.rancher.com/upgrade-lifecycle
+        type: official-docs
+        title: Upgrade lifecycle, components
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: versions are controlled by Rancher.
+      - url: https://elemental.docs.rancher.com/backup
+        type: official-docs
+        title: Backup
+        retrieved: "2026-10-14"
+        version: "1.9"
+        quote: Since Elemental runs as part of Rancher, the Elemental resources are bundled in the Rancher backup.
+      - url: https://github.com/rancher/rancher
+        type: source-repo
+        title: rancher/rancher repository, license
+        retrieved: "2026-10-14"
+        quote: Apache License
+      - url: https://github.com/rancher/fleet
+        type: source-repo
+        title: rancher/fleet repository, license
+        retrieved: "2026-10-14"
+        quote: Apache License
+    unknowns:
+      - "Whether SUSE sells Elemental as a standalone product or only inside other products. The docs read do not say."
+
+  d13_governance:
+    normalized:
+      license: Apache-2.0
+      license_note: "operator, toolkit and Elemental Linux repositories all show Apache-2.0 in their LICENSE file"
+      open_source: true
+      open_governance: undocumented
+      vendor_neutral_ownership: single-vendor
+      foundation:
+        name: "none found"
+      trademark_holder: "not stated in the sources read"
+      primary_commercial_sponsor: SUSE
+      primary_commercial_sponsor_evidence: DOCUMENTED
+      maintainer_affiliation:
+        value: "Not published. CODEOWNERS names one GitHub team, @rancher/elemental, for the whole repository."
+        method: "Read CODEOWNERS in the operator and toolkit repositories at the release tags."
+        evidence: DOCUMENTED
+      contribution_diversity:
+        method: >-
+          Commit-author email domains on the default branch of three
+          repositories, 2025-10-14 to 2026-10-14, from the GitHub commits API
+          (gh api repos/rancher/<repo>/commits). Bot commits and GitHub
+          noreply addresses are counted in the total and cannot be mapped to an
+          employer. Authors who use personal addresses are undercounted as
+          employees of any company.
+        value: >-
+          elemental-operator: 49 of 58 commits from suse.com, 5 noreply, 4 other
+          domains. elemental-toolkit: 25 of 48 from suse.com, 20 noreply, 3
+          other domains. elemental: 70 of 84 from suse.com, 13 noreply, 1 other
+          domain. Distinct commit authors by GitHub login in the window: 8 (operator), 8
+          (toolkit), 7 (elemental), counting bot accounts. Commits with no
+          resolved login are 2 in the operator and all 13 noreply commits in
+          rancher/elemental. Most noreply commits in the toolkit come from the
+          dependabot and renovate bot accounts.
+    summary: >-
+      Apache-2.0 code under the rancher GitHub organization, with SUSE named in
+      the copyright notices. No foundation holds it and no governance document
+      or maintainer file is published. CONTRIBUTING says outside contributions
+      are accepted and that review may take a long time.
+    notes: >-
+      Four separate readings. Open source: yes. Open governance: no governance
+      document found in the three repositories, recorded as undocumented and not
+      as none. Vendor-neutral ownership: single vendor, because the toolkit
+      README and source headers carry a SUSE copyright. Contribution diversity:
+      most commits carry suse.com addresses, with a minority from other domains.
+
+      CONTRIBUTING states that Elemental is on a quarterly release cycle and
+      that "the team's time is limited".
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/rancher/elemental-operator/blob/v1.9.2/LICENSE
+        type: governance-doc
+        title: Operator LICENSE
+        retrieved: "2026-10-14"
+        version: "v1.9.2"
+        quote: Apache License
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/README.md
+        type: source-repo
+        title: Toolkit README, license
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: Copyright (c) 2020-2024 [SUSE, LLC](http://suse.com)
+      - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/CODEOWNERS
+        type: governance-doc
+        title: Toolkit CODEOWNERS
+        retrieved: "2026-10-14"
+        version: "v2.3.4"
+        quote: "*       @rancher/elemental"
+      - url: https://github.com/rancher/elemental-operator/blob/v1.9.2/CONTRIBUTING.md
+        type: governance-doc
+        title: Operator CONTRIBUTING
+        retrieved: "2026-10-14"
+        version: "v1.9.2"
+        quote: Elemental does accept external contributions in general, however the team's time is limited.
+    unknowns:
+      - "Who holds the Elemental trademark."
+      - "Whether a governance or maintainers document exists outside the three repositories read."
+      - "Affiliations of the members of the @rancher/elemental team."
+
+  d14_maturity:
+    normalized:
+      first_release: "2021-06"
+      current_version: "operator v1.9.2; toolkit v2.3.4; Elemental Linux v2.3.1"
+      current_version_date: "2026-06-18"
+      release_cadence: "Minor releases of the operator at 2026-01-16 (1.8.0) and 2026-03-26 (1.9.0). On 2026-03-26 the operator also published 1.9.1 and 1.8.1, with no toolkit release that day. On 2026-06-18 patch releases came out together for four operator branches (1.6, 1.7, 1.8, 1.9) and three toolkit branches (2.1, 2.2, 2.3). CONTRIBUTING states a quarterly release cycle."
+      observed_intervals: "operator: 1.7.3 (patch) 2025-06-17, 1.8.0 2026-01-16, 1.9.0 2026-03-26 with 1.9.1 and 1.8.1 the same day; patch wave across operator and toolkit 2026-06-18. Git tags newer than the latest release exist without a GitHub release (see version_observed.method)"
+      support_model: unknown
+      support_window: "No end-of-support dates are published in the sources read. Older branches (operator 1.6 to 1.8, toolkit 2.1 and 2.2) still received patch releases on 2026-06-18."
+      commercial_support: "available from SUSE, as SUSE Rancher Prime: OS Manager (part of Rancher Prime)"
+    summary: >-
+      The toolkit's first listed release is from June 2021 and the operator's
+      from July 2022. Releases continue, and security fixes were backported to
+      several older branches on the same day in June 2026. No support window is
+      published in the sources read.
+    notes: >-
+      The first_release date is the earliest entry in gh release list for
+      rancher/elemental-toolkit (v0.5.3, 2021-06-21). The operator's earliest is
+      v0.1.1, 2022-07-07 and the Elemental Linux prerelease v0.1.0 is dated
+      2022-04-21.
+
+      Git tags newer than the recorded latest releases exist with no GitHub
+      release: operator v1.9.3 and v1.8.3 (2026-09-24), toolkit v2.3.5
+      (2026-09-23) and v2.2.10 (2026-10-13), rancher/elemental v2.3.2
+      (2026-09-23). The release lists above do not show them, so cadence is
+      read from GitHub releases only and later tags are noted here.
+
+      The v1.9.2 and v2.3.4 release notes list dependency bumps with CVE or
+      bsc references, and the v1.9.2 notes add deterministic registration
+      endpoints and locally defined labels.
+
+      The 1.9 docs state x86-64 as production ready and fully supported with
+      Rancher v2.7.0 and later. They do not name a support plan, a price or a
+      lifecycle table, so support_model stays unknown. The SUSE documentation
+      for OS Manager 1.9 (documentation.suse.com/cloudnative/os-manager/1.9)
+      names the same component versions under the product name SUSE Rancher
+      Prime: OS Manager, so commercial_support is available from SUSE. The
+      documentation.suse.com Rancher Guide for Elemental is for SLE Micro 5.5
+      and has a publication date of 2026-10-08, which is an older base than the
+      1.9 channels.
+    evidence: DOCUMENTED
+    sources:
+      - url: https://github.com/rancher/elemental-toolkit/releases
+        type: release-notes
+        title: Elemental toolkit releases
+        retrieved: "2026-10-14"
+        quote: v2.3.4 Latest 2026-06-18
+      - url: https://github.com/rancher/elemental-operator/releases
+        type: release-notes
+        title: Elemental operator releases
+        retrieved: "2026-10-14"
+        quote: v1.9.2 Latest 2026-06-18
+      - url: https://documentation.suse.com/cloudnative/os-manager/1.9/en/release-notes.html
+        type: vendor-docs
+        title: "SUSE Rancher Prime: OS Manager 1.9 release notes"
+        retrieved: "2026-10-15"
+        version: "1.9"
+        quote: "SUSE Rancher Prime: OS Manager Operator v1.9.2"
+      - url: https://github.com/rancher/elemental/releases
+        type: release-notes
+        title: Elemental Linux releases
+        retrieved: "2026-10-14"
+        quote: set to released-stage to released as SL Micro 6.2 is GA
+      - url: https://github.com/rancher/elemental-operator/blob/v1.9.2/CONTRIBUTING.md
+        type: governance-doc
+        title: Operator CONTRIBUTING, release cycle
+        retrieved: "2026-10-14"
+        version: "v1.9.2"
+        quote: Elemental is on a quarterly release cycle
+      - url: https://documentation.suse.com/smart/rancher/html/Rancher-OS/index.html
+        type: vendor-docs
+        title: Rancher Guide (Elemental), SUSE documentation
+        retrieved: "2026-10-14"
+        quote: The Elemental stack provides the means to deploy SLE Micro through a container image.
+    unknowns:
+      - "The support lifecycle of each Elemental release line."
+      - "Whether SUSE publishes a support lifecycle for SUSE Rancher Prime: OS Manager release lines."
+
+tradeoffs:
+  buys:
+    - "One OCI image per version, applied to every node of a cluster by a ManagedOSImage. The node keeps earlier snapshots and has one boot menu entry for each, so rollback to the previous version is local."
+    - "Registration, install and cluster creation are declarative and connected: a MachineRegistration, a SeedImage and a Rancher Cluster take a bare machine to a RKE2 or K3s node with no interactive step."
+    - "An air-gap path is documented, with a private registry and a channel image you build."
+    - "Operator, toolkit, Fleet, System Upgrade Controller, Rancher Manager and the UI extension are all Apache-2.0 repositories."
+    - "Machines authenticate at registration with TPM 2.0 attestation by default."
+    - "Two ways to extend the OS: derive an image from the SL Micro base, or add packages with cloud-config hooks that run in every new snapshot."
+  costs:
+    - "Rancher Manager is required for the managed flow. Operator 1.9.x needs Rancher Manager v2.14 or later, and Kubernetes provisioning does not work with an older Rancher."
+    - "The 1.9 release notes list SELinux enforcing mode as not supported, and OS Images based on SL Micro 6.0 (the 1.9 channels ship 6.1) can fail to boot with a kernel panic on virtual machines using an unsupported CPU type, because the x86-64-v2 instruction set is required."
+    - "x86-64 is the only production architecture. ARM is in development and tested on Raspberry Pi 4 only."
+    - "The default registration method needs a TPM 2.0 device. The alternatives are not recommended for production."
+    - "Package hooks reinstall the package on every upgrade, so the running snapshot can differ from the published image."
+    - "Measured boot, disk encryption and FIPS are not described in the Elemental docs read for this edition. The toolkit installs shim and MokManager by default, but no Secure Boot support statement was found."
+    - "No governance document, maintainer list or support window is published in the repositories read. Most commits carry suse.com addresses."
+    - "Building derivatives from other container bases with the toolkit moves testing, signing and CVE response to the adopter."
+
+maintainers_fact:
+  text: "Maintainer affiliation not published. CODEOWNERS names one team, @rancher/elemental. Most commits carry suse.com addresses."
+  evidence: DOCUMENTED
+  sources:
+    - url: "https://github.com/rancher/elemental-toolkit/blob/v2.3.4/CODEOWNERS"
+      type: "governance-doc"
+      title: "Toolkit CODEOWNERS"
+      retrieved: "2026-10-14"
+      quote: "*       @rancher/elemental"
+
+known_issues:
+  - text: "Since operator 1.9.x, Elemental must be paired with Rancher v2.14 or later. With an older Rancher, Kubernetes provisioning does not work and MachineInventory resources do not join an Elemental cluster."
+    kind: defect
+    sources:
+      - url: "https://elemental.docs.rancher.com/release-notes"
+        retrieved: "2026-10-14"
+  - text: "SELinux enforcing mode is not supported as of the 1.9 release notes."
+    kind: defect
+    sources:
+      - url: "https://elemental.docs.rancher.com/release-notes"
+        retrieved: "2026-10-14"
+
+open_questions:
+  - "Which SL Micro release do the current Elemental OS images use? The 1.9 channel table lists 6.1. The Elemental Linux v2.3.1 release note says SL Micro 6.2 is GA. The SUSE documentation page for Elemental is written for SLE Micro 5.5."
+  - "Are the Elemental OS images signed, and can elemental upgrade --cosign verify them? The fleet upgrade job passes no --cosign or --verify. Is an upgrade pinned to a digest or to a tag, and is a digest recorded when the source is dir:/?"
+  - "Does SUSE state Secure Boot support for the Elemental OS images? The toolkit installs shim and MokManager by default (grub.go), but no support statement was found. Are measured boot, disk encryption and FIPS available? These pages were not found in the Elemental docs."
+  - "Is dm-verity or any other root integrity check planned or present? No source read mentions it."
+  - "Which per-architecture tags are published for the Elemental OS images? The docs state x86-64 as production ready and ARM as development, and the base image Dockerfile has ExclusiveArch x86_64 aarch64. The toolkit builds a riscv64 binary, but the OS image recipe does not list riscv64."
+  - "Is a systemd-sysext or other extension mechanism supported on the Elemental OS images?"
+  - "What is the support lifecycle of each Elemental release line, and does SUSE publish a lifecycle for SUSE Rancher Prime: OS Manager?"
+  - "Who holds the Elemental trademark, and who are the members of the @rancher/elemental team?"
+  - "The toolkit reference page immutable_rootfs.md lists /etc as ephemeral and /usr as read-only. The 1.9 installation page lists the full path table. Which path list does the installed Elemental OS image follow for /root and /usr/libexec? The toolkit recovery layout file lists /root as an ephemeral tmpfs path and the 1.9 table lists /root as persistent. That layout file is in cloud-config-defaults, which the Elemental OS base image build does not initialize, so it may not be present in Elemental OS images."
+
+follow_up_research:
+  - FR-01
+  - FR-03
+  - FR-07
+
+corrections: []

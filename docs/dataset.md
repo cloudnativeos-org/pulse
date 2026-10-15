@@ -26,13 +26,13 @@ with the effect of leaving them out.
 |---|---|
 | Methodology and taxonomy | Complete |
 | Profile schema and validator | Complete |
-| Project profiles | Complete, all fifteen. The first thirteen were fact-checked a second time on 2026-09-22 |
+| Project profiles | Complete, all sixteen. The first thirteen were fact-checked a second time on 2026-09-22 |
 | Follow-up research backlog | Complete |
 | Normalized comparison | Complete, inside the article draft |
 | Maintainer review plan | Complete |
 | FR-13 rollback-scope deep dives | Complete, all six: [bootc](../research/deep-dives/fr-13-rollback-scope-bootc.md), [Bottlerocket](../research/deep-dives/fr-13-rollback-scope-bottlerocket.md), [Fedora CoreOS](../research/deep-dives/fr-13-rollback-scope-fedora-coreos.md), [Flatcar](../research/deep-dives/fr-13-rollback-scope-flatcar.md), [Kairos](../research/deep-dives/fr-13-rollback-scope-kairos.md), [NixOS](../research/deep-dives/fr-13-rollback-scope-nixos.md) |
 
-All fifteen profiles pass `validate_profiles.py` with zero errors. Research was
+All sixteen profiles pass `validate_profiles.py` with zero errors. Research was
 conducted against primary sources on 2026-09-15 and re-verified source by source
 on 2026-09-22, with every dimension carrying an evidence label and, where the
 label is `DOCUMENTED`, at least one source URL. Every change the second pass made
@@ -56,6 +56,7 @@ is in the profile's `corrections` list, dated and sourced.
 | Yocto Project | build-system | adjacent | [`data/projects/yocto.yaml`](../data/projects/yocto.yaml) |
 | openSUSE MicroOS | distribution | full | [`data/projects/microos.yaml`](../data/projects/microos.yaml) |
 | Ubuntu Core | distribution, framework | full | [`data/projects/ubuntu-core.yaml`](../data/projects/ubuntu-core.yaml) |
+| Elemental | distribution, framework | full | [`data/projects/elemental.yaml`](../data/projects/elemental.yaml) |
 
 A matrix entry meets five inclusion criteria, R1 to R5, set out in `methodology.md`
 section 10 with a source for how each entry meets R5. NixOS, Unikraft and the Yocto
@@ -64,7 +65,7 @@ Alternative paradigms, not in the matrix. Amutable has public work but nothing r
 under Worth mentioning and has no profile. Conventional mutable distributions are
 out of scope.
 
-Fifteen profiles, not nine. Fedora CoreOS and bootc are separated because a
+Sixteen profiles, not nine. Fedora CoreOS and bootc are separated because a
 distribution and a mechanism are not peers, and Hadron and Kairos are separated
 for the same reason: Hadron is the base, Kairos is the framework applied to it,
 and Hadron on its own is neither immutable nor upgradeable. NixOS, Unikraft and

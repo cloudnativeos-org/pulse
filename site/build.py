@@ -37,7 +37,8 @@ DIMS = [
 DIM_NAME = dict(DIMS)
 
 # Entries in the comparison matrix, and entries shown in the context box instead.
-CORE = ["azure-container-linux", "bootc", "bottlerocket", "cos", "eve-os", "fedora-coreos", "flatcar", "kairos", "microos", "talos", "ubuntu-core"]
+CORE = ["azure-container-linux", "bootc", "bottlerocket", "cos", "eve-os", "fedora-coreos", "flatcar", "elemental", "kairos", "talos", "ubuntu-core"]
+EXCLUDED_SHEETS = ["microos"]         # profiled, left the matrix; the data sheet stays so links and evidence still resolve
 CONTEXT = ["nixos", "unikraft", "yocto"]
 PROFILES = {}
 FOLDED = {"hadron": "kairos"}          # Hadron is shown inside the Kairos row
@@ -885,7 +886,7 @@ def col_own(p, S):
     n = norm(p, "d13")
     o = n.get("vendor_neutral_ownership", "unknown")
     f = n.get("foundation")
-    detail = ("%s, %s" % (f.get("name"), f.get("level"))) if isinstance(f, dict) else (n.get("trademark_holder") or "")
+    detail = ", ".join(str(x) for x in (f.get("name"), f.get("level")) if x) if isinstance(f, dict) else (n.get("trademark_holder") or "")
     if o == "single-vendor" and (not detail or detail == "unknown") and n.get("primary_commercial_sponsor") not in (None, "", "unknown"):
         # The trademark holder is not recorded: name the vendor from the sponsor field, and say which field it is.
         detail = "Vendor: %s" % n["primary_commercial_sponsor"]
@@ -1250,7 +1251,14 @@ def version_identity(p, S):
     Returns the row content: the value, then the evidence badge and citation."""
     n = norm(p, "d04")
     vi = n.get("version_identity")
-    crit = '<span class="v-detail">Inclusion criterion 1: <a href="#w-criteria">versioned whole-system updates</a>.</span>'
+    crit = '<span class="v-detail">Inclusion criterion 1: <a href="#w-criteria">atomic updates (versioned OS)</a>.</span>'
+    if vi and vi.get("meets_r1") is False:
+        cite = ""
+        if vi.get("sources"):
+            num = S.add(vi["sources"][0], p["name"])
+            cite = '<sup class="cite">[<a href="#src-%d" aria-label="Source %d">%d</a>]</sup>' % (num, num, num)
+        return (value("value", "Does not meet criterion 1. %s" % E(vi.get("r1_reason", ""))) + crit
+                + '<span class="cell-meta">%s%s</span>' % (badge(vi["evidence"], compact=True), cite))
     if not vi:
         prov = n.get("provided_by")
         if not prov or prov not in PROFILES:
@@ -1477,6 +1485,11 @@ def worth_mentioning():
 
 # Projects that were looked at and left out, with the reason. They are released, so they are not "worth mentioning".
 EXCLUDED = [
+    ("openSUSE MicroOS", "excluded: does not meet R1",
+     "Each node builds its next snapshot from packages with transactional-update, also when the repository is pinned. No artifact is built once for the fleet, so it does not meet R1. "
+     "SUSE's fleet-image path, one OCI image rolled to every node, is the Elemental entry. The profile and the data sheet stay, so the evidence is still there.",
+     [("transactional-update man page", "https://github.com/openSUSE/transactional-update/blob/ef8af9f/man/transactional-update.8.xml"),
+      ("Methodology, section 11, item 12", "https://github.com/cloudnativeos-org/pulse/blob/main/docs/methodology.md")], "6 Oct 2026", "microos"),
     ("balenaOS", "excluded: does not meet R5",
      "balenaOS is a Yocto-built host OS for running containers on embedded devices. It has a read-only root filesystem and A/B root partitions, "
      "and a failed update boots back into the previous OS version. Its container engine is balenaEngine, based on Moby. "
@@ -1488,11 +1501,14 @@ EXCLUDED = [
 
 def excluded():
     items = []
-    for name, kind, txt, links in EXCLUDED:
+    for name, kind, txt, links, *rest in EXCLUDED:
+        when = rest[0] if rest else "12 Oct 2026"
+        sheet = rest[1] if len(rest) > 1 and rest[1] in PROFILES else None
         refs = ", ".join('<a href="%s">%s</a>' % (E(u), E(t)) for t, u in links)
-        items.append('<dt>%s<span class="tag">%s</span></dt><dd>%s <span class="t-meta">Sources, retrieved 12 Oct 2026: %s.</span></dd>' % (E(name), E(kind), E(txt), refs))
+        more = (" " + sheet_link(PROFILES[sheet], "Open the data sheet") + ".") if sheet else ""
+        items.append('<dt>%s<span class="tag">%s</span></dt><dd>%s%s <span class="t-meta">Sources, retrieved %s: %s.</span></dd>' % (E(name), E(kind), E(txt), more, when, refs))
     return ('<aside class="ctx" aria-label="Considered and excluded"><div class="ctx-head">'
-            '<p>Not profiled. Released, and looked at, but it fails one of the five inclusion criteria. The reason is stated with each project.</p></div>'
+            '<p>Released and looked at, but it fails one of the five inclusion criteria. The reason is stated with each project.</p></div>'
             '<dl>%s</dl></aside>' % "".join(items))
 
 
@@ -1512,12 +1528,11 @@ def what_is():
              '<p class="t-meta" id="cmp-note">* Only part of the OS is read-only, and which part varies by system. See %s in the glossary.</p>'
              % (g("General-purpose OS", "general-purpose-os"), g("cloud native OS", "cloud-native-os"),
                 "".join('<tr><th scope="row">%s</th><td>%s</td><td>%s</td></tr>' % r for r in rows), g("Immutable", "immutable")))
-    rules = [("Versioned whole-system updates", "One version names the whole OS, and the OS updates as that one unit, never package by package on a running node. It is enough that the project documents a way to run it like this."),
-             ("Immutable at runtime", "The OS part, the root or <code>/usr</code>, is read-only on a running node."),
-             ("Rollback", "At least one previous OS version is kept and can be booted."),
+    rules = [("Atomic updates (versioned OS)", "The OS version is one artifact, built once, that every node in a fleet runs. A fleet updates or rolls back by pointing it at a version, for example an OCI image, an image file or an OSTree commit. A node that assembles its own update from packages does not meet this rule. It is enough that the project documents a way to run it like this."),
+             ("Immutable (read-only OS files)", "The OS part, the root or <code>/usr</code>, is read-only on a running node."),
+             ("Rollback", "Rollback goes back to the previous version, the artifact the whole fleet ran. Each node keeps that version locally, ready to boot."),
              ("Declarative provisioning", "A node configures itself at first boot from a declarative input, with no interactive install."),
-    ('Ignition', 'A provisioning tool that runs once, in the initramfs at first boot. It reads a JSON configuration and can partition disks, format filesystems, write files and create users before the root filesystem is in use.'),
-             ("Runs Kubernetes", "The project, or its vendor, documents running Kubernetes on it: bundled, installed on it, or as the node OS of a Kubernetes service. "
+             ("Kubernetes ready", "The project, or its vendor, documents running Kubernetes on it: bundled, installed on it, or as the node OS of a Kubernetes service. "
               "A framework such as Kairos or bootc meets this rule through the images built with it. Running containers alone is not enough.")]
     return ('<div class="prose">'
             '<p class="t-meta">New to these terms? The <a href="#h-gloss">glossary</a> defines each one.</p>'
@@ -1547,9 +1562,9 @@ def what_is():
 
 GLOSSARY = [
     ("General-purpose OS", "An operating system built to run anything, such as Ubuntu, Debian or Fedora. It is installed once and then maintained by changing it in place for the rest of its life."),
-    ("cloud native OS", "In the Pulse, an OS that meets the five inclusion criteria: versioned whole-system updates, read-only OS files at runtime, rollback, declarative provisioning, and documented Kubernetes use."),
+    ("cloud native OS", "In the Pulse, an OS that meets the five inclusion criteria across a fleet, not on a single node: atomic updates (versioned OS), read-only OS files, rollback, declarative provisioning, and documented Kubernetes use."),
     ("In-place upgrade", "An upgrade that changes the running system piece by piece, for example package by package. The result depends on the state the machine was in before."),
-    ("Atomic upgrade", "An upgrade that applies the new version as a whole or not at all. If it fails, the old version is still intact."),
+    ("Atomic upgrade", "An upgrade that applies the new version as a whole or not at all. If it fails, the old version is still intact. Atomic alone does not meet the first criterion: the version must also be one artifact, built once, that every node in a fleet runs."),
     ("Image-based", "The OS is built ahead of time as one complete image, and that image is what gets installed and updated."),
     ('OCI image', 'A container image in the format the Open Container Initiative specifies. It is stored in a container registry and pulled from it. Some projects ship the OS itself as an OCI image.'),
     ('OSTree', 'A system for storing and deploying complete, versioned filesystem trees of an OS. Each deployment is one tree, and the bootloader chooses which deployment boots.'),
@@ -1557,7 +1572,7 @@ GLOSSARY = [
     ("A/B partitions", "Two copies of the OS on disk. An update writes the copy that is not running, and the machine switches to it at the next boot."),
     ("Version", "One build of the OS, identical on every machine that runs it."),
     ("Snapshot", "A point-in-time copy of a filesystem on one machine, for example with btrfs. It captures that machine's state, so it is unique to that machine. A version is the same everywhere; a snapshot is not."),
-    ("Rollback", "Going back to an earlier OS state after an update. An automatic rollback happens without a person, when the new version fails a check at boot."),
+    ("Rollback", "Going back to the previous OS version, the one the whole fleet ran, after an update. Each node keeps that version locally, ready to boot. An automatic rollback happens without a person, when the new version fails a check at boot."),
     ("Immutable", "Part of the OS is read-only on a running machine, and changes to that part arrive only through an update. Which part varies by system: the whole root filesystem on some, only <code>/usr</code> on others, and some keep <code>/etc</code> or a data volume writable. Writable does not always mean persistent: some paths are writable through a temporary overlay or an in-memory filesystem, and changes there are lost at the next boot. The matrix shows what each entry protects."),
     ("Drift", "Machines that should be the same become different over time, through changes that were not planned or not recorded."),
     ("Day 0, day 2", "Day 0 is when a node is first set up. Day 2 is everything after that: upgrades, fixes, changes, decommissioning."),
@@ -1629,7 +1644,9 @@ MISCONCEPTIONS = [
      "that build and maintain node operating systems from container images, and let Rancher Manager manage them. "
      "Its documentation describes the stack as &ldquo;a handful of packages on top of SLE Micro&rdquo;. "
      "<a href=\"https://microos.opensuse.org/\">openSUSE MicroOS</a> is a distribution, described as &ldquo;Micro Service OS built by the openSUSE community&rdquo;. "
-     "The Pulse has a data sheet for <a class=\"proj-open\" href=\"#tc-microos\">openSUSE MicroOS</a>. Elemental is not an entry."),
+     "Both have a data sheet in the Pulse. <a class=\"proj-open\" href=\"#tc-elemental\">Elemental</a> is an entry: it rolls one OCI image to every node in a fleet. "
+     "<a class=\"proj-open\" href=\"#tc-microos\">openSUSE MicroOS</a> is not in the matrix, because each node builds its own update from packages, which does not meet the first criterion. "
+     "The reason is in the <a href=\"https://github.com/cloudnativeos-org/pulse/blob/main/docs/methodology.md\">methodology</a>, section 11, item 12."),
     ("Fedora CoreOS and bootc are the same thing.",
      "Today they are not. Fedora CoreOS fetches its updates as an OCI image, but it applies them on disk as an OSTree deployment through rpm-ostree. "
      "The Fedora <a href=\"https://fedoraproject.org/wiki/Changes/CoreOSOstree2OCIUpdates\">change proposal</a> says it keeps using rpm-ostree &ldquo;and not yet bootc&rdquo;. "
@@ -1740,7 +1757,7 @@ def made(P):
             '<h3>The process</h3><ol class="steps">%s</ol>'
             '<h3>Tools and models</h3><div class="prose"><p>The agents were Anthropic\'s Claude models, running in Claude Code. Each task had a written brief, its own agent session, '
             'its own branch and its own pull request. I merged every change. For this first version, Anthropic provided the model access, through its Claude for Open Source program. Anthropic had no say in the content.</p>'
-            '<p>Claude Opus 5 wrote the method, the first ten profiles and the first article draft. Claude Sonnet 5 did the rest: the two added profiles, the re-verification, Hadron and the rollback experiments. '
+            '<p>Claude Opus 5 wrote the method, the first ten profiles and the first article draft. Claude Sonnet 5 did the rest: the two added profiles, the re-verification, Hadron and the rollback experiments. Claude Sonnet 5.5 wrote the Elemental profile and the fleet-reading changes, and a second pass on Claude Opus checked the Elemental profile against its sources. '
             'Two of those briefs asked for a stronger model than the one that ran. The rollback experiments and the re-verification both ran on Sonnet 5. '
             'Every commit names the assisting model in a <code>Co-developed-by:</code> trailer, and the full history is public in <a href="https://github.com/cloudnativeos-org/pulse">the Pulse repository</a>. Commits from the <code>mauro-agent</code> account were made by an AI agent that I operate. I am the person behind that account and I answer for its work. '
             'The task briefs are kept. The exact prompts each session received are not, and neither is which model ran each fact-check pass.</p></div>'
@@ -1865,12 +1882,10 @@ def matrix_list(P):
         s = sheet_link(P[i])
         if i == "kairos" and "hadron" in P:
             s += " (with %s)" % sheet_link(P["hadron"], "Hadron")
-        if i == "microos":
-            s += " (borderline on the Kubernetes rule)"
         parts.append(s)
     words = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen".split()
     count = words[len(ids)].capitalize() if len(ids) < len(words) else str(len(ids))
-    return "%s entries meet them today: %s, and %s." % (count, ", ".join(parts[:-1]), parts[-1])
+    return ("%s entries meet them today: %s, and %s. R3 (Rollback) is not yet documented for Azure Container Linux and Container-Optimized OS, so for those two the entry rests on the other four criteria." % (count, ", ".join(parts[:-1]), parts[-1]))
 
 
 def tabs(current):
@@ -1936,6 +1951,7 @@ def site(P, tok, css, js):
     for folded, host in FOLDED.items():   # a folded entry gets its own data sheet, directly after its host's
         if folded in P and host in order:
             order.insert(order.index(host) + 1, folded)
+    order += [i for i in EXCLUDED_SHEETS if i in P and i not in order]   # sheets for profiled entries outside the matrix
     cards = "".join(data_sheet(P[pid], S) for pid in order)
     dims = "".join('<li id="%s">%s</li>' % (k, E(n)) for k, n in DIMS)
     import lineage

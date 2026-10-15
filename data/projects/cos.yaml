@@ -424,6 +424,7 @@ dimensions:
       recovery_environment: unknown
       factory_reset: unknown
       network_independent_recovery: unknown
+      gke_node_pool_downgrade: "available at node-pool level: GKE can downgrade a node pool to an earlier patch release or minor version, which recreates the nodes"
     summary: >-
       This is the largest documentation gap in the profile. An active-passive
       partition scheme exists, and nothing in the documentation describes how to
@@ -1310,6 +1311,7 @@ maintainers_fact:
       quote: "Container-Optimized OS does not accept direct contributions from the public."
 known_issues: []
 open_questions:
+  - "Does a node keep the previous fleet version locally, ready to boot, as R3 asks? GKE documents a node pool downgrade to an earlier version, which recreates the nodes. The auto-update page says the update goes to the passive partition and does not say how to boot the previous image. R3 stays unknown."
   - "Which parts of a shipped image are not in the public repositories, and why?"
   - "Can a third party reproduce an official image bit for bit from the public manifest?"
   - "How is an update payload authenticated and verified? Which keys, which scheme, and what is the rotation policy?"
@@ -1346,6 +1348,15 @@ follow_up_research:
   - FR-17
 
 corrections:
+  - date: "2026-10-14"
+    field: "dimensions.d05_rollback_recovery.normalized.gke_node_pool_downgrade"
+    change: "Added the documented GKE rollback path. The GKE page 'Upgrading a cluster' says a node pool can be downgraded to an earlier patch release or minor version. That recreates the nodes. R3 stays 'unknown' under the fleet reading of 2026-10-14, because no document says a node boots its previous COS image. The question is in open_questions. Reason: methodology note of 2026-10-14, section 11, item 12."
+    source:
+      url: https://docs.cloud.google.com/kubernetes-engine/docs/how-to/upgrading-a-cluster
+      type: vendor-docs
+      title: "Upgrading a cluster"
+      retrieved: "2026-10-14"
+      quote: "you can downgrade a node pool to an earlier patch release or minor version"
   - date: "2026-10-06"
     field: "tradeoffs.costs"
     change: "Cost audit under methodology section 9, rule 15. Cost c0 was 'Rollback and recovery are undocumented end to end. An active-passive partition scheme exists and no published procedure uses it, no automatic fallback is described, and there is no recovery environment, factory reset or retention statement.' Now keeps the gap (C4); automatic fallback, retention and recovery are unknowns (N1) under q5, q6 and q8, and q8 now also asks about a factory reset. Moved cost 'No documented SBOM, build provenance, attestation, FIPS validation, or signing and verification of the published image...' to open questions (N1); q12 and q2 cover it. Cost c8 reworded to the enforced limit (C1); a third-party signing path is q11."

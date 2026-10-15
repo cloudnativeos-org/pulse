@@ -30,6 +30,7 @@ LANES = [
         ["opensuse-kubic"],
         ["microos"],
         ["rancheros"],
+        ["rancheros-v2", "elemental"],
         ["k3os"],
         ["cos-toolkit", "elemental-toolkit"],
         ["c3os", "kairos"],

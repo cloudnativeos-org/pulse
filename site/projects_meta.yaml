@@ -37,6 +37,10 @@ microos:
   owner: openSUSE project
   tag: [SUSE, main sponsor]
   links: {website: "https://microos.opensuse.org/", docs: "https://en.opensuse.org/Portal:MicroOS", source: "https://github.com/openSUSE/transactional-update"}
+elemental:
+  owner: SUSE (Rancher)
+  tag: [SUSE, main sponsor]
+  links: {website: "https://elemental.docs.rancher.com/", docs: "https://elemental.docs.rancher.com/", source: "https://github.com/rancher/elemental"}
 talos:
   # siderolabs.com footer, 2026-10-06: "(c) 2026 Sidero Labs, Inc." No other company named.
   # The acquisition is sourced in data/lineage.yaml and talos.yaml d13 (Sidero Labs joins Yardi, 2026-09-14).
