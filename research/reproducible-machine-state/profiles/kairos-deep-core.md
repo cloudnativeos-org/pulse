@@ -38,8 +38,8 @@ earlier research, to a path in `kairos-io/kairos-agent` now points at an archive
 No standardized project-profile template survives from
 the methodology plan. That ticket closed
 and was superseded by the Pulse brief
-before it produced one. The NixOS, Unikraft and Azure Linux profiles and the Secure Boot key-ownership profile
-(FR-14) each designed a structure for their own question and recorded that choice in the
+before it produced one. The NixOS, Unikraft and Azure Linux profiles, and the Secure Boot key-ownership profile
+(FR-14), each designed a structure for their own question and recorded that choice in the
 document. This one does the same.
 
 The structure here is the research framework's own 22 dimensions, in order. The
@@ -303,7 +303,7 @@ There *is* a periodic reconciliation hook. `cos-setup-reconcile.timer` runs
 `kairos-agent run-stage reconcile` at `OnBootSec=5min` and `OnUnitActiveSec=60min`, with
 an OpenRC equivalent. Source:
 `origin/master:kairos-init/pkg/bundled/cloudconfigs/09_systemd_services.yaml:114-127` and
-`09_openrc_services.yaml:38-53`. The Pulse brief profile records "There is no reconciliation
+`09_openrc_services.yaml:38-53`. The Pulse profile records "There is no reconciliation
 loop", and that is too strong: the loop exists and is enabled by default.
 
 What the loop does *not* do is reconcile anything by itself. No shipped cloud
@@ -3383,7 +3383,7 @@ say so.
 
 ## Corrections this pass owes to earlier findings in this epic
 
-The brief for this profile instructs that the Pulse brief findings be verified rather than trusted. Most of them held.
+The brief for this profile instructs that the Pulse brief's findings be verified rather than trusted. Most of them held.
 These did not, or did not hold in the form they were written. Most of the corrections below
 move in Kairos's favour, and that is the point: an audit that only ever confirms its own
 negative priors is not an audit. One item (number 5) goes the other way and is recorded

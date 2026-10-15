@@ -1546,7 +1546,7 @@ UNKNOWN.
 ### The decisions that block the experiment pass
 
 All four are already recorded on the research epic,
-raised from this profile, and are not re-derived
+raised from an earlier profile, and are not re-derived
 here: (1) ratify an experiment-report template for this tier; (2) decide whether a local-QEMU or
 dev-variant result counts as REPRODUCED or only as evidence about the mechanism; (3) decide whether
 real cloud infrastructure is in scope and with what budget cap; (4) decide build-host allocation for

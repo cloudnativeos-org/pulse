@@ -32,7 +32,7 @@ pre-built by Fedora." DOCUMENTED,
 
 **Depth tier: deep experimental core. This pass is the architecture study only.** The epic puts bootc
 at "full build / provision / extend / update / break / recover cycle plus both standardized experiment
-protocols". None of that was run, a scope decision recorded
+protocols". None of that was run. That is a scope decision recorded
 before the research started: no
 experiment-report template is ratified for this tier, and the four infrastructure decisions gating a
 real pass are open on the research epic. "What a full
@@ -54,8 +54,8 @@ so this profile read the AsciiDoc sources directly —
 rendered URL. That is reading the primary source, not reverse engineering. The same applies to bootc's
 `docs/src/*.md`, which is what `bootc.dev` renders.
 
-**Relationship to the Pulse baseline.** Sibling ticket
-the Pulse brief produced 14-dimension Pulse entries
+**Relationship to the Pulse baseline.** A sibling ticket,
+the Pulse brief, produced 14-dimension Pulse entries
 for both on 2026-09-15. This profile treats them as sourced factual baselines, reuses their citations
 where they overlap, and contradicts no cited fact. Four extensions are flagged inline and listed in
 the bias note.
@@ -3596,8 +3596,8 @@ and disruption budgets; `bootc-operator` and `poseidon/fleetlock` both need a cl
 
 ### The decisions that block the experiment pass
 
-All four are recorded on the research epic, raised from
-earlier profile work and extended here, and are not re-derived: (1) ratify an
+All four are recorded on the research epic, raised and
+extended in earlier profiles, and are not re-derived: (1) ratify an
 experiment-report template for this tier; (2) decide whether a local-QEMU or dev-variant result counts as
 REPRODUCED or only as evidence about the mechanism; (3) decide whether real cloud infrastructure is in
 scope and with what budget cap; (4) decide build-host allocation for multi-hour, tens-of-GB builds — to
