@@ -21,23 +21,23 @@
 *                                    @mauromorales
 
 # Conflicted files (GOVERNANCE.md, "Bootstrap"). The first maintainer with no
-# affiliation to any covered project, and not employed by Spectro Cloud, replaces
-# @mauromorales on these lines as the required approver. Adding them next to
-# @mauromorales would not make their approval required, because any one owner on
-# a line is enough. GitHub enforces only that a code owner approves. The
-# symmetric rule rests on the maintainers and the public record.
-# data/lineage.yaml, site/projects_meta.yaml, site/content.py and
-# site/drafts/base_choice.yaml state facts about Kairos, Hadron and Spectro Cloud
-# next to facts about the other projects. GitHub cannot protect one entry of a
-# file, so the whole file is listed. Only a change that touches an entry about
-# Kairos, Hadron or Spectro Cloud is conflicted. This file and MAINTAINERS.md
-# are listed so that the hand-over cannot be undone by one approval. Any other
-# file that states a fact about these projects counts the same way. For
-# example site/build.py holds one such label, the fleet server name of Kairos.
-# It is code, so it is not listed here, and the rule still applies to it.
-# GOVERNANCE.md holds the ownership, administrator and removal rules. A change
-# to it is conflicted, and for 24 months after the bootstrap ends the founder
-# clause in it also needs the owner's agreement for the protected text in it.
+# affiliation to any covered project replaces @mauromorales on these lines as
+# the required approver. Adding them next to @mauromorales would not make their
+# approval required, because any one owner on a line is enough. GitHub enforces
+# only that a code owner approves. The symmetric rule rests on the maintainers
+# and the public record. data/lineage.yaml, site/projects_meta.yaml,
+# site/content.py and site/drafts/base_choice.yaml state facts about Kairos,
+# Hadron and Spectro Cloud next to facts about the other projects. GitHub cannot
+# protect one entry of a file, so the whole file is listed. During the
+# bootstrap, a change that touches an entry about Kairos, Hadron or Spectro
+# Cloud is conflicted. This file and MAINTAINERS.md are listed so that the
+# hand-over cannot be undone by one approval. Any other file that states a fact
+# about these projects counts the same way. For example site/build.py holds one
+# such label, the fleet server name of Kairos. It is code, so it is not listed
+# here, and the rule still applies to it. GOVERNANCE.md holds the ownership,
+# administrator and removal rules. A change to it is conflicted, and for 24
+# months after the bootstrap ends the founder clause in it also needs the
+# owner's agreement for the protected text in it.
 /data/projects/kairos.yaml           @mauromorales
 /data/projects/hadron.yaml           @mauromorales
 /data/lineage.yaml                   @mauromorales
