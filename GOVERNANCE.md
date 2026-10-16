@@ -1,13 +1,12 @@
 # Governance
 
-The cloud native OS Pulse compares projects, and the person who runs it,
-Mauro Morales, maintains two of them. This document says who owns the Pulse,
-who decides what goes into it, how, and what stops that person from tilting the
-data toward his own projects. It also says what protects a maintainer from
-being removed without a cause. The owner has a stronger protection: the owner
-role cannot be taken away by a vote, and the founder clause adds more for 24
-months. The owner started the Pulse, and the organization and the repository
-are his.
+The cloud native OS Pulse compares projects, and the person who runs it, Mauro
+Morales, works on two of them. This document says who owns the Pulse, who
+decides what goes into it, how, and what stops that person from tilting the data
+toward his own projects. It also says what protects a maintainer from being
+removed without a cause. The owner has a stronger protection: the owner role
+cannot be taken away by a vote, and the founder clause adds more for 24 months.
+The owner started the Pulse, and the organization and the repository are his.
 
 ## When these rules apply
 
@@ -345,7 +344,7 @@ The **protected text** is:
 - the section "Changes to this document";
 - the vote rules in "Decisions", including the vote cap;
 - the rule in "Conflict of interest" that changes to CODEOWNERS and
-  MAINTAINERS.md are always conflicted;
+  MAINTAINERS.md are always conflicted, and the approver rule for them;
 - the choice of code of conduct, the enforcement contact named in
   `CODE_OF_CONDUCT.md`, and the outside person named in MAINTAINERS.md;
 - the date recorded in the Bootstrap section.
@@ -372,12 +371,12 @@ MAINTAINERS.md.
 
 ## Bootstrap
 
-Today the Pulse has one maintainer: Mauro Morales. He is one of the maintainers
-of Kairos and of Hadron Linux, two projects the Pulse covers, and he is employed
-by Spectro Cloud. So today, nobody without an affiliation reviews the Kairos and
-Hadron profiles before they are merged. The 7-day window and the
-`conflict-of-interest` label make each such change public. They do not make it
-independent.
+Today the Pulse has one maintainer: Mauro Morales. He is a maintainer of Kairos,
+whose maintainers also own Hadron Linux's code. The Pulse covers both projects,
+and he is employed by Spectro Cloud. So today, nobody without an affiliation
+reviews the Kairos and Hadron profiles before they are merged. The 7-day window
+and the `conflict-of-interest` label make each such change public. They do not
+make it independent.
 
 During the bootstrap:
 
@@ -426,9 +425,9 @@ profiles.
    maintainer who is not employed by Spectro Cloud, and who did not open it,
    merges it. Nobody else can.
 4. The owner can delay the end only by publishing a reason in a public issue
-   before the 90 days run out. Each reason delays the end by at most 90 days.
-   He can do this at most twice, so the delay is at most 180 days. After that,
-   rule 3 applies with no further delay.
+   before the current period runs out. Each reason delays the end by at most 90
+   days. He can do this at most twice, so the delay is at most 180 days. After
+   that, rule 3 applies with no further delay.
 5. The recorded date is protected text. After it is recorded, it changes only
    through a pull request opened or approved by the owner. The first recording
    under rule 3 is the one exception.
@@ -441,8 +440,9 @@ Bootstrap ended on: not yet.
 
 ## Changes to this document
 
-A change to this document is treated like a change to the methodology: it
-follows the conflict-of-interest rules above, whoever writes it. A change to the
+A change to this document is conflicted and follows all four
+conflict-of-interest rules above, whoever writes it. Rule 4 asks for a
+maintainer with no affiliation with any covered project. A change to the
 protected text also follows the founder clause. A change to the Ownership
 section follows only that section: the owner opens or approves it.
 
@@ -466,10 +466,10 @@ for now:
   two thirds. The written finding is the only check.
 - GitHub can block rule 3 of "How the bootstrap ends". The recording pull
   request changes this document, and CODEOWNERS names only the owner on its line
-  if the owner has not yet handed over that line. If a code owner review is
-  required and the organization ruleset stops administrators from bypassing it,
-  nobody that rule 3 names can merge that pull request until the CODEOWNERS line
-  changes.
+  if the owner has not yet handed over that line. A code owner review is
+  required, and the organization ruleset stops administrators from bypassing it,
+  so nobody that rule 3 names can merge that pull request until the CODEOWNERS
+  line changes.
 - GitHub cannot enforce the founder clause, or the rule that only the owner
   changes the Ownership section, once the code owner lines name another
   maintainer. Both rest on the owner's power as organization owner.

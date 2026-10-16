@@ -36,9 +36,9 @@
 # counts the same way. site/build.py holds such labels and text, for example the
 # Kairos fleet server name. It is code, so it is not listed here, and the rule
 # still applies to it. GOVERNANCE.md holds the ownership, administrator and
-# removal rules. A change to it is conflicted, and for 24 months after the
-# bootstrap ends the founder clause in it also needs the owner's agreement for
-# the protected text in it.
+# removal rules. A change to it is conflicted and follows all four rules, and
+# for 24 months after the bootstrap ends the founder clause in it also needs the
+# owner's agreement for the protected text in it.
 /data/projects/kairos.yaml           @mauromorales
 /data/projects/hadron.yaml           @mauromorales
 /data/lineage.yaml                   @mauromorales
