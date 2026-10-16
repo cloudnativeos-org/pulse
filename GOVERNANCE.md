@@ -14,7 +14,10 @@ The Pulse is in preview, and Mauro is still reviewing it himself. During the
 preview, changes are merged without the conflict-of-interest process below.
 The rules in this document take effect when the preview ends. That day, the
 `main` branch is protected so that the rules are enforced by GitHub, not only
-written down, and the date is recorded here.
+written down, and the date is recorded here. The bootstrap described below
+starts on the day the preview ends.
+
+Preview ended on: not yet.
 
 ## Not a CNCF project
 
@@ -89,13 +92,15 @@ without that affiliation exists, the bootstrap section says what applies. A
 maintainer who works on Talos does not approve a conflicted change to the Talos
 profile either.
 
-GitHub enforces the symmetric rule only for the conflicted lines that CODEOWNERS
-covers. Everywhere else it rests on the maintainers and the public record.
+GitHub does not enforce the symmetric rule. GitHub enforces only that a code
+owner approves. The symmetric rule rests on the maintainers and the public
+record.
 
 A change to `.github/CODEOWNERS` or `MAINTAINERS.md` is always conflicted,
 before the bootstrap ends and after it, so that nobody can put themselves back
 on the conflicted lines alone. It follows the four rules above, and for the
-first 24 months after the bootstrap ends the founder clause also applies.
+first 24 months after the bootstrap ends the founder clause also applies to
+the protected text in them.
 
 A change to a profile by an author, or with an approver, who is affiliated with
 any covered project is conflicted for rules 1, 2 and 3, even when it changes
@@ -296,11 +301,12 @@ documentation. They were not tested on this organization:
 - Whether members can delete or transfer repositories is an organization
   setting.
 
-So the owner keeps two things set. The organization setting "Allow members to
-delete or transfer repositories" is off. An organization-level ruleset protects
-`main`, and administrators cannot bypass it. Whether the organization's plan has
-rulesets is not verified. Nobody relies on a CODEOWNERS line alone to stop an
-administrator, because it does not bind one.
+So the owner must set two things (not yet verified). The organization setting
+"Allow members to delete or transfer repositories" must be off. An
+organization-level ruleset must protect `main`, and administrators must not be
+able to bypass it. Whether the organization's plan has rulesets is not
+verified. Nobody relies on a CODEOWNERS line alone to stop an administrator,
+because it does not bind one.
 
 Administrators come from the maintainers who have shown skin in the game after
 proven maintainership work. A maintainer can be proposed as an administrator
@@ -346,11 +352,12 @@ the owner. GitHub does not let an author approve their own pull request, so a
 pull request that the owner opens counts. The recorded date follows its own rule
 in the Bootstrap section, and that rule does not lapse.
 
-The clause is not in force during the bootstrap. The owner merges then, so
-nothing changes without him. The clause lapses on its own 24 months after the
-day recorded in the Bootstrap section. It needs no vote and no change to this
-document. The Ownership section is not part of the clause and does not lapse:
-only the owner changes it.
+The clause is not in force during the bootstrap. The owner merges then, and
+nothing changes without him except under the two exceptions that the Bootstrap
+section names. The clause lapses on its own 24 months after the day recorded
+in the Bootstrap section. It needs no vote and no change to this document. The
+Ownership section is not part of the clause and does not lapse: only the owner
+changes it.
 
 GitHub cannot enforce this clause. CODEOWNERS accepts any one owner on a line,
 and after the hand-over the line names the maintainer with no affiliation. So
@@ -369,19 +376,21 @@ independent.
 
 During the bootstrap:
 
-- Mauro merges pull requests. The one exception is the pull request that
-  records the end of the bootstrap under rule 3 below.
+- Mauro merges pull requests, with two exceptions: the pull request that
+  records the end of the bootstrap under rule 3 below, and the pull requests
+  that the second owner merges when the owner has been unreachable for 6
+  months, as the last item in this list says.
 - Every change to `data/projects/kairos.yaml` or `data/projects/hadron.yaml` is
   conflicted, and so is every change to an entry about Kairos, Hadron or Spectro
   Cloud in `data/lineage.yaml`, `site/projects_meta.yaml`, `site/content.py` or
   `site/drafts/base_choice.yaml`. That includes corrections that Mauro did not
   write but merges.
-- The first maintainer who has no affiliation with any covered project and is
-  not employed by Spectro Cloud replaces Mauro as the required approver of the
-  Kairos and Hadron profiles, of the conflicted entries in the files above, of
-  the methodology and the schema, and of `.github/CODEOWNERS`, `MAINTAINERS.md`
-  and this document. A maintainer who works on another covered project, a
-  competitor of Kairos or Hadron for example, does not qualify.
+- The first maintainer who has no affiliation with any covered project
+  replaces Mauro as the required approver of the Kairos and Hadron profiles, of
+  the conflicted entries in the files above, of the methodology and the schema,
+  and of `.github/CODEOWNERS`, `MAINTAINERS.md` and this document. A
+  maintainer who works on another covered project, a competitor of Kairos or
+  Hadron for example, does not qualify.
 - Mauro proposes the new maintainers, so he picks the people who will oversee
   him. Each proposal is a public issue, open 14 days, and one maintainer's
   objection is a veto.
@@ -393,10 +402,11 @@ During the bootstrap:
   residual risk, and it is listed under "Known limits".
 
 **The end condition** is that the Pulse has at least two maintainers besides
-Mauro, who work on two different projects, and neither of whom is employed by
-Spectro Cloud, and at least one of whom has no affiliation with any covered
-project. Without that last part the bootstrap could end with nobody allowed to
-approve a change to the Kairos and Hadron profiles.
+Mauro, who are affiliated with different projects, or with none, and neither
+of whom is employed by Spectro Cloud, and at least one of whom has no
+affiliation with any covered project. Without that last part the bootstrap
+could end with nobody allowed to approve a change to the Kairos and Hadron
+profiles.
 
 **How the bootstrap ends.** There is one rule, in five parts:
 
@@ -419,7 +429,8 @@ approve a change to the Kairos and Hadron profiles.
    under rule 3 is the one exception.
 
 From the day it is recorded, the decision rules above apply in full, and this
-section is reduced to a record of when the bootstrap ended.
+section is reduced to a record of when the bootstrap ended and to the first two
+sentences of rule 5, which stay in force and do not lapse.
 
 Bootstrap ended on: not yet.
 
@@ -445,9 +456,9 @@ for now:
   approves waits 7 days. This is intended.
 - If the owner is unreachable and there is no second owner, nobody can act
   during the bootstrap.
-- A group of more than one third of the active maintainers can block any
-  removal, and two employers together can reach two thirds. The written finding
-  from an outside person is the only check.
+- A group of more than one third of the active maintainers other than the
+  person concerned can block any removal, and two employers together can reach
+  two thirds. The written finding is the only check.
 - GitHub cannot enforce the founder clause. It rests on the owner's power as
   organization owner.
 - The rules are only as strong as the organization settings behind them. The
