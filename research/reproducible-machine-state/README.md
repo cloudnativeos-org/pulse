@@ -2,7 +2,7 @@
 
 Source documents in this directory: `persona-strategy-v3-source.txt` (the uploaded
 public-persona strategy, extracted from `.docx`) and `research-framework.md` (the
-22-dimension research prompt Mauro pasted directly in chat). This file is the synthesis
+22-dimension research prompt). This file is the synthesis
 of the two — read the sources for full detail, this is the index.
 
 ## The question
@@ -70,11 +70,6 @@ Mauro maintains Kairos. Treat it exactly like every other project:
 Every factual claim carries one label: DOCUMENTED, REPRODUCED, OBSERVED, INFERRED,
 UNKNOWN, or NOT TESTED (research-framework.md, evidence standard section). Missing
 documentation is never treated as proof of absence.
-
-## Model
-
-Opus-class for every sub-issue under this epic — hard rule 7 puts architecture/research
-judgment under bias-control requirements in that tier, not Sonnet-class grunt work.
 
 ## Three artifacts, not two — resolved
 

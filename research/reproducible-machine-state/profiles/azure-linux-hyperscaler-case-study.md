@@ -37,7 +37,7 @@ recording that choice in-doc. Same precedent here.
 The structure I chose is not the 22 dimensions in order, and not a mirror of the Pulse
 profile. Both of those would produce a worse document for this tier, for different reasons.
 
-The Pulse's `azure-linux.yaml` (1007 lines, unmerged on `feat/issue-813-pulse-profiles`)
+The Pulse's `azure-linux.yaml` (1007 lines, unmerged at the time of writing)
 already answers the categorical question thoroughly and I am not redoing it: base Azure Linux
 is a conventional RPM distribution with a mutable root and a package manager at runtime, not
 an image-based or immutable OS; Microsoft's immutable container host is a separate product,

@@ -935,7 +935,7 @@ a maintainer confirmed it the next day. And the Pulse profile's Flatcar entry, f
 June 2025 maintainer comment, reads as though only alpha ships signed artifacts; stable has
 shipped them since 2025-11-12, while LTS still does not.
 
-The Pulse's per-project YAML profiles on the unmerged `feat/issue-813-pulse-profiles` branch
+The Pulse's per-project YAML profiles, unmerged at the time of writing,
 were used as a starting index of sources, not as evidence. Where a Pulse finding is repeated
 here it was re-checked against the primary source it cites. The Kairos claim in
 `kairos.yaml` d10 — recorded there as INFERRED, "the official ISOs carry a self-built shim
