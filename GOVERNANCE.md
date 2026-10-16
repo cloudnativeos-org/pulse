@@ -1,21 +1,22 @@
 # Governance
 
 The cloud native OS Pulse compares projects, and the person who runs it,
-Mauro Morales, maintains two of them. This document says who owns the Pulse, who decides what goes into it,
-how, and what stops that person from tilting the data toward his own projects.
-It also says what protects a maintainer from being removed without a cause.
-The owner has a stronger protection: the owner role cannot be taken away by a
-vote, and the founder clause adds more for 24 months. The owner started the
-Pulse, and the organization and the repository are his.
+Mauro Morales, maintains two of them. This document says who owns the Pulse,
+who decides what goes into it, how, and what stops that person from tilting the
+data toward his own projects. It also says what protects a maintainer from
+being removed without a cause. The owner has a stronger protection: the owner
+role cannot be taken away by a vote, and the founder clause adds more for 24
+months. The owner started the Pulse, and the organization and the repository
+are his.
 
 ## When these rules apply
 
 The Pulse is in preview, and Mauro is still reviewing it himself. During the
 preview, changes are merged without the conflict-of-interest process below.
 The rules in this document take effect when the preview ends. That day, the
-`main` branch is protected so that the rules are enforced by GitHub, not only
-written down, and the date is recorded here. The bootstrap described below
-starts on the day the preview ends.
+`main` branch is protected so that GitHub enforces code owner approval, and the
+date is recorded here. The bootstrap described below starts on the day the
+preview ends.
 
 Preview ended on: not yet.
 
@@ -81,16 +82,17 @@ facts they can check will trust the Pulse little by little. A conflicted change:
    That includes an objection from the project's representative.
 4. Needs approval from a maintainer who has no affiliation with that project,
    once such a maintainer exists. Until then, the 7 days and the public record
-   are the only safeguard, and the bootstrap section below says so.
+   are the only safeguard. During the bootstrap, the Bootstrap section below
+   says so too.
 
 The rule is symmetric. For every covered project, a conflicted change to its
 profile needs approval from a maintainer with no affiliation to that project. A
 maintainer who is affiliated with the project cannot give that approval,
 however many of them there are. Kairos and Hadron are the worked example
 because the only maintainer today is affiliated with both: until a maintainer
-without that affiliation exists, the bootstrap section says what applies. A
-maintainer who works on Talos does not approve a conflicted change to the Talos
-profile either.
+without that affiliation exists, rule 4 says what applies, and during the
+bootstrap the Bootstrap section adds its own rules. A maintainer who works on
+Talos does not approve a conflicted change to the Talos profile either.
 
 GitHub does not enforce the symmetric rule. GitHub enforces only that a code
 owner approves. The symmetric rule rests on the maintainers and the public
@@ -135,8 +137,9 @@ majority of the votes counted decides.
 **The vote cap.** Votes from one employer count for at most half of the votes
 cast. The excess is not counted. In practice, the votes of one employer are
 reduced to the number that everyone else casts together. If all maintainers
-work for one employer, no vote can be held, and the bootstrap section says who
-decides. The cap applies to every vote in this document.
+work for one employer, no vote can be held. During the bootstrap, the Bootstrap
+section says who decides. After it, no vote is held and a change that needs a
+vote is not merged. The cap applies to every vote in this document.
 
 Becoming a maintainer, removing a maintainer, appointing an administrator or an
 external steward, and changing the ownership have their own rules below. The
@@ -252,9 +255,9 @@ A removal for a breach needs all three of these:
    group, not against the votes cast. The vote cap applies, so the yes votes of
    one employer are reduced as described under Decisions.
 
-Residual risk. A group of more than one third of that group can block any
-removal. Two employers acting together can reach two thirds. The written
-finding is the check on that: they cannot remove anyone without it.
+Residual risk. More than one third of them can block any removal. Two
+employers acting together can reach two thirds. The written finding is the
+check on that: they cannot remove anyone without it.
 
 A vote that says only that the others no longer want a person removes nobody.
 A cause has to be stated and shown.
@@ -321,7 +324,7 @@ The owner appoints an administrator after a public issue that has stayed open
 for 14 days. Anyone can object in that issue, and the owner answers each
 objection there. An administrator steps down by opening a pull request against
 MAINTAINERS.md. The owner adds or removes an administrator only through the
-same public process. Three more rules apply:
+same public process, except in an emergency, below. Three more rules apply:
 
 - Admin rights end on the same day a person stops being a maintainer or moves to
   the emeritus list.
@@ -459,7 +462,8 @@ for now:
 - A group of more than one third of the active maintainers other than the
   person concerned can block any removal, and two employers together can reach
   two thirds. The written finding is the only check.
-- GitHub cannot enforce the founder clause. It rests on the owner's power as
-  organization owner.
+- GitHub cannot enforce the founder clause, or the rule that only the owner
+  changes the Ownership section, once the code owner lines name another
+  maintainer. Both rest on the owner's power as organization owner.
 - The rules are only as strong as the organization settings behind them. The
   Administrators section says which settings.
