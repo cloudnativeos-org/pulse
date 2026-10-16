@@ -51,7 +51,7 @@ standard section):
 | Different paradigm | Unikraft | Boundary case — asks whether the traditional host OS is the right unit of deployment at all |
 | Watch / emerging | Amutable | Track only; do not score against mature systems until enough public implementation exists |
 
-## Bias control (applies to every sub-issue, stated once here)
+## Bias control (applies to every work item, stated once here)
 
 Mauro maintains Kairos. Treat it exactly like every other project:
 - Do not accept Kairos documentation uncritically, or use Kairos terminology as the
@@ -75,19 +75,18 @@ documentation is never treated as proof of absence.
 
 Mauro clarified, 2026-09-15: the TAG paper above and "the CNCF blog" are two separate
 things, not one. The CNCF blog is the foundation's main blog, where Mauro can post as a
-CNCF Ambassador — distinct from the TAG Workloads Foundation submission. Tracked as its
-own sub-issue.
+CNCF Ambassador — distinct from the TAG Workloads Foundation submission.
 
 ## Deliverable 1 replaced — resolved
 
 Mauro gave a fully-specified first deliverable directly, 2026-09-15: **Cloud Native OS
 Pulse 2026**,
-superseding the open-ended "methodology and research plan" sub-issue
+superseding the open-ended "methodology and research plan" work item
 (closed). The Pulse is deliberately narrower and more concrete than
 this file's original deliverable-1 description: a compact, sourced, publishable snapshot
 of the ecosystem — explicitly not the full architectural comparison, no destructive
 experiments, no rankings. It reuses this funnel's ten-platform landscape and bias-control
 posture, adds Fedora CoreOS as its own entry alongside bootc, and folds Amutable's
 "watch, don't score" treatment in as an explicit exclusion rather than a low-priority
-sub-issue. Treat the Pulse brief as authoritative on deliverable 1's actual shape; this file's
+work item. Treat the Pulse brief as authoritative on deliverable 1's actual shape; this file's
 "suggested public sequence" above still holds for the personal-series artifact, unchanged.
