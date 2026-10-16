@@ -13,6 +13,15 @@ the comparison, or review anything about another project. Correcting a fact in
 your profile does not imply agreement with anything else in the dataset or the
 article, and we will not present it that way.
 
+## Who reviews a profile
+
+Each profile can have a representative, a person who works on the project, and
+an external steward, a person with no affiliation with any covered project who
+looks after the profile when no representative is interested. No project has to
+have a representative. A profile with neither is reviewed by the maintainers. A
+maintainer requests each reviewer's review by hand, and the request is recorded
+in the pull request. The rules are in [GOVERNANCE.md](../GOVERNANCE.md).
+
 ## What to send
 
 One profile per project, not the whole dataset. Each YAML profile is
@@ -49,9 +58,9 @@ affects an operator's decision:**
 - **Hadron.** The same Secure Boot question, recorded at its source: the shim is
   compiled from upstream with no signing step found. Also whether Hadron is
   inside the CNCF Kairos project's scope, and whether the base images are
-  signed. The author is one of the Kairos and Hadron maintainers, so another
-  Kairos maintainer reviews these two profiles instead of the author. The ask is
-  the same as to everyone else.
+  signed. The author is one of the Kairos and Hadron maintainers, so changes to
+  these two profiles follow the conflict-of-interest rules in
+  [GOVERNANCE.md](../GOVERNANCE.md). The ask is the same as to everyone else.
 
 If the maintainers like the format and the method, the Pulse is open to becoming
 a group effort, kept up by people from several of the projects rather than by
