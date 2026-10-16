@@ -90,9 +90,7 @@ Deep dives so far (live VM, not documentation alone): bootc
 ([research/deep-dives/fr-13-rollback-scope-bootc.md](../research/deep-dives/fr-13-rollback-scope-bootc.md)),
 Fedora CoreOS
 ([research/deep-dives/fr-13-rollback-scope-fedora-coreos.md](../research/deep-dives/fr-13-rollback-scope-fedora-coreos.md)).
-Kairos leg tracked in the rollback deep-dive task.
-Flatcar, Bottlerocket and NixOS tracked in
-the rollback deep-dive task.
+The Flatcar, Bottlerocket and NixOS legs are tracked separately.
 
 Kairos leg run and verified against a live VM install/upgrade/rollback cycle:
 [`research/deep-dives/fr-13-rollback-scope-kairos.md`](../research/deep-dives/fr-13-rollback-scope-kairos.md).

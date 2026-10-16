@@ -1,6 +1,6 @@
 # Kairos: deep-core platform profile (documentation pass)
 
-a sub-issue of the Reproducible Machine State epic
+Part of the Reproducible Machine State epic
 (the research epic).
 
 Research window: 2026-09-16. All sources retrieved on that date unless a line says otherwise.
@@ -38,23 +38,23 @@ earlier research, to a path in `kairos-io/kairos-agent` now points at an archive
 No standardized project-profile template survives from
 the methodology plan. That ticket closed
 and was superseded by the Pulse brief
-before it produced one. the platform-profile task (NixOS), the platform-profile task (Unikraft), the platform-profile task (Azure Linux) and the Secure Boot key-ownership task
-(FR-14) each designed a structure for their own question and recorded that choice in the
+before it produced one. The NixOS, Unikraft and Azure Linux profiles, and the Secure Boot key-ownership profile
+(FR-14), each designed a structure for their own question and recorded that choice in the
 document. This one does the same.
 
 The structure here is the research framework's own 22 dimensions, in order. The
-sibling tickets had reasons to deviate. This one does not: the platform-profile task says "run all 22
+sibling tickets had reasons to deviate. This one does not: the brief for this profile says "run all 22
 dimensions", and this profile is the anchor the TAG paper pulls from most directly in
 the three-way Kairos / bootc / Flatcar comparison. Dimension order also makes the
 profile diffable against the other deep-core profiles when they exist.
 
-Two sections do not belong to the framework and are here because the platform-profile task asks for them:
+Two sections do not belong to the framework and are here because the brief for this profile asks for them:
 a list of every evaluative comparative claim that needs Mauro's own maintainer review,
 and a list of corrections this pass owes to earlier findings in the epic.
 
 ## Scope of this pass
 
-**This pass is documentation and source reading only.** the platform-profile task's full ask includes a live
+**This pass is documentation and source reading only.** The brief's full ask includes a live
 build, provision, extend, update, deliberately break, roll back and recover cycle, plus
 both standardized experiment protocols from the framework (failure injection, dimension
 21; operational independence, dimension 22). Those are explicitly **out of scope here**
@@ -141,7 +141,7 @@ I say what I searched.
 
 ## Bias control, applied as method
 
-Mauro maintains Kairos. the platform-profile task states the bias control more sharply than the other tickets
+Mauro maintains Kairos. The brief for this profile states the bias control more sharply than the other tickets
 in this epic, so it is worth naming what I actually did with it.
 
 **I did not use Kairos's vocabulary as the neutral definition.** Where a Kairos document
@@ -171,7 +171,7 @@ the candour of the Trusted Boot key documentation are all real, and all cited.
 
 **Every evaluative comparison against another project is flagged.** The framework asks
 for comparison and the TAG paper needs it, but Mauro is the maintainer of one of the
-projects being compared, and the platform-profile task is explicit that his own authorship does not exempt a
+projects being compared, and the brief for this profile is explicit that his own authorship does not exempt a
 claim from review. Those claims are collected in their own section.
 
 ## Contents
@@ -303,7 +303,7 @@ There *is* a periodic reconciliation hook. `cos-setup-reconcile.timer` runs
 `kairos-agent run-stage reconcile` at `OnBootSec=5min` and `OnUnitActiveSec=60min`, with
 an OpenRC equivalent. Source:
 `origin/master:kairos-init/pkg/bundled/cloudconfigs/09_systemd_services.yaml:114-127` and
-`09_openrc_services.yaml:38-53`. the Pulse brief profile records "There is no reconciliation
+`09_openrc_services.yaml:38-53`. The Pulse profile records "There is no reconciliation
 loop", and that is too strong: the loop exists and is enabled by default.
 
 What the loop does *not* do is reconcile anything by itself. No shipped cloud
@@ -361,7 +361,7 @@ Evidence: **DOCUMENTED**.
 The root image constant is 3072 MiB (`sdk/constants/constants.go:58`) and the OEM
 partition is 64 MiB (`OEMSize = uint(64)`). Neither appears in the documentation.
 
-the Pulse brief records the 3072 figure as "a 3072 MiB ceiling on the root image". **It is not a
+The Pulse brief records the 3072 figure as "a 3072 MiB ceiling on the root image". **It is not a
 ceiling.** `agent/pkg/config/spec.go:173-182` seeds the three images at 3072 and then
 overwrites all three with the measured source size, from a heuristic at `spec.go:879-942`
 (compressed layer sum times 2.5 for a registry source, tar size times 2.0 for an OCI file,
@@ -480,7 +480,7 @@ message. **NOT TESTED**; this is experiment 8 in the follow-up spec.
 
 ### The base-distribution question, answered precisely
 
-This is the claim the platform-profile task singles out as big and checkable: seven bases advertised, one with
+This is the claim the brief for this profile singles out as big and checkable: seven bases advertised, one with
 released images. **It holds in substance, and the precise picture is more useful than the
 slogan.**
 
@@ -793,7 +793,7 @@ the way a reader comparing operating systems will read it, it says the upgrade r
 tampering, which on the default path it does not. Evidence: **DOCUMENTED** for the
 quote; the reading is mine.
 
-This is the clearest instance in this profile of the bias control that the platform-profile task asks for.
+This is the clearest instance in this profile of the bias control that the brief for this profile asks for.
 "Tamper-proof" is Kairos's word, used in a narrower sense than the category uses it. It
 must not become the comparison's definition.
 [Flagged for review: **C-03**.]
@@ -1010,7 +1010,7 @@ The framework asks for these as different concepts, and Kairos separates them cl
 **Number of retained prior versions: exactly one** (two deployments total, counting the
 active slot). There is one `passive.img` and the upgrade overwrites it. There is no
 version history, no pinning and no multi-version rollback. Corrected per the maintainer
-review on :
+review:
 the retention count and the rollback mechanism ARE documented, on the boot_assessment
 and architecture/immutable pages. The real gap is narrower: no documented manual-rollback
 procedure (`kairos-agent bootentry --select fallback`), and the boot-once `next_entry`
@@ -1186,7 +1186,7 @@ There is no external source of truth in the open-source project: no desired-stat
 no server the node reconciles against. Evidence: **DOCUMENTED**.
 
 **The schema.** `kairos-agent validate` checks a configuration against a JSON Schema, and
-`kairos-agent print-schema` emits it. the Pulse brief reports that the versioned schema URL stamped
+`kairos-agent print-schema` emits it. The Pulse brief reports that the versioned schema URL stamped
 into emitted configurations returns 404 for every version from v3.5.0 to v4.3.0. I did
 not re-verify the live URL in this pass (no fetch was made), so that stays **UNKNOWN**
 here and is inherited from the Pulse brief rather than confirmed. What I can confirm from source is
@@ -1511,8 +1511,7 @@ choosing one.
 
 ## 9. Security and chain of trust
 
-This dimension was researched in depth for this epic already, as FR-14
-(). That
+This dimension was researched in depth for this epic already, as FR-14. That
 document holds the full evidence chain for the Secure Boot half. This section cites it
 rather than repeating it, and adds the parts FR-14 did not cover.
 
@@ -1630,7 +1629,7 @@ done properly, and the trust anchor at the bottom of it is missing.
 
 ### Artifact signatures, SBOM, provenance
 
-Release signing is Sigstore keyless cosign, verified genuine by the Pulse brief own research
+Release signing is Sigstore keyless cosign, verified genuine by the Pulse brief's own research
 (Fulcio certificate naming the project's release workflow at the tag, with Rekor entries).
 The documented verification command names the identity
 `https://github.com/kairos-io/kairos/.github/workflows/reusable-factory.yaml@refs/tags/$VERSION`
@@ -2136,7 +2135,7 @@ default list of eleven units (`kairos-agent`, `kairos-installer`, `kairos-webui`
 `cos-setup-*` units, `k3s`, `k3s-agent`, `k0scontroller`, `k0sworker`) plus
 `/var/log/kairos/*.log`, `/var/log/*.log` and `/run/immucore/*.log`, into a gzipped tar,
 with the list extensible from cloud config. Source:
-`origin/master:agent/internal/agent/logs.go:39-60`. the Pulse brief records it as "kairos-agent
+`origin/master:agent/internal/agent/logs.go:39-60`. The Pulse brief records it as "kairos-agent
 logs" without detail; it is more than that. Evidence: **DOCUMENTED**.
 
 **Debugging a failed boot.** Two mechanisms, both real.
@@ -2498,7 +2497,7 @@ holds two `application/vnd.in-toto+json` layers:
 - `https://slsa.dev/provenance/v1`, 20,562 bytes
 
 So Kairos ships both an SPDX SBOM and SLSA v1 provenance on every release image. Evidence:
-**OBSERVED**. the Pulse brief recorded "provenance: unknown" and "No SLSA generator or level claim
+**OBSERVED**. The Pulse brief recorded "provenance: unknown" and "No SLSA generator or level claim
 was found". That is now resolved: provenance exists as a BuildKit in-toto attestation. The
 project does not *claim* a SLSA level anywhere, which is a different and smaller gap.
 
@@ -2629,7 +2628,7 @@ have to be rebuilt.
 **That distinction is worth carrying into the TAG paper**, because the two are usually
 conflated and Kairos scores very differently on each. Kairos has a **capacity**
 dependency on one company and essentially **no infrastructure dependency** on it. Several
-projects in this comparison have the reverse shape. the Pulse brief recorded the infrastructure half
+projects in this comparison have the reverse shape. The Pulse brief recorded the infrastructure half
 as a strength; this pass confirms it against the workflows and the registry rather than
 against the documentation.
 
@@ -2761,7 +2760,7 @@ application exists somewhere not searched.
 
 ### What Sandbox versus Incubating actually implies
 
-This is the governance gap the platform-profile task asks about, and it is worth answering with CNCF's own
+This is the governance gap the brief for this profile asks about, and it is worth answering with CNCF's own
 criteria rather than with a vibe. From `cncf/toc`
 `main:.github/ISSUE_TEMPLATE/template-incubation-application.md` (v1.6; the older
 `graduation_criteria.md` now redirects to it), scored against Kairos's primary sources:
@@ -3221,7 +3220,7 @@ signed-chain question of dimension 9 has a positive answer.
 
 ## Claims that need Mauro's maintainer review before publication
 
-the platform-profile task is explicit that Mauro's own authorship does not exempt a claim from review
+The brief for this profile is explicit that Mauro's own authorship does not exempt a claim from review
 discipline. This section separates the two kinds of claim in this document so the review
 has a finite surface.
 
@@ -3265,7 +3264,7 @@ including in the TAG paper.**
 
 **Two further things for Mauro specifically, which are not comparisons.**
 
-**The Secure Boot finding from the Secure Boot key-ownership task is still unconfirmed by the project.** the Secure Boot key-ownership task reproduced
+**The Secure Boot finding from the Secure Boot key-ownership task is still unconfirmed by the project.** The Secure Boot key-ownership task reproduced
 that the published Hadron image ships unsigned boot binaries and flagged it for his
 verification. Nothing in this pass changes that, and dimension 8 adds a fact that makes it
 sharper: **there is no prebuilt Trusted Boot artifact at all in v4.3.0**, so the only path
@@ -3384,14 +3383,14 @@ say so.
 
 ## Corrections this pass owes to earlier findings in this epic
 
-the platform-profile task instructs that the Pulse brief findings be verified rather than trusted. Most of them held.
+The brief for this profile instructs that the Pulse brief's findings be verified rather than trusted. Most of them held.
 These did not, or did not hold in the form they were written. Most of the corrections below
 move in Kairos's favour, and that is the point: an audit that only ever confirms its own
 negative priors is not an audit. One item (number 5) goes the other way and is recorded
 with the same treatment.
 
 They are listed here in one place so the TAG paper does not inherit a stale claim, and so
-the Pulse brief own profile can be amended if Mauro wants that.
+the Pulse brief's own profile can be amended if Mauro wants that.
 
 **1. "There is no reconciliation loop."** There is. `cos-setup-reconcile.timer` runs
 `kairos-agent run-stage reconcile` at boot plus 5 minutes and every 60 minutes after,
@@ -3462,7 +3461,7 @@ entries. It is a documentation-retention rule rather than a security-support com
 it is version-relative rather than dated, and it is in a blog post. All three are
 criticisms; none of them is "no rule exists". Evidence: **DOCUMENTED**.
 
-**10. The security-response picture.** the Pulse brief records `SECURITY.md`'s emptiness and the one
+**10. The security-response picture.** The Pulse brief records `SECURITY.md`'s emptiness and the one
 advisory, and mentions "a real, well-engineered scanning and triage program ... in a
 separate repository". This pass confirms that program is substantially more developed than
 that sentence conveys: `kairos-io/security`'s `ksec` does cross-repository CVE correlation

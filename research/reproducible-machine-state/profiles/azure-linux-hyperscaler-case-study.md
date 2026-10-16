@@ -1,8 +1,7 @@
 # Azure Linux — hyperscaler case study
 
 Depth tier: hyperscaler case study, documentation-based
-(, sub-issue
-of the research epic).
+(part of the research epic).
 Research window: 2026-09-15 to 2026-09-16. All sources retrieved 2026-09-16 unless noted.
 Seeds public series post #6, paired with Bottlerocket and Google Container-Optimized OS.
 
@@ -32,8 +31,7 @@ weekly regardless.
 ## Why this document is shaped the way it is
 
 No standardized project-profile template survives from the methodology plan — that ticket was closed and
-superseded by the cloud native OS Pulse (the Pulse brief) before it produced one. the platform-profile task (NixOS) and the platform-profile task
-(Unikraft) each hit the same gap and each designed a structure fitting their own question,
+superseded by the cloud native OS Pulse (the Pulse brief) before it produced one. The NixOS and Unikraft profiles each hit the same gap and each designed a structure fitting their own question,
 recording that choice in-doc. Same precedent here.
 
 The structure I chose is not the 22 dimensions in order, and not a mirror of the Pulse
@@ -474,7 +472,7 @@ nothing in the framework asks for it.
 I would not add all four as dimensions. The first and the fourth look like genuine missing
 questions. The second and third look more like missing sub-questions inside 15 and 18.
 
-## 8. For the GCOS sibling (the platform-profile task)
+## 8. For the GCOS sibling
 
 Things this profile had to discover the hard way, which the Google Container-Optimized OS
 profile will likely want to ask in the same shape. I did no GCOS research; these are questions,

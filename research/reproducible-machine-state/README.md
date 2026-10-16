@@ -1,6 +1,5 @@
 # Reproducible Machine State — investigation funnel
 
-Tracked as .
 Source documents in this directory: `persona-strategy-v3-source.txt` (the uploaded
 public-persona strategy, extracted from `.docx`) and `research-framework.md` (the
 22-dimension research prompt Mauro pasted directly in chat). This file is the synthesis
@@ -22,7 +21,7 @@ Immutability is one answer to that question, not the definition of it.
 2. **A CNCF blog post.** The foundation's main blog, published through Mauro's CNCF
    Ambassador channel — a distinct submission from the TAG paper above, not a rename of
    it. Scope and timing (announcing the investigation vs synthesizing its findings) is
-   still open; see the sub-issue.
+   still open.
 3. **A personal public series** (blog on mauromorales.com, companion videos) using the
    full ten-platform landscape. Content is exhaust from findings, published as they land
    — not a pre-scheduled calendar. The strategy doc's suggested sequence (a working
@@ -87,9 +86,9 @@ own sub-issue.
 ## Deliverable 1 replaced — resolved
 
 Mauro gave a fully-specified first deliverable directly, 2026-09-15: **Cloud Native OS
-Pulse 2026** (),
+Pulse 2026**,
 superseding the open-ended "methodology and research plan" sub-issue
-(, closed). The Pulse is deliberately narrower and more concrete than
+(closed). The Pulse is deliberately narrower and more concrete than
 this file's original deliverable-1 description: a compact, sourced, publishable snapshot
 of the ecosystem — explicitly not the full architectural comparison, no destructive
 experiments, no rankings. It reuses this funnel's ten-platform landscape and bias-control

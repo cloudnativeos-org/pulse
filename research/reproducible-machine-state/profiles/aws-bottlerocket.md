@@ -1,7 +1,6 @@
 # AWS Bottlerocket: platform profile
 
-Tracked as ,
-the research epic, Reproducible
+Part of the research epic, Reproducible
 Machine State.
 
 Bottlerocket is a Linux-based operating system for hosting containers, built by AWS, released
@@ -21,8 +20,8 @@ guessable, which is exactly what this epic wants from at least one system in the
 puts Bottlerocket at "architecture study plus representative lifecycle experiments." No lifecycle
 experiment was run here, and that is a scope decision recorded on the ticket before the work
 started, not an omission: no experiment protocol, report template or infrastructure decision exists
-yet for this tier. The methodology issue that was to produce them,
-the methodology plan, was superseded by
+yet for this tier. The methodology plan that was to produce them
+was superseded by
 the Pulse brief before it did, and the Pulse brief only
 covers the lighter documentation-only Pulse profile. Section "What a lifecycle experiment pass
 needs" below scopes the missing half precisely, so that the gap is a costed decision rather than a

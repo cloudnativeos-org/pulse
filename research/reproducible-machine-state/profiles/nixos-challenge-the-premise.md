@@ -1,7 +1,7 @@
 # NixOS: reproducibility and immutability are different axes, and the framework currently measures one of them
 
 Platform profile, "challenge the premise" tier.
-Tracked as , sub-issue of the research epic.
+Part of the research epic.
 Research date: 2026-09-16.
 Versions read: nixpkgs `release-26.05` and `master`, Nix reference manual 2.34.9, NixOS manual (stable). Where a claim rests on a file that exists only on `master`, this document says so.
 Seeds public series post #7 ("NixOS: do we need immutability, or do we actually need reproducibility?").
@@ -10,9 +10,9 @@ Seeds public series post #7 ("NixOS: do we need immutability, or do we actually 
 
 ## Why this document has the structure it has
 
-No project-profile template exists for this tier.  was supposed to produce one and was closed, superseded by the Pulse brief before it did. The Pulse's 14-dimension YAML schema is a survey instrument and the wrong shape for an argument, and this ticket's own brief says not to force NixOS through the same template as the deep experimental core. So I designed the structure below myself: question, mechanism, one section per operator guarantee, verdict, implications.
+No project-profile template exists for this tier. The methodology plan was supposed to produce one and was closed, superseded by the Pulse brief before it did. The Pulse's 14-dimension YAML schema is a survey instrument and the wrong shape for an argument, and this ticket's own brief says not to force NixOS through the same template as the deep experimental core. So I designed the structure below myself: question, mechanism, one section per operator guarantee, verdict, implications.
 
-Recording that here rather than in an issue comment, because the platform-profile task (Unikraft, also a "different paradigm" tier) may want to reuse or deliberately diverge from this shape, and the next author will read the document before they read the ticket thread.
+Recording that here rather than in an issue comment, because the Unikraft profile (also a "different paradigm" tier) may want to reuse or deliberately diverge from this shape, and the next author will read the document before they read the ticket thread.
 
 The per-guarantee structure is the load-bearing choice. A dimension-per-section layout would have reproduced the framework's existing categories, and the point of this ticket is to test whether one of those categories is well formed.
 
@@ -185,7 +185,7 @@ This is the sharpest operational difference in the whole comparison. An unattend
 
 **Surface.** Rollback reverts the system closure. It does not revert `/var`, `/home`, a database schema, or an unmanaged file in `/etc`. Managed `/etc` entries do come back, because activating generation N re-runs N's etc setup.
 
-The same hole exists on the other side. the Pulse brief recorded that a Flatcar OS rollback does not revert `/etc`, `/opt` or `/var` (DOCUMENTED in the sibling profile, not re-verified here), and filed the question as FR-13, "what does an OS rollback actually revert". Arriving at the same boundary from the NixOS side is a useful independent confirmation that FR-13 is the right question rather than a Flatcar quirk.
+The same hole exists on the other side. The Pulse brief recorded that a Flatcar OS rollback does not revert `/etc`, `/opt` or `/var` (DOCUMENTED in the sibling profile, not re-verified here), and filed the question as FR-13, "what does an OS rollback actually revert". Arriving at the same boundary from the NixOS side is a useful independent confirmation that FR-13 is the right question rather than a Flatcar quirk.
 
 NixOS is the only system I have looked at that has a named mechanism aimed at this hole. `stateVersion` does not roll state back; it reduces how often state formats change under a machine in the first place. That is a different and arguably better answer to the same problem, and it is the strongest candidate in this document for "exceeds".
 
@@ -327,7 +327,7 @@ The appliance profile closes the first, third (partially, via sysupdate's reboot
 
 Flagging these per the epic's bias control. I am not publishing, and these needed the named review before publication.
 
-**Needs a Kairos maintainer (Mauro or another):** this document contains no Kairos-specific claim. That is deliberate. Every comparison above is against an archetype ("an A/B image system", "a verity-enforced root"), because I did not research Kairos for this ticket and had no basis for a specific claim. The two-axis verdict does imply something about Kairos, and it should be stated by whoever does profile it in the platform-profile task rather than asserted here: an OCI-native artifact model scores well on axis R only to the extent that rebuilding the Containerfile reproduces the same image, and that is an empirical question about the base and the package repositories, not a property of using OCI. Someone should check it on Kairos before the TAG paper claims reproducibility for anything in the deep core, including Kairos. **This is a methodological warning, not a finding about Kairos.**
+**Needs a Kairos maintainer (Mauro or another):** this document contains no Kairos-specific claim. That is deliberate. Every comparison above is against an archetype ("an A/B image system", "a verity-enforced root"), because I did not research Kairos for this ticket and had no basis for a specific claim. The two-axis verdict does imply something about Kairos, and it should be stated by whoever writes the Kairos profile rather than asserted here: an OCI-native artifact model scores well on axis R only to the extent that rebuilding the Containerfile reproduces the same image, and that is an empirical question about the base and the package repositories, not a property of using OCI. Someone should check it on Kairos before the TAG paper claims reproducibility for anything in the deep core, including Kairos. **This is a methodological warning, not a finding about Kairos.**
 
 **Needs a NixOS maintainer, if the series post makes these claims:**
 
