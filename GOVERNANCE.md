@@ -49,9 +49,9 @@ representative. Neither kind becomes a maintainer by this role.
 
 **Contributors** are everybody else. Anyone can open a pull request or an issue.
 
-The **owner** and the **administrators** hold the organization and the repository
-settings. They are described under Ownership and Administrators below. They do
-not decide what goes into the data.
+The **owner** and the **administrators** hold the organization and the
+repository settings. They are described under Ownership and Administrators
+below. They do not decide what goes into the data.
 
 ## Affiliations
 
@@ -60,8 +60,8 @@ MAINTAINERS.md the projects they work on and the organization that employs them.
 An affiliation is any project in the Pulse that a person maintains, contributes
 to as part of their job, or is paid to promote. A person is also affiliated with
 every project that their employer develops, sells or supports, whether or not
-they work on it themselves. A **covered project** is a project that has a profile
-in `data/projects/`.
+they work on it themselves. A **covered project** is a project that has a
+profile in `data/projects/`.
 
 ## Conflict of interest
 
@@ -100,8 +100,9 @@ record.
 
 A change to `.github/CODEOWNERS` or `MAINTAINERS.md` is always conflicted,
 before the bootstrap ends and after it, so that nobody can put themselves back
-on the conflicted lines alone. It follows the four rules above, and for the
-first 24 months after the bootstrap ends the founder clause also applies to
+on the conflicted lines alone. It follows the four rules above. For these files,
+rule 4 asks for a maintainer with no affiliation with any covered project. For
+the first 24 months after the bootstrap ends the founder clause also applies to
 the protected text in them.
 
 A change to a profile by an author, or with an approver, who is affiliated with
@@ -228,11 +229,11 @@ A maintainer leaves only for a stated cause. There are two.
 **Inactivity.** This is not a vote. When a maintainer has been inactive for 12
 months, any maintainer opens a public issue that names them and tries to reach
 them. If they have not answered and have done nothing 30 days after that issue,
-they move to the emeritus list. An emeritus maintainer who asks to come back
-becomes a maintainer again if no maintainer objects within 14 days. The owner is
-exempt: the 12-month rule does not move the owner to the emeritus list. The
-owner holds the organization, and a role that could be lost by being quiet
-would let anyone take over the Pulse by waiting.
+they move to the emeritus list. An emeritus maintainer who asks in a public
+issue to come back becomes a maintainer again if no maintainer objects within 14
+days. The owner is exempt: the 12-month rule does not move the owner to the
+emeritus list. The owner holds the organization, and a role that could be lost
+by being quiet would let anyone take over the Pulse by waiting.
 
 **A breach of the code of conduct.** The code of conduct is the Contributor
 Covenant, version 2.1, named by its version. The Pulse does not write its own.
@@ -324,8 +325,8 @@ The owner appoints an administrator after a public issue that has stayed open
 for 14 days. Anyone can object in that issue, and the owner answers each
 objection there. An administrator steps down by opening a pull request against
 MAINTAINERS.md. The owner adds an administrator only through, and removes one
-only through, the same public process, except an emergency removal, below.
-Three more rules apply:
+only through, the same public process, except an emergency removal, below, or
+when the rights end under the first rule below. Three more rules apply:
 
 - Admin rights end on the same day a person stops being a maintainer or moves to
   the emeritus list.
@@ -339,8 +340,8 @@ Three more rules apply:
 
 The **protected text** is:
 
-- the Ownership, Administrators, Removing a maintainer, Becoming a maintainer and
-  Founder clause sections;
+- the Administrators, Removing a maintainer, Becoming a maintainer and Founder
+  clause sections;
 - the section "Changes to this document";
 - the vote rules in "Decisions", including the vote cap;
 - the rule in "Conflict of interest" that changes to CODEOWNERS and
@@ -464,10 +465,11 @@ for now:
   person concerned can block any removal, and two employers together can reach
   two thirds. The written finding is the only check.
 - GitHub can block rule 3 of "How the bootstrap ends". The recording pull
-  request changes this document, and CODEOWNERS names only the owner on its
-  line until he changes that line. If a code owner review is required and the
-  organization ruleset stops administrators from bypassing it, nobody that rule
-  3 names can merge that pull request until the CODEOWNERS line changes.
+  request changes this document, and CODEOWNERS names only the owner on its line
+  if the owner has not yet handed over that line. If a code owner review is
+  required and the organization ruleset stops administrators from bypassing it,
+  nobody that rule 3 names can merge that pull request until the CODEOWNERS line
+  changes.
 - GitHub cannot enforce the founder clause, or the rule that only the owner
   changes the Ownership section, once the code owner lines name another
   maintainer. Both rest on the owner's power as organization owner.
