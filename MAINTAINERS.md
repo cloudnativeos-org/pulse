@@ -28,8 +28,8 @@ representative is interested. Reviewers are not listed in CODEOWNERS: a
 maintainer requests their review by hand and records the request in the pull
 request. See [GOVERNANCE.md](GOVERNANCE.md).
 
-| Name | GitHub | Kind | Employer | Project reviewed | Affiliations in the Pulse |
-|---|---|---|---|---|---|
+| Name | GitHub | Kind | Employer | Project reviewed | Affiliations in the Pulse | Declared ties |
+|---|---|---|---|---|---|---|
 
 None yet.
 
