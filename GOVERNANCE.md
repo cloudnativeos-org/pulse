@@ -105,7 +105,7 @@ first 24 months after the bootstrap ends the founder clause also applies to
 the protected text in them.
 
 A change to a profile by an author, or with an approver, who is affiliated with
-any covered project is conflicted for rules 1, 2 and 3, even when it changes
+any covered project is conflicted under all four rules, even when it changes
 the profile of a project they are not affiliated with. Editing a competitor is
 as conflicted as editing your own project, for example a Talos maintainer who
 edits the Kairos profile. Every value it changes must carry a primary source,
@@ -139,7 +139,8 @@ cast. The excess is not counted. In practice, the votes of one employer are
 reduced to the number that everyone else casts together. If all maintainers
 work for one employer, no vote can be held. During the bootstrap, the Bootstrap
 section says who decides. After it, no vote is held and a change that needs a
-vote is not merged. The cap applies to every vote in this document.
+vote is not merged. The cap applies to every vote in this document, including
+during the bootstrap.
 
 Becoming a maintainer, removing a maintainer, appointing an administrator or an
 external steward, and changing the ownership have their own rules below. The
@@ -248,8 +249,7 @@ A removal for a breach needs all three of these:
    Neither of them is a maintainer, neither has an affiliation with any covered
    project, and neither votes in the removal. Naming or replacing either one
    follows the rule for becoming a maintainer: a public issue open for 14 days,
-   and one maintainer's objection is a veto. Both are protected text, and so is
-   the contact named in `CODE_OF_CONDUCT.md`.
+   and one maintainer's objection is a veto. Both are protected text.
 3. The votes of at least **two thirds** of the active maintainers other than the
    person concerned, rounded up. The two thirds are counted against that whole
    group, not against the votes cast. The vote cap applies, so the yes votes of
@@ -323,8 +323,9 @@ when all three of these are true:
 The owner appoints an administrator after a public issue that has stayed open
 for 14 days. Anyone can object in that issue, and the owner answers each
 objection there. An administrator steps down by opening a pull request against
-MAINTAINERS.md. The owner adds or removes an administrator only through the
-same public process, except in an emergency, below. Three more rules apply:
+MAINTAINERS.md. The owner adds an administrator only through, and removes one
+only through, the same public process, except an emergency removal, below.
+Three more rules apply:
 
 - Admin rights end on the same day a person stops being a maintainer or moves to
   the emeritus list.
@@ -405,8 +406,8 @@ During the bootstrap:
   residual risk, and it is listed under "Known limits".
 
 **The end condition** is that the Pulse has at least two maintainers besides
-Mauro, who are affiliated with different projects, or with none, and neither
-of whom is employed by Spectro Cloud, and at least one of whom has no
+Mauro, who are affiliated with different projects, or with none, and none of
+whom is employed by Spectro Cloud, and at least one of whom has no
 affiliation with any covered project. Without that last part the bootstrap
 could end with nobody allowed to approve a change to the Kairos and Hadron
 profiles.
@@ -462,6 +463,11 @@ for now:
 - A group of more than one third of the active maintainers other than the
   person concerned can block any removal, and two employers together can reach
   two thirds. The written finding is the only check.
+- GitHub can block rule 3 of "How the bootstrap ends". The recording pull
+  request changes this document, and CODEOWNERS names only the owner on its
+  line until he changes that line. If a code owner review is required and the
+  organization ruleset stops administrators from bypassing it, nobody that rule
+  3 names can merge that pull request until the CODEOWNERS line changes.
 - GitHub cannot enforce the founder clause, or the rule that only the owner
   changes the Ownership section, once the code owner lines name another
   maintainer. Both rest on the owner's power as organization owner.
