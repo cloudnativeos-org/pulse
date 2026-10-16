@@ -3,14 +3,14 @@
 # Each project profile has one line. The maintainers own it. Do not leave a line
 # with no owner: GitHub then treats the file as having no code owner at all.
 #
-# Profile reviewers are NOT listed here (GOVERNANCE.md, Profile reviewers). There
-# are two kinds: a representative, who works on the project, and an external
-# steward, who has no affiliation with any covered project and looks after the
-# profile when no representative is interested. GitHub requires a code owner to
-# have write access, and one code owner on a line is enough for GitHub. A code
-# owner's approval would then count as the approval of the profile. So their
-# reviews are requested by hand, recorded in the pull request, and listed in
-# MAINTAINERS.md.
+# Profile reviewers are NOT listed here (GOVERNANCE.md, Profile reviewers).
+# There are two kinds: a representative, who works on the project, and an
+# external steward, who has no affiliation with any covered project and looks
+# after the profile when no representative is interested. GitHub requires a code
+# owner to have write access, and one code owner on a line is enough for GitHub.
+# A code owner's approval would then count as the approval of the profile. So
+# their reviews are requested by hand, recorded in the pull request, and listed
+# in MAINTAINERS.md.
 #
 # GitHub requests a review from the owners of a file when a pull request is
 # ready for review (not while it is a draft). Branch protection decides whether
