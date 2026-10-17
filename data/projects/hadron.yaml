@@ -654,6 +654,23 @@ dimensions:
       distributions:
         - k3s
         - k0s
+      distribution_options:
+        - distribution: k3s
+          offered: build-option
+          detail: Set KUBERNETES_DISTRO when you build the image. Hadron's own images ship no Kubernetes.
+          sources:
+            - url: https://github.com/kairos-io/hadron/blob/main/README.md
+              type: source-repo
+              retrieved: '2026-09-22'
+              quote: 'KUBERNETES_DISTRO: Choose between k3s, k0s or leave empty for no Kubernetes distribution'
+        - distribution: k0s
+          offered: build-option
+          detail: Set KUBERNETES_DISTRO when you build the image. Hadron's own images ship no Kubernetes.
+          sources:
+            - url: https://github.com/kairos-io/hadron/blob/main/README.md
+              type: source-repo
+              retrieved: '2026-09-22'
+              quote: 'KUBERNETES_DISTRO: Choose between k3s, k0s or leave empty for no Kubernetes distribution'
     summary: >-
       No Hadron image contains Kubernetes. The Hadron build can pass k3s or k0s
       to kairos-init to produce a Kairos standard image, and the Kairos release

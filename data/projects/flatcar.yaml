@@ -564,6 +564,23 @@ dimensions:
         - Kubespray
         - Typhoon
         - k3s (via Sysext Bakery)
+      distribution_options:
+        - distribution: k3s
+          offered: add-on
+          detail: A systemd sysext from the Sysext Bakery, merged at provisioning time.
+          sources:
+            - url: https://github.com/flatcar/sysext-bakery/blob/main/docs/k3s.md
+              type: source-repo
+              retrieved: '2026-10-17'
+              quote: The k3s sysext can be configured as an agent or a server.
+        - distribution: upstream
+          offered: add-on
+          detail: The Kubernetes sysext (kubeadm, kubelet and the rest) from the Sysext Bakery, or the same tools installed with Ignition.
+          sources:
+            - url: https://www.flatcar.org/docs/latest/orchestrate/kubernetes/getting-started-with-kubernetes/
+              type: official-docs
+              retrieved: '2026-09-22'
+              quote: It's possible to install the tools (kubeadm, kubelet, etc.) using Ignition or directly with the Kubernetes sysext image distributed from the flatcar/sysext-bakery release page.
     summary: >-
       Kubernetes is optional and not shipped. It is installed through Ignition or
       a sysext, which gives the OS and Kubernetes fully separate update paths and

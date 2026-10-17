@@ -776,6 +776,10 @@ def col_ai(p, S):
     return Cell(html_ + meta(ev, cite), str(9 - len(vendors)), tags=tagl, filt=filt)
 
 
+DIST_LABEL = {"k3s": "k3s", "k0s": "k0s", "rke2": "RKE2", "microk8s": "MicroK8s", "microshift": "MicroShift", "upstream": "Upstream Kubernetes"}
+DIST_OFFERED = {"in-image": "in the image", "os-managed": "set up by the OS", "build-option": "build option", "add-on": "add-on"}
+
+
 def col_k8s(p, S):
     """Requirement and bundling as one phrase. The filter keeps the requirement value."""
     n = norm(p, "d07")
@@ -814,8 +818,17 @@ def col_k8s(p, S):
             short.append(s)
     if ways:
         detail = (detail + ". " if detail else "") + "Documented ways to run Kubernetes: " + "; ".join(str(w) for w in ways)
-    return Cell(value("value", E(label), E(detail)) + meta(dim_of(p, "d07")["evidence"], S.cite(p, "d07")),
-                label, {"k8s": req}, tags=[(label, "value")] + [(s, "value") for s in short])
+    opts = n.get("distribution_options") or []
+    if opts:
+        offers = "; ".join("%s, %s" % (DIST_LABEL[o["distribution"]], DIST_OFFERED[o["offered"]]) for o in opts)
+        detail = (detail + ". " if detail else "") + "How each is offered: " + offers
+        # An option replaces the plain tag of its distribution, so the tag also says how the project offers it.
+        named = {DIST_LABEL[o["distribution"]].lower() for o in opts}
+        short = [s for s in short if not any(s.lower().startswith(x) for x in named)]
+    tags = [(label, "value")] + [("%s (%s)" % (DIST_LABEL[o["distribution"]], DIST_OFFERED[o["offered"]]), "value") for o in opts] + [(s, "value") for s in short]
+    filt = {"k8s": req, "k8sdist": " ".join(sorted(o["distribution"] for o in opts)) or "none"}
+    cite = S.cite(p, "d07") + cite_all(p, S, [s for o in opts for s in o["sources"]])
+    return Cell(value("value", E(label), E(detail)) + meta(dim_of(p, "d07")["evidence"], cite), label, filt, tags=tags)
 
 
 def arch_key(a):
@@ -976,7 +989,7 @@ COLUMNS = [
     ("boot", "Boot trust chain", "How far trust reaches at boot: level 1 Secure Boot, level 2 measured boot, level 3 the running root is covered by the signature. Where the entry has install modes, one tag per mode, as equal choices. Writable state such as /etc and /var is outside the signature on every entry.", col_boot, True),
     ("rollback", "Automatic rollback", "The machine reverts to the previous version by itself when the new one fails to boot.", col_rollback, False),
     ("fleet", "Fleet upgrade paths", "Documented ways a fleet gets its OS upgraded beyond one command per node, each with its reconciliation model: a one-shot run, reconciled in place, or reconciled by replacement. The data sheet names each tool and its license.", col_fleet, True),
-    ("k8s", "Kubernetes", "Whether Kubernetes is required, optional or not bundled, then each documented way to run it: distributions such as k3s or MicroK8s, and install tools such as kubeadm or Cluster API. Whether Kubernetes is required, and whether it is bundled.", col_k8s, False),
+    ("k8s", "Kubernetes", "Whether Kubernetes is required, optional or not bundled, then each documented way to run it: distributions such as k3s or MicroK8s, and install tools such as kubeadm or Cluster API. Each distribution shows how the project offers it: in the image, set up by the OS, as a build option, or as an add-on.", col_k8s, False),
     ("access", "Node access", "How you reach a node. API-only access limits changes to what the API exposes and makes them easy to log; a shell is more flexible and familiar. Neither is more secure by default.", col_access, True),
     ("capi", "Cluster API", "How a node joins a cluster through Cluster API.", col_capi, True),
     ("ai", "AI accelerators", "Accelerators the project or its vendor documents. The data sheet says how the driver reaches the node, whether its modules load with Secure Boot, and the NVIDIA GPU Operator mode. NVIDIA's own validated list names none of these entries; it documents Container-Optimized OS on GKE, and lists Jetson as not supported. An entry that builds the OS from a base distribution you pick is credited with what that base distribution documents, once, as \"Via your base distribution\". Picking a specific accelerator in the filter keeps those entries too, marked.", col_ai, True),
@@ -1011,6 +1024,7 @@ FILTERS = [
     ("fleetrec", "Fleet upgrade reconciliation", [("in-place", "Reconciled in place"), ("replacement", "Reconciled by replacement"), ("one-shot", "One-shot run")]),
     ("fleetlic", "Fleet tool license", [("open-source", "Open source"), ("source-available", "Source-available"), ("proprietary", "Proprietary"), ("service", "Managed service")]),
     ("k8s", "Kubernetes", [("required", "Bundled and required"), ("optional", "Optional"), ("unrelated", "Not bundled")]),
+    ("k8sdist", "Kubernetes distribution", [(k, v) for k, v in DIST_LABEL.items()]),
     ("access", "Node access", [("shell", "SSH and shell"), ("api", "API"), ("fleet", "Fleet server or controller"), ("noshell", "No SSH or shell"), ("unknown", "Unknown")]),
     ("capi", "Cluster API", [("own", "Own providers"), ("kubeadm", "Through kubeadm"), ("none", "None")]),
     ("ai", "AI accelerator", [("nvidia-gpu", "NVIDIA GPU"), ("nvidia-jetson", "NVIDIA Jetson"), ("amd", "AMD"), ("intel", "Intel"), ("aws-neuron", "AWS Neuron"), ("google-tpu", "Google TPU"), ("qualcomm", "Qualcomm"), ("edge-npu", "Edge NPU"), ("via-base", "Via your base distribution")]),
@@ -1038,6 +1052,7 @@ FILTER_DESC = {
     "fleetrec": "How the fleet tool keeps nodes at the wanted version: once, in place, or by replacing the node.",
     "fleetlic": "The license of the fleet upgrade tool.",
     "k8s": "Whether Kubernetes is required, optional or not bundled with the entry.",
+    "k8sdist": "The Kubernetes distributions the entry documents. An entry matches when it documents any one you select. Each cell says how the project offers it.",
     "access": "How you reach a node once it runs.",
     "capi": "How a node joins a cluster through Cluster API.",
     "ai": "Accelerators the project or its vendor documents support for. Entries that build on a base distribution you pick also match, marked.",
@@ -1051,7 +1066,7 @@ FILTER_DESC = {
 
 # The column a filter reads. A filter on a hidden column shows that column.
 FILTER_COL = {"update": "update", "addsw": "addsw", "byod": "byod", "cfgrun": "config", "cfglatest": "config", "cfgrepeat": "config", "cfgscope": "config", "rollback": "rollback", "verified": "verified", "boot": "boot",
-              "fleet": "fleet", "fleetrec": "fleet", "fleetlic": "fleet", "k8s": "k8s", "access": "access", "capi": "capi",
+              "fleet": "fleet", "fleetrec": "fleet", "fleetlic": "fleet", "k8s": "k8s", "k8sdist": "k8s", "access": "access", "capi": "capi",
               "ai": "ai", "aidel": "ai", "aiop": "ai", "arch": "arch", "day0": "day0", "selfhost": "selfhost", "own": "own"}
 
 # The evidence labels the legend and the glossary both list, in this order.

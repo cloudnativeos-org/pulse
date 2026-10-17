@@ -260,7 +260,10 @@ reimages it is a different capability, and it is recorded under dimension 12.
 - `independent_lifecycle`: `yes` | `partial` | `no` | `unknown` (can the OS and Kubernetes be upgraded independently?)
 - `os_manages_kubernetes`: `yes` | `no` | `unknown`
 - `kubernetes_manages_os`: free text naming the mechanism, or `none` / `unknown`
-- `distributions`: list of Kubernetes distributions documented as supported
+- `distributions`: list of Kubernetes distributions and install tools documented as supported, as free text
+- `distribution_options`: the distributions behind the matrix filter "Kubernetes distribution". One entry per distribution, each with `distribution`, `offered`, an optional `detail` and `sources` (at least one, with a verbatim quote). Install tools such as kubeadm, Cluster API, Kubespray and Typhoon are not distributions and stay in `distributions` as text. A managed service (EKS, AKS, GKE) is not recorded here.
+  - `distribution`: `k3s` | `k0s` | `rke2` | `microk8s` | `microshift` | `upstream` (Kubernetes from the Kubernetes project itself, for example through kubeadm or static pods)
+  - `offered`: `in-image` (the project's released image includes it) | `os-managed` (the OS fetches and runs it itself, as container images it pulls, with no step by you) | `build-option` (a documented option when you build the image) | `add-on` (an extension, snap or separate install that the project documents)
 
 ## 13. Fleet management (dimension 12)
 

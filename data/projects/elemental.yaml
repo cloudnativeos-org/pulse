@@ -783,6 +783,23 @@ dimensions:
       distributions:
         - RKE2
         - K3s
+      distribution_options:
+        - distribution: rke2
+          offered: add-on
+          detail: Rancher Manager creates the cluster on registered nodes after the OS is installed.
+          sources:
+            - url: https://elemental.docs.rancher.com/architecture-clusterdeployment
+              type: official-docs
+              retrieved: '2026-10-14'
+              quote: The goal of the Kubernetes Cluster deployment phase is to create a new RKE2 or K3s cluster
+        - distribution: k3s
+          offered: add-on
+          detail: Rancher Manager creates the cluster on registered nodes after the OS is installed.
+          sources:
+            - url: https://elemental.docs.rancher.com/architecture-clusterdeployment
+              type: official-docs
+              retrieved: '2026-10-14'
+              quote: The goal of the Kubernetes Cluster deployment phase is to create a new RKE2 or K3s cluster
     summary: >-
       Rancher provisions RKE2 or K3s on the registered nodes through the
       rancher-system-agent. The Kubernetes version is set on the Rancher cluster
