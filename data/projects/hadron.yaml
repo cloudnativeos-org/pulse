@@ -656,16 +656,16 @@ dimensions:
         - k0s
       distribution_options:
         - distribution: k3s
-          offered: in-image
-          detail: Kairos standard images built from Hadron carry k3s. Hadron's own images ship no Kubernetes.
+          offered: build-option
+          detail: Set KUBERNETES_DISTRO when you build the image. Hadron's own images ship no Kubernetes.
           sources:
-            - url: https://github.com/kairos-io/kairos/releases/tag/v4.3.0
-              type: release-notes
+            - url: https://github.com/kairos-io/hadron/blob/main/README.md
+              type: source-repo
               retrieved: '2026-09-22'
-              quote: kairos-hadron-v0.5.1-standard-amd64-generic-v4.3.0-k3sv1.36.4+k3s1.iso
+              quote: 'KUBERNETES_DISTRO: Choose between k3s, k0s or leave empty for no Kubernetes distribution'
         - distribution: k0s
           offered: build-option
-          detail: Set KUBERNETES_DISTRO when you build the image.
+          detail: Set KUBERNETES_DISTRO when you build the image. Hadron's own images ship no Kubernetes.
           sources:
             - url: https://github.com/kairos-io/hadron/blob/main/README.md
               type: source-repo
