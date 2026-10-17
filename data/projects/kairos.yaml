@@ -943,13 +943,13 @@ dimensions:
               retrieved: '2026-09-22'
               quote: Core images do not include a Kubernetes engine ... Standard images include a Kubernetes provider.
         - distribution: upstream
-          offered: add-on
-          detail: The Kubernetes provider, published 2026-09-21, bootstraps a cluster with kubeadm. The choosing-a-distribution page still names only k3s and k0s as official.
+          offered: in-image
+          detail: The Kubernetes provider image is a Kairos image with the kubeadm toolchain already in it. The choosing-a-distribution page still names only k3s and k0s as official.
           sources:
             - url: https://kairos.io/provider-kubernetes-docs/
               type: official-docs
-              retrieved: "2026-09-22"
-              quote: Bootstraps a cluster with kubeadm and joins control planes and workers to it, including highly available control planes behind a shared endpoint.
+              retrieved: "2026-10-17"
+              quote: It ships as a Kairos image with the whole toolchain already in it
     summary: >-
       Kubernetes is optional and core images ship none. Where it is included, the
       distribution and version are baked into the image at build time and encoded
