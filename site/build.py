@@ -777,7 +777,7 @@ def col_ai(p, S):
 
 
 DIST_LABEL = {"k3s": "k3s", "k0s": "k0s", "rke2": "RKE2", "microk8s": "MicroK8s", "microshift": "MicroShift", "upstream": "Upstream Kubernetes"}
-DIST_OFFERED = {"in-image": "in the image", "build-option": "build option", "add-on": "add-on"}
+DIST_OFFERED = {"in-image": "in the image", "os-managed": "set up by the OS", "build-option": "build option", "add-on": "add-on"}
 
 
 def col_k8s(p, S):
@@ -824,7 +824,7 @@ def col_k8s(p, S):
         detail = (detail + ". " if detail else "") + "How each is offered: " + offers
         # An option replaces the plain tag of its distribution, so the tag also says how the project offers it.
         named = {DIST_LABEL[o["distribution"]].lower() for o in opts}
-        short = [s for s in short if re.split(r"[ (]", s)[0].lower() not in named]
+        short = [s for s in short if not any(s.lower().startswith(x) for x in named)]
     tags = [(label, "value")] + [("%s (%s)" % (DIST_LABEL[o["distribution"]], DIST_OFFERED[o["offered"]]), "value") for o in opts] + [(s, "value") for s in short]
     filt = {"k8s": req, "k8sdist": " ".join(sorted(o["distribution"] for o in opts)) or "none"}
     return Cell(value("value", E(label), E(detail)) + meta(dim_of(p, "d07")["evidence"], S.cite(p, "d07")), label, filt, tags=tags)

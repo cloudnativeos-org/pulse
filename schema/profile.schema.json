@@ -261,7 +261,7 @@
       "additionalProperties": false,
       "properties": {
         "distribution": { "enum": ["k3s", "k0s", "rke2", "microk8s", "microshift", "upstream"] },
-        "offered": { "enum": ["in-image", "build-option", "add-on"] },
+        "offered": { "enum": ["in-image", "os-managed", "build-option", "add-on"] },
         "detail": { "type": "string", "description": "One short sentence: how it is offered, with its limits." },
         "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/source" } }
       }

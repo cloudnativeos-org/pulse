@@ -700,13 +700,17 @@ dimensions:
       kubernetes_versions_supported: "1.37, 1.36, 1.35, 1.34, 1.33 on v1.14"
       distribution_options:
         - distribution: upstream
-          offered: in-image
-          detail: Kubernetes is part of the image. The control plane components run as static pods through the kubelet.
+          offered: os-managed
+          detail: Talos starts the Kubernetes control plane itself as static pods through the kubelet. It pulls the kubelet and control plane as container images, so they are not inside the released OS image.
           sources:
             - url: https://docs.siderolabs.com/talos/v1.14/learn-more/control-plane
               type: official-docs
               retrieved: '2026-10-17'
               quote: Control plane components are started as static pods via the kubelet
+            - url: https://docs.siderolabs.com/talos/v1.14/platform-specific-installations/air-gapped
+              type: official-docs
+              retrieved: '2026-10-17'
+              quote: Kubernetes control plane images
     summary: >-
       Kubernetes is effectively required: machine types are control plane or
       worker, and no documented way to disable the kubelet exists. The OS manages

@@ -286,7 +286,7 @@ def check_config_tools(where: str, normalized: dict, report: Report) -> None:
 
 
 DISTRIBUTIONS = ("k3s", "k0s", "rke2", "microk8s", "microshift", "upstream")
-DISTRIBUTION_OFFERED = ("in-image", "build-option", "add-on")
+DISTRIBUTION_OFFERED = ("in-image", "os-managed", "build-option", "add-on")
 
 
 def check_distribution_options(where: str, normalized: dict, report: Report) -> None:
@@ -301,6 +301,9 @@ def check_distribution_options(where: str, normalized: dict, report: Report) -> 
     seen = set()
     for i, item in enumerate(items):
         at = f"{where}.distribution_options[{i}]"
+        if not isinstance(item, dict):
+            report.error(at, "must be a mapping")
+            continue
         dist = item.get("distribution")
         if dist not in DISTRIBUTIONS:
             report.error(at, f"distribution must be one of {', '.join(DISTRIBUTIONS)}, got {dist!r}")
