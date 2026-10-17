@@ -886,7 +886,11 @@ dimensions:
           sources:
             - url: https://en.opensuse.org/SDB:K3s_cluster_deployment_on_MicroOS
               type: official-docs
-              retrieved: '2026-09-22'
+              retrieved: '2026-10-17'
+              quote: K3s is fully supporting the transactional nature of MicroOS, supports SELinux, and requires less resources than a stock Kubernetes deployment making it a great candidate.
+            - url: https://en.opensuse.org/SDB:K3s_cluster_deployment_on_MicroOS
+              type: official-docs
+              retrieved: '2026-10-17'
               quote: This is unmaintained.
     summary: >-
       Kubernetes is optional and no vehicle bundles it. The commercial vehicle

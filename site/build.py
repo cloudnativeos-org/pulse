@@ -827,7 +827,8 @@ def col_k8s(p, S):
         short = [s for s in short if not any(s.lower().startswith(x) for x in named)]
     tags = [(label, "value")] + [("%s (%s)" % (DIST_LABEL[o["distribution"]], DIST_OFFERED[o["offered"]]), "value") for o in opts] + [(s, "value") for s in short]
     filt = {"k8s": req, "k8sdist": " ".join(sorted(o["distribution"] for o in opts)) or "none"}
-    return Cell(value("value", E(label), E(detail)) + meta(dim_of(p, "d07")["evidence"], S.cite(p, "d07")), label, filt, tags=tags)
+    cite = S.cite(p, "d07") + cite_all(p, S, [s for o in opts for s in o["sources"]])
+    return Cell(value("value", E(label), E(detail)) + meta(dim_of(p, "d07")["evidence"], cite), label, filt, tags=tags)
 
 
 def arch_key(a):
@@ -988,7 +989,7 @@ COLUMNS = [
     ("boot", "Boot trust chain", "How far trust reaches at boot: level 1 Secure Boot, level 2 measured boot, level 3 the running root is covered by the signature. Where the entry has install modes, one tag per mode, as equal choices. Writable state such as /etc and /var is outside the signature on every entry.", col_boot, True),
     ("rollback", "Automatic rollback", "The machine reverts to the previous version by itself when the new one fails to boot.", col_rollback, False),
     ("fleet", "Fleet upgrade paths", "Documented ways a fleet gets its OS upgraded beyond one command per node, each with its reconciliation model: a one-shot run, reconciled in place, or reconciled by replacement. The data sheet names each tool and its license.", col_fleet, True),
-    ("k8s", "Kubernetes", "Whether Kubernetes is required, optional or not bundled, then each documented way to run it: distributions such as k3s or MicroK8s, and install tools such as kubeadm or Cluster API. Each distribution shows how the project offers it: in the image, as a build option, or as an add-on.", col_k8s, False),
+    ("k8s", "Kubernetes", "Whether Kubernetes is required, optional or not bundled, then each documented way to run it: distributions such as k3s or MicroK8s, and install tools such as kubeadm or Cluster API. Each distribution shows how the project offers it: in the image, set up by the OS, as a build option, or as an add-on.", col_k8s, False),
     ("access", "Node access", "How you reach a node. API-only access limits changes to what the API exposes and makes them easy to log; a shell is more flexible and familiar. Neither is more secure by default.", col_access, True),
     ("capi", "Cluster API", "How a node joins a cluster through Cluster API.", col_capi, True),
     ("ai", "AI accelerators", "Accelerators the project or its vendor documents. The data sheet says how the driver reaches the node, whether its modules load with Secure Boot, and the NVIDIA GPU Operator mode. NVIDIA's own validated list names none of these entries; it documents Container-Optimized OS on GKE, and lists Jetson as not supported. An entry that builds the OS from a base distribution you pick is credited with what that base distribution documents, once, as \"Via your base distribution\". Picking a specific accelerator in the filter keeps those entries too, marked.", col_ai, True),

@@ -315,6 +315,9 @@ def check_distribution_options(where: str, normalized: dict, report: Report) -> 
         if not item.get("sources"):
             report.error(at, "no sources; a distribution with no source is not added")
         for j, source in enumerate(item.get("sources") or []):
+            if not isinstance(source, dict):
+                report.error(f"{at}.sources[{j}]", "must be a mapping")
+                continue
             for field in ("url", "type", "retrieved", "quote"):
                 if not source.get(field):
                     report.error(f"{at}.sources[{j}]", f"missing '{field}'; the data sheet cites it, so it needs a verbatim quote")
