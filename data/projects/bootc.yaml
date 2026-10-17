@@ -481,6 +481,15 @@ dimensions:
       kubernetes_manages_os: "bootc-operator, a Kubernetes operator in the project's own organization; first pre-release v0.1.0 on 2026-09-17, and its README states it is in early development and not yet fully functional"
       distributions: ["MicroShift, on image mode for RHEL (documented by Red Hat)"]
       documented_kubernetes_use: "Red Hat documents MicroShift, its Kubernetes distribution, embedded in bootc images through image mode for RHEL. bootc itself neither requires, ships nor manages Kubernetes."
+      distribution_options:
+        - distribution: microshift
+          offered: build-option
+          detail: Red Hat documents embedding MicroShift in a bootc image through image mode for RHEL.
+          sources:
+            - url: https://docs.redhat.com/en/documentation/red_hat_build_of_microshift/4.22/html/installing_with_image_mode_for_rhel/index
+              type: vendor-docs
+              retrieved: '2026-10-05'
+              quote: You can embed MicroShift into a bootc image by using image mode for Red Hat Enterprise Linux (RHEL).
     summary: >-
       bootc itself neither requires Kubernetes, ships it, nor manages it. Red Hat
       documents MicroShift, its Kubernetes distribution, embedded in bootc images

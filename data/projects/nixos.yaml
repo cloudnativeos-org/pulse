@@ -508,6 +508,31 @@ dimensions:
         - "upstream Kubernetes, via an in-tree module"
         - k3s
         - rke2
+      distribution_options:
+        - distribution: upstream
+          offered: build-option
+          detail: An in-tree NixOS module, enabled in the system configuration.
+          sources:
+            - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/cluster/kubernetes/default.nix
+              type: source-repo
+              retrieved: '2026-09-22'
+              quote: Kubernetes role that this machine should take.
+        - distribution: k3s
+          offered: build-option
+          detail: An in-tree NixOS module, enabled in the system configuration.
+          sources:
+            - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/cluster/rancher/k3s.nix
+              type: source-repo
+              retrieved: '2026-09-22'
+              quote: Whether k3s should run as a server or agent.
+        - distribution: rke2
+          offered: build-option
+          detail: An in-tree NixOS module, enabled in the system configuration.
+          sources:
+            - url: https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/cluster/rancher/rke2.nix
+              type: source-repo
+              retrieved: '2026-09-22'
+              quote: Whether rke2 should run as a server or agent.
     summary: >-
       Unrelated. Kubernetes is packaged as ordinary in-tree service modules,
       including upstream Kubernetes, k3s and rke2, and nothing in the system

@@ -787,6 +787,19 @@ dimensions:
       distributions:
         - "MicroK8s, from its strict-confinement tracks"
       installation: "as an ordinary strictly confined snap on top of the OS"
+      distribution_options:
+        - distribution: microk8s
+          offered: add-on
+          detail: Installed as an ordinary snap, from the tracks that include strict in their name.
+          sources:
+            - url: https://canonical.com/microk8s/docs/install-strict
+              type: official-docs
+              retrieved: '2026-09-22'
+              quote: Strictly confined MicroK8s is installed via the tracks that include strict in their name.
+            - url: https://documentation.ubuntu.com/core/reference/release-notes/
+              type: vendor-docs
+              retrieved: '2026-09-22'
+              quote: MicroK8s support for an easily deployed, streamlined, embedded Kubernetes experience
     summary: >-
       Kubernetes is optional, unbundled, and installed as an ordinary snap. Because
       it is just another snap, it refreshes on the same per-snap mechanism as the

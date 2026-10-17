@@ -254,6 +254,19 @@
       }
     },
 
+    "distributionOption": {
+      "description": "d07 only. One Kubernetes distribution an entry documents. A value with no source is not recorded.",
+      "type": "object",
+      "required": ["distribution", "offered", "sources"],
+      "additionalProperties": false,
+      "properties": {
+        "distribution": { "enum": ["k3s", "k0s", "rke2", "microk8s", "microshift", "upstream"] },
+        "offered": { "enum": ["in-image", "build-option", "add-on"] },
+        "detail": { "type": "string", "description": "One short sentence: how it is offered, with its limits." },
+        "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/source" } }
+      }
+    },
+
     "addSoftware": {
       "description": "d06 only. One way to add software to the OS itself. kind 'unknown' stands alone, with evidence UNKNOWN and 'searched'. Methodology rule 21: an entry that builds from a base distribution gets the base's package manager only if its own documentation says so.",
       "type": "object",
@@ -345,6 +358,11 @@
             "architectures_via_base_distribution": {
               "type": "array",
               "items": { "$ref": "#/$defs/viaBaseDistribution" }
+            },
+            "distribution_options": {
+              "description": "d07 only. The Kubernetes distributions the entry documents, one entry per distribution from a closed vocabulary (schema/vocabularies.md), each with how it is offered and a source. Install tools such as kubeadm stay in 'distributions' as text. Read by the matrix filter 'Kubernetes distribution'.",
+              "type": "array",
+              "items": { "$ref": "#/$defs/distributionOption" }
             },
             "add_software": {
               "description": "d06 only. How an adopter adds software to the OS itself (host-level software, not workloads). One entry per way, from a closed vocabulary (schema/vocabularies.md). Shown in the matrix column 'Adding software to the OS' and in the data sheet.",

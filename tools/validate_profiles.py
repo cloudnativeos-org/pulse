@@ -176,6 +176,8 @@ def check_dimension(profile_id: str, name: str, dimension, report: Report) -> No
         check_via_base(where, normalized, report)
     if name.startswith("d06_"):
         check_add_software(profile_id, where, normalized, report)
+    if name.startswith("d07_"):
+        check_distribution_options(where, normalized, report)
     if name.startswith("d09_"):
         check_config_tools(where, normalized, report)
 
@@ -281,6 +283,38 @@ def check_config_tools(where: str, normalized: dict, report: Report) -> None:
                 report.error(at, f"{field}: 'unknown' stands alone")
             if values != ["unknown"] and field not in sourced:
                 report.error(at, f"{field} has no field_sources entry; a cell without a source is 'unknown'")
+
+
+DISTRIBUTIONS = ("k3s", "k0s", "rke2", "microk8s", "microshift", "upstream")
+DISTRIBUTION_OFFERED = ("in-image", "build-option", "add-on")
+
+
+def check_distribution_options(where: str, normalized: dict, report: Report) -> None:
+    """The matrix filter 'Kubernetes distribution' reads d07.normalized.distribution_options. A value with no source is not added,
+    so every entry needs a source with a verbatim quote."""
+    items = normalized.get("distribution_options")
+    if items is None:
+        return
+    if not isinstance(items, list) or not items:
+        report.error(where, "normalized.distribution_options must be a non-empty list, or left out")
+        return
+    seen = set()
+    for i, item in enumerate(items):
+        at = f"{where}.distribution_options[{i}]"
+        dist = item.get("distribution")
+        if dist not in DISTRIBUTIONS:
+            report.error(at, f"distribution must be one of {', '.join(DISTRIBUTIONS)}, got {dist!r}")
+        if dist in seen:
+            report.error(at, f"distribution {dist!r} appears twice; record each once, with all its sources")
+        seen.add(dist)
+        if item.get("offered") not in DISTRIBUTION_OFFERED:
+            report.error(at, f"offered must be one of {', '.join(DISTRIBUTION_OFFERED)}, got {item.get('offered')!r}")
+        if not item.get("sources"):
+            report.error(at, "no sources; a distribution with no source is not added")
+        for j, source in enumerate(item.get("sources") or []):
+            for field in ("url", "type", "retrieved", "quote"):
+                if not source.get(field):
+                    report.error(f"{at}.sources[{j}]", f"missing '{field}'; the data sheet cites it, so it needs a verbatim quote")
 
 
 def check_add_software(profile_id: str, where: str, normalized: dict, report: Report) -> None:
