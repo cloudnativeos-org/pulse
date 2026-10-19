@@ -832,6 +832,23 @@ dimensions:
       documented_topologies:
         - "single-node k3s on a QEMU x86-64 machine"
         - "two-VM k3s cluster on QEMU socket networking"
+      distribution_options:
+        - distribution: k3s
+          offered: build-option
+          detail: A recipe in the meta-virtualization layer, with a k3s-host profile you select when you build the image.
+          sources:
+            - url: https://git.yoctoproject.org/meta-virtualization/plain/conf/distro/include/container-host-k3s.conf?h=wrynose
+              type: source-repo
+              retrieved: '2026-10-12'
+              quote: The k3s-host profile bundles the k3s server, embedded containerd, and CNI plugins.
+        - distribution: upstream
+          offered: build-option
+          detail: A kubernetes recipe in the meta-virtualization layer, which the layer documents with kubeadm.
+          sources:
+            - url: https://git.yoctoproject.org/meta-virtualization/plain/recipes-containers/kubernetes/README.md?h=wrynose
+              type: source-repo
+              retrieved: '2026-10-12'
+              quote: meta-virtualization provides the recipes and packages suitable for a k8s cluster instance.
     summary: >-
       Kubernetes is not in OpenEmbedded-Core and is not mentioned in the Yocto
       manuals. The meta-virtualization layer provides recipes for k3s and for

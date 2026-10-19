@@ -641,6 +641,23 @@ dimensions:
         - "CLUSTER_TYPE_K3S_BASE (k3s and multus; being phased out per the EVE-k page)"
         - "CLUSTER_TYPE_REPLICATED_STORAGE (k3s, multus, KubeVirt, CDI and Longhorn)"
       cluster_size_documented: "three-node clusters, each node an etcd member"
+      distribution_options:
+        - distribution: k3s
+          offered: in-image
+          detail: The EVE-k flavor bundles k3s and is a released image. The kvm flavor bundles none. You can also build it with HV=k.
+          sources:
+            - url: https://github.com/lf-edge/eve/releases/tag/17.0.0-lts
+              type: release-notes
+              retrieved: '2026-10-17'
+              quote: amd64.k.generic.installer.iso
+            - url: https://github.com/lf-edge/eve/blob/master/docs/EVE-K.md
+              type: official-docs
+              retrieved: '2026-10-05'
+              quote: make HV=k ZARCH=amd64 clean pkgs eve
+            - url: https://github.com/lf-edge/eve/blob/master/docs/EVE-K.md
+              type: official-docs
+              retrieved: '2026-10-05'
+              quote: 'CLUSTER_TYPE_REPLICATED_STORAGE : (k3s + multus) and kubevirt, cdi, longhorn.'
     summary: >-
       Kubernetes is optional and exists only in the EVE-k build flavor
       (HV=k), which runs k3s in a kube service container, with KubeVirt and

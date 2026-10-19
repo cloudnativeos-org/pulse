@@ -917,6 +917,39 @@ dimensions:
         - k3s
         - k0s
         - kubeadm
+      distribution_options:
+        - distribution: k3s
+          offered: in-image
+          detail: Standard images include a Kubernetes provider; core images ship none.
+          sources:
+            - url: https://kairos.io/docs/examples/choosing-kubernetes-distribution/
+              type: official-docs
+              retrieved: '2026-09-22'
+              quote: At the moment, the official provider-kairos supports these two distributions (k3s and k0s).
+            - url: https://kairos.io/docs/reference/image_matrix/
+              type: official-docs
+              retrieved: '2026-09-22'
+              quote: Core images do not include a Kubernetes engine ... Standard images include a Kubernetes provider.
+        - distribution: k0s
+          offered: in-image
+          detail: Standard images include a Kubernetes provider; core images ship none. The released artifact set has k0s for amd64 only.
+          sources:
+            - url: https://kairos.io/docs/examples/choosing-kubernetes-distribution/
+              type: official-docs
+              retrieved: '2026-09-22'
+              quote: At the moment, the official provider-kairos supports these two distributions (k3s and k0s).
+            - url: https://kairos.io/docs/reference/image_matrix/
+              type: official-docs
+              retrieved: '2026-09-22'
+              quote: Core images do not include a Kubernetes engine ... Standard images include a Kubernetes provider.
+        - distribution: upstream
+          offered: in-image
+          detail: The Kubernetes provider image is a Kairos image with the kubeadm toolchain already in it. The choosing-a-distribution page still names only k3s and k0s as official.
+          sources:
+            - url: https://kairos.io/provider-kubernetes-docs/
+              type: official-docs
+              retrieved: "2026-10-17"
+              quote: It ships as a Kairos image with the whole toolchain already in it
     summary: >-
       Kubernetes is optional and core images ship none. Where it is included, the
       distribution and version are baked into the image at build time and encoded
