@@ -76,7 +76,7 @@ PAIRS = [
              [("A mechanism. It ships no OS image. Kubernetes comes with images built on it, such as MicroShift on RHEL image mode.",
                ["base_choice:bootc", "bootc:d01.ships_an_os", "bootc:d07.requirement", "bootc:d07.bundled"])]),
             ("side", "So rollback and recovery are",
-             [("Part of the project: automatic rollback after a failed boot, on the GRUB path only (one attempt; the docs say automatic rollback is GRUB-only), a recovery partition and a factory reset.",
+             [("Part of the project: automatic rollback after a failed boot, one attempt on the GRUB path; on Trusted Boot the docs say there is none, while the agent code arms a boot counter of three, a recovery partition and a factory reset.",
                ["kairos:d05.automatic_rollback_on_boot_failure", "kairos:d05.automatic_rollback_attempts",
                 "kairos:d05.recovery_environment", "kairos:d05.factory_reset"])],
              [("Shared with the adopting distribution. A manual rollback reorders the existing deployments. Automatic reversion depends on the backend: boot entry counting can be configured on the default OSTree backend and is not configured on the native composefs backend. The docs state no trigger or attempt count. Recovery media and factory reset belong to the distribution.",

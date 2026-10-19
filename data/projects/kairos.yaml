@@ -658,7 +658,7 @@ dimensions:
       rollback_durability: "one-shot boot entry, not a durable pin"
       automatic_rollback_on_boot_failure: available
       automatic_rollback_trigger: "boot assessment flag still set when GRUB is reached again"
-      automatic_rollback_attempts: "1 on the GRUB path, none on Trusted Boot (the docs say automatic rollback is GRUB-only)"
+      automatic_rollback_attempts: "1 on the GRUB path. On Trusted Boot the docs say there is none, while the agent code arms a boot counter of 3 on the entries it writes"
       success_criterion: "reaching the cloud-init boot.before stage inside the active image"
       retained_versions: 2
       retained_versions_note: "versions on disk, counting the running one: the active and passive images; the recovery image is not counted"
@@ -739,6 +739,12 @@ dimensions:
           Automatic rollback is a GRUB-only feature. The stage that manages the
           sentinels is skipped when the kernel cmdline contains rd.immucore.uki ,
           which is the case for every "Trusted boot" installation.
+      - url: https://github.com/kairos-io/kairos-agent/blob/96f93a04a554e30ad034ec9ee8bbf7b9ac242c5d/pkg/uki/upgrade.go
+        type: source-repo
+        title: kairos-agent, UKI upgrade adds a boot assessment counter to the boot entries
+        retrieved: "2026-10-19"
+        quote: >-
+          Add boot assessment to files by appending +3 to the name
       - url: https://kairos.io/docs/architecture/container/
         type: official-docs
         title: Container architecture, position on rollback
@@ -1933,7 +1939,7 @@ tradeoffs:
     - "Trusted Boot uses the adopter's own keys, which must be enrolled through firmware setup mode or per machine."
     - "The only published support statement is that the latest release branch gets patch releases. No end-of-life or LTS policy is published. Long-term maintenance exists only as a commercial offering."
     - "The security policy has no supported-versions table, no response commitment and no embargo policy, and one advisory has been published."
-    - "Documentation contradicts shipped behaviour in load-bearing places: a persistent path that breaks rollback, a boot-assessment page that has been wrong for around 22 months, SBOM release assets that do not exist, a configuration schema URL that returns 404, three inconsistent signer identities, routes to six archived repositories, and a Secure Boot architecture page that describes relying on upstream-signed artifacts, which Hadron, the only released base, does not use."
+    - "Documentation contradicts shipped behaviour in load-bearing places: a persistent path that breaks rollback, a boot-assessment page that says automatic rollback is GRUB-only while the agent code arms a boot counter on Trusted Boot entries, SBOM release assets that do not exist, a configuration schema URL that returns 404, three inconsistent signer identities, routes to six archived repositories, and a Secure Boot architecture page that describes relying on upstream-signed artifacts, which Hadron, the only released base, does not use."
     - "Trusted Boot media built with AuroraBoot v0.27.1 or older carry a root-caused UKI section-alignment defect (kairos-io/kairos#4885). On firmware with memory-protection asserts, such as the OVMF Secure Boot build, the image loops before the kernel until a watchdog resets it. The fix merged on 2026-09-22 and shipped in AuroraBoot v0.28.0 (2026-10-07), which pins go-ukify v0.5.2."
     - "With k3s, replacing a control-plane node through the Cluster API provider leaves an etcd member that must be removed by hand. The project documents this as a known limitation. k0s is not affected."
     - "Five of six maintainers work for Spectro Cloud."
