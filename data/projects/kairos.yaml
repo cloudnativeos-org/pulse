@@ -658,9 +658,10 @@ dimensions:
       rollback_durability: "one-shot boot entry, not a durable pin"
       automatic_rollback_on_boot_failure: available
       automatic_rollback_trigger: "boot assessment flag still set when GRUB is reached again"
-      automatic_rollback_attempts: "1 on the GRUB path; 3 on the Trusted Boot path"
+      automatic_rollback_attempts: "1 on the GRUB path, none on Trusted Boot (the docs say automatic rollback is GRUB-only)"
       success_criterion: "reaching the cloud-init boot.before stage inside the active image"
-      retained_versions: 1
+      retained_versions: 2
+      retained_versions_note: "versions on disk, counting the running one: the active and passive images; the recovery image is not counted"
       recovery_environment: dedicated-partition
       factory_reset: available
       network_independent_recovery: "yes"
@@ -676,8 +677,9 @@ dimensions:
       That means the root mounted and configuration ran. It does not mean
       networking came up, and it does not mean Kubernetes or any workload is
       healthy. An upgrade that boots cleanly and leaves the cluster dead is a
-      successful boot. This criterion appears only in a comment in a shipped YAML
-      file, never in user documentation.
+      successful boot. For v4.3.0 this criterion appears only in a comment in a
+      shipped YAML file, not in the v4.3.0 user documentation; the development
+      docs added it on 2026-10-06 (see below).
 
       Retention is exactly one previous version, and that number is stated
       nowhere in the documentation.
@@ -698,10 +700,16 @@ dimensions:
       infrastructure drift." That is a defensible design stance. It does not
       explain leaving the mechanism that does exist undocumented.
 
-      Two documentation pages contradict each other on whether boot assessment
-      exists for Trusted Boot. One describes it working; the other says it is not
-      yet implemented and cites a tracking issue that closed in November 2024.
-      The second page has been wrong for around 22 months.
+      Automatic rollback is GRUB-only. The boot assessment page says so in the
+      current (development) docs: "Automatic rollback is a GRUB-only feature",
+      because the stage that manages the sentinels is skipped on every Trusted
+      Boot installation, and for Trusted Boot it says a fallback "it's not yet
+      implemented in Kairos". The same page now documents the success criterion
+      and a manual rollback that selects the fallback boot entry; these
+      were added to the development docs on 2026-10-06 and are not in the
+      v4.3.0 versioned docs. One example page, on boot assessment under Trusted
+      Boot, still describes retries ("3 by default") and a fallback on that
+      path, which the boot assessment page contradicts.
 
       A fallback stage named autorecovery is documented on one page and exists in
       no repository in the organization.
@@ -723,6 +731,14 @@ dimensions:
       documentation at all.
     evidence: DOCUMENTED
     sources:
+      - url: https://kairos.io/docs/upgrade/boot_assessment/
+        type: official-docs
+        title: Boot assessment (development docs), automatic rollback is GRUB-only
+        retrieved: "2026-10-19"
+        quote: >-
+          Automatic rollback is a GRUB-only feature. The stage that manages the
+          sentinels is skipped when the kernel cmdline contains rd.immucore.uki ,
+          which is the case for every "Trusted boot" installation.
       - url: https://kairos.io/docs/architecture/container/
         type: official-docs
         title: Container architecture, position on rollback
@@ -749,7 +765,7 @@ dimensions:
         quote: "if set to true it will format persistent partitions ('oem 'and 'persistent')"
     unknowns:
       - "No rollback procedure page exists, and the one-shot nature of the boot selection is only in a source comment."
-      - "The retained-version count of one is not published."
+      - "That one previous version (the passive image) is retained is not published."
       - "The documented autorecovery fallback stage exists in no repository."
 
   d06_customization:
@@ -1918,7 +1934,7 @@ tradeoffs:
     - "The only published support statement is that the latest release branch gets patch releases. No end-of-life or LTS policy is published. Long-term maintenance exists only as a commercial offering."
     - "The security policy has no supported-versions table, no response commitment and no embargo policy, and one advisory has been published."
     - "Documentation contradicts shipped behaviour in load-bearing places: a persistent path that breaks rollback, a boot-assessment page that has been wrong for around 22 months, SBOM release assets that do not exist, a configuration schema URL that returns 404, three inconsistent signer identities, routes to six archived repositories, and a Secure Boot architecture page that describes relying on upstream-signed artifacts, which Hadron, the only released base, does not use."
-    - "Trusted Boot media built with the latest released AuroraBoot (v0.27.1) carry a root-caused UKI section-alignment defect (kairos-io/kairos#4885). On firmware with memory-protection asserts, such as the OVMF Secure Boot build, the image loops before the kernel until a watchdog resets it. The fix merged on 2026-09-22 and is in no release on 2026-10-06."
+    - "Trusted Boot media built with AuroraBoot v0.27.1 or older carry a root-caused UKI section-alignment defect (kairos-io/kairos#4885). On firmware with memory-protection asserts, such as the OVMF Secure Boot build, the image loops before the kernel until a watchdog resets it. The fix merged on 2026-09-22 and shipped in AuroraBoot v0.28.0 (2026-10-07), which pins go-ukify v0.5.2."
     - "With k3s, replacing a control-plane node through the Cluster API provider leaves an etcd member that must be removed by hand. The project documents this as a known limitation. k0s is not affected."
     - "Five of six maintainers work for Spectro Cloud."
 maintainers_fact:
@@ -1946,7 +1962,7 @@ known_issues:
         title: "fix(upgrade): refresh the shim, grub and grub.cfg on the ESP (#4513), committed 2026-09-11, not an ancestor of v4.3.0"
         retrieved: "2026-09-22"
         quote: "Grub.Install runs only from install and reset, so a signed-shim rotation, a grub.cfg schema change or a grub CVE bump reached installed nodes only if the operator ran a reinstall."
-  - text: "Trusted Boot media built with the latest released AuroraBoot (v0.27.1) carry a root-caused UKI section-alignment defect (kairos-io/kairos#4885). On firmware with memory-protection asserts, such as the OVMF Secure Boot build, the image loops before the kernel until a watchdog resets it. The fix merged on 2026-09-22 and is in no release on 2026-10-06."
+  - text: "Trusted Boot media built with AuroraBoot v0.27.1 or older carry a root-caused UKI section-alignment defect (kairos-io/kairos#4885). On firmware with memory-protection asserts, such as the OVMF Secure Boot build, the image loops before the kernel until a watchdog resets it. The fix merged on 2026-09-22 and shipped in AuroraBoot v0.28.0 (2026-10-07), which pins go-ukify v0.5.2."
     kind: defect
     sources:
       - url: "https://github.com/kairos-io/kairos/issues/4885"
@@ -1954,6 +1970,11 @@ known_issues:
         title: "Hadron/Kairos UKI Trusted Boot: go-ukify appends PE sections misaligned"
         retrieved: "2026-09-22"
         quote: "go-ukify's assemble() places every section it appends to the systemd stub ... at a 512-byte aligned virtual address, while the stub's PE header declares SectionAlignment 0x1000."
+      - url: "https://github.com/kairos-io/AuroraBoot/blob/v0.28.0/go.mod"
+        type: "source-repo"
+        title: "AuroraBoot go.mod at v0.28.0 (released 2026-10-07), go-ukify pin"
+        retrieved: "2026-10-19"
+        quote: "github.com/kairos-io/go-ukify v0.5.2"
   - text: "With k3s, replacing a control-plane node through the Cluster API provider leaves an etcd member that must be removed by hand. The project documents this as a known limitation. k0s is not affected."
     kind: defect
     sources:
@@ -2564,3 +2585,24 @@ corrections:
   - date: '2026-10-12'
     field: dimensions.d06_customization.normalized.add_software
     change: Removed the not-supported value. Not supported means no way to add host software exists, and this entry documents other ways. The docs' statement about package installs, with its source, moved into the systemd-sysext value.
+  - date: "2026-10-19"
+    field: "dimensions.d05_rollback_recovery.normalized.automatic_rollback_attempts"
+    change: "Said \"1 on the GRUB path; 3 on the Trusted Boot path\", and the data sheet showed only the GRUB half. The boot assessment page says automatic rollback is GRUB-only and that a Trusted Boot fallback is not yet implemented. Now \"1 on the GRUB path, none on Trusted Boot\", with that page as the first d05 source; the d05 notes record the example page that still describes retries."
+    source:
+      url: "https://kairos.io/docs/upgrade/boot_assessment/"
+      type: "official-docs"
+      title: "Boot assessment"
+      retrieved: "2026-10-19"
+      quote: "Automatic rollback is a GRUB-only feature."
+  - date: "2026-10-19"
+    field: "tradeoffs.costs"
+    change: "The Trusted Boot section-alignment cost and known issue said the fix was in no AuroraBoot release. AuroraBoot v0.28.0, released 2026-10-07, pins go-ukify v0.5.2, which carries the fix. Both now say media built with v0.27.1 or older carry the defect."
+    source:
+      url: "https://github.com/kairos-io/AuroraBoot/blob/v0.28.0/go.mod"
+      type: "source-repo"
+      title: "AuroraBoot go.mod at v0.28.0"
+      retrieved: "2026-10-19"
+      quote: "github.com/kairos-io/go-ukify v0.5.2"
+  - date: "2026-10-19"
+    field: "dimensions.d05_rollback_recovery.normalized.retained_versions"
+    change: "Was 1, counting the previous version only. schema/vocabularies.md now defines the count as versions on disk including the running one. Now 2 (active and passive images); the recovery image is not counted."

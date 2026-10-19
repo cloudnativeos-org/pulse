@@ -14,9 +14,10 @@ category_fit:
   comparable: adjacent
   note: >-
     NixOS is in this survey because the contrast is informative, not because it
-    is a peer of a Kubernetes node operating system. Its own front page says
-    "Declarative builds and deployments", and its three headline properties are
-    reproducible, declarative and reliable. The word immutable does not appear.
+    is a peer of a Kubernetes node operating system. Its own front page is
+    headed "NixOS - Reproducible, Declarative, Reliable", and it promises
+    "reproducible, declarative and reliable systems". The word immutable does
+    not appear.
 
     The honest split. On the package and closure layer NixOS is genuinely
     immutable and hash-addressed, and that is stronger and older than most
@@ -105,6 +106,13 @@ dimensions:
       59,703 commits in the 26.05 cycle alone.
     evidence: DOCUMENTED
     sources:
+      - url: https://nixos.org/
+        type: official-docs
+        title: NixOS home page
+        retrieved: "2026-10-19"
+        quote: >-
+          NixOS - Reproducible, Declarative, Reliable ... Learn how to make
+          reproducible, declarative and reliable systems.
       - url: https://nixos.org/manual/nixos/stable/
         type: official-docs
         title: NixOS manual preface
@@ -1431,3 +1439,12 @@ corrections:
       title: 'NixOS manual: /etc via overlay filesystem'
       retrieved: '2026-10-12'
       quote: you can also mount `/etc` immutably (i.e. read-only) by setting
+  - date: "2026-10-19"
+    field: "category_fit.note"
+    change: "Quoted \"Declarative builds and deployments\" from the front page, and the guide card cited the manual preface, which does not contain it. On 2026-10-19 the front page does not carry that phrase. The note now quotes the front page as it reads, and the front page is the first d01 source, so the card cites it."
+    source:
+      url: "https://nixos.org/"
+      type: "official-docs"
+      title: "NixOS home page"
+      retrieved: "2026-10-19"
+      quote: "NixOS - Reproducible, Declarative, Reliable"

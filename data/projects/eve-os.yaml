@@ -1213,7 +1213,7 @@ dimensions:
       vendor_neutral_ownership: foundation-held
       foundation:
         name: LF Edge (Linux Foundation)
-        level: "Stage 3, Impact"
+        level: "Impact Stage"
         since: "2025-03-31"
       trademark_holder: unknown
       primary_commercial_sponsor: ZEDEDA
@@ -1234,7 +1234,7 @@ dimensions:
           author (eriknordmark, 187) is 36.7% of the sample. Re-derived
           2026-10-05 with the authenticated API over the window above.
     summary: >-
-      Apache-2.0, hosted by LF Edge at Stage 3 (Impact). A Technical Steering
+      Apache-2.0, an LF Edge project at Impact Stage. A Technical Steering
       Committee governs the project under published rules. Commit activity in
       the sampled window is concentrated in one commercial sponsor.
     notes: >-
@@ -1261,6 +1261,13 @@ dimensions:
       is a statement of ownership and contribution, not a judgement.
     evidence: DOCUMENTED
     sources:
+      - url: https://www.linuxfoundation.org/press/project-eve-hits-maturity-within-lf-edge-releases-multi-node-support-for-enhanced-edge-computing-resilience
+        type: foundation-page
+        title: Project EVE hits maturity within LF Edge (31 March 2025)
+        retrieved: "2026-10-19"
+        quote: >-
+          today announced that its Project EVE has achieved Impact Stage status,
+          a designation for the most developed projects within LF Edge
       - url: https://github.com/lf-edge/eve/blob/master/LICENSE
         type: governance-doc
         title: lf-edge/eve LICENSE
@@ -1276,13 +1283,6 @@ dimensions:
         title: lf-edge/eve MAINTAINERS
         retrieved: "2026-10-05"
         quote: List of maintainers (in alphabetical order)
-      - url: https://www.linuxfoundation.org/press/project-eve-hits-maturity-within-lf-edge-releases-multi-node-support-for-enhanced-edge-computing-resilience
-        type: foundation-page
-        title: Project EVE hits maturity within LF Edge
-        retrieved: "2026-10-05"
-        quote: >-
-          has achieved Impact Stage status, a designation for the most
-          developed projects within LF Edge
       - url: https://api.github.com/repos/lf-edge/eve/commits?since=2026-07-05T00:00:00Z&per_page=100
         type: source-repo
         title: GitHub commits API, lf-edge/eve, five pages of 100
@@ -1302,14 +1302,14 @@ dimensions:
       release_cadence: "numbered releases every 1 to 3 weeks in the sampled period; an LTS release about every 6 months"
       observed_intervals: "numbered releases 17.1.0 to 17.6.0 tagged 2026-07-09, 07-23, 08-15, 09-08, 09-15 and 09-29 (gaps of 14, 23, 24, 7 and 14 days); LTS tags 14.5.0-lts 2025-06-18, 16.0.0-lts 2026-01-06, 17.0.0-lts 2026-07-27"
       support_model: lts-stream
-      support_window: "security fixes are documented for the 17.0.x, 16.0.x, 14.5.x, 13.4.x, 12.0.x, 11.0.x and 10.4.x streams; a longer support period figure is unconfirmed (see unknowns)"
+      support_window: "24 months of security fixes and LTS point releases per LTS line, from the line's general availability, per docs/RELEASE-SUPPORT.md; 17.0.x, 16.0.x, 14.5.x and 13.4.x supported, 12.0.x, 11.0.x and 10.4.x at end of support (read 2026-10-19)"
       commercial_support: available
       commercial_support_vendor: ZEDEDA
     summary: >-
       An LF Edge Impact Stage project with a GitHub repository created in
       2019. It ships numbered releases every one to three weeks and a
-      long-term support release about twice a year. SECURITY.md lists seven
-      release streams as supported.
+      long-term support release about twice a year. The project documents 24
+      months of security support for each LTS line, in docs/RELEASE-SUPPORT.md.
     notes: >-
       Tag dates come from the GitHub git tag objects. The numbered release
       17.6.0 and the release candidate 17.0.1-rc2 are marked as pre-releases
@@ -1327,20 +1327,33 @@ dimensions:
       for EVE-OS, per the deployment page naming its controllers. The
       support terms were not read.
 
-      The ZEDEDA documentation site returned HTTP 403 to automated fetches.
-      A search result summary said that ZEDEDA's long-term support policy gives
-      two years of full support and one year of limited support for each LTS
-      release (36 months in total), with an LTS about every six months. That
-      summary was not verified against the page and the figures are kept out
-      of the normalized fields. SECURITY.md in the repository is the
-      verified source for the supported streams.
+      Support length: docs/RELEASE-SUPPORT.md, added on 2026-10-05 (commit
+      e10c5710f, "Split security policy; CRA additions"), says an LTS line
+      "receives security fixes and LTS point releases for 24 months" from its
+      general availability. Its table lists 17.0.x, 16.0.x, 14.5.x and 13.4.x
+      as supported and 12.0.x, 11.0.x and 10.4.x as at end of support. The
+      same commit removed the supported-versions table from SECURITY.md, which
+      now points to RELEASE-SUPPORT.md as "the authoritative statement of
+      security support". The document also says that "A downstream vendor may
+      offer different support for its EVE-based product". A search result
+      summary gave a 36 month figure for ZEDEDA's own LTS policy; the ZEDEDA
+      documentation site returned HTTP 403 to automated fetches, so that
+      vendor figure is not verified and is kept out of the normalized fields.
     evidence: DOCUMENTED
     sources:
+      - url: https://github.com/lf-edge/eve/blob/e10c5710f5ab5781458a8436a43593065d8b35b7/docs/RELEASE-SUPPORT.md
+        type: governance-doc
+        title: lf-edge/eve docs/RELEASE-SUPPORT.md, LTS support length
+        retrieved: "2026-10-19"
+        quote: >-
+          An LTS line receives security fixes and LTS point releases for **24
+          months** from the date the line became generally available.
       - url: https://github.com/lf-edge/eve/blob/master/SECURITY.md
         type: governance-doc
         title: lf-edge/eve SECURITY.md, supported versions
-        retrieved: "2026-10-05"
-        quote: "| 17.0.x | ✅ |"
+        retrieved: "2026-10-19"
+        quote: >-
+          That document is the authoritative statement of security support
       - url: https://github.com/lf-edge/eve/blob/master/README.md
         type: source-repo
         title: lf-edge/eve README, release schedule
@@ -1358,7 +1371,7 @@ dimensions:
         quote: enterprise-ready ZEDEDA Cloud controllers
     unknowns:
       - "The date of the first release and the first LTS. Searched the tag list (earliest entries not dated) and docs/. The GitHub repository creation date is 2019-04-19."
-      - "The published LTS support duration. The ZEDEDA LTS policy page and the project wiki release policy page were not fully readable; the wiki page read states a backport policy and a yearly kernel update cadence, not a duration."
+      - "The support duration ZEDEDA offers for its own EVE-based product. The ZEDEDA LTS policy page was not readable."
       - "The commercial support terms and tiers."
 
 tradeoffs:
@@ -1368,7 +1381,7 @@ tradeoffs:
     - "Measured boot, TPM sealed disk encryption, remote attestation and an integrity token tied to the controller form a documented security design aimed at devices in untrusted locations. It needs TPM 2.0; without one there is no encryption at rest."
     - "One host runs virtual machines, containers and unikernels, with PCI and GPU passthrough documented, so workloads that do not fit a container-only node can share the device."
     - "An open API and an open-source reference controller (Adam), with the update source any datastore the operator names."
-    - "Hosted by LF Edge at Stage 3 with a TSC and published governance."
+    - "An LF Edge project at Impact Stage, with a TSC and published governance."
   costs:
     - "A controller is mandatory. Without one the device receives no configuration or updates. The open-source reference controller states it is not built for scale or attack resistance, and the production controller named in the guide is commercial."
     - "Kubernetes exists only in the separate EVE-k build flavor. Upgrading from EVE-k to another flavor is not supported, and moving a device to EVE-k needs it to hold no volumes."
@@ -1406,7 +1419,7 @@ open_questions:
   - "Are release artifacts and installers signed, and is there SLSA style provenance?"
   - "Who holds the EVE trademark, and where is the LF Edge governance page that states it?"
   - "Is the Xen build still maintained, given that the Makefile no longer lists it as a supported HV value?"
-  - "What is the published LTS support duration, and is the 36 month figure from the ZEDEDA policy page correct?"
+  - "Is the 36 month figure for ZEDEDA's own LTS policy correct? The project's own docs/RELEASE-SUPPORT.md gives 24 months and says a vendor may offer different support."
   - "Can Kubernetes be upgraded without a full EVE-k image update? (17.0.0-lts ships k3s v1.34.2+k3s1 per its release notes.)"
   - "Can ZEDEDA Cloud be self-hosted, and does Edge Sync act as a local controller?"
   - "Is there a documented recovery environment or factory reset procedure for a device that cannot boot?"
@@ -1484,3 +1497,21 @@ corrections:
       title: 'EVE docs: Custom Build'
       retrieved: '2026-10-12'
       quote: Modify the eve-os build to include external packages
+  - date: "2026-10-19"
+    field: "dimensions.d13_governance.normalized.foundation.level"
+    change: "Was \"Stage 3, Impact\". The LF press release says \"Impact Stage\" and does not say \"Stage 3\". Now \"Impact Stage\". The press release is now the first d13 source, so the cell cites it."
+    source:
+      url: "https://www.linuxfoundation.org/press/project-eve-hits-maturity-within-lf-edge-releases-multi-node-support-for-enhanced-edge-computing-resilience"
+      type: "foundation-page"
+      title: "Project EVE hits maturity within LF Edge"
+      retrieved: "2026-10-19"
+      quote: "has achieved Impact Stage status"
+  - date: "2026-10-19"
+    field: "dimensions.d14_maturity.normalized.support_window"
+    change: "Rested on the SECURITY.md supported-versions table, which commit e10c5710f removed on 2026-10-05. docs/RELEASE-SUPPORT.md now states 24 months of security fixes per LTS line and lists the supported lines. support_window, the summary, the notes, the first source, an unknown and an open question now follow it."
+    source:
+      url: "https://github.com/lf-edge/eve/blob/e10c5710f5ab5781458a8436a43593065d8b35b7/docs/RELEASE-SUPPORT.md"
+      type: "governance-doc"
+      title: "lf-edge/eve docs/RELEASE-SUPPORT.md"
+      retrieved: "2026-10-19"
+      quote: "An LTS line receives security fixes and LTS point releases for **24 months** from the date the line became generally available."

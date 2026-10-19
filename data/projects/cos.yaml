@@ -354,7 +354,14 @@ dimensions:
       self_hostable_update_server_evidence: UNKNOWN
       self_hostable_update_server_note: "The update server is never named in the docs found. No page documents or denies a self-hosted or mirrored update source."
       self_hostable_update_server_searched: "Read on 2026-10-05: the COS auto-update page, the features and benefits page, and the COS sources page. None names the update server or describes a way to point an instance at another one. Only the cos-update-strategy metadata switch is documented."
-      artifact_verification: unknown
+      artifact_verification: signature-against-update-signing-key
+      artifact_verification_note: "The auto-update page says the update payloads are signed and validated with keys. It does not describe the verification scheme or say where the keys are held."
+      artifact_verification_sources:
+        - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/auto-update
+          type: vendor-docs
+          title: Container-Optimized OS auto update, changes to automatic update behavior
+          retrieved: '2026-10-19'
+          quote: As part of these changes, we are rotating the keys used to sign and validate the update payloads.
     summary: >-
       An active-passive root partition scheme, with the whole image updated at
       once including the kernel rather than package by package. The update
@@ -381,11 +388,12 @@ dimensions:
       That is image replacement, not in-place update, and the two are recorded
       separately.
 
-      How the payload is authenticated is not documented. The only adjacent
-      evidence is a note that images older than certain builds cannot update due
-      to key rotation, which implies signing keys exist without describing the
-      verification scheme. The update server is never named and no self-hosting
-      path is documented or denied.
+      The auto-update page states that the update payloads are signed and
+      validated: "we are rotating the keys used to sign and validate the update
+      payloads", and images released before that key rotation cannot update to
+      images released after it. The verification scheme and where the keys are
+      held are not documented. The update server is never named and no
+      self-hosting path is documented or denied.
     evidence: DOCUMENTED
     sources:
       - url: https://docs.cloud.google.com/container-optimized-os/docs/concepts/auto-update
@@ -412,7 +420,7 @@ dimensions:
           download weekly updates in the background; only a reboot is necessary
           to use the latest updates.
     unknowns:
-      - "How an update payload is authenticated and verified. Not documented."
+      - "Update payloads are signed and validated (auto-update page), but the verification scheme and where the keys are held are not documented."
       - "The update server is never named, and no self-hosting or mirroring path is documented either way."
       - "Two documentation pages disagree on whether automatic updates are on by default, and the auto-update page disagrees with itself between its default section and its design section."
 
@@ -897,7 +905,7 @@ dimensions:
       integrity: "kernel-verified checksum at boot"
       dm_verity: unknown
       disk_encryption: "platform-level encryption at rest; no OS-specific mechanism documented"
-      artifact_verification: unknown
+      artifact_verification: "update payloads signed and validated; scheme not documented (see d04)"
       sbom: unknown
       provenance: unknown
       fips: unknown
@@ -1517,3 +1525,12 @@ corrections:
   - date: '2026-10-12'
     field: dimensions.d06_customization.normalized.add_software
     change: Removed the not-supported value. Not supported means no way to add host software exists, and this entry documents other ways. The docs' statement about package installs, with its source, moved into the vendor-extensions value.
+  - date: "2026-10-19"
+    field: "dimensions.d04_upgrade.normalized.artifact_verification"
+    change: "Was unknown (\"not found in the documentation we read\"). The auto-update page, already cited for this dimension, states that the update payloads are signed and validated. Now signature-against-update-signing-key, with artifact_verification_note saying the scheme and where the keys are held are not documented. The d04 notes and unknowns, and the d10 value, now say the same."
+    source:
+      url: "https://docs.cloud.google.com/container-optimized-os/docs/concepts/auto-update"
+      type: "vendor-docs"
+      title: "Container-Optimized OS auto update"
+      retrieved: "2026-10-19"
+      quote: "As part of these changes, we are rotating the keys used to sign and validate the update payloads."

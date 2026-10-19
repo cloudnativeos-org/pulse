@@ -2222,6 +2222,7 @@ nodes:
     to: null
     how: null
     who: Sidero Labs (same company renamed)
+    note: Sidero Labs announced on 2026-09-14 that it has been acquired by Yardi, and that it continues to operate as a standalone company. The post gives no closing date. See org-sidero-labs.
     evidence: DOCUMENTED
     sources:
     - url: https://www.siderolabs.com/blog/talos-systems-is-now-sidero-labs
@@ -2233,32 +2234,6 @@ nodes:
     - 'from edge: renamed-to'
     - 'edge date: 2021-10-04'
     - 'edge note: via WebFetch. Reason: trademark held by Cisco Talos.'
-  - org: org-yardi
-    from: '2026-09-14'
-    from_note: 2026-09-14 (per talos.yaml)
-    to: null
-    how: acquired
-    who: Yardi (acquired Sidero Labs)
-    evidence: DOCUMENTED
-    sources:
-    - url: https://www.siderolabs.com/blog/sidero-labs-joins-yardi
-      title: Sidero Labs joins Yardi
-      publisher: Sidero Labs (Steve Francis)
-      date: '2026-09-14'
-      quote: Sidero Labs - the company behind Talos Linux and Omni - has been acquired by Yardi.
-      quote_check: raw
-    - url: https://www.siderolabs.com/blog/sidero-labs-joins-yardi
-      title: Sidero Labs joins Yardi
-      publisher: Sidero Labs (Steve Francis)
-      date: '2026-09-14'
-      quote: Sidero Labs continues to operate as a standalone company
-      quote_check: raw
-    edge_notes:
-    - 'from edge: acquired-by'
-    - 'edge date: 2026-09-14'
-    - 'edge note: From talos.yaml d13; not re-read in this pass.'
-    note: announced; Sidero Labs continues to operate as a standalone company
-    research_note: Closing date not stated. A 'July 2026' date seen in one search summary was not found in any source.
   base:
   - value: its own; not based on any other distribution
     from: 2017-11
@@ -2492,7 +2467,7 @@ nodes:
     from: null
     to: null
     how: created
-    who: Created by ZEDEDA (founded 2016 per news only). Hosted by LF Edge (Linux Foundation) since 2019. LF Edge Impact Stage (Stage 3) announced 2025-03-31.
+    who: Created by ZEDEDA (founded 2016 per news only). Hosted by LF Edge (Linux Foundation) since 2019. LF Edge Impact Stage announced 2025-03-31.
     evidence: DOCUMENTED
     sources:
     - url: https://www.linuxfoundation.org/press/press-release/the-linux-foundation-launches-new-lf-edge-to-establish-a-unified-open-source-framework-for-the-edge

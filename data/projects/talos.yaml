@@ -435,8 +435,8 @@ dimensions:
       quorum_protection: true
     summary: >-
       An API call passes the node an installer image. The node cordons and drains
-      itself, unmounts filesystems, writes the new image, sets the bootloader to
-      boot once with it, and reboots via kexec. On success the change becomes
+      itself, unmounts filesystems, writes the new image, points the bootloader
+      at it, and reboots via kexec. On success the change becomes
       permanent and the node rejoins and uncordons.
     notes: >-
       Two safety properties stand out and both are in the OS rather than in a
@@ -513,16 +513,18 @@ dimensions:
   d05_rollback_recovery:
     normalized:
       rollback_to_previous: available
-      automatic_rollback_on_boot_failure: available
+      automatic_rollback_on_boot_failure: "only when the init process fails; machined's fatal-error handler reverts the bootloader to the previous image, so a kernel panic before the init process starts, or a hang, keeps booting the new image (read from the v1.14.1 source; the docs say only that a failed boot rolls back)"
       automatic_rollback_trigger: "fatal error or panic in the init process before the machine reaches ready"
       automatic_rollback_attempts: 1
-      retained_versions: 1
+      retained_versions: 2
+      retained_versions_note: "versions on disk, counting the running one: the running image and the previous one"
       recovery_environment: "maintenance mode, plus a bootloader wipe entry"
       factory_reset: available
       network_independent_recovery: partial
       interactive_shell_for_recovery: "none"
     summary: >-
-      One previous OS version is retained, and automatic rollback fires once. A
+      One previous OS version is retained next to the running one, and
+      automatic rollback fires once, only when the init process fails. A
       bootloader entry offers a wipe-and-return-to-maintenance-mode path, and the
       video console carries a read-only dashboard that can repair network
       configuration on bare metal.
@@ -561,6 +563,18 @@ dimensions:
       wipes the whole disk and can leave the machine unbootable.
     evidence: DOCUMENTED
     sources:
+      - url: https://github.com/siderolabs/talos/blob/v1.14.1/internal/app/machined/main.go
+        type: source-repo
+        title: machined main.go at v1.14.1, the only call to revertBootloader is in the fatal-error handler
+        retrieved: "2026-10-19"
+        quote: >-
+          if err != nil { log.Print(err) revertBootloader(ctx)
+      - url: https://github.com/siderolabs/talos/blob/v1.14.1/internal/app/machined/pkg/runtime/v1alpha1/bootloader/sdboot/sdboot.go
+        type: source-repo
+        title: sd-boot setup at v1.14.1, the new UKI becomes the persistent default entry
+        retrieved: "2026-10-19"
+        quote: >-
+          // set the new entry as a default one if err := WriteVariable(LoaderEntryDefaultName, ukiFileName); err != nil {
       - url: https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/upgrading-talos
         type: official-docs
         title: Upgrading Talos, rollback
@@ -1384,7 +1398,7 @@ dimensions:
       foundation: "none"
       foundation_note: "Present in the CNCF landscape as a non-hosted entry with no maturity level. Sidero Labs is a CNCF silver member."
       trademark_holder: unknown
-      primary_commercial_sponsor: "Sidero Labs, acquired by Yardi on 2026-09-14"
+      primary_commercial_sponsor: "Sidero Labs, which announced on 2026-09-14 that it has been acquired by Yardi and continues to operate as a standalone company"
       contributor_agreement: DCO
       contribution_diversity:
         method: >-
@@ -1427,9 +1441,18 @@ dimensions:
       The acquisition announcement addresses licence, repositories and
       contribution process. It does not address trademark or copyright
       ownership, and that is recorded as an open question rather than as a
-      concern.
+      concern. It gives no closing date for the acquisition.
     evidence: DOCUMENTED
     sources:
+      - url: https://www.siderolabs.com/blog/sidero-labs-joins-yardi
+        type: announcement
+        title: Sidero Labs joins Yardi (September 14, 2026)
+        retrieved: "2026-10-19"
+        quote: >-
+          Today I'm sharing some big news: Sidero Labs - the company behind
+          Talos Linux and Omni - has been acquired by Yardi. ... Sidero Labs
+          continues to operate as a standalone company, with the same team
+          making the same day-to-day decisions about the product
       - url: https://github.com/siderolabs/talos/blob/main/LICENSE
         type: governance-doc
         title: Talos licence
@@ -1848,3 +1871,30 @@ corrections:
       title: 'Talos docs: System extensions'
       retrieved: '2026-10-12'
       quote: System extensions allow extending the Talos root filesystem, which enables a variety of features, such as including custom container runtimes, loading additional firmware, etc.
+  - date: "2026-10-19"
+    field: "dimensions.d13_governance"
+    change: "The Yardi acquisition in primary_commercial_sponsor had no d13 source; the cell cited the LICENSE. Added the announcement as the first d13 source, and reworded the sponsor to what the post says: Sidero Labs announced it has been acquired by Yardi and continues to operate as a standalone company. The post gives no closing date. The lineage no longer lists Yardi as a holder of Talos."
+    source:
+      url: "https://www.siderolabs.com/blog/sidero-labs-joins-yardi"
+      type: "announcement"
+      title: "Sidero Labs joins Yardi"
+      retrieved: "2026-10-19"
+      quote: "Sidero Labs continues to operate as a standalone company"
+  - date: "2026-10-19"
+    field: "dimensions.d05_rollback_recovery.normalized.automatic_rollback_on_boot_failure"
+    change: "Was available (\"Yes\"). In the v1.14.1 source the only revert is in machined's fatal-error handler, and the sd-boot setup makes the new UKI the persistent default entry, so a kernel panic before init, or a hang, keeps booting the new image. Now \"only when the init process fails\", with both source files cited. The d04 summary no longer says the bootloader boots the new image once."
+    source:
+      url: "https://github.com/siderolabs/talos/blob/v1.14.1/internal/app/machined/main.go"
+      type: "source-repo"
+      title: "machined main.go at v1.14.1"
+      retrieved: "2026-10-19"
+      quote: "revertBootloader(ctx)"
+  - date: "2026-10-19"
+    field: "dimensions.d05_rollback_recovery.normalized.retained_versions"
+    change: "Was 1, counting the previous version only. schema/vocabularies.md now defines the count as versions on disk including the running one, as Flatcar and Bottlerocket already record for the same A/B design. Now 2."
+    source:
+      url: "https://docs.siderolabs.com/talos/v1.14/configure-your-talos-cluster/lifecycle-management/upgrading-talos"
+      type: "official-docs"
+      title: "Upgrading Talos"
+      retrieved: "2026-10-19"
+      quote: "This scheme retains the previous Talos kernel and OS image following each upgrade."
