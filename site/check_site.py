@@ -39,6 +39,11 @@ Fails (exit 1) if:
   or a data sheet row lacks its evidence badge (the Entry row and a Not collected row are the only exceptions);
 - the matrix legend still lists the evidence labels instead of pointing at the data sheet;
 - a "Not found in the documentation we read." is not followed by the link to the correction section (guide.html#fix-h).
+
+Warns (exit 0) about:
+- a data sheet row labelled Documented that cites no source. Each row cites only the sources recorded for the fields it
+  shows, never the first source of its dimension, so a row whose fields have no source of their own carries none. The
+  list says which rows still need a per-field source in the profile.
 """
 import json
 import os
@@ -215,7 +220,7 @@ def main():
         if 'class="mx-fo"' not in fg or "<input" not in fg:
             errors.append("matrix filter has no options row: %s" % name)
 
-    entries, cols = [], []
+    entries, cols, uncited = [], [], []
     table = re.search(r'<table class="mx">.*?</table>', index, re.S)
     if not table:
         errors.append("no matrix table found")
@@ -335,6 +340,41 @@ def main():
             if t not in sheets:
                 errors.append("the guide links to a data sheet that does not exist: %s" % t)
 
+    # ---- rows without a row-level source (warnings): every data sheet, and the guide's comparison rows
+    all_sheets = dict(re.findall(r'<article class="tc" aria-labelledby="tc-([a-z0-9-]+)">(.*?)</article>', index, re.S))
+    by_col = {}
+    for pid, sheet in sorted(all_sheets.items()):
+        for key, body in re.findall(r'<div class="ds-row" id="ds-[^"]+" data-col="([^"]+)"><dt>.*?</dt><dd>(.*?)</dd></div>', sheet, re.S):
+            if re.search(r'class="ev ev-(documented|inferred)', body) and 'class="cite"' not in body:
+                uncited.append((pid, key))
+                by_col.setdefault(key, []).append(pid)
+                if 'class="v-detail ds-srcnote"' not in body:
+                    errors.append("the data sheet row ds-%s-%s has no row-level source and does not point at its section sources" % (pid, key))
+    if uncited:
+        print("warning: %d data sheet rows without a row-level source, across %d data sheets; each points at its section's "
+              "source list under the sheet:" % (len(uncited), len(all_sheets)))
+        for col, pids in sorted(by_col.items()):
+            print("  - %s (%d): %s" % (col, len(pids), ", ".join(pids)))
+
+    guide_rows = []
+    for art in re.findall(r'<article class="pair".*?</article>', guide, re.S):
+        aid = re.search(r'aria-labelledby="([^"]+)"', art).group(1)
+        for k, cell in enumerate(re.findall(r'<div class="(?:same|side[^"]*)"[^>]*>(.*?)</div>', art, re.S)):
+            if 'class="cite"' in cell or 'class="sec-src"' in cell:
+                continue
+            if 'class="ev ' in cell:
+                errors.append("guide card %s cell %d has an evidence badge but no citation and no section source pointer" % (aid, k + 1))
+            guide_rows.append("%s cell %d" % (aid, k + 1))
+    if guide_rows:
+        print("warning: %d guide comparison cells without a citation or a section source pointer: %s" % (len(guide_rows), ", ".join(guide_rows)))
+    pointed = sum(1 for a in re.findall(r'<article class="pair".*?</article>', guide, re.S)
+                  for c in re.findall(r'<div class="(?:same|side[^"]*)"[^>]*>(.*?)</div>', a, re.S) if 'class="sec-src"' in c)
+    print("note: %d guide comparison cells point at their sections' source lists for text with no row-level source" % pointed)
+    # a citation that was dropped must not leave a space before punctuation
+    for name, p in pages.items():
+        vis = re.sub(r"<[^>]+>", "", re.sub(r'<span class="ev .*?</span></span>', "", p))
+        for m in re.finditer(r"\w \.(\s|$)", vis):
+            errors.append("%s: a space before a full stop: %r" % (name, vis[max(0, m.start() - 40):m.end()]))
     if errors:
         print("site check FAILED:")
         for e in dict.fromkeys(errors):

@@ -336,6 +336,24 @@ dimensions:
       self_hostable_update_server_note: "The documented update path is the AKS weekly node image, published by Microsoft. No page found says whether an operator can host an update source."
       self_hostable_update_server_searched: "Read on 2026-10-05: the ACL overview on Microsoft Learn, the ACL migration and CVE pages, microsoft/azure-container-linux README and acl/docs/architecture.md, and the microsoft/trident README. None names an update server, a mirror, or a self-hosting path. The overview scopes ACL to AKS node images."
       artifact_verification: "signed unified kernel image"
+      update_signature_check:
+        how: always-on
+        platform: Trusted Launch
+        how_sources:
+          - url: https://learn.microsoft.com/en-us/azure/aks/azure-container-linux-overview
+            type: vendor-docs
+            title: Azure Container Linux overview (AKS), considerations and limitations
+            retrieved: '2026-10-19'
+            quote: ACL requires Trusted Launch with Secure Boot and vTPM. Non-Trusted Launch variants aren't available.
+        checks: the kernel, initramfs and command line ship as one signed UKI, which Secure Boot checks at boot
+        sources:
+          - url: https://learn.microsoft.com/en-us/azure/aks/azure-container-linux-overview
+            type: vendor-docs
+            title: Azure Container Linux overview (AKS), key features
+            retrieved: '2026-10-19'
+            quote: This is achieved using a Unified Kernel Image (UKI), which bundles the kernel, initramfs, and kernel command line into a single signed artifact.
+        evidence: INFERRED
+        inferred_from: "The vendor documents a signed UKI and requires Secure Boot; that Secure Boot checks the UKI signature at boot follows from the two. No page describes a signature check on the update download."
       supported_upgrade_channels: ["NodeImage", "None"]
       unsupported_upgrade_channels: ["SecurityPatch", "Unmanaged"]
     summary: >-
@@ -812,10 +830,17 @@ dimensions:
     normalized:
       boot_trust_chain:
         level: 3
-        how: platform-provided
+        how: always-on
+        platform: Trusted Launch
+        how_sources:
+        - url: https://learn.microsoft.com/en-us/azure/aks/azure-container-linux-overview
+          type: vendor-docs
+          title: Azure Container Linux overview (AKS), considerations and limitations
+          retrieved: '2026-10-19'
+          quote: ACL requires Trusted Launch with Secure Boot and vTPM. Non-Trusted Launch variants aren't available.
         route: verity-root-hash-in-signed-artifact
         artifact: signed UKI and per-slot addon
-        note: Secure Boot and vTPM are required on AKS through Trusted Launch. The public build signs the UKI
+        note: Secure Boot and vTPM are required. The public build signs the UKI
           only with a test key, so the vendor documents level 3 but it cannot be reproduced from the public
           source
         evidence: DOCUMENTED

@@ -556,10 +556,46 @@ dimensions:
       self_hostable_update_source: "Any OCI registry, or a local file; there is no update server"
       self_hostable_update_server_evidence: DOCUMENTED
       self_hostable_update_server_note: "There is no update server. The agent pulls an OCI image from a registry the operator chooses, or from a local directory, file or saved tarball."
-      artifact_verification_by_mode:
-        standard: "not checked"
-        trusted_boot: enforced
-      artifact_verification_note: "Kairos has no default install mode: the standard install and Trusted Boot are both documented choices."
+      artifact_verification: "cosign or signed UKI"
+      update_signature_check:
+        how: opt-in
+        how_sources:
+          - url: https://kairos.io/docs/v4.3.0/installation/trustedboot/
+            type: official-docs
+            title: "Kairos v4.3.0 docs: Trusted Boot installation"
+            retrieved: '2026-10-19'
+            quote: This feature is optional and works alongside how Kairos works.
+        via: Trusted Boot
+        checks: an upgrade checks that the new UKI is signed with a key the machine's Secure Boot accepts, and stops if it is not
+        sources:
+          - url: https://github.com/kairos-io/kairos/blob/v4.3.0/agent/pkg/uki/upgrade.go#L75-L86
+            type: source-repo
+            title: Kairos Trusted Boot upgrade code, signature check, v4.3.0
+            retrieved: '2026-10-19'
+            quote: Check if the upgrade artifact contains the proper signature before copying
+          - url: https://github.com/kairos-io/kairos/blob/v4.3.0/sdk/signatures/signatures.go#L153-L155
+            type: source-repo
+            title: kairos sdk CheckArtifactSignatureIsValid, v4.3.0
+            retrieved: '2026-10-19'
+            quote: checks that a given efi artifact is signed properly with a signature that would allow it to boot correctly in the current node if secureboot is enabled
+        default:
+          name: the standard install
+          checks: "off"
+          reason: The cosign setting turns on a cosign check for images pulled from a registry
+          evidence: INFERRED
+          inferred_from: "The cosign setting is a boolean in the configuration reference, and Kairos v4.3.0 runs the cosign check only when it is set (DumpSource in elemental.go)."
+          sources:
+            - url: https://kairos.io/docs/v4.3.0/reference/configuration/
+              type: official-docs
+              title: "Kairos v4.3.0 docs: configuration reference, cosign"
+              retrieved: '2026-10-19'
+              quote: Enable cosign verification for container images
+            - url: https://github.com/kairos-io/kairos/blob/v4.3.0/agent/pkg/elemental/elemental.go#L428-L442
+              type: source-repo
+              title: Kairos DumpSource code, cosign check, v4.3.0
+              retrieved: '2026-10-19'
+              quote: Running cosign verification for %s
+        evidence: DOCUMENTED
       bootloader_upgraded_by_mode:
         standard: 'not refreshed: a standard install upgrade does not write shim or GRUB'
         trusted_boot: the whole artifact is written to the EFI partition, including the systemd-boot binary
@@ -1320,21 +1356,58 @@ dimensions:
       boot_trust_chain:
         level: 3
         how: opt-in
+        how_sources:
+        - url: https://kairos.io/docs/v4.3.0/installation/trustedboot/
+          type: official-docs
+          title: "Kairos v4.3.0 docs: Trusted Boot installation"
+          retrieved: '2026-10-19'
+          quote: This feature is optional and works alongside how Kairos works.
+        via: Trusted Boot
+        via_detail: a UKI signed with your own keys
         route: usi
         artifact: signed UKI
-        modes:
-          Trusted Boot: 3
-          Standard install: 1
-        note: With Trusted Boot you sign with your own keys. The whole OS is packed in the UKI initrd
-          and runs from memory, with signed system extensions only. Disk keys are sealed to the signed PCR 11
-          policy
+        note: The whole OS is packed in the UKI initrd and runs from memory, with signed system extensions only.
+          Disk keys are sealed to the signed PCR 11 policy
+        default:
+          name: the standard install
+          level: not-established
+          reason: The docs say every flavor works with Secure Boot through signed upstream artifacts, but Hadron, the
+            only base with released images, builds its shim with no signing step
+          evidence: INFERRED
+          inferred_from: "The Secure Boot page says any supported flavor works with Secure Boot through signed upstream artifacts; every v4.3.0 ISO is a Hadron image; the Hadron Dockerfile compiles shim 16.1 from source, and no sbsign or pesign step exists in the Dockerfile or the workflows (checked at Hadron 0c1856e)."
+          sources:
+          - url: https://kairos.io/docs/v4.3.0/architecture/secureboot/
+            type: official-docs
+            title: "Kairos v4.3.0 docs: SecureBoot support"
+            retrieved: '2026-10-19'
+            quote: Any of the current supported flavors in Kairos can be used with SecureBoot out of the box in UEFI mode.
+          - url: https://kairos.io/docs/v4.3.0/architecture/secureboot/
+            type: official-docs
+            title: "Kairos v4.3.0 docs: SecureBoot support"
+            retrieved: '2026-10-19'
+            quote: We piggyback on the upstream artifacts to be properly signed in order to support SecureBoot.
+          - url: https://github.com/kairos-io/kairos/releases/tag/v4.3.0
+            type: release-notes
+            title: Kairos v4.3.0 release assets
+            retrieved: '2026-10-19'
+            quote: kairos-hadron-v0.5.1-core-amd64-generic-v4.3.0.iso
+          - url: https://github.com/kairos-io/hadron/blob/0c1856e83447ebc726c4f7c929fc0448aaab7433/Dockerfile#L3230-L3261
+            type: source-repo
+            title: Hadron Dockerfile, shim stage
+            retrieved: '2026-10-19'
+            quote: RUN tar -xf shim.tar.bz2 && mv shim-* shim
         evidence: DOCUMENTED
         sources:
-        - url: https://kairos.io/docs/architecture/trustedboot/
+        - url: https://kairos.io/docs/v4.3.0/installation/trustedboot/
           type: official-docs
-          title: Kairos Trusted Boot architecture
-          retrieved: '2026-10-06'
-          quote: There is no second stage loaded and no system pivoting
+          title: "Kairos v4.3.0 docs: Trusted Boot installation, keys"
+          retrieved: '2026-10-19'
+          quote: "To build this medium you have to generate a set of keypairs first: one for the Secure boot and one for the PCR policies required to encrypt the user-data."
+        - url: https://kairos.io/docs/v4.3.0/architecture/trustedboot/
+          type: official-docs
+          title: "Kairos v4.3.0 docs: Trusted Boot architecture"
+          retrieved: '2026-10-19'
+          quote: The UKI file is then loaded by the firmware and booted directly, without any second stage or system pivoting.
         - url: https://github.com/kairos-io/AuroraBoot/blob/adfcf37fad0d2d0dcfe505f14b4d24c522032520/pkg/uki/uki.go#L686-L714
           type: source-code
           title: AuroraBoot UKI build

@@ -30,6 +30,18 @@ Two layers of checking run:
      dataset grows.
    - Every source needs a ``retrieved`` date, because a Pulse is a point-in-time
      record and an undated source cannot be diffed against the next edition.
+   - The two capability columns, Update signature check (d04
+     ``update_signature_check``) and Boot trust chain (d10 ``boot_trust_chain``),
+     show the highest level an entry can reach. Per-mode values are retired. A
+     warning names each entry whose data sheet cannot yet say, with a source,
+     whether the capability is optional or on by default, how far it goes, and
+     where the default leaves you.
+
+3. **Values outside the page's closed lists.** The site renders every matrix
+   column from closed lists kept in ``site/build.py``. A value outside them is
+   shown raw, cut at its first clause, or styled as unknown, and drops out of the
+   filters. The validator imports those lists from the build and warns about each
+   such value. This layer is skipped, with a note, if the build cannot be imported.
 
 Exit code 0 means every profile passed. Exit code 1 means at least one error.
 Warnings do not fail the run.
@@ -124,7 +136,7 @@ def check_sources(where: str, dimension: dict, report: Report) -> None:
             report.warn(at, "no quote recorded; a quote makes the claim checkable without refetching")
 
 
-def check_dimension(profile_id: str, name: str, dimension, report: Report) -> None:
+def check_dimension(profile_id: str, name: str, dimension, report: Report, has_sheet: bool = True) -> None:
     where = f"{profile_id}:{name}"
     if not isinstance(dimension, dict):
         report.error(where, "dimension must be a mapping")
@@ -180,6 +192,78 @@ def check_dimension(profile_id: str, name: str, dimension, report: Report) -> No
         check_distribution_options(where, normalized, report)
     if name.startswith("d09_"):
         check_config_tools(where, normalized, report)
+    # The capability rows are on the data sheets; an adjacent entry (Alternative paradigms) has none.
+    if name.startswith("d04_") and has_sheet:
+        check_signature_check(where, normalized, report)
+    if name.startswith("d10_") and has_sheet:
+        check_boot_trust_chain(where, normalized, report)
+
+
+def check_capability(where: str, label: str, o: dict, report: Report) -> None:
+    """The three statements of the data sheet (capability rule), each with its own sources."""
+    how = o.get("how")
+    if how not in ("always-on", "default-on", "opt-in", "platform-provided"):
+        report.error(where, f"{label}.how must be always-on, default-on, opt-in or platform-provided, got {how!r}")
+        return
+    if not o.get("how_sources"):
+        said = {"opt-in": "Optional", "platform-provided": "Provided by the platform"}.get(how, "On by default")
+        report.warn(where, f"{label} has no how_sources; the data sheet says '{said}' with no source")
+    if not o.get("sources"):
+        report.warn(where, f"{label} has no sources for how far it goes")
+    if how == "platform-provided":
+        report.warn(where, f"{label}.how is platform-provided; record whether the platform turns it on (always-on, default-on or opt-in, with 'platform')")
+    if how == "opt-in":
+        if not o.get("via"):
+            report.warn(where, f"{label} is opt-in but names no mode or setting (via)")
+        d = o.get("default")
+        if not d:
+            report.warn(where, f"{label} is opt-in but does not say where the default leaves you (default); the data sheet says it is not recorded")
+        elif not d.get("sources"):
+            report.warn(where, f"{label}.default has no sources")
+        if d and d.get("evidence") == "INFERRED" and not d.get("inferred_from"):
+            report.error(where, f"{label}.default is INFERRED but 'inferred_from' is missing")
+    if o.get("evidence") == "INFERRED" and not o.get("inferred_from"):
+        report.error(where, f"{label} is INFERRED but 'inferred_from' is missing")
+
+
+def check_signature_check(where: str, normalized: dict, report: Report) -> None:
+    if "artifact_verification_by_mode" in normalized:
+        report.error(where, "artifact_verification_by_mode is retired: the column shows how far the entry can get; record update_signature_check")
+    o = normalized.get("update_signature_check")
+    if o is None:
+        if normalized.get("artifact_verification") not in (None, "none", "unknown"):
+            report.warn(where, "no update_signature_check: the data sheet cannot say whether the signature check is optional or on by default")
+        return
+    if o.get("provided_by"):
+        if not o.get("sources"):
+            report.warn(where, "update_signature_check.provided_by has no source")
+        return
+    check_capability(where, "update_signature_check", o, report)
+    d = o.get("default") or {}
+    if d and d.get("checks") not in ("off", "not-required", "not-documented"):
+        report.error(where, f"update_signature_check.default.checks must be off, not-required or not-documented, got {d.get('checks')!r}")
+
+
+def check_boot_trust_chain(where: str, normalized: dict, report: Report) -> None:
+    b = normalized.get("boot_trust_chain")
+    if not b:
+        return
+    if "modes" in b:
+        report.error(where, "boot_trust_chain.modes is retired: level is the highest level the entry can reach; the other mode goes in default")
+    if b.get("provided_by"):
+        if not b.get("sources"):
+            report.warn(where, "boot_trust_chain.provided_by has no source")
+        return
+    if b.get("level") == "unknown":
+        return
+    check_capability(where, "boot_trust_chain", b, report)
+    d = b.get("default") or {}
+    if d and d.get("level") not in (0, 1, 2, 3, "not-documented", "not-established"):
+        report.error(where, f"boot_trust_chain.default.level must be 0 to 3, not-documented or not-established, got {d.get('level')!r}")
+    if d and d.get("level") == "not-established" and not d.get("reason"):
+        report.error(where, "boot_trust_chain.default.level is not-established but no reason says why")
+    if d and isinstance(d.get("level"), int) and isinstance(b.get("level"), int) and d["level"] > b["level"]:
+        report.error(where, "boot_trust_chain.default.level is above level; level is the highest the entry can reach")
 
 
 MOUNTS_CONFIGURABLE = ("yes", "no", "unknown", "via-lifecycle-manager")
@@ -416,8 +500,9 @@ def check_profile(path: pathlib.Path, report: Report) -> dict | None:
     for name in dimensions:
         if name not in REQUIRED_DIMENSIONS:
             report.error(profile_id, f"unexpected dimension '{name}'")
+    has_sheet = (profile.get("category_fit") or {}).get("comparable") != "adjacent"
     for name, dimension in dimensions.items():
-        check_dimension(profile_id, name, dimension, report)
+        check_dimension(profile_id, name, dimension, report, has_sheet)
 
     declared_na = set((profile.get("category_fit") or {}).get("dimensions_not_applicable") or [])
     for name, dimension in dimensions.items():
@@ -434,6 +519,22 @@ def check_profile(path: pathlib.Path, report: Report) -> dict | None:
             )
 
     return profile
+
+
+def vocabulary_check(profiles: list[tuple[pathlib.Path, dict]], report: Report) -> None:
+    """Layer 3: values the page cannot render from its closed lists (site/build.py vocab_misses)."""
+    sys.path.insert(0, str(ROOT / "site"))
+    try:
+        import build
+    except Exception as exc:  # pragma: no cover
+        print(f"note: site/build.py could not be imported ({exc}); the closed-list check was skipped")
+        return
+    shown = set(build.CORE) | set(build.FOLDED) | set(build.EXCLUDED_SHEETS)   # entries with a matrix row or a data sheet
+    for path, profile in profiles:
+        if profile.get("id") not in shown:
+            continue
+        for field, value in build.vocab_misses(profile):
+            report.warn(f"{path.stem}:{field}", f"{value!r} is not in the closed list the page renders from; the page shows it as raw text, cut at its first clause, or as unknown")
 
 
 def schema_check(profiles: list[tuple[pathlib.Path, dict]], report: Report) -> None:
@@ -473,6 +574,7 @@ def main(argv: list[str]) -> int:
                 loaded.append((path, profile))
 
     schema_check(loaded, report)
+    vocabulary_check(loaded, report)
 
     for line in report.warnings:
         print(line)

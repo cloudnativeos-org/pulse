@@ -96,14 +96,25 @@ class Sources:
             self.index[key] = len(self.items)
         return self.index[key]
 
-    def cite(self, p, dim, n=1):
-        d = dim_of(p, dim)
-        srcs = (d.get("sources") or [])[:n]
-        if not srcs:
+    def section_pointer(self, refs):
+        """For guide text whose fields have no row-level source: point at each dimension's source list on the entry's data
+        sheet, where those sources are listed as a group. refs: (profile, dimension) pairs. Registers the lists so the data
+        sheets render them."""
+        refs = uniq([(p["id"], d) for p, d in refs])
+        if not refs:
             return ""
-        nums = [self.add(s, p["name"]) for s in srcs]
-        links = ",".join('<a href="#src-%d" aria-label="Source %d">%d</a>' % (k, k, k) for k in nums)
-        return '<sup class="cite">[%s]</sup>' % links
+        for pid, d in refs:
+            GUIDE_GROUPS.add((pid, d))
+        links = "; ".join('<a href="#ds-%s-src-%s">%s: %s</a>' % (pid, d, E(PROFILES[pid]["name"]), E(DIM_NAME[d])) for pid, d in refs)
+        return ' <span class="sec-src">(No row-level source. Section sources: %s.)</span>' % links
+
+    def unsourced_badge(self, label):
+        return unsourced_badge(label)
+
+    def cite_fields(self, p, dim, fields):
+        """The citation for a value: the sources recorded for those normalized fields of the dimension, and nothing else.
+        A dimension's own source list backs the dimension as a whole, not one row, so it is never cited for a row."""
+        return cite_all(p, self, field_sources(p, dim, fields))
 
     def render(self, only=None):
         """The source list. With `only`, a set of source numbers, just those, keeping their numbers."""
@@ -126,8 +137,46 @@ def dim_of(p, short):
     return {}
 
 
+# Dimension source lists that guide text points at, so the data sheets render them: (profile id, dimension).
+GUIDE_GROUPS = set()
+GUIDE_NOTE = {"documented": "Documented: stated by a primary source in this dimension's source list, on the entry's data sheet. No row-level source is recorded.",
+              "inferred": "Inferred: a conclusion from this dimension's sources, on the entry's data sheet. No row-level source is recorded."}
+
+
+def unsourced_badge(label):
+    """An evidence badge for text with no row-level source: the tooltip names the section list, not a source of its own."""
+    b = badge(label, compact=True)
+    key = EVIDENCE[label][0]
+    if key in GUIDE_NOTE:
+        b = re.sub(r'title="[^"]*"', 'title="%s"' % E(GUIDE_NOTE[key]), b, count=1)
+    return b
+
+
 def norm(p, short):
     return dim_of(p, short).get("normalized") or {}
+
+
+# Fields whose sources sit under a shared name: the Mounts lines share mounts_sources, the update unit its scope_sources.
+FIELD_SOURCE_KEY = {("d02", f): "mounts_sources" for f in ("read_only", "read_only_mechanism", "ephemeral", "ephemeral_mechanism",
+                                                            "writable_and_persistent")}
+FIELD_SOURCE_KEY.update({("d04", "scope"): "scope_sources", ("d04", "scope_by_mode"): "scope_sources", ("d04", "scope_note"): "scope_sources",
+                         ("d04", "bootloader_upgraded_by_mode"): "bootloader_upgraded_sources"})
+
+
+def field_sources(p, short, fields):
+    """The sources that back these normalized fields of a dimension: <field>_sources, the field's own sources when the field
+    is a mapping, or the shared list in FIELD_SOURCE_KEY. A field with none of these has no source of its own."""
+    n = norm(p, short)
+    out, seen = [], set()
+    for f in fields:
+        v = n.get(f)
+        lists = [n.get(f + "_sources"), v.get("sources") if isinstance(v, dict) else None, n.get(FIELD_SOURCE_KEY.get((short, f), ""))]
+        for group in lists:
+            for s in group or []:
+                if isinstance(s, dict) and s.get("url") and s["url"] not in seen:
+                    seen.add(s["url"])
+                    out.append(s)
+    return out
 
 
 # ---------------------------------------------------------------- atoms
@@ -246,7 +295,8 @@ MECH = {"ab-partition-switch": "A/B partition switch", "ostree-deployment": "OST
         "package-update": "Package update", "image-replacement-redeploy": "Replace the instance",
         "transactional-snapshot": "Transactional snapshot", "snap-revision-refresh": "Snap revision refresh"}
 # Can a node check that an update is signed? Derived from d04 artifact_verification. (verdict, label, evidence, detail)
-# The column records capability, not defaults: how the check is switched on goes in the detail line.
+# The column records how far an entry can get. Whether the check is optional, and where the default leaves you, come from
+# d04 update_signature_check (see the capability rule above col_verified); the detail here is used only without it.
 VERIFIED = {
     "none": ("no", "Not possible", "DOCUMENTED", ""),
     "policy-based, permissive by default": ("yes", "Possible", "DOCUMENTED", "Set in the image signature policy"),
@@ -257,6 +307,7 @@ VERIFIED = {
     "RPM and repository signing, inherited from the shared Tumbleweed repositories": ("yes", "Possible", "INFERRED", "RPM and repository signing"),
     "signature required by default": ("yes", "Possible", "INFERRED", "Signature required"),
     "signed unified kernel image": ("yes", "Possible", "INFERRED", "Checked at boot: a signed unified kernel image under Secure Boot, with Trusted Launch"),
+    "cosign or signed UKI": ("yes", "Possible", "DOCUMENTED", "A cosign check of the image, or the signed UKI under Trusted Boot"),
     "sha256 digest carried in the controller configuration": ("digest", "Digest only", "INFERRED", "A sha256 digest in the controller configuration; no signature documented"),
     "unknown": ("unknown", "Unknown", "UNKNOWN", ""),
 }
@@ -296,21 +347,61 @@ def short_name(p):
     return SHORT_NAME.get(p["id"], p["name"])
 
 
-# Install modes are equal choices: a tag per mode, in the profile's order, never a "default" and never a "highest".
-# Short mode names for the tags; the wording drops "default", which the projects' own mode names carry in places.
-MODE_NAME = {"standard": "Standard", "trusted_boot": "Trusted Boot", "Standard install": "Standard",
-             "Trusted Boot": "Trusted Boot", "SecureBoot (UKI)": "SecureBoot UKI", "GRUB": "GRUB",
-             "Sealed UKI with composefs": "Sealed UKI", "Default ostree with GRUB and shim": "ostree"}
-MODE_LONG = {"Default ostree with GRUB and shim": "ostree with GRUB and shim"}
+# The capability columns, Update signature check and Boot trust chain, show how far an entry can get. A cell shows the
+# highest level the entry can reach. When the adopter has to turn it on, the cell marks it "Opt-in" and names the mode or
+# setting that reaches it. A lower mode is not a separate tag. The data sheet says three things, each with its own sources:
+# whether the capability is optional or on by default (how, how_sources), how far it goes and with which mode or setting
+# (via, sources), and where the default leaves you (default, with its own sources). The wording is generated here, the
+# same for every entry, so the data sheets compare line by line.
+CAP_HOW = ("always-on", "default-on", "opt-in", "platform-provided")
+OPT_IN = "Opt-in"
 
 
-def mode_tag(p, mode, val, field):
-    """One mode, its value, and a sourced requirement if the profile records one (field.mode_requirements)."""
-    req = ((norm(p, "d10").get(field) or {}).get("mode_requirements") or {}).get(mode) if field else None
-    txt = "%s: %s" % (MODE_NAME.get(mode, mode), val)
-    if req and req.get("needs") and req.get("sources"):
-        txt += ", needs " + req["needs"]
-    return txt
+def opt_in_tag(o):
+    """The matrix tag: Opt-in, with the short name of the mode or setting (via_tag, else via)."""
+    via = o.get("via_tag") or o.get("via")
+    return ("%s: %s" % (OPT_IN, via) if via else OPT_IN, "value")
+
+
+def cap_optional(p, S, o):
+    """Statement 1: optional, or on by default. Always-on and default-on read the same."""
+    how, plat = o.get("how"), o.get("platform")
+    through = ", through %s" % plat if plat else ""
+    if how in ("always-on", "default-on"):
+        # limit: where the default holds, when it does not hold everywhere.
+        txt = "On by default%s%s." % (through, ", " + o["limit"].strip().rstrip(".") if o.get("limit") else "")
+    elif how == "opt-in":
+        txt = "Optional%s." % through
+    elif how == "platform-provided":
+        txt = "Provided by the platform."
+    else:
+        return ""
+    return E(txt) + cite_all(p, S, o.get("how_sources"))
+
+
+def cap_default(p, S, o, phrase):
+    """Statement 3, for an optional capability: where the default leaves you. phrase(default) gives the sentence."""
+    how, d = o.get("how"), o.get("default")
+    if how not in ("opt-in", "platform-provided"):
+        return ""
+    if not d:
+        return E("Whether the platform turns it on by default is not recorded." if how == "platform-provided"
+                 else "Where the default leaves you is not recorded.")
+    txt = phrase(d)
+    if d.get("reason"):
+        txt += " " + first_upper(d["reason"].strip().rstrip(".")) + "."
+    if d.get("evidence") == "INFERRED":
+        txt = txt[:-1] + " (inferred)."
+    return E(txt) + cite_all(p, S, d.get("sources"))
+
+
+def through_sheet(p, S, o, ev_default):
+    """A capability the entry gets from the framework built on it (Hadron, through Kairos): say so, link that data sheet."""
+    other = PROFILES[o["provided_by"]]
+    html_ = value("value", "Through %s" % E(other["name"]),
+                  'See the <a class="proj-open" href="#tc-%s">%s data sheet</a>.' % (other["id"], E(other["name"])))
+    return Cell(html_ + meta(o.get("evidence", ev_default), cite_all(p, S, o.get("sources"))), "8",
+                tags=[("Through %s" % other["name"], "value")])
 
 
 def folded_child(p):
@@ -355,14 +446,14 @@ def col_project(p, S, folded=None):
 
 def col_scope(p, S):
     s = p["taxonomy"]["workload_scope"]
-    return Cell(value("value", E(SCOPE.get(s, s))) + meta(dim_of(p, "d01")["evidence"], S.cite(p, "d01")),
+    return Cell(value("value", E(SCOPE.get(s, s))) + meta(dim_of(p, "d01")["evidence"], S.cite_fields(p, "d01", ["workload_scope"])),
                 SCOPE.get(s, s), {"scope": s})
 
 
 def col_constr(p, S):
     cm = p["taxonomy"]["construction_model"]
     lis = "".join("<li>%s</li>" % E(CONSTR.get(c, c)) for c in cm)
-    return Cell('<ul class="v v-list">%s</ul>' % lis + meta(dim_of(p, "d01")["evidence"], S.cite(p, "d06")),
+    return Cell('<ul class="v v-list">%s</ul>' % lis + meta(dim_of(p, "d01")["evidence"], S.cite_fields(p, "d06", ["construction_model"])),
                 CONSTR.get(cm[0], cm[0]), {"constr": " ".join(cm)}, tags=[(CONSTR.get(c, c), "value") for c in cm])
 
 
@@ -407,7 +498,7 @@ def col_day0(p, S):
     n = norm(p, "d09")
     m = n.get("methods")
     if m == "not-applicable" or m is None:
-        return Cell(value("na", "Not an OS image", E(n.get("install_capability", ""))) + meta(dim_of(p, "d09")["evidence"], S.cite(p, "d09")),
+        return Cell(value("na", "Not an OS image", E(n.get("install_capability", ""))) + meta(dim_of(p, "d09")["evidence"], S.cite_fields(p, "d09", ["methods", "install_capability"])),
                     "zz", {"day0": "na"}, tags=[("Not an OS image", "na")])
     fams = []
     for t in m:
@@ -419,7 +510,7 @@ def col_day0(p, S):
     keys = {"ISO": "iso", "PXE": "pxe", "Cloud image": "cloud", "Disk image": "disk"}
     return Cell('<ul class="v v-list">%s</ul>' % "".join("<li>%s</li>" % E(f) for f in fams)
                 + ('<span class="v-detail">%s</span>' % detail if detail else "")
-                + meta(dim_of(p, "d09")["evidence"], S.cite(p, "d09")),
+                + meta(dim_of(p, "d09")["evidence"], S.cite_fields(p, "d09", ["methods", "config_mechanism"])),
                 ", ".join(fams), {"day0": " ".join(keys[f] for f in fams if f in keys)}, tags=[(f, "value") for f in fams])
 
 
@@ -427,7 +518,7 @@ def col_update(p, S):
     n = norm(p, "d04")
     mech = n.get("mechanism") or []
     modes = n.get("scope_by_mode")
-    # Modes are equal choices: one tag per mode, in the profile's order, never a "default", as in the Boot trust chain column.
+    # Update unit is a fact, not a capability: where modes replace different units, one tag per mode, in the profile's order.
     if modes:
         modes = {m: SCOPE_ALIAS.get(k, k) for m, k in modes.items()}
         keys = list(modes.values())
@@ -454,9 +545,7 @@ def col_update(p, S):
         parts.append("Mechanism: " + ", ".join(MECH.get(x, x) for x in mech) + ".")
     if n.get("maximum_deferral"):
         parts.append("Longest hold: " + first_clause(n["maximum_deferral"]).split(",")[0] + ".")
-    srcs = (n.get("scope_sources") or []) + (n.get("bootloader_upgraded_sources") or [])
-    nums = [S.add(x, p["name"]) for x in srcs]
-    cite = ('<sup class="cite">[%s]</sup>' % ",".join('<a href="#src-%d" aria-label="Source %d">%d</a>' % (k, k, k) for k in nums)) if nums else S.cite(p, "d04")
+    cite = S.cite_fields(p, "d04", ["scope", "scope_by_mode", "bootloader_upgraded_by_mode", "mechanism", "maximum_deferral"])
     detail = "".join('<span class="v-detail">%s</span>' % E(x) for x in parts)
     return Cell(value("value" if keys or mech else "notcollected", E(shown)) + detail
                 + meta(dim_of(p, "d04")["evidence"], cite, p["id"], "update"),
@@ -464,65 +553,104 @@ def col_update(p, S):
 
 
 def col_verified(p, S):
+    """Can a node check that an update is signed? The verdict comes from d04 artifact_verification (VERIFIED). The data sheet
+    wording comes from d04 update_signature_check, under the capability rule above."""
     n = norm(p, "d04")
-    modes = n.get("artifact_verification_by_mode")
-    if modes:
-        names = {"standard": "Standard install", "trusted_boot": "Trusted Boot"}
-        detail = "; ".join("%s: %s" % (names.get(m, m), v) for m, v in modes.items())
-        possible = any(v not in ("not checked", "none", "unknown") for v in modes.values())
-        k, label = ("yes", "Possible") if possible else ("no", "Not possible")
-        tags = [(mode_tag(p, m, v, None), "none" if v in ("not checked", "none") else "value") for m, v in modes.items()]
-        # Modes are equal choices: the details give each mode's value, not one summary.
-        return Cell(value("value", E(detail), E(n.get("artifact_verification_note", ""))) + meta(dim_of(p, "d04")["evidence"], S.cite(p, "d04")),
-                    ("0" if possible else "2") + label, {"verified": k}, tags=tags)
+    o = n.get("update_signature_check") or {}
+    if o.get("provided_by") in PROFILES:
+        c = through_sheet(p, S, o, dim_of(p, "d04")["evidence"])
+        c.filt = {"verified": "via"}
+        return c
     raw = n.get("artifact_verification", "unknown")
     fallback = next((v for pre, v in VERIFIED_PREFIX.items() if raw.startswith(pre)), ("unknown", first_clause(raw), "INFERRED", ""))
     k, label, ev, detail = VERIFIED.get(raw, fallback)
     kind = {"no": "none", "unknown": "unknown"}.get(k, "value")
-    return Cell(value(kind, E(label), E(detail)) + meta(ev, S.cite(p, "d04"), p["id"], "verified"),
-                {"yes": "0", "digest": "1", "no": "2", "unknown": "3"}[k] + label, {"verified": k}, tags=[(label, kind)])
+    parts = []
+    if o:
+        ev = o.get("evidence", ev)
+        parts.append(cap_optional(p, S, o))
+        checks = first_upper(o.get("checks", "").strip().rstrip("."))
+        if checks:
+            said = ("With %s, %s." % (o["via"], checks[0].lower() + checks[1:])) if o.get("how") == "opt-in" and o.get("via") else checks + "."
+            parts.append(E(said) + cite_all(p, S, o.get("sources")))
+        parts.append(cap_default(p, S, o, lambda d: "%s %s." % (first_upper(d["name"]), VERIFY_DEFAULT[d["checks"]])))
+    else:
+        # No update_signature_check yet: the verdict's detail, with the sources recorded for the value, and no claim about the default.
+        parts.append((E(detail.rstrip(".") + ".") if detail else "") + S.cite_fields(p, "d04", ["artifact_verification"]))
+        if k in ("yes", "digest"):
+            parts.append(E("Whether it is on by default is not recorded."))
+    if n.get("artifact_verification_note"):
+        parts.append(E(n["artifact_verification_note"].strip().rstrip(".") + "."))
+    tags = [(label, kind)] + ([opt_in_tag(o)] if o.get("how") == "opt-in" and k == "yes" else [])
+    body = " ".join(x for x in parts if x)
+    return Cell(value(kind, E(label), body) + meta(ev, "", p["id"], "verified"),
+                {"yes": "0", "digest": "1", "no": "2", "unknown": "3"}[k] + label, {"verified": k}, tags=tags)
 
 
+# Where the default leaves you, for an optional signature check (update_signature_check.default.checks).
+VERIFY_DEFAULT = {"off": "does not check update signatures by default", "not-required": "does not require signatures",
+                  "not-documented": "does not document a signature check"}
 BOOT_LEVEL = {3: "Running root covered", 2: "Measured boot", 1: "Secure Boot", 0: "Nothing checked"}
-BOOT_HOW = {"always-on": "Always on", "default-on": "On by default", "opt-in": "Opt-in",
-            "per-install-mode": "Depends on install mode", "platform-provided": "Provided by the platform"}
-BOOT_ROUTE_TAG = {"usi": "UKI, no pivot", "verity-root-hash-in-signed-artifact": "verity hash signed"}
+# How far trust reaches, in the data sheet sentence.
+BOOT_REACH = {3: "trust reaches the running root (level 3)", 2: "each boot stage is measured into the TPM (level 2, measured boot)",
+              1: "the firmware checks the first boot component (level 1, Secure Boot)", 0: "nothing is checked at boot (level 0)"}
+BOOT_HOW = {"always-on": "Always on", "default-on": "On by default", "opt-in": "Opt-in", "platform-provided": "Provided by the platform"}
+BOOT_ROUTE_TAG = {"usi": "UKI, no pivot", "verity-root-hash-in-signed-artifact": "verity hash signed",
+                  "composefs-digest-in-signed-uki": "fs-verity digest signed"}
 BOOT_ROUTE = {"usi": "the whole OS is inside the signed UKI, no pivot",
-              "verity-root-hash-in-signed-artifact": "dm-verity root hash inside a signed boot artifact"}
+              "verity-root-hash-in-signed-artifact": "dm-verity root hash inside a signed boot artifact",
+              "composefs-digest-in-signed-uki": "composefs root digest (fs-verity) inside a signed UKI"}
+
+
+def boot_default(d):
+    """Where the default leaves you, for an optional boot trust chain (boot_trust_chain.default)."""
+    name, lvl = first_upper(d["name"]), d["level"]
+    if lvl == "not-documented":
+        return "%s does not document Secure Boot." % name
+    if lvl == "not-established":
+        # The docs claim something the evidence does not bear out, or cover only part of the entry: the reason says which.
+        return "For %s, the boot trust level is not established." % d["name"]
+    if lvl == 0:
+        return "%s checks nothing at boot (level 0)." % name
+    return "%s reaches level %d (%s)." % (name, lvl, BOOT_LEVEL[lvl])
 
 
 def col_boot(p, S):
     b = norm(p, "d10").get("boot_trust_chain")
     if not b:
         return Cell(value("notcollected", "Not collected"), "9", {"boot": "unknown"}, tags=[("Not collected", "notcollected")])
+    if b.get("provided_by") in PROFILES:
+        c = through_sheet(p, S, b, "DOCUMENTED")
+        c.filt = {"boot": "via"}
+        return c
     lvl = b.get("level")
     if lvl not in BOOT_LEVEL:
         return Cell(value("unknown", "Unknown", E(b.get("note", ""))) + meta("UNKNOWN", ""), "9", {"boot": "unknown"}, tags=[("Unknown", "unknown")])
-    # Capability, not defaults: only where the capability comes from is shown, never whether it ships switched on.
-    parts = [BOOT_HOW[b["how"]]] if b.get("how") == "platform-provided" else []
-    if b.get("modes"):
-        tags = [(mode_tag(p, m, "level %s" % v, "boot_trust_chain"), "none" if v == 0 else "value") for m, v in b["modes"].items()]
+    # The highest level the entry can reach, one tag. Opt-in, with the mode that reaches it, when the adopter turns it on.
+    tags = [("Level %d" % lvl, "none" if lvl == 0 else "value")]
+    if b.get("how") == "opt-in":
+        tags.append(opt_in_tag(b))
+    if lvl == 3 and b.get("route") in BOOT_ROUTE_TAG:
+        tags.append((BOOT_ROUTE_TAG[b["route"]], "value"))
+    if b.get("how") == "platform-provided" or b.get("platform"):
+        tags.append((BOOT_HOW["platform-provided"], "value"))
+    reach = BOOT_REACH[lvl]
+    if b.get("how") == "opt-in" and b.get("via"):
+        said = "With %s%s, %s." % (b["via"], " (%s)" % b["via_detail"] if b.get("via_detail") else "", reach)
     else:
-        tags = [("Level %d" % lvl, "none" if lvl == 0 else "value")]
-    if any("level 3" in t for t, _ in tags) or (lvl == 3 and not b.get("modes")):
-        if b.get("route") in BOOT_ROUTE_TAG:
-            tags.append((BOOT_ROUTE_TAG[b["route"]], "value"))
-    if b.get("how") == "platform-provided":
-        tags.append((BOOT_HOW[b["how"]], "value"))
+        said = first_upper(reach) + "."
+    parts = [cap_optional(p, S, b), E(said) + cite_all(p, S, b.get("sources")), cap_default(p, S, b, boot_default)]
+    extra = []
     if lvl == 3 and b.get("route") in BOOT_ROUTE:
-        parts.append("How the root is covered: " + BOOT_ROUTE[b["route"]] + (" (%s)" % b["artifact"] if b.get("artifact") else ""))
+        extra.append("How the root is covered: " + BOOT_ROUTE[b["route"]] + (" (%s)" % b["artifact"] if b.get("artifact") else ""))
     if b.get("note"):
-        parts.append(b["note"])
-    nums = [S.add(s, p["name"]) for s in (b.get("sources") or [])[:2]]
-    cite = ('<sup class="cite">[%s]</sup>' % ",".join('<a href="#src-%d" aria-label="Source %d">%d</a>' % (k, k, k) for k in nums)) if nums else ""
+        extra.append(b["note"])
+    if extra:
+        parts.append(E(". ".join(x.strip().rstrip(".") for x in extra) + "."))
     label = "Level %d: %s" % (lvl, BOOT_LEVEL[lvl])
-    shown = label
-    if b.get("modes"):
-        # Modes are equal choices: the details name each mode's level, never one "highest" level.
-        shown = "; ".join("%s: level %s (%s)" % (MODE_LONG.get(m, m), v, BOOT_LEVEL.get(v, "")) for m, v in b["modes"].items())
-    return Cell(value("none" if lvl == 0 else "value", E(shown), E(". ".join(x.rstrip(".") for x in parts if x) + "."))
-                + meta(b.get("evidence", "INFERRED"), cite, p["id"], "boot"),
-                str(3 - lvl) + label, {"boot": " ".join(uniq(["l%d" % lvl] + ["l%s" % v for v in (b.get("modes") or {}).values()]))}, tags=tags)
+    return Cell(value("none" if lvl == 0 else "value", E(label), " ".join(x for x in parts if x))
+                + meta(b.get("evidence", "INFERRED"), "", p["id"], "boot"),
+                str(3 - lvl) + label, {"boot": "l%d" % lvl}, tags=tags)
 
 
 def col_rollback(p, S):
@@ -541,7 +669,7 @@ def col_rollback(p, S):
         k, cell, tag = "partial", value("value", E(first_clause(raw).capitalize())), (first_clause(raw).capitalize(), "value")
     # A value of Unknown carries the UNKNOWN label, whatever the label of the rest of the dimension.
     ev = "UNKNOWN" if k == "unknown" else dim_of(p, "d05")["evidence"]
-    return Cell(cell + meta(ev, S.cite(p, "d05"), p["id"], "rollback"),
+    return Cell(cell + meta(ev, S.cite_fields(p, "d05", ["automatic_rollback_on_boot_failure", "automatic_rollback_attempts"]), p["id"], "rollback"),
                 {"yes": "0", "partial": "1", "no": "2", "unknown": "3", "na": "4"}[k], {"rollback": k}, tags=[tag])
 
 
@@ -557,7 +685,7 @@ def col_capi(p, S):
         if "no longer actively developed" in str(c.get("maturity", "")):
             # The maintainer's own README notice; the providers still exist and still get releases.
             label, detail = "Own providers, no longer actively developed", ", ".join(types) + ". README notices point to Omni; releases still ship"
-        return Cell(value("value", E(label), E(detail)) + meta(ev, S.cite(p, "d12")), "0", {"capi": "own"},
+        return Cell(value("value", E(label), E(detail)) + meta(ev, S.cite_fields(p, "d12", ["cluster_api"])), "0", {"capi": "own"},
                     tags=[(first_upper(t), "value") for t in label.split(", ")])
     via_kubeadm = "kubeadm" in str(c.get("provisions", "")) or c.get("bootstrap_maturity")
     if via_kubeadm:
@@ -566,11 +694,11 @@ def col_capi(p, S):
         if c.get("blocking_issue"):
             label = "Through kubeadm, reported to fail"
             detail = "First boot reported to fail. " + detail
-        return Cell(value("value", label, E(detail.strip())) + meta(ev, S.cite(p, "d12")), "1", {"capi": "kubeadm"},
+        return Cell(value("value", label, E(detail.strip())) + meta(ev, S.cite_fields(p, "d12", ["cluster_api"])), "1", {"capi": "kubeadm"},
                     tags=[(first_upper(t), "value") for t in label.split(", ")])
     if str(c.get("os_specific_provider", "")).startswith("not-applicable"):
-        return Cell(value("na", "Does not apply") + meta(ev, S.cite(p, "d12")), "3", {"capi": "none"}, tags=[("Does not apply", "na")])
-    return Cell(value("none", "None documented") + meta(ev, S.cite(p, "d12")), "2", {"capi": "none"}, tags=[("None documented", "none")])
+        return Cell(value("na", "Does not apply") + meta(ev, S.cite_fields(p, "d12", ["cluster_api"])), "3", {"capi": "none"}, tags=[("Does not apply", "na")])
+    return Cell(value("none", "None documented") + meta(ev, S.cite_fields(p, "d12", ["cluster_api"])), "2", {"capi": "none"}, tags=[("None documented", "none")])
 
 
 def col_access(p, S):
@@ -578,9 +706,9 @@ def col_access(p, S):
     n = norm(p, "d11")
     ssh, sh, api = str(n.get("ssh", "unknown")), str(n.get("local_shell", "unknown")), n.get("api")
     if ssh == "unknown" and sh == "unknown":
-        return Cell(value("unknown", "Unknown") + meta("UNKNOWN", S.cite(p, "d11")), "9", {"access": "unknown"}, tags=[("Unknown", "unknown")])
+        return Cell(value("unknown", "Unknown") + meta("UNKNOWN", S.cite_fields(p, "d11", ["ssh", "local_shell", "api", "access_note"])), "9", {"access": "unknown"}, tags=[("Unknown", "unknown")])
     if ssh.startswith("not-applicable"):
-        return Cell(value("na", "Depends on the image") + meta(dim_of(p, "d11")["evidence"], S.cite(p, "d11")), "8", {"access": "image"},
+        return Cell(value("na", "Depends on the image") + meta(dim_of(p, "d11")["evidence"], S.cite_fields(p, "d11", ["ssh", "local_shell", "api", "access_note"])), "8", {"access": "image"},
                     tags=[("Depends on the image", "na")])
     tags, parts, notes = [], [], []
     if p["id"] == "eve-os":
@@ -613,7 +741,7 @@ def col_access(p, S):
     tagl = [(x, "value") for x in parts]
     if p["id"] == "eve-os":
         tagl.append(("No SSH in production", "none"))
-    return Cell(html_ + meta(dim_of(p, "d11")["evidence"], S.cite(p, "d11")),
+    return Cell(html_ + meta(dim_of(p, "d11")["evidence"], S.cite_fields(p, "d11", ["ssh", "local_shell", "api", "access_note"])),
                 min(order[x] for x in tags) + ", ".join(parts), {"access": " ".join(tags)}, tags=tagl)
 
 
@@ -631,7 +759,7 @@ def col_fleet(p, S):
     fu = norm(p, "d04").get("fleet_upgrade")
     if not fu:
         return Cell(value("notcollected", "Not collected"), "9", {"fleet": "nc"}, tags=[("Not collected", "notcollected")])
-    items, extra, kinds, recs, classes, srcs, tagl = [], [], set(), set(), set(), [], []
+    items, extra, kinds, recs, classes, tagl = [], [], set(), set(), set(), []
     for x in fu.get("paths") or []:
         lic = x.get("license") or ""
         cls = FLEET_CLASS.get(x.get("class"), x.get("class", "")) if x.get("class") else ""
@@ -643,26 +771,26 @@ def col_fleet(p, S):
         line = "%s: %s" % (FLEET_KIND.get(x["kind"], x["kind"]), x["name"])
         tail = ", ".join(b for b in bits if b)
         if x.get("filter") is False:
-            extra.append("%s (%s)" % (line, tail) if tail else line)
+            extra.append(E("%s (%s)" % (line, tail) if tail else line) + cite_all(p, S, x.get("sources")))
             continue
-        items.append('<li>%s <span class="v-tag">%s</span></li>' % (E(line), E(tail)))
+        # Each path cites its own sources, so a reader sees which page backs which path.
+        items.append('<li>%s <span class="v-tag">%s</span>%s</li>' % (E(line), E(tail), cite_all(p, S, x.get("sources"))))
         tagl.append(", ".join(b for b in (FLEET_KIND_TAG.get(x["kind"], x["kind"]), FLEET_REC_TAG.get(x.get("reconciliation"), "")) if b))
         kinds.add(x["kind"])
         if x.get("reconciliation"):
             recs.add(x["reconciliation"])
         if x.get("class") and x["kind"] != "reboot-coordination":
             classes.add(x["class"])
-        srcs += x.get("sources") or []
     detail = []
     if fu.get("self_update"):
-        detail.append("On its own: " + fu["self_update"].rstrip("."))
+        # The self-update sentence cites only sources recorded for it (fleet_upgrade.self_update_sources).
+        detail.append(E("On its own: " + fu["self_update"].rstrip(".") + ".") + cite_all(p, S, fu.get("self_update_sources")))
     if extra:
-        detail.append("Also: " + "; ".join(extra))
-    nums = [S.add(s, p["name"]) for s in srcs[:2] if s.get("url")]
-    cite = ('<sup class="cite">[%s]</sup>' % ",".join('<a href="#src-%d" aria-label="Source %d">%d</a>' % (k, k, k) for k in nums)) if nums else ""
+        detail.append("Also: " + "; ".join(extra) + ".")
+    cite = ""
     ev = "INFERRED" if any(x.get("evidence") == "INFERRED" for x in fu.get("paths") or []) and not any(x.get("evidence") == "DOCUMENTED" for x in fu.get("paths") or []) else "DOCUMENTED"
     html_ = ('<ul class="v v-list">%s</ul>' % "".join(items) if items else value("none", "None documented")) \
-        + ('<span class="v-detail">%s</span>' % E(". ".join(detail) + ".") if detail else "")
+        + ('<span class="v-detail">%s</span>' % " ".join(detail) if detail else "")
     tagl = [(t, "value") for t in uniq(tagl)] or [("None documented", "none")]
     return Cell(html_ + meta(ev, cite), str(9 - len(items)), tags=tagl, filt={"fleet": " ".join(sorted(kinds)) or "none",
                                                                "fleetrec": " ".join(sorted(recs)) or "none",
@@ -738,15 +866,15 @@ AI_OP = {"host-driver": "GPU Operator with the host driver", "host-driver-and-to
 
 def col_ai(p, S):
     """Documented AI accelerators, how the driver arrives, Secure Boot and the GPU Operator mode. The Kairos row includes Hadron."""
-    blocks = [(p["name"], norm(p, "d08").get("ai_accelerators"))]
+    blocks = [(p["name"], norm(p, "d08").get("ai_accelerators"), p)]
     for child, parent in FOLDED.items():
         if parent == p["id"] and child in PROFILES:
-            blocks.append((PROFILES[child]["name"], norm(PROFILES[child], "d08").get("ai_accelerators")))
-    if not any(b for _, b in blocks):
+            blocks.append((PROFILES[child]["name"], norm(PROFILES[child], "d08").get("ai_accelerators"), PROFILES[child]))
+    if not any(b for _, b, _ in blocks):
         return Cell(value("notcollected", "Not collected"), "9", {"ai": "nc"}, tags=[("Not collected", "notcollected")])
-    items, vendors, deliveries, ops, srcs, notes, tagl = [], set(), set(), set(), [], [], []
+    items, vendors, deliveries, ops, notes, tagl = [], set(), set(), set(), [], []
     child = folded_child(p)
-    for owner, b in blocks:
+    for owner, b, who in blocks:
         if not b:
             continue
         if b.get("applies_to"):
@@ -767,16 +895,15 @@ def col_ai(p, S):
             tagl.append(t)
             if child and owner == child["name"]:
                 label = "%s: %s" % (short_name(child), label)
-            items.append('<li>%s <span class="v-tag">%s</span></li>' % (E(label), E("; ".join(s for s in bits if s))))
-            srcs += x.get("sources") or []
+            # Each accelerator cites its own sources.
+            items.append('<li>%s <span class="v-tag">%s</span>%s</li>' % (E(label), E("; ".join(s for s in bits if s)), cite_all(who, S, x.get("sources"))))
     fb = (blocks[0][1] or {}).get("from_base_distribution")
     if fb:
         vendors.add("via-base")
-        items.append('<li>Other accelerators: via your base distribution <span class="v-tag">%s</span></li>' % E(fb["note"].replace("Other accelerators: ", "").rstrip(".") + "."))
-        srcs = (fb.get("sources") or []) + srcs
-    nums = [S.add(s, p["name"]) for s in srcs[:2] if s.get("url")]
-    cite = ('<sup class="cite">[%s]</sup>' % ",".join('<a href="#src-%d" aria-label="Source %d">%d</a>' % (k, k, k) for k in nums)) if nums else ""
-    allx = [x for _, b in blocks if b for x in b.get("items") or []]
+        items.append('<li>Other accelerators: via your base distribution <span class="v-tag">%s</span>%s</li>'
+                     % (E(fb["note"].replace("Other accelerators: ", "").rstrip(".") + "."), cite_all(p, S, fb.get("sources"))))
+    cite = ""
+    allx = [x for _, b, _ in blocks if b for x in b.get("items") or []]
     ev = "DOCUMENTED" if any(x.get("evidence") == "DOCUMENTED" for x in allx) else "INFERRED"
     html_ = ('<ul class="v v-list">%s</ul>' % "".join(items) if items else value("none", "None documented")) \
         + ('<span class="v-detail">%s</span>' % E(". ".join(notes) + ".") if notes else "")
@@ -846,7 +973,7 @@ def col_k8s(p, S):
     tags = [(label, "value")] + [("%s (%s)" % (DIST_LABEL[o["distribution"]], DIST_OFFERED[o["offered"]]), "value") for o in opts] + [(s, "value") for s in short]
     # "Not bundled" covers both a project that is unrelated to Kubernetes and one where it is optional and not in the images.
     filt = {"k8s": req + (" notbundled" if label.startswith(("Not bundled", "Optional, not bundled")) else ""), "k8sdist": " ".join(sorted(o["distribution"] for o in opts)) or "none"}
-    cite = S.cite(p, "d07") + cite_all(p, S, [s for o in opts for s in o["sources"]])
+    cite = cite_all(p, S, field_sources(p, "d07", ["requirement", "bundled", "distributions"]) + [s for o in opts for s in o["sources"]])
     return Cell(value("value", E(label), E(detail)) + meta(dim_of(p, "d07")["evidence"], cite), label, filt, tags=tags)
 
 
@@ -872,7 +999,7 @@ def col_arch(p, S):
         comps = ", ".join(entries[0][1])
         return ("%s via your base distribution" % ", ".join(archs), "via", sorted({arch_key(a) for a in archs}),
                 "Built for %s by the entry's own components (%s). The base distribution you pick supplies the rest." % (", ".join(archs), comps))
-    cite_srcs = (dim_of(p, "d08").get("sources") or [])[:1] + via_srcs
+    cite_srcs = field_sources(p, "d08", ["architectures_released", "architectures_with_tooling_only", "architectures_in_progress"]) + via_srcs
     cite = cite_all(p, S, cite_srcs)
     meta_html = '<span class="cell-meta">%s%s</span>' % (badge(ev, compact=True), cite)
     if n.get("architectures_released") == "not-applicable":
@@ -923,12 +1050,12 @@ def col_selfhost(p, S):
     ev = n.get("self_hostable_update_server_evidence") or dim_of(p, "d04")["evidence"]
     what = E(n.get("self_hostable_update_source", ""))
     if raw is True:
-        return Cell(value("value", "Yes", what) + meta(ev, S.cite(p, "d04")), "0", {"selfhost": "yes"}, tags=[("Yes", "value")])
+        return Cell(value("value", "Yes", what) + meta(ev, S.cite_fields(p, "d04", ["self_hostable_update_server", "self_hostable_update_source"])), "0", {"selfhost": "yes"}, tags=[("Yes", "value")])
     if raw == "commercial-only":
-        return Cell(value("value", "Commercial only", what) + meta(ev, S.cite(p, "d04")), "1", {"selfhost": "commercial"}, tags=[("Commercial only", "value")])
+        return Cell(value("value", "Commercial only", what) + meta(ev, S.cite_fields(p, "d04", ["self_hostable_update_server", "self_hostable_update_source"])), "1", {"selfhost": "commercial"}, tags=[("Commercial only", "value")])
     if raw is False:
-        return Cell(value("none", "No") + meta(ev, S.cite(p, "d04")), "2", {"selfhost": "no"}, tags=[("No", "none")])
-    return Cell(value("unknown", "Unknown") + meta("UNKNOWN", S.cite(p, "d04")), "3", {"selfhost": "unknown"}, tags=[("Unknown", "unknown")])
+        return Cell(value("none", "No") + meta(ev, S.cite_fields(p, "d04", ["self_hostable_update_server", "self_hostable_update_source"])), "2", {"selfhost": "no"}, tags=[("No", "none")])
+    return Cell(value("unknown", "Unknown") + meta("UNKNOWN", S.cite_fields(p, "d04", ["self_hostable_update_server", "self_hostable_update_source"])), "3", {"selfhost": "unknown"}, tags=[("Unknown", "unknown")])
 
 
 def col_own(p, S):
@@ -943,7 +1070,7 @@ def col_own(p, S):
         detail = "Sponsor: %s" % n["primary_commercial_sponsor"]
     kind = "unknown" if o == "unknown" else "value"
     return Cell(value(kind, E(OWN.get(o, o)), E(first_clause(detail)) if detail and detail != "unknown" else "")
-                + meta(dim_of(p, "d13")["evidence"], S.cite(p, "d13")), OWN.get(o, o),
+                + meta(dim_of(p, "d13")["evidence"], S.cite_fields(p, "d13", ["vendor_neutral_ownership", "foundation", "trademark_holder", "primary_commercial_sponsor"])), OWN.get(o, o),
                 {"own": {"foundation-held": "foundation", "single-vendor": "vendor", "community-sponsor-trademark": "community"}.get(o, "other")}, tags=[(OWN.get(o, o), kind)])
 
 
@@ -954,7 +1081,7 @@ def col_support(p, S):
     label = SUPPORT.get(sm, first_clause(sm).capitalize())
     kind = "unknown" if sm == "unknown" else "value"
     detail = "Commercial support: %s" % first_clause(cs) if cs else ""
-    return Cell(value(kind, E(label), E(detail)) + meta(dim_of(p, "d14")["evidence"], S.cite(p, "d14")), label, tags=[(label, kind)])
+    return Cell(value(kind, E(label), E(detail)) + meta(dim_of(p, "d14")["evidence"], S.cite_fields(p, "d14", ["support_model", "commercial_support"])), label, tags=[(label, kind)])
 
 
 # The ways to add software to the OS itself (profile field d06.normalized.add_software). One closed vocabulary, shown as tags.
@@ -999,6 +1126,66 @@ def col_addsw(p, S):
     return Cell(html_, ", ".join(ADDSW_LABEL.get(k, k) for k in kinds), {"addsw": " ".join(kinds)}, tags=tags)
 
 
+def vocab_misses(p):
+    """Profile values that fall outside the closed lists this page renders from. Each such value is shown raw, cut at its
+    first clause, or styled as unknown, and drops out of the filters. tools/validate_profiles.py reports them; the lists
+    live here, next to the code that renders them, so the check cannot drift from the page."""
+    out = []
+
+    def check(where, v, allowed, alias=None):
+        vals = v if isinstance(v, list) else [v]
+        for x in vals:
+            x = (alias or {}).get(x, x)
+            if x not in allowed:
+                out.append((where, x))
+    t = p.get("taxonomy") or {}
+    check("taxonomy.workload_scope", t.get("workload_scope"), SCOPE)
+    check("taxonomy.construction_model", t.get("construction_model") or [], CONSTR)
+    m = norm(p, "d09").get("methods")
+    if m not in (None, "not-applicable"):
+        check("d09.methods", m, DAY0)
+    n4 = norm(p, "d04")
+    if n4.get("scope"):
+        check("d04.scope", n4["scope"], UPDATE_SCOPE, SCOPE_ALIAS)
+    for mode, v in (n4.get("scope_by_mode") or {}).items():
+        check("d04.scope_by_mode.%s" % mode, v, UPDATE_SCOPE, SCOPE_ALIAS)
+    check("d04.mechanism", n4.get("mechanism") or [], MECH)
+    av = n4.get("artifact_verification")
+    if av is not None and av not in VERIFIED and not any(str(av).startswith(pre) for pre in VERIFIED_PREFIX):
+        out.append(("d04.artifact_verification", av))
+    for i, x in enumerate((n4.get("fleet_upgrade") or {}).get("paths") or []):
+        check("d04.fleet_upgrade.paths[%d].kind" % i, x.get("kind"), FLEET_KIND)
+        if x.get("reconciliation"):
+            check("d04.fleet_upgrade.paths[%d].reconciliation" % i, x["reconciliation"], FLEET_REC)
+        if x.get("class"):
+            check("d04.fleet_upgrade.paths[%d].class" % i, x["class"], FLEET_CLASS)
+    rb = norm(p, "d05").get("automatic_rollback_on_boot_failure")
+    if rb is not None:
+        check("d05.automatic_rollback_on_boot_failure", rb, ("available", "none", "unknown", "not-applicable"))
+    req = norm(p, "d07").get("requirement")
+    if req is not None:
+        check("d07.requirement", req, ("required", "unrelated", "optional"))
+    ai = norm(p, "d08").get("ai_accelerators") or {}
+    for i, x in enumerate(ai.get("items") or []):
+        check("d08.ai_accelerators.items[%d].vendor" % i, x.get("vendor"), AI_VENDOR)
+        for key, vocab in (("delivery", AI_DELIVERY), ("secure_boot", AI_SB), ("gpu_operator", AI_OP)):
+            if x.get(key):
+                check("d08.ai_accelerators.items[%d].%s" % (i, key), x[key], vocab)
+    b = norm(p, "d10").get("boot_trust_chain") or {}
+    if b and not b.get("provided_by"):
+        check("d10.boot_trust_chain.level", b.get("level"), list(BOOT_LEVEL) + ["unknown"])
+        check("d10.boot_trust_chain.how", b.get("how"), CAP_HOW)
+        if b.get("route"):
+            check("d10.boot_trust_chain.route", b["route"], BOOT_ROUTE)
+    n13 = norm(p, "d13")
+    if "vendor_neutral_ownership" in n13:
+        check("d13.vendor_neutral_ownership", n13["vendor_neutral_ownership"], OWN)
+    n14 = norm(p, "d14")
+    if "support_model" in n14:
+        check("d14.support_model", n14["support_model"], SUPPORT)
+    return out
+
+
 COLUMNS = [
     # key, header, note (shown under "What the columns mean"), fn, proposed
     ("project", "Entry", "The entry, the version observed and its release date, and the entry kind. Click the name to open the entry's data sheet, with every column in full.", col_project, False),
@@ -1011,8 +1198,8 @@ COLUMNS = [
      + " ".join("%s: %s" % (lab, txt) for k, lab, txt in ADDSW if k != "unknown") + " Unknown: nothing was found. "
      "Kairos and bootc build from a base distribution. Their own documented way is Derive the image. The base distribution's package manager is not credited after install unless their own documentation says so. "
      "The data sheet gives each way with how it is done and its sources.", col_addsw, True),
-    ("verified", "Update signature check", "Can a node check that an update is signed? Where the entry has install modes, one tag per mode. The data sheet says how the check is switched on.", col_verified, True),
-    ("boot", "Boot trust chain", "How far trust reaches at boot: level 1 Secure Boot, level 2 measured boot, level 3 the running root is covered by the signature. Where the entry has install modes, one tag per mode, as equal choices. Writable state such as /etc and /var is outside the signature on every entry.", col_boot, True),
+    ("verified", "Update signature check", "Can a node check that an update is signed? A cell shows how far the entry can get. Opt-in marks a check the adopter has to turn on, with the mode or setting that turns it on. The data sheet says whether the check is optional or on by default, what it checks, and where the default leaves you.", col_verified, True),
+    ("boot", "Boot trust chain", "How far trust reaches at boot: level 1 Secure Boot, level 2 measured boot, level 3 the running root is covered by the signature. A cell shows the highest level the entry can reach. Opt-in marks a level the adopter has to turn on, with the mode that reaches it. The data sheet says whether it is optional or on by default, how far it goes, and where the default leaves you. Writable state such as /etc and /var is outside the signature on every entry.", col_boot, True),
     ("rollback", "Automatic rollback", "The machine reverts to the previous version by itself when the new one fails to boot.", col_rollback, False),
     ("fleet", "Fleet upgrade paths", "Documented ways a fleet gets its OS upgraded beyond one command per node, each with its reconciliation model: a one-shot run, reconciled in place, or reconciled by replacement. The data sheet names each tool and its license.", col_fleet, True),
     ("k8s", "Kubernetes", "Whether Kubernetes is required, optional or not bundled, then each documented way to run it: distributions such as k3s or MicroK8s, and install tools such as kubeadm or Cluster API. Each distribution shows how the project offers it: in the image, set up by the OS, as a build option, or as an add-on.", col_k8s, False),
@@ -1320,7 +1507,7 @@ def version_identity(p, S):
         pin = n.get("base_version_pinning", "")
         pin = (" " + first_upper(pin.split(";")[0].strip()).rstrip(".") + ".") if pin else ""
         return (value("value", "Through %s.%s" % (E(PROFILES[prov]["name"]), E(pin))) + crit
-                + meta(dim_of(p, "d04")["evidence"], S.cite(p, "d04", 2)))
+                + meta(dim_of(p, "d04")["evidence"], S.cite_fields(p, "d04", ["provided_by", "base_version_pinning"])))
     ident = NAMED_BY.get(p["id"]) or vi["identifier"]
     if ident.split(" ", 1)[0] in LOWER_FIRST:
         ident = ident[:1].lower() + ident[1:]
@@ -1427,47 +1614,104 @@ def data_sheet(p, S):
             '<h3 id="tc-{id}">{name}</h3>{own}</div><div class="tc-side"><nav class="tc-links" aria-label="Project links">{links}</nav>'
             '<span class="muted tc-ver"><span class="mono">{ver}</span> · collected {date}</span></div></div>').format(
         id=p["id"], group=E(group), name=E(p["name"]), own=own, links=links, ver=E(str(v["version"])), date=fmt_date(p["collected_at"]))
-    rows = []
+    rows, groups = [], []
     for (k, h, _, _, _), c in zip(COLUMNS, cells_of(p, S)):
         rows.append('<div class="ds-row" id="ds-%s-%s" data-col="%s"><dt>%s <a class="mx-q" href="#col-%s" aria-label="What %s means" title="What %s means">?</a></dt><dd>%s</dd></div>'
-                    % (p["id"], k, k, E(h), k, E(h), E(h), invite(p, k, c.detail)))
+                    % (p["id"], k, k, E(h), k, E(h), E(h), section_sources_note(p, k, invite(p, k, c.detail), groups)))
         if k == "update":   # the Mounts row sits right after Update unit; it is not a matrix column
             rows.append('<div class="ds-row" id="ds-%s-mounts" data-col="mounts"><dt>Mounts <a class="mx-q" href="#col-mounts" aria-label="What Mounts means" title="What Mounts means">?</a></dt><dd>%s</dd></div>'
-                        % (p["id"], mounts_row(p, S)))
+                        % (p["id"], section_sources_note(p, "mounts", mounts_row(p, S), groups)))
     for k, h, html_ in (("version", "What names the OS version", version_identity(p, S)),
                         ("maintainers", "Maintainers", maintainers_row(p, S))):
-        rows.append('<div class="ds-row" id="ds-%s-%s" data-col="%s"><dt>%s</dt><dd>%s</dd></div>' % (p["id"], k, k, E(h), html_))
-    body = ('<dl class="ds-rows">%s</dl>'
+        rows.append('<div class="ds-row" id="ds-%s-%s" data-col="%s"><dt>%s</dt><dd>%s</dd></div>' % (p["id"], k, k, E(h), section_sources_note(p, k, html_, groups)))
+    for pid, d in sorted(GUIDE_GROUPS):
+        if pid == p["id"] and d not in groups:
+            groups.append(d)
+    srcs = ""
+    if groups:
+        srcs = ('<div class="tc-srcs"><h4>Sources for this section</h4><p class="tc-srcs-lede">Rows here, and guide text, marked "No row-level source" rest on '
+                'these lists. Each list backs its dimension as a whole, not one row.</p>%s</div>'
+                % "".join('<p id="ds-%s-src-%s"><span class="tc-srcs-k">%s</span> %s</p>'
+                          % (p["id"], d, E(DIM_NAME[d]), cite_all(p, S, dim_of(p, d).get("sources")) or E("No sources recorded."))
+                          for d in groups))
+    body = ('<dl class="ds-rows">%s</dl>%s'
             '<div class="tc-foot"><span>Every value as the matrix records it, with its evidence label and sources. '
             'For open bugs and advisories, see the project\'s own issue tracker.</span></div></article>'
-            % "".join(rows))
+            % ("".join(rows), srcs))
     return head + body
+
+
+# The dimension each data sheet row belongs to, for the section source lists.
+ROW_DIM = {"constr": "d06", "byod": "d01", "day0": "d09", "config": "d09", "update": "d04", "mounts": "d02", "addsw": "d06",
+           "verified": "d04", "boot": "d10", "rollback": "d05", "fleet": "d04", "k8s": "d07", "access": "d11", "capi": "d12",
+           "ai": "d08", "arch": "d08", "selfhost": "d04", "own": "d13", "support": "d14", "version": "d04", "maintainers": "d13"}
+ROW_LEVEL_NOTE = {"documented": "Documented: stated by a primary source in this dimension's source list, shown under the sheet. No row-level source is recorded.",
+                  "inferred": "Inferred: a conclusion from this dimension's sources, shown under the sheet. No row-level source is recorded."}
+
+
+def section_sources_note(p, key, html_, groups):
+    """A Documented or Inferred row with no row-level source: say so, point at the dimension's source list under the sheet,
+    and keep the badge from claiming a source of its own. A row that has a row-level source is left as it is."""
+    m = re.search(r'class="ev ev-(documented|inferred)[^"]*" title="([^"]*)"', html_)
+    if not m or 'class="cite"' in html_ or key not in ROW_DIM:
+        return html_
+    d = ROW_DIM[key]
+    if d not in groups:
+        groups.append(d)
+    html_ = html_.replace('title="%s"' % m.group(2), 'title="%s"' % E(ROW_LEVEL_NOTE[m.group(1)]), 1)
+    note = ('<span class="v-detail ds-srcnote">No row-level source. <a href="#ds-%s-src-%s">Sources for the %s section</a></span>'
+            % (p["id"], d, E(DIM_NAME[d])))
+    i = html_.rfind('<span class="cell-meta">')
+    return html_[:i] + note + html_[i:] if i >= 0 else html_ + note
 
 
 def pair(P, S):
     a, b = P["flatcar"], P["bottlerocket"]
     na, nb = norm(a, "d05"), norm(b, "d05")
-    ev = lambda p, d: badge(dim_of(p, d)["evidence"], compact=True)
+
+    missing, cited_ = [], []
+
+    def marks(refs):
+        """Citations for (profile, dimension, fields), attached to the sentence. Fields with none are kept for the cell's
+        section pointer (end_cell)."""
+        cites = "".join(S.cite_fields(p, d, f) for p, d, f in refs)
+        missing.extend((p, d) for p, d, f in refs if not S.cite_fields(p, d, f))
+        cited_.append(bool(cites))
+        return cites
+
+    def end_cell(ev_of=None):
+        """One section pointer for the cell, then the evidence badge. With no citation anywhere in the cell, the badge
+        names the section source list instead of claiming a source."""
+        out = S.section_pointer(missing)
+        if ev_of:
+            lab = dim_of(*ev_of)["evidence"]
+            out += " " + (badge(lab, compact=True) if any(cited_) else unsourced_badge(lab))
+        del missing[:], cited_[:]
+        return out
     return (
         '<article class="pair" aria-labelledby="pair-1"><div class="pair-head"><span class="eyebrow">Looks alike, differs on</span>'
         '<h3 id="pair-1">Both switch A/B partitions. They differ on what an update replaces, so on what a rollback undoes.</h3></div>'
         '<div class="pair-grid">'
         '<div class="rl colh empty"></div><div class="colh">%s</div><div class="colh">%s</div>'
-        '<div class="rl">Shared</div><div class="same">An update is written to the inactive partition set, then the boot target flips %s%s. '
-        'If the new version is not marked good, the bootloader reverts by itself %s%s. Two versions are kept on disk (%s and %s). %s</div>'
+        '<div class="rl">Shared</div><div class="same">An update is written to the inactive partition set, then the boot target flips%s. '
+        'If the new version is not marked good, the bootloader reverts by itself%s. Two versions are kept on disk (%s and %s).%s</div>'
         '<div class="rl diff-row diff-label">Differs on: what an update writes</div>'
-        '<div class="side diff-row" data-p="%s">Only <code>/usr</code>, on its own partition under dm-verity. The root filesystem holding <code>/etc</code>, <code>/opt</code> and <code>/var</code> is writable and persists. %s %s</div>'
-        '<div class="side diff-row" data-p="%s">The whole root filesystem, a read-only dm-verity device. <code>/etc</code> is a tmpfs; persistent state lives on a separate data volume at <code>/local</code>. %s %s</div>'
+        '<div class="side diff-row" data-p="%s">Only <code>/usr</code>, on its own partition under dm-verity. The root filesystem holding <code>/etc</code>, <code>/opt</code> and <code>/var</code> is writable and persists.%s</div>'
+        '<div class="side diff-row" data-p="%s">The whole root filesystem, a read-only dm-verity device. <code>/etc</code> is a tmpfs; persistent state lives on a separate data volume at <code>/local</code>.%s</div>'
         '<div class="rl">So a rollback undoes</div>'
-        '<div class="side" data-p="%s">The <code>/usr</code> partition. A bad configuration change on the writable root survives an OS rollback. %s</div>'
-        '<div class="side" data-p="%s">The root image. Settings sit in an API datastore and are migrated through updates, so they are not part of the image that rolls back. %s</div>'
+        '<div class="side" data-p="%s">The <code>/usr</code> partition. A bad configuration change on the writable root survives an OS rollback.%s</div>'
+        '<div class="side" data-p="%s">The root image. Settings sit in an API datastore and are migrated through updates, so they are not part of the image that rolls back.%s</div>'
         '</div><div class="pair-foot">Neither design is ranked. A smaller unit of reversibility keeps local state; a whole-image unit keeps less drift. '
         'Read the matrix column <a href="#matrix?col=update">Update unit</a> for every entry.</div></article>'
         % (sheet_link(a), sheet_link(b),
-           S.cite(a, "d04"), S.cite(b, "d04"), S.cite(a, "d05"), S.cite(b, "d05"),
-           E(str(na.get("retained_versions"))), E(str(nb.get("retained_versions"))), ev(a, "d05"),
-           E(a["name"]), S.cite(a, "d02", 2), ev(a, "d02"), E(b["name"]), S.cite(b, "d02", 2), ev(b, "d02"),
-           E(a["name"]), S.cite(a, "d05"), E(b["name"]), S.cite(b, "d02")))
+           marks([(a, "d04", ["mechanism"]), (b, "d04", ["mechanism"])]),
+           marks([(a, "d05", ["automatic_rollback_on_boot_failure"]), (b, "d05", ["automatic_rollback_on_boot_failure"])]),
+           E(str(na.get("retained_versions"))), E(str(nb.get("retained_versions"))),
+           marks([(a, "d05", ["retained_versions"]), (b, "d05", ["retained_versions"])]) + end_cell((a, "d05")),
+           E(a["name"]), marks([(a, "d02", ["read_only", "writable_and_persistent"])]) + end_cell((a, "d02")),
+           E(b["name"]), marks([(b, "d02", ["read_only", "ephemeral", "writable_and_persistent"])]) + end_cell((b, "d02")),
+           E(a["name"]), marks([(a, "d02", ["writable_and_persistent"])]) + end_cell(),
+           E(b["name"]), marks([(b, "d09", ["config_reapplied"])]) + end_cell()))
 
 
 START_HERE = [
@@ -1506,8 +1750,10 @@ def context_box(P, S):
         sents = re.split(r"(?<=\.)\s", note)
         txt = " ".join(sents[:2])
         hidden = ""
-        items.append('<dt%s>%s<span class="tag">%s · fit: %s</span></dt><dd%s>%s %s</dd>'
-                     % (hidden, E(p["name"]), E(", ".join(p["entry_kind"])), E(p["category_fit"]["comparable"]), hidden, E(txt), S.cite(p, "d01")))
+        # The card text is the profile's own category note. It has no source of its own, so the card cites none: the first
+        # source of a dimension backs that dimension, not this text.
+        items.append('<dt%s>%s<span class="tag">%s · fit: %s</span></dt><dd%s>%s</dd>'
+                     % (hidden, E(p["name"]), E(", ".join(p["entry_kind"])), E(p["category_fit"]["comparable"]), hidden, E(txt)))
     return ('<aside class="ctx" aria-label="Alternative paradigms"><div class="ctx-head">'
             '<p>These entries are profiled on the same fourteen dimensions. They reach for the same goals by a different route, '
             'so a matrix row would be mostly cells that do not apply. Each profile says so in its own category note.</p></div>'

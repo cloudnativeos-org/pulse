@@ -267,6 +267,76 @@
       }
     },
 
+    "capabilityHow": {
+      "description": "Whether a capability is on without the adopter doing anything. always-on and default-on read 'On by default' on the data sheet, opt-in reads 'Optional' and marks the matrix cell Opt-in. platform-provided is kept for entries whose platform state is not recorded yet; a profile that knows the state uses always-on, default-on or opt-in with 'platform'.",
+      "enum": ["always-on", "default-on", "opt-in", "platform-provided"]
+    },
+    "bootTrustChain": {
+      "description": "d10 only. The Boot trust chain column. The capability rule: level is the highest level the entry can reach. When the adopter has to turn it on, how is opt-in, via names the mode or setting that reaches it, and default says where the default leaves you. Each of the three statements cites its own sources: how_sources, sources, default.sources. provided_by names the entry that provides the whole chain (Hadron, through Kairos).",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provided_by": { "type": "string" },
+        "level": { "enum": [0, 1, 2, 3, "unknown"] },
+        "how": { "$ref": "#/$defs/capabilityHow" },
+        "how_sources": { "type": "array", "items": { "$ref": "#/$defs/citation" } },
+        "platform": { "type": "string", "description": "The platform feature that provides it, such as Trusted Launch." },
+        "limit": { "type": "string", "description": "Where an on-by-default capability holds, when it does not hold everywhere." },
+        "via": { "type": "string", "description": "The mode or setting that reaches the level, as the data sheet sentence names it." },
+        "via_tag": { "type": "string", "description": "A shorter name for the matrix tag, where via is long." },
+        "via_detail": { "type": "string", "description": "One short phrase that says what the mode is." },
+        "route": { "enum": ["usi", "verity-root-hash-in-signed-artifact", "composefs-digest-in-signed-uki"] },
+        "artifact": { "type": "string" },
+        "note": { "type": "string" },
+        "default": {
+          "type": "object",
+          "required": ["name", "level"],
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string", "description": "The default install or mode, with its article, as the subject of a sentence: 'the standard install'." },
+            "level": { "enum": [0, 1, 2, 3, "not-documented", "not-established"], "description": "not-documented: no source says. not-established: a source says, but it covers only part of the entry or the evidence does not bear it out; reason says which." },
+            "reason": { "type": "string", "description": "One short sourced clause that explains the level." },
+            "evidence": { "$ref": "#/$defs/evidence" },
+            "inferred_from": { "type": "string" },
+            "sources": { "type": "array", "items": { "$ref": "#/$defs/citation" } }
+          }
+        },
+        "evidence": { "$ref": "#/$defs/evidence" },
+        "inferred_from": { "type": "string" },
+        "sources": { "type": "array", "items": { "$ref": "#/$defs/citation" } }
+      }
+    },
+    "updateSignatureCheck": {
+      "description": "d04 only. The data sheet wording of the Update signature check column, under the same capability rule as bootTrustChain. The verdict stays in artifact_verification. checks is one clause that says what is checked. default.checks is off, not-required or not-documented.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provided_by": { "type": "string" },
+        "how": { "$ref": "#/$defs/capabilityHow" },
+        "how_sources": { "type": "array", "items": { "$ref": "#/$defs/citation" } },
+        "platform": { "type": "string" },
+        "limit": { "type": "string", "description": "Where an on-by-default capability holds, when it does not hold everywhere." },
+        "via": { "type": "string" },
+        "via_tag": { "type": "string" },
+        "checks": { "type": "string" },
+        "default": {
+          "type": "object",
+          "required": ["name", "checks"],
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "checks": { "enum": ["off", "not-required", "not-documented"] },
+            "reason": { "type": "string" },
+            "evidence": { "$ref": "#/$defs/evidence" },
+            "inferred_from": { "type": "string" },
+            "sources": { "type": "array", "items": { "$ref": "#/$defs/citation" } }
+          }
+        },
+        "evidence": { "$ref": "#/$defs/evidence" },
+        "inferred_from": { "type": "string" },
+        "sources": { "type": "array", "items": { "$ref": "#/$defs/citation" } }
+      }
+    },
     "addSoftware": {
       "description": "d06 only. One way to add software to the OS itself. kind 'unknown' stands alone, with evidence UNKNOWN and 'searched'. Methodology rule 21: an entry that builds from a base distribution gets the base's package manager only if its own documentation says so.",
       "type": "object",
@@ -347,8 +417,17 @@
       "properties": {
         "normalized": {
           "type": "object",
-          "description": "Closed-vocabulary values, table-ready. Shape varies per dimension; see vocabularies.md.",
+          "description": "Closed-vocabulary values, table-ready. Shape varies per dimension; see vocabularies.md. A data sheet row cites only the sources recorded for the fields it shows: <field>_sources next to the field, or the field's own sources when the field is a mapping. A dimension's sources list backs the dimension as a whole and is never cited for one row.",
+          "patternProperties": {
+            "_sources$": {
+              "description": "The sources behind the normalized field of the same name without the _sources suffix. The data sheet row that shows that field cites them.",
+              "type": "array",
+              "items": { "$ref": "#/$defs/citation" }
+            }
+          },
           "properties": {
+            "boot_trust_chain": { "$ref": "#/$defs/bootTrustChain" },
+            "update_signature_check": { "$ref": "#/$defs/updateSignatureCheck" },
             "configurable_paths": { "$ref": "#/$defs/configurablePaths" },
             "mounts_sources": {
               "description": "d02 only. The sources behind the read-only, reset-on-reboot and persistent lines of the Mounts row.",

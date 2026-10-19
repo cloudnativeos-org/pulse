@@ -305,25 +305,22 @@ def _text(E, s):
 
 
 def _dims(keys):
-    """Ordered unique (pid, dim) pairs that carry a source list."""
-    out = []
+    """Ordered unique (pid, dim) pairs, each with the fields the sentence rests on there."""
+    out = {}
     for k in keys:
         pid, rest = k.split(":", 1)
         if pid == "base_choice":
-            item = ("base_choice", rest)
+            out.setdefault(("base_choice", rest), [])
         elif re.match(r"d\d\d\.", rest):
-            item = (pid, rest[:3])
-        else:
-            continue  # taxonomy.*, entry_kind: profile fields without their own sources
-        if item not in out:
-            out.append(item)
-    return out
+            out.setdefault((pid, rest[:3]), []).append(rest[4:])
+        # taxonomy.*, entry_kind: profile fields without their own sources
+    return list(out.items())
 
 
 def _sentence(sent, P, S, E, badge, dim_of, flag, BASE_CHOICE):
     text, keys = sent[0], sent[1]
-    marks = []
-    for pid, dim in _dims(keys):
+    marks, unsourced = [], []
+    for (pid, dim), fields in _dims(keys):
         if pid == "base_choice":
             d = BASE_CHOICE.get(dim, {})
             srcs = d.get("sources") or []
@@ -334,10 +331,17 @@ def _sentence(sent, P, S, E, badge, dim_of, flag, BASE_CHOICE):
                 marks.append(badge(d["evidence"], compact=True))
             continue
         p = P[pid]
-        marks.append(S.cite(p, dim))
+        # Only the sources recorded for these fields. A dimension's first source backs the dimension, not this sentence.
+        c = S.cite_fields(p, dim, fields)
+        marks.append(c)
+        if not c:
+            unsourced.append((p, dim))
         ev = dim_of(p, dim).get("evidence")
         if ev and ev != "DOCUMENTED":
-            marks.append(badge(ev, compact=True))
+            # With no row-level source, the badge names the section source list instead of claiming a source.
+            marks.append(badge(ev, compact=True) if c else S.unsourced_badge(ev))
+    # Fields with no row-level source point at their dimension's source list on the entry's data sheet.
+    marks.append(S.section_pointer(unsourced).strip())
     if len(sent) > 2:
         marks.append(flag(*sent[2], inline_note=False))
     return _text(E, text) + ("".join(marks) and " " + "".join(marks))

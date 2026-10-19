@@ -348,6 +348,33 @@ dimensions:
       self_hostable_update_server_evidence: DOCUMENTED
       self_hostable_update_server_note: "There is no update server. bootc pulls the next image from any OCI registry. The docs cover private registries, registry mirrors, and an offline USB source."
       artifact_verification: "policy-based, permissive by default"
+      update_signature_check:
+        how: opt-in
+        how_sources:
+          - url: https://bootc.dev/bootc/bootc-security.7.html
+            type: official-docs
+            title: bootc security and threat model, container image verification
+            retrieved: '2026-10-19'
+            quote: It is however a very good idea for bootc users to enable signatures for their images.
+        via: a signature policy in /etc/containers/policy.json
+        via_tag: signature policy
+        checks: bootc checks image signatures when it fetches an update
+        sources:
+          - url: https://bootc.dev/bootc/bootc-security.7.html
+            type: official-docs
+            title: bootc security and threat model, container image verification
+            retrieved: '2026-10-19'
+            quote: bootc honors the default /etc/containers/policy.json when fetching images.
+        default:
+          name: the upstream default policy
+          checks: not-required
+          sources:
+            - url: https://bootc.dev/bootc/bootc-security.7.html
+              type: official-docs
+              title: bootc security and threat model, container image verification
+              retrieved: '2026-10-19'
+              quote: The upstream default at the time of this writing does not require signatures for generic images.
+        evidence: DOCUMENTED
       phased_rollout: "none"
     summary: >-
       An upgrade queries the registry for a newer digest and stages it as a new
@@ -747,26 +774,40 @@ dimensions:
       boot_trust_chain:
         level: 3
         how: opt-in
-        route: verity-root-hash-in-signed-artifact
+        how_sources:
+        - url: https://bootc.dev/bootc/bootc-composefs.7.html
+          type: official-docs
+          title: bootc composefs backend
+          retrieved: '2026-10-19'
+          quote: The composefs backend is required for sealed images, and the image determines which backend bootc install uses
+        - url: https://bootc.dev/bootc/bootc-composefs.7.html
+          type: official-docs
+          title: bootc composefs backend
+          retrieved: '2026-10-19'
+          quote: The default is ostree, and the composefs backend uses composefs-rs instead of ostree to store and manage deployments.
+        via: Sealed UKI
+        via_detail: the composefs backend, with the root digest in a UKI signed for Secure Boot
+        route: composefs-digest-in-signed-uki
         artifact: sealed UKI
-        modes:
-          Sealed UKI with composefs: 3
-          Default ostree with GRUB and shim: 1
-        note: The composefs root digest is on the command line of a UKI signed for Secure Boot. Measured boot
-          for the sealed path is not documented
+        note: Measured boot for the sealed path is not documented
+        default:
+          name: the default ostree backend
+          level: not-documented
+          reason: It boots through GRUB and shim, which bootupd installs
+          sources:
+          - url: https://bootc.dev/bootc/bootc-bootloaders.7.html
+            type: official-docs
+            title: bootc bootloaders
+            retrieved: '2026-10-19'
+            quote: Today it primarily supports GRUB+shim.
         evidence: DOCUMENTED
         sources:
         - url: https://bootc.dev/bootc/bootc-composefs.7.html
           type: official-docs
           title: bootc composefs backend
-          retrieved: '2026-10-06'
-          quote: For a sealed deployment fs-verity is enforced and the expected root digest is embedded in a
-            UKI signed for Secure Boot
-        - url: https://bootc.dev/bootc/bootc-bootloaders.7.html
-          type: official-docs
-          title: bootc bootloaders
-          retrieved: '2026-10-06'
-          quote: primarily GRUB+shim
+          retrieved: '2026-10-19'
+          quote: In a sealed deployment fs-verity is enforced and the expected root digest is embedded in a UKI
+            signed for Secure Boot, so firmware authenticates the digest and the digest authenticates the root filesystem.
       artifact_verification: "policy-based, permissive by default"
       integrity: "composefs with fsverity; signature binding requires a sealed UKI"
       sbom: unknown
