@@ -264,7 +264,7 @@ VERIFIED = {
 VERIFIED_PREFIX = {
     "cosign and mtree flags exist": ("unknown", "Unknown", "INFERRED",
         "An optional cosign flag exists on the upgrade command. It is off by default and the fleet upgrade job does not set it. "
-        "The profile does not establish that the SUSE images carry signatures"),
+        "The profile does not establish that the SUSE images carry signatures. Layer digests are still checked when the image is pulled"),
 }
 OWN = {"foundation-held": "Foundation-held", "single-vendor": "Single vendor", "mixed": "Mixed", "unknown": "Unknown"}
 SUPPORT = {"none published": "None published", "lts-stream": "LTS stream", "versioned-with-eol": "Versioned, with end of life",
@@ -1286,7 +1286,7 @@ def stamp(P):
     coll, newest = data_dates(P)
     span = fmt_date(coll[0]) if coll[0] == coll[-1] else "%s to %s" % (fmt_date(coll[0]), fmt_date(coll[-1]))
     return ('<span class="stamp"><b>Data as of</b> <time datetime="%s">%s</time>'
-            '<span class="muted">The newest date a cited source was read. Profiles collected %s. Every source was last re-read in full on %s. Profiles collected later were read once, when they were collected.</span></span>'
+            '<span class="muted">The newest date a cited source was read. Profiles collected %s. Sources were last re-read in full on %s. A profile collected after that date was read once, on its collection date.</span></span>'
             % (newest, fmt_date(newest), span, fmt_date(REREAD)))
 
 
