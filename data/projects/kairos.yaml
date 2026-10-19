@@ -700,7 +700,7 @@ dimensions:
       infrastructure drift." That is a defensible design stance. It does not
       explain leaving the mechanism that does exist undocumented.
 
-      Automatic rollback is GRUB-only. The boot assessment page says so in the
+      The docs say automatic rollback is GRUB-only. The boot assessment page says so in the
       current (development) docs: "Automatic rollback is a GRUB-only feature",
       because the stage that manages the sentinels is skipped on every Trusted
       Boot installation, and for Trusted Boot it says a fallback "it's not yet
@@ -709,7 +709,11 @@ dimensions:
       were added to the development docs on 2026-10-06 and are not in the
       v4.3.0 versioned docs. One example page, on boot assessment under Trusted
       Boot, still describes retries ("3 by default") and a fallback on that
-      path, which the boot assessment page contradicts.
+      path, which the boot assessment page contradicts. The code points the other
+      way: the agent appends a boot counter of 3 ("+3") to the entries it writes
+      for a Trusted Boot install, and the Hadron acceptance suite tests a failover
+      from a broken active entry on that path. The page may describe an intended
+      state rather than the shipped one. This survey did not reproduce either.
 
       A fallback stage named autorecovery is documented on one page and exists in
       no repository in the organization.
@@ -2593,7 +2597,7 @@ corrections:
     change: Removed the not-supported value. Not supported means no way to add host software exists, and this entry documents other ways. The docs' statement about package installs, with its source, moved into the systemd-sysext value.
   - date: "2026-10-19"
     field: "dimensions.d05_rollback_recovery.normalized.automatic_rollback_attempts"
-    change: "Said \"1 on the GRUB path; 3 on the Trusted Boot path\", and the data sheet showed only the GRUB half. The boot assessment page says automatic rollback is GRUB-only and that a Trusted Boot fallback is not yet implemented. Now \"1 on the GRUB path, none on Trusted Boot\", with that page as the first d05 source; the d05 notes record the example page that still describes retries."
+    change: "Said \"1 on the GRUB path; 3 on the Trusted Boot path\", and the data sheet showed only the GRUB half. The boot assessment page says automatic rollback is GRUB-only and that a Trusted Boot fallback is not yet implemented. Now \"1 on the GRUB path. On Trusted Boot the docs say there is none, while the agent code arms a boot counter of 3 on the entries it writes\", with that page and the agent code as d05 sources; the d05 notes record the example page that still describes retries."
     source:
       url: "https://kairos.io/docs/upgrade/boot_assessment/"
       type: "official-docs"
