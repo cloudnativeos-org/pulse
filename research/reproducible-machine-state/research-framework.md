@@ -1,6 +1,6 @@
 # Research framework — Reproducible Machine State investigation
 
-Verbatim, as Mauro pasted it in chat, 2026-09-15. This is the operational research
+Verbatim, 2026-09-15. This is the operational research
 framework; `persona-strategy-v3-source.txt` in this same directory is the strategy
 document (extracted from the uploaded `.docx`) that supplies the *why*, the
 two-artifact split, and the platform depth tiers. Read both — this file is more

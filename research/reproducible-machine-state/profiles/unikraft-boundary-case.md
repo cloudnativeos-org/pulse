@@ -11,7 +11,7 @@ Research date: 2026-09-16. Versions examined: Unikraft core `v0.21.0` (Ijiraq, r
 This is not a survey. A compact fourteen-dimension factual profile of Unikraft already
 exists as part of the cloud native OS Pulse 2026
 (file
-`data/projects/unikraft.yaml`, unmerged on `feat/issue-813-pulse-profiles`),
+`data/projects/unikraft.yaml`, unmerged at the time of writing),
 and this document does not repeat it. Where the Pulse establishes a fact, this document
 cites it and moves on. Where a fact is load-bearing for an argument here, it was re-verified
 against a primary source on 2026-09-16 and is cited to that source directly.
