@@ -1,100 +1,114 @@
 {
   "azure-container-linux": {
-    "checked_at": "2026-10-05T15:34Z",
+    "checked_at": "2026-10-19T11:36Z",
     "latest": null,
     "method": "manual: no machine-readable release channel",
     "newer": null,
     "observed": "3.0.20260809 (os-release), in AKS node image 202609.23.0"
   },
   "bootc": {
-    "checked_at": "2026-10-05T15:34Z",
-    "latest": "v1.16.13",
+    "checked_at": "2026-10-19T11:36Z",
+    "latest": "v1.17.1",
     "method": "GitHub latest non-prerelease release of bootc-dev/bootc",
-    "newer": false,
+    "newer": true,
     "observed": "v1.16.13"
   },
   "bottlerocket": {
-    "checked_at": "2026-10-05T15:34Z",
+    "checked_at": "2026-10-19T11:36Z",
     "latest": "v1.66.0",
     "method": "GitHub latest non-prerelease release of bottlerocket-os/bottlerocket",
     "newer": true,
     "observed": "v1.65.0"
   },
   "cos": {
-    "checked_at": "2026-10-05T15:34Z",
+    "checked_at": "2026-10-19T11:36Z",
     "latest": null,
     "method": "manual: no machine-readable release channel",
     "newer": null,
     "observed": "cos-129-19506-448-36"
   },
+  "elemental": {
+    "checked_at": "2026-10-19T11:36Z",
+    "latest": "v1.9.2",
+    "method": "GitHub latest non-prerelease release of rancher/elemental-operator",
+    "newer": false,
+    "observed": "elemental-operator v1.9.2; elemental-toolkit v2.3.4; Elemental OS (Elemental Linux) v2.3.1"
+  },
   "eve-os": {
-    "checked_at": "2026-10-05T15:34Z",
+    "checked_at": "2026-10-19T11:36Z",
     "latest": "17.0.0-lts",
     "method": "GitHub latest non-prerelease release of lf-edge/eve",
     "newer": false,
     "observed": "17.0.0-lts"
   },
   "fedora-coreos": {
-    "checked_at": "2026-10-05T15:34Z",
-    "latest": "44.20260913.3.2",
+    "checked_at": "2026-10-19T11:36Z",
+    "latest": "44.20260928.3.1",
     "method": "stable stream metadata",
     "newer": true,
     "observed": "44.20260829.3.1"
   },
   "flatcar": {
-    "checked_at": "2026-10-05T15:34Z",
+    "checked_at": "2026-10-19T11:36Z",
     "latest": "4757.2.1",
     "method": "stable channel version.txt",
     "newer": true,
     "observed": "4757.2.0"
   },
   "hadron": {
-    "checked_at": "2026-10-05T15:34Z",
-    "latest": "v0.5.3",
+    "checked_at": "2026-10-19T11:36Z",
+    "latest": "v0.6.0",
     "method": "GitHub latest non-prerelease release of kairos-io/hadron",
-    "newer": false,
+    "newer": true,
     "observed": "v0.5.3"
   },
   "kairos": {
-    "checked_at": "2026-10-05T15:34Z",
+    "checked_at": "2026-10-19T11:36Z",
     "latest": "v4.3.0",
     "method": "GitHub latest non-prerelease release of kairos-io/kairos",
     "newer": false,
     "observed": "v4.3.0"
   },
   "microos": {
-    "checked_at": "2026-10-05T15:34Z",
-    "latest": "Snapshot20261003",
+    "checked_at": "2026-10-19T11:36Z",
+    "latest": "Snapshot20261017",
     "method": "newest snapshot in the published appliance directory",
     "newer": true,
     "observed": "16.0.0-Snapshot20260919"
   },
   "nixos": {
-    "checked_at": "2026-10-05T15:34Z",
+    "checked_at": "2026-10-19T11:36Z",
     "latest": null,
     "method": "manual: no machine-readable release channel",
     "newer": null,
     "observed": "26.05"
   },
   "talos": {
-    "checked_at": "2026-10-05T15:34Z",
-    "latest": "v1.14.2",
+    "checked_at": "2026-10-19T11:36Z",
+    "latest": "v1.14.4",
     "method": "GitHub latest non-prerelease release of siderolabs/talos",
     "newer": true,
     "observed": "v1.14.1"
   },
   "ubuntu-core": {
-    "checked_at": "2026-10-05T15:34Z",
+    "checked_at": "2026-10-19T11:36Z",
     "latest": null,
     "method": "manual: no machine-readable release channel",
     "newer": null,
     "observed": "Ubuntu Core 26"
   },
   "unikraft": {
-    "checked_at": "2026-10-05T15:34Z",
+    "checked_at": "2026-10-19T11:36Z",
     "latest": "RELEASE-0.21.0",
     "method": "GitHub latest non-prerelease release of unikraft/unikraft",
     "newer": false,
     "observed": "v0.21.0 Ijiraq"
+  },
+  "yocto": {
+    "checked_at": "2026-10-19T11:36Z",
+    "latest": null,
+    "method": "manual: no machine-readable release channel",
+    "newer": null,
+    "observed": "6.0.3 (Wrynose)"
   }
 }

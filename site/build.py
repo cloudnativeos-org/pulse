@@ -236,6 +236,8 @@ DAY0 = {  # d09 method token -> path family; None = configuration, not an instal
 UPDATE_SCOPE = {"whole-os-image": "Whole OS image", "os-tree-etc-merged": "OS tree, /etc merged", "usr-only": "/usr only",
                 "root-snapshot-etc": "Root snapshot with /etc", "per-snap": "Per snap",
                 "whole-node": "Whole node (reimaged or replaced)"}
+# Profile values that name a vocabulary value in other words. Elemental replaces its whole root image: the same unit as a whole OS image.
+SCOPE_ALIAS = {"whole-root": "whole-os-image"}
 # The short marker a cell shows when the profile has a scope_note. The full note is in the entry's data sheet.
 SCOPE_NOTE_TAG = {"kairos": "See note: persistent paths", "flatcar": "See note: kernel", "talos": "See note: bootloader",
                   "bootc": "See note: /etc and /var", "azure-container-linux": "See note: AKS"}
@@ -257,6 +259,12 @@ VERIFIED = {
     "signed unified kernel image": ("yes", "Possible", "INFERRED", "Checked at boot: a signed unified kernel image under Secure Boot, with Trusted Launch"),
     "sha256 digest carried in the controller configuration": ("digest", "Digest only", "INFERRED", "A sha256 digest in the controller configuration; no signature documented"),
     "unknown": ("unknown", "Unknown", "UNKNOWN", ""),
+}
+# Profile values that are a sentence, matched by their opening words.
+VERIFIED_PREFIX = {
+    "cosign and mtree flags exist": ("unknown", "Unknown", "INFERRED",
+        "An optional cosign flag exists on the upgrade command. It is off by default and the fleet upgrade job does not set it. "
+        "The profile does not establish that the SUSE images carry signatures. Layer digests are still checked when the image is pulled"),
 }
 OWN = {"foundation-held": "Foundation-held", "single-vendor": "Single vendor", "mixed": "Mixed", "unknown": "Unknown"}
 SUPPORT = {"none published": "None published", "lts-stream": "LTS stream", "versioned-with-eol": "Versioned, with end of life",
@@ -326,7 +334,9 @@ def col_project(p, S, folded=None):
         tags += '<span class="tag">Google Cloud only</span>'
     extra = ""
     if folded:
-        h = folded["version_observed"]
+        h = dict(folded["version_observed"])
+        # The Hadron build the folding project's release ships, which can trail Hadron's own latest release.
+        h["version"] = BASE_CHOICE.get(p["id"], {}).get("released_images_version") or h["version"]
         extra = ('<span class="proj-meta">Default base: %s <span class="mono">%s</span>. Values that come from it carry the label %s, '
                  'as in the matrix row. It has <a href="#tc-%s">its own data sheet</a>.</span>'
                  % (E(folded["name"]), E(str(h["version"])), E('"%s"' % short_name(folded)), E(folded["id"])))
@@ -418,12 +428,14 @@ def col_update(p, S):
     modes = n.get("scope_by_mode")
     # Modes are equal choices: one tag per mode, in the profile's order, never a "default", as in the Boot trust chain column.
     if modes:
+        modes = {m: SCOPE_ALIAS.get(k, k) for m, k in modes.items()}
         keys = list(modes.values())
         tags = [("%s: %s" % (m, UPDATE_SCOPE.get(k, k)), "value") for m, k in modes.items()]
         shown = "; ".join("%s: %s" % (m, UPDATE_SCOPE.get(k, k)) for m, k in modes.items())
     elif n.get("scope"):
-        keys = [n["scope"]]
-        tags = [(UPDATE_SCOPE.get(n["scope"], n["scope"]), "value")]
+        scope = SCOPE_ALIAS.get(n["scope"], n["scope"])
+        keys = [scope]
+        tags = [(UPDATE_SCOPE.get(scope, scope), "value")]
         shown = tags[0][0]
     else:
         keys = []
@@ -463,7 +475,8 @@ def col_verified(p, S):
         return Cell(value("value", E(detail), E(n.get("artifact_verification_note", ""))) + meta(dim_of(p, "d04")["evidence"], S.cite(p, "d04")),
                     ("0" if possible else "2") + label, {"verified": k}, tags=tags)
     raw = n.get("artifact_verification", "unknown")
-    k, label, ev, detail = VERIFIED.get(raw, ("unknown", first_clause(raw), "INFERRED", ""))
+    fallback = next((v for pre, v in VERIFIED_PREFIX.items() if raw.startswith(pre)), ("unknown", first_clause(raw), "INFERRED", ""))
+    k, label, ev, detail = VERIFIED.get(raw, fallback)
     kind = {"no": "none", "unknown": "unknown"}.get(k, "value")
     return Cell(value(kind, E(label), E(detail)) + meta(ev, S.cite(p, "d04"), p["id"], "verified"),
                 {"yes": "0", "digest": "1", "no": "2", "unknown": "3"}[k] + label, {"verified": k}, tags=[(label, kind)])
@@ -801,6 +814,10 @@ def col_k8s(p, S):
             label = "Optional, not bundled"
         elif b == "separately-installed":
             label = "Optional, installed separately"
+        elif b.lower().startswith("none in "):
+            # "none in Hadron images; bundled in Kairos standard images built from Hadron": not bundled here, bundled by the project built on it.
+            label = "Optional, not bundled"
+            detail = first_upper(b.split(";", 1)[1].strip()) if ";" in b else ""
         else:
             label = "Optional, bundled in some images"
             detail = first_upper(first_clause(b))
@@ -817,7 +834,7 @@ def col_k8s(p, S):
         if s and s not in short and "ECS" not in s:  # ECS is a container service, not Kubernetes
             short.append(s)
     if ways:
-        detail = (detail + ". " if detail else "") + "Documented ways to run Kubernetes: " + "; ".join(str(w) for w in ways)
+        detail = (detail + ". " if detail else "") + "Documented ways to run Kubernetes: " + "; ".join(str(w) for w in ways if "ECS" not in str(w))
     opts = n.get("distribution_options") or []
     if opts:
         offers = "; ".join("%s, %s" % (DIST_LABEL[o["distribution"]], DIST_OFFERED[o["offered"]]) for o in opts)
@@ -826,7 +843,8 @@ def col_k8s(p, S):
         named = {DIST_LABEL[o["distribution"]].lower() for o in opts}
         short = [s for s in short if not any(s.lower().startswith(x) for x in named)]
     tags = [(label, "value")] + [("%s (%s)" % (DIST_LABEL[o["distribution"]], DIST_OFFERED[o["offered"]]), "value") for o in opts] + [(s, "value") for s in short]
-    filt = {"k8s": req, "k8sdist": " ".join(sorted(o["distribution"] for o in opts)) or "none"}
+    # "Not bundled" covers both a project that is unrelated to Kubernetes and one where it is optional and not in the images.
+    filt = {"k8s": req + (" notbundled" if label.startswith(("Not bundled", "Optional, not bundled")) else ""), "k8sdist": " ".join(sorted(o["distribution"] for o in opts)) or "none"}
     cite = S.cite(p, "d07") + cite_all(p, S, [s for o in opts for s in o["sources"]])
     return Cell(value("value", E(label), E(detail)) + meta(dim_of(p, "d07")["evidence"], cite), label, filt, tags=tags)
 
@@ -867,9 +885,14 @@ def col_arch(p, S):
     for k, v in n.items():
         if isinstance(v, list) and ("released" in k or "with_os_images" in k) and "suse_linux_micro" not in k:
             for a in v:
-                a = ARCH.get(a.split(",")[0].strip(), a.split(",")[0].strip())
-                if a not in arch:
-                    arch.append(a)
+                if "platform_tags" in k:
+                    # A platform tag names its architectures in the text, e.g. "nvidia-jp5, nvidia-jp6 (arm64, NVIDIA Jetson)".
+                    found = [ARCH.get(t, t) for t in re.findall(r"\b(amd64|arm64|riscv64|x86_64|aarch64)\b", str(a))]
+                else:
+                    found = [ARCH.get(a.split(",")[0].strip(), a.split(",")[0].strip())]
+                for a in found:
+                    if a not in arch:
+                        arch.append(a)
     keep = [i for i, t in enumerate(via) if t[0] not in arch]
     via_li = "".join('<li>%s via your base distribution <span class="v-tag">own components built for it: %s</span></li>' % (E(via[i][0]), E(", ".join(via[i][1]))) for i in keep)
     via_tags = [via_tag([via[i] for i in keep])] if keep else []
@@ -1023,7 +1046,7 @@ FILTERS = [
     ("fleet", "Fleet upgrade path", [("operator", "Kubernetes operator"), ("cluster-api", "Cluster API"), ("fleet-server", "Fleet server"), ("managed-service", "Managed node service"), ("reboot-coordination", "Reboot coordination")]),
     ("fleetrec", "Fleet upgrade reconciliation", [("in-place", "Reconciled in place"), ("replacement", "Reconciled by replacement"), ("one-shot", "One-shot run")]),
     ("fleetlic", "Fleet tool license", [("open-source", "Open source"), ("source-available", "Source-available"), ("proprietary", "Proprietary"), ("service", "Managed service")]),
-    ("k8s", "Kubernetes", [("required", "Bundled and required"), ("optional", "Optional"), ("unrelated", "Not bundled")]),
+    ("k8s", "Kubernetes", [("required", "Bundled and required"), ("optional", "Optional"), ("notbundled", "Not bundled")]),
     ("k8sdist", "Kubernetes distribution", [(k, v) for k, v in DIST_LABEL.items()]),
     ("access", "Node access", [("shell", "SSH and shell"), ("api", "API"), ("fleet", "Fleet server or controller"), ("noshell", "No SSH or shell"), ("unknown", "Unknown")]),
     ("capi", "Cluster API", [("own", "Own providers"), ("kubeadm", "Through kubeadm"), ("none", "None")]),
@@ -1263,7 +1286,7 @@ def stamp(P):
     coll, newest = data_dates(P)
     span = fmt_date(coll[0]) if coll[0] == coll[-1] else "%s to %s" % (fmt_date(coll[0]), fmt_date(coll[-1]))
     return ('<span class="stamp"><b>Data as of</b> <time datetime="%s">%s</time>'
-            '<span class="muted">The newest date a cited source was read. Profiles collected %s; every source re-read %s.</span></span>'
+            '<span class="muted">The newest date a cited source was read. Profiles collected %s. Sources were last re-read in full on %s. A profile collected after that date was read once, on its collection date.</span></span>'
             % (newest, fmt_date(newest), span, fmt_date(REREAD)))
 
 
@@ -2182,7 +2205,7 @@ def finish(page, P, gen, sha, full=""):
         page = re.sub(r"<title>(.*?)</title>", r'<title>\1 (public preview)</title>', page, count=1)
         page = page.replace("</a></div>", '</a><span class="preview-tag">Public preview</span></div>', 1)
         page = re.sub(r'<div class="banner" role="note">.*?</div>',
-                      '<div class="banner" role="note"><b>Public preview</b><span>Not released yet. The data is still under review by the projects\' maintainers, '
+                      '<div class="banner" role="note"><b>Public preview</b><span>Not released yet. The projects\' maintainers have not reviewed the data yet, '
                       'and it can change. Corrections are welcome: <a href="https://github.com/cloudnativeos-org/pulse/issues/new/choose">open an issue</a>.</span></div>', page, count=1, flags=re.S)
         page = re.sub(r'\s*<p class="review">.*?</p>', "", page, flags=re.S)
         page = re.sub(r'\s*<form class="review-bar[^"]*".*?</form>', "", page, flags=re.S)

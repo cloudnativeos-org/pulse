@@ -47,6 +47,19 @@ kairos:
       type: official-docs
       quote: As a small open-source team, we now focus official prebuilt artifacts and docs defaults on Hadron.
   released_images: [Hadron]
+  # The Hadron build inside the v4.3.0 ISOs (all 33 Hadron image assets are kairos-hadron-v0.5.1-*), not Hadron's own latest release.
+  released_images_version: v0.5.1
+
+elemental:
+  value: adopter-chosen
+  evidence: DOCUMENTED
+  note: The toolkit builds an OS image from a base container image the adopter picks. One of its examples starts from Ubuntu 24.04.
+  sources:
+    - url: https://github.com/rancher/elemental-toolkit/blob/v2.3.4/examples/orange/Dockerfile
+      type: source-repo
+      title: Elemental toolkit, orange example Dockerfile
+      retrieved: "2026-10-19"
+      quote: "# OS base image of our choice"
 
 bottlerocket:
   value: own-base-only
