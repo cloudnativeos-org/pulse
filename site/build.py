@@ -1096,7 +1096,7 @@ def read_matrix():
             '<div><p class="mx-read-k">Values</p><ul>%s</ul></div>'
             '<div><p class="mx-read-k">Badges</p><ul>%s</ul></div>'
             '<div><p class="mx-read-k">Entry kind</p><ul>%s</ul></div></div>'
-            '<p class="mx-read-foot">Built with AI agents. Every cell links to its source. <a href="#h-made">How it was made</a> explains the sources and the checks behind every cell. '
+            '<p class="mx-read-foot">Built with AI agents. Every documented claim cites its source in the project\'s data sheet. <a href="#h-made">How it was made</a> explains the sources and the checks behind every cell. '
             'The <a href="#h-gloss">glossary</a> defines the terms.</p></div>' % (vals, badges, kinds))
 
 
@@ -1781,10 +1781,10 @@ def made(P):
             '<h3>The process</h3><ol class="steps">%s</ol>'
             '<h3>Tools and models</h3><div class="prose"><p>The agents were Anthropic\'s Claude models, running in Claude Code. Each task had a written brief, its own agent session, '
             'its own branch and its own pull request. I merged every change. For this first version, Anthropic provided the model access, through its Claude for Open Source program. Anthropic had no say in the content.</p>'
-            '<p>Claude Opus 5 wrote the method, the first ten profiles and the first article draft. Claude Sonnet 5 did the rest: the two added profiles, the re-verification, Hadron and the rollback experiments. Claude Sonnet 5.5 wrote the Elemental profile and the fleet-reading changes, and a second pass on Claude Opus checked the Elemental profile against its sources. '
+            '<p>Claude Opus 5 wrote the method, the first ten profiles and the first article draft. Claude Sonnet 5 did the rest: the two added profiles, the re-verification, Hadron and the rollback experiments.'
             'Two of those briefs asked for a stronger model than the one that ran. The rollback experiments and the re-verification both ran on Sonnet 5. '
-            'After the first version, Claude Sonnet 5.5 made 28 of the 31 commits: the data corrections, the cleanup of the research files and the site changes. Claude Opus 5.5 made the other 3: the brand mark and the publishing setup. '
-            'Since the first public version, every commit names the assisting model in a <code>Co-developed-by:</code> trailer, and that history is public in <a href="https://github.com/cloudnativeos-org/pulse">the Pulse repository</a>. The history before the first public version is not public. It came in as one commit. Commits from the <code>mauro-agent</code> account were made by an AI agent that I operate. I am the person behind that account and I answer for its work. '
+            'After the first version, Claude Sonnet 5.5 made all but three of the commits: the Elemental profile, the fleet reading of the criteria, the provisioning criterion, the Kubernetes distribution filter, the data corrections and the cleanup of the research files. A second pass on Claude Opus checked the Elemental profile against its sources. Claude Opus 5.5 made the other three: the brand mark and the publishing setup. '
+            'Since the first public version, every commit other than a merge names the assisting model in a <code>Co-developed-by:</code> trailer, and that history is public in <a href="https://github.com/cloudnativeos-org/pulse">the Pulse repository</a>. The history before the first public version is not public. It came in as one commit, and the trailer on that commit names only the model that made the import. Commits from the <code>mauro-agent</code> account were made by an AI agent that I operate. I am the person behind that account and I answer for its work. '
             'The task briefs are kept. The exact prompts each session received are not, and neither is which model ran each fact-check pass.</p></div>'
             '<h3 id="m-wrong">What went wrong</h3><div class="prose"><ul>'
             '<li>An early summary overstated a Secure Boot finding about Kairos. It mixed up two boot paths. I caught it, and the source code settled it.</li>'

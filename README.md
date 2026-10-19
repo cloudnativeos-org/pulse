@@ -96,9 +96,9 @@ section says what I did about that.
 
 AI agents did most of the reading and the first drafts. Commits from the
 `mauro-agent` account were made by an AI agent that I operate. I am the person
-behind that account and I answer for its work. The history before the first public
-version is not public. It came in as one commit. Every commit since then names the
-assisting model in a `Co-developed-by:` trailer.
+behind that account and I answer for its work. The history before the first
+public version is not public. It came in as one commit. Every commit other than
+a merge since then names the assisting model in a `Co-developed-by:` trailer.
 
 ## License
 
