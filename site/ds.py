@@ -63,8 +63,8 @@ def write(P, tok, css, js, out, b):
 
     # Citation and stamp
     S4 = b.Sources()
-    c1 = S4.cite(P["flatcar"], "d04")
-    c2 = S4.cite(P["bottlerocket"], "d02", 2)
+    c1 = S4.cite_fields(P["flatcar"], "d04", ["scope"])
+    c2 = S4.cite_fields(P["bottlerocket"], "d02", ["read_only"])
     cite_body = ('<p class="prose" style="margin:0 0 12px">Flatcar writes each update to the passive <code>/usr</code> partition.%s '
                  'Bottlerocket replaces the whole root filesystem image.%s</p><p style="margin:0 0 12px">%s</p>%s'
                  % (c1, c2, b.stamp(P), S4.render()))

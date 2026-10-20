@@ -337,6 +337,22 @@ dimensions:
       self_hostable_update_server: true
       self_hostable_update_source: "Your own Nebraska update server"
       artifact_verification: signature-against-update-signing-key
+      update_signature_check:
+        how: default-on
+        how_sources:
+          - url: https://www.flatcar.org/docs/latest/security/supply-chain/
+            type: official-docs
+            title: Supply chain security, update payloads
+            retrieved: '2026-10-19'
+            quote: Before installation, update images are validated against the update signing key
+        checks: update images are checked against the update signing key before they are installed
+        sources:
+          - url: https://www.flatcar.org/docs/latest/security/supply-chain/
+            type: official-docs
+            title: Supply chain security, update payloads
+            retrieved: '2026-10-19'
+            quote: Before installation, update images are validated against the update signing key
+        evidence: DOCUMENTED
     summary: >-
       update_engine polls an Omaha endpoint, downloads the payload to the passive
       /usr partition, verifies it against the update signing key, then flips the
@@ -840,11 +856,31 @@ dimensions:
       boot_trust_chain:
         level: 3
         how: opt-in
+        how_sources:
+        - url: https://github.com/flatcar/Flatcar/issues/501#issuecomment-2995634891
+          type: maintainer-statement
+          title: "[RFE] Support Secure Boot, maintainer comment of 2025-06-23"
+          retrieved: '2026-10-19'
+          quote: You can use what is in the alpha channel with your own keys right now - you'd need to follow one of the online guides on enrolling your own secure boot keys
+        via: Secure Boot and an enrolled key
+        via_tag: enrolled key
+        via_detail: Secure Boot signatures are documented for alpha channel images, in a maintainer comment of 23 June 2025
         route: verity-root-hash-in-signed-artifact
         artifact: signed kernel
-        note: 'Flatcar signs with its own key, which you enrol. The /usr root hash is written into the kernel
+        note: 'The /usr root hash is written into the kernel
           before it is signed. Caveat from the code: GRUB always reads an unsigned OEM grub.cfg that can add
           kernel arguments, so the code does not show that /usr verity cannot be bypassed'
+        default:
+          name: the default install
+          level: not-established
+          reason: That comment covers alpha channel images only, and says their shim is not signed by the Microsoft
+            third-party UEFI CA
+          sources:
+          - url: https://github.com/flatcar/Flatcar/issues/501#issuecomment-2995634891
+            type: maintainer-statement
+            title: "[RFE] Support Secure Boot, maintainer comment of 2025-06-23"
+            retrieved: '2026-10-19'
+            quote: I believe images in the alpha channel have secure boot signatures but with a shim that is not signed by the official 3rdparty UEFI CA (our shim-review submission is blocked on a legal/procedural issue).
         evidence: INFERRED
         inferred_from: flatcar/scripts build_image_util.sh writes the hash into the kernel image before signing;
           build_library/grub.cfg line 27 sets secure_boot="0" and sources the OEM grub.cfg

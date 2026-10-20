@@ -431,6 +431,33 @@ dimensions:
       self_hostable_update_server_note: "There is no update server. The node pulls an installer image from an OCI registry. Image Factory can run on-premises, and registry mirrors redirect pulls to an internal registry."
       self_hostable_build_service: true
       artifact_verification: "policy-based, permissive by default"
+      update_signature_check:
+        how: opt-in
+        how_sources:
+          - url: https://docs.siderolabs.com/talos/v1.14/security/verifying-image-signatures
+            type: official-docs
+            title: Talos v1.14 verifying image signatures
+            retrieved: '2026-10-19'
+            quote: The policy is configured using the ImageVerificationConfig configuration document.
+        via: an image verification policy (ImageVerificationConfig)
+        via_tag: verification policy
+        checks: the node checks the signatures of the images it pulls, including the images Talos pulls itself
+        sources:
+          - url: https://docs.siderolabs.com/talos/v1.14/security/verifying-image-signatures
+            type: official-docs
+            title: Talos v1.14 verifying image signatures
+            retrieved: '2026-10-19'
+            quote: Talos Linux provides a machine-wide configurable image signature verification policy which covers all image pulls on the machine, including the ones initiated by the Talos operating system itself
+        default:
+          name: a machine with no verification policy
+          checks: not-required
+          sources:
+            - url: https://docs.siderolabs.com/talos/v1.14/security/verifying-image-signatures
+              type: official-docs
+              title: Talos v1.14 verifying image signatures
+              retrieved: '2026-10-19'
+              quote: Any other images that do not match any of the rules will be allowed by default.
+        evidence: DOCUMENTED
       kubernetes_upgrade_separate: true
       quorum_protection: true
     summary: >-
@@ -995,22 +1022,51 @@ dimensions:
     normalized:
       boot_trust_chain:
         level: 3
-        how: per-install-mode
+        how: opt-in
+        how_sources:
+        - url: https://docs.siderolabs.com/talos/v1.14/platform-specific-installations/bare-metal-platforms/secureboot
+          type: official-docs
+          title: Talos v1.14 SecureBoot
+          retrieved: '2026-10-19'
+          quote: "The install should be performed using SecureBoot installer (put it Talos machine configuration):"
+        via: SecureBoot UKI
+        via_detail: the SecureBoot installer image, signed by Sidero Labs or with your own keys
         route: usi
         artifact: signed UKI
-        modes:
-          SecureBoot (UKI): 3
-          GRUB: 0
-        note: SecureBoot images come signed by Sidero from Image Factory, or signed with your own keys. The
-          squashfs root is inside the UKI initramfs. With TPM disk encryption, keys are sealed to the signed
+        note: The squashfs root is inside the UKI initramfs. With TPM disk encryption, keys are sealed to the signed
           PCR 11 policy plus PCR 7
+        default:
+          name: the standard installer image
+          level: not-documented
+          reason: GRUB boots legacy BIOS systems, where SecureBoot is not supported, and systemd-boot boots UEFI systems
+          sources:
+          - url: https://docs.siderolabs.com/talos/v1.14/platform-specific-installations/bare-metal-platforms/bootloader
+            type: official-docs
+            title: Talos v1.14 boot loader
+            retrieved: '2026-10-19'
+            quote: GRUB is used for legacy BIOS systems on x86_64, while systemd-boot is used for UEFI systems on x86_64 and arm64.
+          - url: https://docs.siderolabs.com/talos/v1.14/platform-specific-installations/bare-metal-platforms/secureboot
+            type: official-docs
+            title: Talos v1.14 SecureBoot
+            retrieved: '2026-10-19'
+            quote: SecureBoot is not supported on x86 platforms in BIOS mode.
         evidence: DOCUMENTED
         sources:
-        - url: https://docs.siderolabs.com/talos/v1.12/platform-specific-installations/bare-metal-platforms/secureboot
+        - url: https://docs.siderolabs.com/talos/v1.14/platform-specific-installations/bare-metal-platforms/secureboot
           type: official-docs
-          title: Talos SecureBoot
-          retrieved: '2026-10-06'
-          quote: The Talos kernel, initramfs and cmdline arguments are combined into the Unified Kernel Image (UKI) format.
+          title: Talos v1.14 SecureBoot
+          retrieved: '2026-10-19'
+          quote: As Talos Linux is fully contained in the UKI image, the full operating system is verified and booted by the UEFI firmware.
+        - url: https://docs.siderolabs.com/talos/v1.14/platform-specific-installations/bare-metal-platforms/secureboot
+          type: official-docs
+          title: Talos v1.14 SecureBoot
+          retrieved: '2026-10-19'
+          quote: Sidero Labs provides Talos images signed with the Sidero Labs SecureBoot key via Image Factory.
+        - url: https://docs.siderolabs.com/talos/v1.14/platform-specific-installations/bare-metal-platforms/secureboot
+          type: official-docs
+          title: Talos v1.14 SecureBoot
+          retrieved: '2026-10-19'
+          quote: SecureBoot images can also be generated with custom keys.
         - url: https://github.com/siderolabs/talos/blob/e18d5ce093d98f6076f220dbf88bc4dc45be7651/Dockerfile#L1132-L1144
           type: source-code
           title: 'Talos Dockerfile: initramfs'

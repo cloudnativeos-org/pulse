@@ -398,6 +398,29 @@ dimensions:
       requires_kubernetes: false
       requires_vendor_infrastructure: false
       base_version_pinning: "the Kairos release pins a Hadron version; Kairos v4.3.0 ships Hadron v0.5.1 while Hadron is at v0.5.3"
+      provided_by_sources:
+        - url: https://github.com/kairos-io/hadron/blob/main/README.md
+          type: source-repo
+          title: Hadron README, upgrade system
+          retrieved: "2026-09-22"
+          quote: >-
+            Upgrade System: Managed via Kairos agent for A/B style atomic
+            upgrades
+      base_version_pinning_sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/main/docusaurus.config.ts
+          type: source-repo
+          title: Kairos docs site configuration, per-version Hadron pairing
+          retrieved: "2026-09-22"
+          quote: "'v4.3.0': { ... hadronFlavorRelease: 'v0.5.1' ... }"
+      update_signature_check:
+        provided_by: kairos
+        evidence: DOCUMENTED
+        sources:
+          - url: https://github.com/kairos-io/hadron/blob/0c1856e83447ebc726c4f7c929fc0448aaab7433/README.md
+            type: source-repo
+            title: Hadron README, upgrade system
+            retrieved: '2026-10-19'
+            quote: "Upgrade System: Managed via Kairos agent for A/B style atomic upgrades"
     summary: >-
       Hadron has no upgrade mechanism of its own. A Hadron-based system
       upgrades through the Kairos agent's A/B image swap, with every property
@@ -899,6 +922,20 @@ dimensions:
 
   d10_security:
     normalized:
+      boot_trust_chain:
+        provided_by: kairos
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/hadron/blob/0c1856e83447ebc726c4f7c929fc0448aaab7433/README.md
+          type: source-repo
+          title: Hadron README, boot methods and Kairos image build
+          retrieved: '2026-10-19'
+          quote: "Boot Methods: Supports both Trusted Boot (via USI/UKI) and standard boot (via Dracut/GRUB)"
+        - url: https://github.com/kairos-io/hadron/blob/0c1856e83447ebc726c4f7c929fc0448aaab7433/README.md
+          type: source-repo
+          title: Hadron README, boot methods and Kairos image build
+          retrieved: '2026-10-19'
+          quote: "# Or for Trusted Boot: make pull-image build-kairos BOOTLOADER=systemd VERSION=v0.0.1"
       secure_boot: unknown
       shim: "16.1, compiled from upstream source, no signing step"
       sbat: "systemd-boot and stub carry sbat-distro Hadron with a stable generation counter"

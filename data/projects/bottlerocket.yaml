@@ -379,6 +379,22 @@ dimensions:
       self_hostable_update_server: true
       self_hostable_update_source: "A mirrored or self-hosted TUF repository"
       artifact_verification: tuf-four-role
+      update_signature_check:
+        how: always-on
+        how_sources:
+          - url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/d8b7dfa08c8e2093d770580c58844881849491db/sources/updater/README.md
+            type: source-repo
+            title: Bottlerocket updater README, TUF repository
+            retrieved: '2026-10-19'
+            quote: Any file listed in the manifest is also a TUF 'target' listed in targets.json and can only be downloaded via the TUF repository, preventing the client from downloading untrusted data.
+        checks: an update downloads only through the TUF repository, whose metadata files are each signed
+        sources:
+          - url: https://github.com/bottlerocket-os/bottlerocket-core-kit/blob/d8b7dfa08c8e2093d770580c58844881849491db/sources/updater/README.md
+            type: source-repo
+            title: Bottlerocket updater README, TUF repository
+            retrieved: '2026-10-19'
+            quote: Each metadata file is individually signed and serves a distinct purpose.
+        evidence: DOCUMENTED
       rollout_control: waves
       cross_variant_upgrade: "none"
     summary: >-
@@ -955,11 +971,21 @@ dimensions:
       boot_trust_chain:
         level: 3
         how: default-on
+        limit: on new variants on UEFI platforms, when the firmware enforces Secure Boot. Not on legacy BIOS or Xen instances
+        how_sources:
+        - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md#secure-boot-enabled
+          type: official-docs
+          title: Bottlerocket security features, Secure Boot enabled
+          retrieved: '2026-10-19'
+          quote: Bottlerocket enables Secure Boot for all new variants on platforms that support UEFI boot.
+        - url: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md#secure-boot-enabled
+          type: official-docs
+          title: Bottlerocket security features, Secure Boot enabled
+          retrieved: '2026-10-19'
+          quote: This includes Xen-based EC2 instance types, and bare metal machines configured to emulate the legacy BIOS boot mode.
         route: verity-root-hash-in-signed-artifact
         artifact: signed GRUB config
-        note: On new variants on UEFI platforms, when the firmware enforces Secure Boot. Firmware measures PCR
-          4 and 7, and Bottlerocket services extend PCR 8, 9 and 11 after boot. No Secure Boot on legacy BIOS
-          or Xen instances
+        note: Firmware measures PCR 4 and 7, and Bottlerocket services extend PCR 8, 9 and 11 after boot
         evidence: DOCUMENTED
         sources:
         - url: https://raw.githubusercontent.com/bottlerocket-os/bottlerocket/develop/SECURITY_FEATURES.md

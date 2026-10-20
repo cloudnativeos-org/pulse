@@ -388,6 +388,22 @@ dimensions:
       self_hostable_update_source: "Your own Cincinnati update graph server"
       artifact_verification: gpg-signature
       artifact_verification_scope: "OS update image only: the shipped policy requires a GPG signature for quay.io/fedora/fedora-coreos pulls made by the rpm-ostree daemon. Other registry pulls are not checked by it. See d03 signature_policy."
+      update_signature_check:
+        how: default-on
+        how_sources:
+          - url: https://github.com/coreos/fedora-coreos-config/blob/1590d19721f2319b580a92c82520f7db5be9410e/overlay.d/17fcos-container-signing/usr/lib/systemd/system/rpm-ostreed.service.d/coreos-containers-policy.conf
+            type: source-repo
+            title: Fedora CoreOS config, rpm-ostreed drop-in for the shipped signature policy
+            retrieved: '2026-10-19'
+            quote: "# Point rpm-ostree at our containers policy.json that configures # container image signature verification"
+        checks: the shipped policy requires a GPG signature on the OS update image, and rpm-ostree applies it to that image only
+        sources:
+          - url: https://github.com/coreos/fedora-coreos-config/blob/1590d19721f2319b580a92c82520f7db5be9410e/overlay.d/17fcos-container-signing/usr/lib/coreos/coreos-containers-policy.json
+            type: source-repo
+            title: Fedora CoreOS config, shipped containers policy
+            retrieved: '2026-10-19'
+            quote: '"quay.io/fedora/fedora-coreos": [ { "type": "signedBy", "keyType": "GPGKeys",'
+        evidence: DOCUMENTED
       auto_update_default: true
       phased_rollout: true
       reboot_coordination: "FleetLock protocol; the OS ships the client, the lock manager is a separate deployment"
