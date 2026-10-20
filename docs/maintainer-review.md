@@ -18,11 +18,13 @@ article, and we will not present it that way.
 Each profile can have a representative, a person who works on the project, and
 an external steward, a person with no affiliation with any covered project who
 looks after the profile when no representative is interested. No project has to
-have a representative. A profile with neither is reviewed by the maintainers. A
-maintainer requests each reviewer's review by hand, and the request is recorded
-in the pull request. A review from a representative is a review, not a required
+have a representative. A profile with neither is reviewed by the maintainers.
+When the author of a change is not from the project and the project has a
+representative, a maintainer requests the representative's review by hand, and
+the request is recorded in the pull request. It is a review, not a required
 approval. The approver is a maintainer other than the author who is not
-affiliated with any project that the author is affiliated with. The rules are in
+affiliated with any project that the author is affiliated with and is not
+employed by the author's employer. The rules are in
 [GOVERNANCE.md](../GOVERNANCE.md).
 
 ## What to send

@@ -26,8 +26,8 @@
 # them next to @mauromorales would not make their approval required, because
 # any one owner on a line is enough. GitHub enforces only that a code owner
 # approves. The approver rule (the approver is not affiliated with any project
-# that the author is affiliated with) rests on the maintainers and the public
-# record. data/lineage.yaml,
+# that the author is affiliated with, and is not employed by the author's
+# employer) rests on the maintainers and the public record. data/lineage.yaml,
 # site/projects_meta.yaml, site/content.py and site/drafts/base_choice.yaml
 # state facts about Kairos, Hadron and Spectro Cloud next to facts about the
 # other projects. GitHub cannot protect one entry of a file, so the whole file

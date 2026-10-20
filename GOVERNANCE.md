@@ -59,8 +59,10 @@ MAINTAINERS.md the projects they work on and the organization that employs them.
 An affiliation is any project in the Pulse that a person maintains, contributes
 to as part of their job, or is paid to promote. A person is also affiliated with
 every project that their employer develops, sells or supports, whether or not
-they work on it themselves. A **covered project** is a project that has a
-profile in `data/projects/`.
+they work on it themselves. A person employed by Spectro Cloud counts as
+affiliated with Kairos and Hadron. A maintainer of Kairos counts as affiliated
+with Hadron, because Kairos maintainers also own Hadron Linux's code. A
+**covered project** is a project that has a profile in `data/projects/`.
 
 ## Conflict of interest
 
@@ -85,20 +87,21 @@ facts they can check will trust the Pulse little by little. A conflicted change:
    too.
 
 **The approver rule.** A person is "from" a project when they are affiliated
-with it. The approver is a maintainer who did not write the change and who is
-not affiliated with any project that the author is affiliated with. For a
-change to the profile of a project X, or to an entry about X in another file:
+with it. The approver is a maintainer who did not write the change, who is
+not affiliated with any project that the author is affiliated with, and who is
+not employed by the author's employer. This applies to every conflicted change,
+in any file. For a change to the profile of a project X, or to an entry about X
+in another file:
 
 - When the author is not from X, a maintainer requests a review from a
   representative of X, if X has one. That is a review. It is not a required
   approval.
 - When the author is from X, the approver is from another project or from
   none.
-- Mauro is from Kairos, whose maintainers also own Hadron Linux's code, and he
-  is employed by Spectro Cloud. So a change he makes to the Kairos or Hadron
-  profile, or to an entry about Kairos, Hadron or Spectro Cloud, needs an
-  approver who is not affiliated with Kairos or Hadron and is not employed by
-  Spectro Cloud.
+
+For example, Mauro maintains Kairos and is employed by Spectro Cloud, so every
+change he writes needs an approver who is not affiliated with Kairos or Hadron
+and is not employed by Spectro Cloud.
 
 The rule is symmetric: it applies to every covered project in the same way. A
 maintainer who works on Talos does not approve a Talos maintainer's change to
@@ -114,8 +117,7 @@ record.
 A change to `.github/CODEOWNERS`, `MAINTAINERS.md` or `CODE_OF_CONDUCT.md` is
 always conflicted, before the bootstrap ends and after it, so that nobody can
 put themselves back on the conflicted lines alone. It follows the four rules
-above. For these files, the approver is not affiliated with any project that
-the author is affiliated with, as the approver rule says. For the first 24
+above, and the approver rule says who approves it. For the first 24
 months after the bootstrap ends the founder clause also applies to the
 protected text in them.
 
@@ -178,8 +180,9 @@ request. They open a pull request against MAINTAINERS.md that adds a row. The
 pull request links the project's own docs that name them, for example its
 maintainers file or its contributor list.
 
-A maintainer requests the representative's review by hand on every pull request
-that changes that profile, and the request is recorded in the pull request. A
+When the author of a change to that profile is not from the project, a
+maintainer requests the representative's review by hand, and the request is
+recorded in the pull request. It is a review, not a required approval. A
 representative can also fact-check at any time, in public, in comments or
 reviews. An objection from a representative that cites a primary source blocks
 the change, as in rule 3 of the conflict-of-interest rules.
@@ -189,9 +192,7 @@ access, and one code owner on a line is enough for GitHub. A code owner's
 approval would then count as the approval of the profile.
 
 A representative's fact check is not an approval under the conflict-of-interest
-rules. The approver rule asks for a maintainer. A representative's review is
-requested when the author is not from their project, and it is a review, not a
-required approval.
+rules. The approver rule asks for a maintainer.
 
 ### External stewards
 
@@ -414,8 +415,9 @@ During the bootstrap:
 - Mauro proposes the new maintainers, so he picks the people who will oversee
   him. Each proposal is a public issue, open 14 days, and one maintainer's
   objection is a veto.
-- If the owner is unreachable and no administrator exists, nobody can act: that
-  is a residual risk, and it is listed under "Known limits".
+- If the owner is unreachable and no administrator exists, nobody can act
+  during the bootstrap: that is a residual risk, and it is listed under "Known
+  limits".
 
 **The end condition** depends on who joins and whom they are affiliated with,
 not on a fixed number of maintainers. The bootstrap can end when the approver
@@ -451,9 +453,8 @@ Bootstrap ended on: not yet.
 ## Changes to this document
 
 A change to this document is conflicted and follows all four
-conflict-of-interest rules above, whoever writes it. The approver is not
-affiliated with any project that the author is affiliated with, as the
-approver rule says. A change to the protected text also follows the founder
+conflict-of-interest rules above, whoever writes it, and the approver rule
+says who approves it. A change to the protected text also follows the founder
 clause. A change to the Ownership section follows only that section: the owner
 opens or approves it.
 
@@ -470,8 +471,27 @@ for now:
   maintainers with a majority.
 - While the owner is the only maintainer, every profile change that he writes or
   approves waits 7 days. This is intended.
-- There is no second owner. If the owner is unreachable and no administrator
-  exists, nobody can act.
+- There is no second owner. During the bootstrap, if the owner is unreachable
+  and no administrator exists, nobody can act. After the bootstrap, maintainers
+  can still merge without the owner.
+- A Kairos maintainer can approve a change to the Kairos profile by an author
+  who is not from Kairos, as the approver rule intends. On that route the
+  label, the 7 days and the public objection window, including the
+  representative's, are the only check. The same holds for every project.
+- At the smallest end state, Mauro and one maintainer who is not affiliated
+  with Kairos or Hadron and is not employed by Spectro Cloud, the conflicted
+  CODEOWNERS lines name only that maintainer once Mauro hands them over. A
+  change that maintainer writes to a file on those lines, such as this
+  document, MAINTAINERS.md (stepping down included), `data/lineage.yaml` or the
+  schema, has only its author as code owner. GitHub does not let an author
+  approve their own pull request, and it does not count Mauro's approval as a
+  code owner approval. Such a change waits until the owner adds a second
+  qualified maintainer to those lines, through a change to CODEOWNERS that the
+  approver rule allows.
+- At that same end state, rule 3 of "How the bootstrap ends" cannot finish
+  without an administrator. That maintainer opens the recording pull request,
+  and nobody else that rule 3 names qualifies to merge it. Without an
+  administrator, the bootstrap ends only when the owner records the day.
 - Until the outside person is named, nobody is removed for a breach of the code
   of conduct. While the owner is the enforcement contact, a report about the
   owner has no independent contact until the outside person is named.
