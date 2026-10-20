@@ -143,7 +143,7 @@ dimensions:
       survives_upgrade:
         - "/var, untouched by upgrades and rollbacks"
         - "/etc, through a three-way merge that preserves local modifications"
-      read_only_mechanism: OSTree-managed; composefs root since Fedora 41
+      read_only_mechanism: "OSTree-managed, with / mounted through composefs since Fedora 41, which makes it a truly read-only filesystem; file contents are not verified at runtime: the Fedora change calls composefs the first step toward runtime verification"
       configurable_paths:
         value: 'yes'
         evidence: DOCUMENTED
@@ -165,6 +165,11 @@ dimensions:
           title: 'Fedora CoreOS storage: writable locations'
           retrieved: '2026-10-12'
           quote: The only supported writable locations are /etc and /var.
+        - url: https://fedoraproject.org/wiki/Changes/ComposefsAtomicCoreOSIoT
+          type: design-doc
+          title: 'Fedora Change: composefs by default for CoreOS and IoT (targeted release Fedora Linux 41)'
+          retrieved: '2026-10-19'
+          quote: This makes the root mount of the system ( / ) a truly read only filesystem, increasing the system integrity and robustness. This is the first step toward a full at runtime verification of filesystem integrity.
     summary: >-
       OSTree owns every file in the operating system, so / and /usr are not
       writable, and neither is /boot. The documented statement is unusually
@@ -1251,11 +1256,8 @@ dimensions:
       license: "component-dependent; Apache-2.0 for most tooling, MIT for the OS configuration, mixed for rpm-ostree"
       open_source: true
       open_governance: documented
-      vendor_neutral_ownership: foundation-held
-      foundation:
-        name: "Fedora Project"
-        level: "official Edition"
-        since: "Fedora 37, 2022"
+      vendor_neutral_ownership: community-sponsor-trademark
+      foundation: "none; Fedora CoreOS is an official Fedora Edition (since Fedora 37, 2022), and the Fedora trademarks are held by Red Hat"
       trademark_holder: "Red Hat, Inc., protected on behalf of the Fedora community with Council oversight"
       primary_commercial_sponsor: "Red Hat"
       contribution_diversity:
@@ -1275,8 +1277,9 @@ dimensions:
       set of components with different licences. Open governance: documented, and
       genuinely so, with quorum and majority rules, a public weekly meeting and a
       product requirements document that functions as a charter. Vendor-neutral
-      ownership: foundation-held, through the Fedora Project, with Red Hat as
-      trademark owner under Council oversight. Contribution diversity: unknown,
+      ownership: a community project whose sponsor holds the trademark. Red Hat
+      is the trademark owner, and the Fedora Council oversees the trademark
+      guidelines. Contribution diversity: unknown,
       because no affiliation data is published.
 
       That last point is the honest one. There is no maintainers file, unlike the
@@ -1285,6 +1288,16 @@ dimensions:
       sources, and this profile does not guess at it.
     evidence: DOCUMENTED
     sources:
+      - url: https://docs.fedoraproject.org/en-US/legal/trademarks/
+        type: governance-doc
+        title: Fedora trademark guidelines
+        retrieved: "2026-10-19"
+        quote: >-
+          Red Hat protects the Fedora Trademarks on behalf of the entire Fedora
+          community. The law obligates trademark owners to police their marks and
+          prevent the use of confusingly similar names by third parties. As the
+          trademark owner, Red Hat uses the Fedora Trademarks under the same
+          guidelines as the rest of the community.
       - url: https://github.com/coreos/fedora-coreos-tracker/blob/main/README.md
         type: governance-doc
         title: Fedora CoreOS Working Group
@@ -1306,13 +1319,6 @@ dimensions:
         quote: >-
           This is the Product Requirements Document for the Fedora CoreOS
           Working Group.
-      - url: https://docs.fedoraproject.org/en-US/legal/trademarks/
-        type: governance-doc
-        title: Fedora trademarks
-        retrieved: "2026-09-22"
-        quote: >-
-          Red Hat protects the Fedora Trademarks on behalf of the entire Fedora
-          community.
     unknowns:
       - "No maintainers file or employer-labelled membership record exists for the working group."
 
@@ -1389,7 +1395,7 @@ tradeoffs:
     - "A self-hostable update graph server, and the option to bypass the graph entirely and rebase by hand."
     - "A shipped signature policy for the OS update image, requiring a GPG signature under Fedora keys for the project's own repository before rpm-ostree will apply it."
     - "Ships with SELinux enforcing, and disabling it is explicitly unsupported. Audit logging cannot be stopped."
-    - "Foundation-held governance with a published charter, documented voting rules and weekly public meetings."
+    - "Community governance with a published charter, documented voting rules and weekly public meetings."
     - "Four architectures, and live ISO and PXE as first-class published artifacts."
   costs:
     - "No automatic rollback. Rollback is manual and requires console access, and the framework that would automate it is not shipped. The design question has been open since 2018."
@@ -1678,3 +1684,21 @@ corrections:
       title: 'Fedora CoreOS docs: Adding OS extensions to the host system'
       retrieved: '2026-10-12'
       quote: However, in some cases it is necessary to add software to the base OS itself.
+  - date: "2026-10-19"
+    field: "dimensions.d13_governance.normalized.vendor_neutral_ownership"
+    change: "Was foundation-held, with the Fedora Project as the foundation. The Fedora Project is a community project, not a foundation, and Red Hat holds the Fedora trademarks. Now community-sponsor-trademark, a new value defined in schema/vocabularies.md; the page names the sponsor, Red Hat. The trademark guidelines source is now first in d13."
+    source:
+      url: "https://docs.fedoraproject.org/en-US/legal/trademarks/"
+      type: "governance-doc"
+      title: "Fedora trademark guidelines"
+      retrieved: "2026-10-19"
+      quote: "As the trademark owner, Red Hat uses the Fedora Trademarks under the same guidelines as the rest of the community."
+  - date: "2026-10-19"
+    field: "dimensions.d02_immutability.normalized.read_only_mechanism"
+    change: "Was \"OSTree-managed; composefs root since Fedora 41\", with no source that names composefs. Now says / is mounted through composefs, which makes it read-only, and that file contents are not verified at runtime. Added the Fedora change page to mounts_sources."
+    source:
+      url: "https://fedoraproject.org/wiki/Changes/ComposefsAtomicCoreOSIoT"
+      type: "design-doc"
+      title: "Fedora Change: composefs by default for CoreOS and IoT"
+      retrieved: "2026-10-19"
+      quote: "This is the first step toward a full at runtime verification of filesystem integrity."

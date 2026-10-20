@@ -266,7 +266,8 @@ VERIFIED_PREFIX = {
         "An optional cosign flag exists on the upgrade command. It is off by default and the fleet upgrade job does not set it. "
         "The profile does not establish that the SUSE images carry signatures. Layer digests are still checked when the image is pulled"),
 }
-OWN = {"foundation-held": "Foundation-held", "single-vendor": "Single vendor", "mixed": "Mixed", "unknown": "Unknown"}
+OWN = {"foundation-held": "Foundation-held", "single-vendor": "Single vendor", "mixed": "Mixed",
+       "community-sponsor-trademark": "Community project, sponsor holds the trademark", "unknown": "Unknown"}
 SUPPORT = {"none published": "None published", "lts-stream": "LTS stream", "versioned-with-eol": "Versioned, with end of life",
            "rolling-no-lts": "Rolling, no LTS", "vendor-lifecycle": "Vendor lifecycle", "unknown": "Unknown"}
 ARCH = {"x86_64": "amd64", "aarch64": "arm64", "x86_64-linux": "amd64", "aarch64-linux": "arm64"}
@@ -938,10 +939,12 @@ def col_own(p, S):
     if o == "single-vendor" and (not detail or detail == "unknown") and n.get("primary_commercial_sponsor") not in (None, "", "unknown"):
         # The trademark holder is not recorded: name the vendor from the sponsor field, and say which field it is.
         detail = "Vendor: %s" % n["primary_commercial_sponsor"]
+    if o == "community-sponsor-trademark" and n.get("primary_commercial_sponsor") not in (None, "", "unknown"):
+        detail = "Sponsor: %s" % n["primary_commercial_sponsor"]
     kind = "unknown" if o == "unknown" else "value"
     return Cell(value(kind, E(OWN.get(o, o)), E(first_clause(detail)) if detail and detail != "unknown" else "")
                 + meta(dim_of(p, "d13")["evidence"], S.cite(p, "d13")), OWN.get(o, o),
-                {"own": {"foundation-held": "foundation", "single-vendor": "vendor"}.get(o, "other")}, tags=[(OWN.get(o, o), kind)])
+                {"own": {"foundation-held": "foundation", "single-vendor": "vendor", "community-sponsor-trademark": "community"}.get(o, "other")}, tags=[(OWN.get(o, o), kind)])
 
 
 def col_support(p, S):
@@ -1056,7 +1059,7 @@ FILTERS = [
     ("arch", "Architecture", [("amd64", "amd64"), ("arm64", "arm64"), ("riscv64", "riscv64"), ("other", "Other")]),
     ("day0", "Day-0 path", [("iso", "ISO"), ("pxe", "PXE"), ("cloud", "Cloud image"), ("disk", "Disk image")]),
     ("selfhost", "Self-hostable update source", [("yes", "Yes"), ("commercial", "Commercial only"), ("unknown", "Unknown")]),
-    ("own", "Assets held by", [("foundation", "Foundation"), ("vendor", "Single vendor")]),
+    ("own", "Assets held by", [("foundation", "Foundation"), ("vendor", "Single vendor"), ("community", "Community project, sponsor holds the trademark")]),
 ]
 
 # One neutral sentence per filter, shown under its title in the Filters panel.

@@ -843,6 +843,17 @@ dimensions:
       ai_accelerators:
         items: []
         note: "No accelerator support is documented in the sources read. The docs only list GPU vendor and model as machine label variables."
+        searched: "2026-10-19: a full-text search of the rancher/elemental-docs repository at e512e034 (2026-07-02), the source of elemental.docs.rancher.com, finds no mention of NVIDIA, CUDA or accelerators; GPU appears only in the machine label template pages."
+        sources:
+          - url: https://elemental.docs.rancher.com/hardwarelabels
+            type: official-docs
+            title: Elemental hardware labels, the only GPU mention
+            retrieved: "2026-10-19"
+            quote: "${System Data/GPU/Vendor} GPU vendor (Only available if the node has an identifiable GPU)"
+          - url: https://github.com/rancher/elemental-docs/tree/e512e034fddd904281ff7914ea0465e6d9ea6c51/docs
+            type: source-repo
+            title: rancher/elemental-docs at e512e034, searched for NVIDIA, CUDA and accelerator (no match)
+            retrieved: "2026-10-19"
       architectures_released:
         - amd64
       architectures_development:
@@ -1302,9 +1313,9 @@ dimensions:
       open_source: true
       open_governance: undocumented
       vendor_neutral_ownership: single-vendor
-      foundation:
-        name: "none found"
-      trademark_holder: "not stated in the sources read"
+      foundation: "none found"
+      trademark_holder: unknown
+      trademark_holder_note: "not stated in the sources read"
       primary_commercial_sponsor: SUSE
       primary_commercial_sponsor_evidence: DOCUMENTED
       maintainer_affiliation:
@@ -1507,4 +1518,16 @@ follow_up_research:
   - FR-03
   - FR-07
 
-corrections: []
+corrections:
+  - date: "2026-10-19"
+    field: "dimensions.d08_hardware_platform.normalized.ai_accelerators"
+    change: "The empty accelerator list had no source and no record of the search. Added a searched note and two sources: the hardware labels page, the only GPU mention, and the docs repository that was searched."
+    source:
+      url: "https://elemental.docs.rancher.com/hardwarelabels"
+      type: "official-docs"
+      title: "Elemental hardware labels"
+      retrieved: "2026-10-19"
+      quote: "${System Data/GPU/Vendor} GPU vendor (Only available if the node has an identifiable GPU)"
+  - date: "2026-10-19"
+    field: "dimensions.d13_governance.normalized.foundation"
+    change: "The data sheet showed \"Single vendor none found\", because foundation was an object whose name was \"none found\". foundation is now the string \"none found\" and trademark_holder is unknown (note kept), so the sheet names the vendor, SUSE, as other single-vendor entries do."

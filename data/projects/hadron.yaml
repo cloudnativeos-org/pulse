@@ -459,13 +459,14 @@ dimensions:
       provided_by: kairos
       rollback_to_previous: available
       automatic_rollback_on_boot_failure: available
-      retained_versions: 1
+      retained_versions: 2
+      retained_versions_note: "versions on disk, counting the running one, as in kairos.yaml"
       recovery_environment: dedicated-partition
       factory_reset: available
       network_independent_recovery: "yes"
       trusted_boot_boot_assessment_tested_in_hadron_ci: true
     summary: >-
-      Every rollback and recovery property is Kairos's: one retained version,
+      Every rollback and recovery property is Kairos's: one retained previous version,
       boot assessment with one retry on the GRUB path, a recovery partition and
       a factory reset, all documented and all with the gaps recorded in
       kairos.yaml d05. Hadron adds one fact of its own: its acceptance suite
@@ -916,7 +917,7 @@ dimensions:
         - "legacy network protocols blacklisted in modprobe"
         - "audit userspace tools shipped since v0.5.3"
       vulnerability_tracking: "organization CVE dashboard; four high findings for Hadron as of 2026-09-10"
-      trusted_boot_issue: "kairos-io/kairos#4885, closed 2026-09-22; fix kairos-io/go-ukify#66 merged 2026-09-22; not yet in a released AuroraBoot (latest v0.27.1, 2026-09-11)"
+      trusted_boot_issue: "kairos-io/kairos#4885, closed 2026-09-22; fix kairos-io/go-ukify#66 merged 2026-09-22, released in go-ukify v0.5.1 and v0.5.2 (2026-09-22); shipped in AuroraBoot v0.28.0 (2026-10-07), which pins go-ukify v0.5.2; media built with AuroraBoot v0.27.1 or older carry the defect"
     summary: >-
       Hadron contributes a hardening baseline, a from-source shim and
       systemd-boot with its own SBAT identity, and FIPS variants. Everything
@@ -958,8 +959,10 @@ dimensions:
       failure, and that was not tested. It supersedes kairos-io/kairos#4618,
       opened 2026-09-11 and closed 2026-09-16 before the cause was found. The
       fix, kairos-io/go-ukify#66, merged on 2026-09-22 and the issue closed the
-      same day. The latest AuroraBoot release, v0.27.1 of 2026-09-11, predates
-      the fix, so no released media tool carries it yet. Both the issue and
+      same day. At collection the latest AuroraBoot release, v0.27.1 of
+      2026-09-11, predated the fix. AuroraBoot v0.28.0, released on 2026-10-07,
+      ships it: its go.mod pins go-ukify v0.5.2, released after the fix merged.
+      Media built with v0.27.1 or older carry the defect. Both the issue and
       the fix were filed by the same team that wrote this survey, which is
       stated here so the reader can weigh it; the facts are dated and linked,
       and they are recorded under the same discipline as the Talos provider
@@ -1022,13 +1025,23 @@ dimensions:
           header declares SectionAlignment 0x1000.
       - url: https://github.com/kairos-io/go-ukify/pull/66
         type: source-repo
-        title: "fix(uki): align appended sections to the PE SectionAlignment, open"
-        retrieved: "2026-09-22"
-        quote: "State OPEN, not merged, opened 2026-09-22."
-      - url: https://github.com/kairos-io/AuroraBoot/blob/main/go.mod
+        title: "fix(uki): align appended sections to the PE SectionAlignment, merged 2026-09-22"
+        retrieved: "2026-10-19"
+        quote: "fix(uki): align appended sections to the PE SectionAlignment"
+      - url: https://github.com/kairos-io/AuroraBoot/releases/tag/v0.28.0
+        type: release-notes
+        title: AuroraBoot v0.28.0, released 2026-10-07
+        retrieved: "2026-10-19"
+        quote: v0.28.0
+      - url: https://github.com/kairos-io/AuroraBoot/blob/v0.28.0/go.mod
         type: source-repo
-        title: AuroraBoot go.mod, go-ukify pin
-        retrieved: "2026-09-22"
+        title: AuroraBoot go.mod at v0.28.0, go-ukify pin
+        retrieved: "2026-10-19"
+        quote: github.com/kairos-io/go-ukify v0.5.2
+      - url: https://github.com/kairos-io/AuroraBoot/blob/v0.27.1/go.mod
+        type: source-repo
+        title: AuroraBoot go.mod at v0.27.1, go-ukify pin
+        retrieved: "2026-10-19"
         quote: github.com/kairos-io/go-ukify v0.5.0
       - url: https://github.com/kairos-io/hadron/blob/main/files/ssh/sshd_config.d/01-hadron-stig.conf
         type: source-repo
@@ -1433,7 +1446,7 @@ open_questions:
   - "What do the FIPS image variants promise, and is any validation planned?"
   - "Is riscv64 intended to return as a released architecture?"
   - "Should hadron-layers and hadron-firmware carry a LICENSE file?"
-  - "Has kairos-io/go-ukify#66 shipped in a released AuroraBoot, and was the Trusted Boot behaviour on production firmware measured?"
+  - "Was the Trusted Boot behaviour on production firmware measured? (The fix, kairos-io/go-ukify#66, shipped in AuroraBoot v0.28.0 on 2026-10-07.)"
   - "Should Hadron carry its own SECURITY.md, or should the Kairos security policy state that it covers the organization's repositories?"
   - "Do the NVIDIA modules built by the Hadron example load with Secure Boot or Trusted Boot on? The example disables module signing."
 
@@ -1537,3 +1550,15 @@ corrections:
       title: 'Hadron docs: Adding Hadron layers'
       retrieved: '2026-10-12'
       quote: Start from the Hadron image you already use.
+  - date: "2026-10-19"
+    field: "dimensions.d10_security.normalized.trusted_boot_issue"
+    change: "Said the go-ukify fix was in no released AuroraBoot. AuroraBoot v0.28.0 (2026-10-07) pins go-ukify v0.5.2, released after the fix merged. The value, the d10 notes, the go-ukify#66 source title and the open question now say so."
+    source:
+      url: "https://github.com/kairos-io/AuroraBoot/releases/tag/v0.28.0"
+      type: "release-notes"
+      title: "AuroraBoot v0.28.0"
+      retrieved: "2026-10-19"
+      quote: "v0.28.0"
+  - date: "2026-10-19"
+    field: "dimensions.d05_rollback_recovery.normalized.retained_versions"
+    change: "Was 1. Now 2, under the definition in schema/vocabularies.md (versions on disk including the running one), as in kairos.yaml."

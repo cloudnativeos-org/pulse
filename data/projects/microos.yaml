@@ -460,27 +460,17 @@ dimensions:
             license: "Apache-2.0"
             class: open-source
             reconciliation: in-place
+            status: "SUSE Linux Micro only, not openSUSE MicroOS"
             filter: false
-            note: "For SUSE Linux Micro only, not openSUSE MicroOS. It creates SUC Plans."
+            note: "For SUSE Linux Micro only, not openSUSE MicroOS. It creates SUC Plans. The reconciliation mode is inferred."
             evidence: INFERRED
             sources:
               - url: https://github.com/suse-edge/upgrade-controller
-                title: "suse-edge/upgrade-controller repository"
-                retrieved: "2026-10-06"
-          - kind: operator
-            name: "Elemental ManagedOSImage"
-            license: "Apache-2.0"
-            class: open-source
-            reconciliation: in-place
-            filter: false
-            note: "For SUSE Linux Micro only, not openSUSE MicroOS. Provided by elemental-operator."
-            evidence: DOCUMENTED
-            sources:
-              - url: https://github.com/rancher/elemental-operator
-                title: "elemental-operator repository"
-                retrieved: "2026-10-06"
+                title: "suse-edge/upgrade-controller README"
+                retrieved: "2026-10-19"
                 quote: >-
-                  reconcile the configured image ... to all targeted nodes
+                  A Kubernetes controller capable of performing infrastructure
+                  platform upgrades consisting of: * Operating System (SL Micro)
           - kind: suc
             name: "system-upgrade-controller example Plan"
             license: "Apache-2.0"
@@ -1623,7 +1613,7 @@ dimensions:
       license: "GPL-2.0 as the collective-work licence; components carry their own licences"
       open_source: true
       open_governance: documented
-      vendor_neutral_ownership: single-vendor
+      vendor_neutral_ownership: community-sponsor-trademark
       foundation: "the Geeko Foundation exists and sponsors project events; no source states it holds the trademark"
       trademark_and_infrastructure_steward: "SUSE Software Solutions Ireland Limited"
       primary_commercial_sponsor: SUSE
@@ -1656,7 +1646,8 @@ dimensions:
       The four governance properties separate cleanly here and the honest reading is
       mixed. Open source: yes. Open governance: documented, and genuinely so, through
       an elected board that includes community volunteers alongside employees, with
-      the chair appointed by the sponsor. Vendor-neutral ownership: no. Contribution
+      the chair appointed by the sponsor. Vendor-neutral ownership: no; it is a
+      community project whose sponsor, SUSE, holds the trademark. Contribution
       diversity on the distinguishing mechanism: low.
 
       The ownership position is stated by the project itself with unusual clarity,
@@ -1683,6 +1674,15 @@ dimensions:
       process a non-employee could join was found for the product.
     evidence: DOCUMENTED
     sources:
+      - url: https://doc.opensuse.org/documentation/leap/startup/html/book-startup/index.html
+        type: official-docs
+        title: "openSUSE documentation, legal notice"
+        retrieved: "2026-10-19"
+        quote: >-
+          For SUSE trademarks, see https://www.suse.com/company/legal/ . All
+          third-party trademarks are the property of their respective owners.
+          Trademark symbols (®, ™ etc.) denote trademarks of SUSE and its
+          affiliates.
       - url: https://en.opensuse.org/openSUSE:License
         type: governance-doc
         title: "openSUSE licence and stewardship"
@@ -1819,12 +1819,12 @@ tradeoffs:
     - "The commercial vehicle requires product registration for its update repositories, so its update path depends on a subscription and vendor infrastructure or a local mirror of it."
     - "No FIPS 140-3 or Common Criteria certificate names either Micro product. The vendor's certificates belong to its enterprise server."
     - "Every fleet-scale capability belongs to a separate commercial product. The open-source projects ship four single-node tools and nothing that manages a fleet."
-    - "Ownership is single-vendor: a vendor legal entity holds the trademark and the infrastructure."
+    - "The trademark and the infrastructure are held by the sponsor, a vendor legal entity, not by a foundation."
     - "Published architecture cadence is not uniform. riscv64 was 15 days behind the other architectures at collection and 20 days behind a week later, and ppc64le was 33 days behind on 2026-09-22, against a design claim that every snapshot produces every image."
     - "No published vulnerability response commitment or service level for either Micro product."
     - "The downloads page calls the versioned community vehicle experimental, while that vehicle's portal publishes GA and end-of-life dates."
 maintainers_fact:
-  text: "Single vendor."
+  text: "Maintainer affiliation is not published. The sponsor, SUSE, holds the trademark and the infrastructure."
   evidence: DOCUMENTED
   sources:
     - url: "https://en.opensuse.org/openSUSE:License"
@@ -2145,3 +2145,21 @@ corrections:
       title: openSUSE MicroOS design
       retrieved: '2026-10-12'
       quote: A MicroOS installation can be updated and new RPM packages can be installed using the transactional-update or the pkcon application.
+  - date: "2026-10-19"
+    field: "dimensions.d13_governance.normalized.vendor_neutral_ownership"
+    change: "Was single-vendor. openSUSE is a community project whose leadership is elected by the community, and its trademark is held by its sponsor, SUSE. Now community-sponsor-trademark, a new value defined in schema/vocabularies.md, the same value as Fedora CoreOS; the page names the sponsor, SUSE. The maintainers line and the ownership cost were reworded to match. The en.opensuse.org trademark and licence pages return a bot challenge to automated fetches, so the trademark source is the openSUSE documentation legal notice."
+    source:
+      url: "https://doc.opensuse.org/documentation/leap/startup/html/book-startup/index.html"
+      type: "official-docs"
+      title: "openSUSE documentation, legal notice"
+      retrieved: "2026-10-19"
+      quote: "Trademark symbols (\u00ae, \u2122 etc.) denote trademarks of SUSE and its affiliates."
+  - date: "2026-10-19"
+    field: "dimensions.d04_upgrade.normalized.fleet_upgrade.paths"
+    change: "Removed the Elemental ManagedOSImage path. It upgrades Elemental OS images, which is the separate Elemental entry, not a MicroOS or plain SUSE Linux Micro node, and its quote was not on the cited README. The SUSE Edge Upgrade Controller path now carries its limit in status, so the data sheet shows \"SUSE Linux Micro only, not openSUSE MicroOS\", and its source has a quote."
+    source:
+      url: "https://github.com/suse-edge/upgrade-controller"
+      type: "source-repo"
+      title: "suse-edge/upgrade-controller README"
+      retrieved: "2026-10-19"
+      quote: "A Kubernetes controller capable of performing infrastructure platform upgrades consisting of: * Operating System (SL Micro)"

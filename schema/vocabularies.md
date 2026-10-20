@@ -244,7 +244,9 @@ Recorded as separate fields, never as one "rollback" answer.
 
 - `rollback_to_previous`: `available` | `none` | `unknown` | `not-applicable`
 - `automatic_rollback_on_boot_failure`: `available` | `none` | `unknown` | `not-applicable`, plus `trigger` and `attempts` free-text fields when available
-- `retained_versions`: integer, `configurable`, or `unknown`
+- `retained_versions`: integer, `configurable`, or `unknown`. The integer counts the OS versions kept on disk that
+  the machine can boot, including the running one, so an A/B design with one previous version is `2`. A separate
+  recovery or factory image is not counted.
 - `recovery_environment`: `dedicated-partition` | `live-media` | `vendor-hosted` | `host-container` | `none` | `unknown`
 - `factory_reset`: `available` | `none` | `unknown`
 - `network_independent_recovery`: `yes` | `partial` | `no` | `unknown`
@@ -284,8 +286,26 @@ Four properties, deliberately separate, because they are independent:
 |---|---|---|
 | `open_source` | `true` / `false` / `partial` | Is the source available under an OSI-approved licence? |
 | `open_governance` | `documented` / `partial` / `undocumented` / `none` | Is there a published decision-making process that a non-employee can participate in? |
-| `vendor_neutral_ownership` | `foundation-held` / `single-vendor` / `mixed` / `unknown` | Who holds the trademark and project assets? |
+| `vendor_neutral_ownership` | `foundation-held` / `single-vendor` / `mixed` / `community-sponsor-trademark` / `unknown` | Who holds the trademark and project assets? |
 | `contribution_diversity` | object with `method` and `value` | How many distinct organizations actually contribute? Always records how it was measured. |
+
+`community-sponsor-trademark` means: a community project, with its own
+community governance, whose trademark is held by its corporate sponsor, not by a
+foundation and not by a vendor that runs the project as its product. The page
+shows it as "Community project, sponsor holds the trademark" and names the
+sponsor from `primary_commercial_sponsor`. It is a value of its own: it is not
+grouped with `foundation-held` or with `single-vendor`. Entries with this value,
+and the trademark source for each:
+
+- Fedora CoreOS, sponsor Red Hat. The Fedora trademark guidelines
+  (https://docs.fedoraproject.org/en-US/legal/trademarks/) say: "Red Hat protects
+  the Fedora Trademarks on behalf of the entire Fedora community." and "As the
+  trademark owner, Red Hat uses the Fedora Trademarks under the same guidelines
+  as the rest of the community."
+- openSUSE MicroOS, sponsor SUSE. The legal notice of the openSUSE documentation
+  (https://doc.opensuse.org/documentation/leap/startup/html/book-startup/index.html),
+  which marks the name as "openSUSE®", says: "Trademark symbols (®, ™ etc.)
+  denote trademarks of SUSE and its affiliates."
 
 A project can be open source with single-vendor ownership and undocumented
 governance. Another can be foundation-held with a single dominant contributor.

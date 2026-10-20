@@ -98,10 +98,10 @@ dimensions:
       Universal Blue, ALT Atomic and others, alongside Red Hat's own products.
     evidence: DOCUMENTED
     sources:
-      - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/relationships.md
+      - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/bootc-relationships.7.md
         type: official-docs
         title: Relationship to other projects
-        retrieved: "2026-09-22"
+        retrieved: "2026-10-19"
         quote: >-
           bootc uses OSTree as a backing model, and so does rpm-ostree. Hence,
           when using a container source, `rpm-ostree upgrade` and `bootc
@@ -117,13 +117,13 @@ dimensions:
       integrity_mechanism:
         - ostree-immutable-checkout
         - composefs
-      fsverity: "enabled by default on the composefs backend where available"
+      fsverity: "off by default on the default ostree backend (with its composefs mount); on by default, where available, on the separate native composefs backend"
       etc_merge: three-way
       read_only:
         - /
         - /usr
         - /opt
-      read_only_mechanism: composefs backend, recommended; the whole of / is a read-only filesystem
+      read_only_mechanism: "default ostree backend with composefs enabled in prepare-root.conf, as the docs strongly recommend, which makes the whole of / read-only; fs-verity is off by default on this backend, so file contents are not checked at runtime; the separate native composefs backend turns fs-verity on by default"
       writable_and_persistent:
         - /etc (three-way merge on upgrade)
         - /var
@@ -148,6 +148,21 @@ dimensions:
           title: 'bootc filesystem: read-only root'
           retrieved: '2026-10-12'
           quote: This will ensure that the entire / is a read-only filesystem which is very important for achieving correct semantics.
+        - url: https://bootc.dev/bootc/bootc-filesystem.7.html
+          type: official-docs
+          title: 'bootc filesystem: recommended ostree composefs backend'
+          retrieved: '2026-10-19'
+          quote: it is strongly recommended that bootc consumers use the ostree composefs backend; to do this, ensure that you have a /usr/lib/ostree/prepare-root.conf that contains at least [composefs] enabled = true
+        - url: https://bootc.dev/bootc/bootc-security.7.html
+          type: official-docs
+          title: 'bootc security: fs-verity by backend'
+          retrieved: '2026-10-19'
+          quote: The default backend is ostree (with a composefs mount), but fsverity is not enabled by default. The composefs backend enables fsverity by default if available
+        - url: https://bootc.dev/bootc/bootc-composefs.7.html
+          type: official-docs
+          title: 'bootc composefs backend: two storage backends'
+          retrieved: '2026-10-19'
+          quote: bootc has two storage backends. The default is ostree, and the composefs backend uses composefs-rs instead of ostree to store and manage deployments.
         - url: https://bootc.dev/bootc/bootc-filesystem.7.html
           type: official-docs
           title: 'bootc filesystem: /opt'
@@ -227,10 +242,10 @@ dimensions:
       reject-by-default policy.
     evidence: DOCUMENTED
     sources:
-      - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/registries-and-offline.md
+      - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/bootc-registries-and-offline.7.md
         type: official-docs
         title: Registries and offline operation
-        retrieved: "2026-09-22"
+        retrieved: "2026-10-19"
         quote: >-
           In a usage scenario where the operating system update is in a fully
           disconnected environment and you want to perform updates via e.g.
@@ -255,7 +270,18 @@ dimensions:
   d04_upgrade:
     normalized:
       fleet_upgrade:
-        self_update: "The bootc-fetch-apply-updates timer is available upstream for operating systems and distributions to enable. The upstream default is daily."
+        self_update: "The bootc-fetch-apply-updates timer is available upstream for operating systems and distributions to enable. The upstream unit runs 1 hour after boot and then every 8 hours, with up to 2 hours of random delay."
+        self_update_sources:
+          - url: https://github.com/bootc-dev/bootc/blob/v1.16.13/systemd/bootc-fetch-apply-updates.timer
+            type: source-repo
+            title: "bootc-fetch-apply-updates.timer, upstream unit at v1.16.13"
+            retrieved: "2026-10-19"
+            quote: "OnBootSec=1h ... OnUnitInactiveSec=8h ... RandomizedDelaySec=2h"
+          - url: https://bootc.dev/bootc/bootc-upgrades.7.html
+            type: official-docs
+            title: "bootc upgrades: the upstream timer"
+            retrieved: "2026-10-19"
+            quote: There is also an opinionated bootc-fetch-apply-updates.timer and corresponding service available in upstream for operating systems and distributions to enable.
         paths:
           - kind: operator
             name: "bootc-operator"
@@ -527,10 +553,10 @@ dimensions:
           Develop native Kubernetes integrations to enable cluster-wide OS
           updates, node lifecycle management, and fleet-wide rollout and
           rollback strategies.
-      - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/relationships.md
+      - url: https://github.com/bootc-dev/bootc/blob/main/docs/src/bootc-relationships.7.md
         type: official-docs
         title: Relationship with Kubernetes
-        retrieved: "2026-09-22"
+        retrieved: "2026-10-19"
         quote: >-
           Just as `podman` does not depend on a Kubernetes API server, `bootc`
           will also not depend on one.
@@ -1351,3 +1377,30 @@ corrections:
       title: 'bootc docs: Package manager integration'
       retrieved: '2026-10-12'
       quote: the default usage of package managers such as `apt` and `dnf` will be at container build time.
+  - date: "2026-10-19"
+    field: "dimensions.d04_upgrade.normalized.fleet_upgrade.self_update"
+    change: "Said \"The upstream default is daily.\" The shipped timer unit runs 1 hour after boot, then every 8 hours, with up to 2 hours of random delay. Corrected, with self_update_sources."
+    source:
+      url: "https://github.com/bootc-dev/bootc/blob/v1.16.13/systemd/bootc-fetch-apply-updates.timer"
+      type: "source-repo"
+      title: "bootc-fetch-apply-updates.timer at v1.16.13"
+      retrieved: "2026-10-19"
+      quote: "OnBootSec=1h ... OnUnitInactiveSec=8h ... RandomizedDelaySec=2h"
+  - date: "2026-10-19"
+    field: "dimensions.d02_immutability.normalized.read_only_mechanism"
+    change: "Said \"composefs backend, recommended\". The recommended read-only layout is the default ostree backend with composefs enabled in prepare-root.conf, where fs-verity is off by default; the separate native composefs backend is the one that turns fs-verity on. read_only_mechanism and fsverity now say which backend is meant, with three added mounts_sources."
+    source:
+      url: "https://bootc.dev/bootc/bootc-security.7.html"
+      type: "official-docs"
+      title: "bootc security"
+      retrieved: "2026-10-19"
+      quote: "The default backend is ostree (with a composefs mount), but fsverity is not enabled by default."
+  - date: "2026-10-19"
+    field: "dimensions.d01_os_model.sources"
+    change: "Two source URLs returned 404 (docs/src/relationships.md, used in d01 and d07, and docs/src/registries-and-offline.md, used in d03). The files moved to docs/src/bootc-relationships.7.md and docs/src/bootc-registries-and-offline.7.md; the quoted text is unchanged there."
+    source:
+      url: "https://github.com/bootc-dev/bootc/blob/main/docs/src/bootc-relationships.7.md"
+      type: "official-docs"
+      title: "Relationship to other projects"
+      retrieved: "2026-10-19"
+      quote: "bootc uses OSTree as a backing model, and so does rpm-ostree."

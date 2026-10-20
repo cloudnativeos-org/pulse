@@ -574,8 +574,8 @@ dimensions:
       rollback_to_previous: available
       rollback_mechanism: "snap revert, per snap"
       retained_versions: "3 revisions per snap on Ubuntu Core, via refresh.retain"
-      automatic_rollback_on_boot_failure: available
-      automatic_rollback_trigger: "the bootloader and snapd coordinate to test a new kernel or base snap; a failed boot undoes the change"
+      automatic_rollback_on_boot_failure: "documented for a remodel only; during a remodel the bootloader and snapd test the new kernel or base snap, and a failed boot cancels the remodel and undoes its changes; no page read documents the same test boot for an ordinary refresh, and the documentation home page claims automatic rollback capabilities without a mechanism"
+      automatic_rollback_trigger: "during a remodel, the bootloader and snapd coordinate to test a new kernel or base snap; a failed boot cancels the remodel and undoes the change"
       automatic_rollback_state: "kernel_status in the bootloader environment, and the modeenv file"
       automatic_rollback_attempts: unknown
       success_criterion: unknown
@@ -592,7 +592,7 @@ dimensions:
     summary: >-
       Four named boot modes on a local recovery partition, per-snap revert with three
       revisions retained, and a bootloader that coordinates with snapd to undo a
-      kernel or base snap that fails to boot.
+      kernel or base snap that fails to boot during a remodel.
     notes: >-
       **The recovery mode design is the most carefully specified in this edition, and
       the distinction most likely to be misread is between install and factory
@@ -617,8 +617,12 @@ dimensions:
       corresponding function. No documentation found describes a device dropping into
       recovery by itself after repeated failures.
 
-      Automatic rollback does exist for the two snaps that can stop a device booting,
-      and its mechanism is documented while its parameters are not. "The bootloader is
+      Automatic rollback is documented for the two snaps that can stop a device
+      booting, but only on the remodel page, which describes swapping from one model
+      assertion to another. No page read documents the same test boot for an
+      ordinary kernel or base snap refresh. The documentation home page claims
+      "automatic rollback capabilities" and gives no mechanism. Within a remodel,
+      the mechanism is documented while its parameters are not. "The bootloader is
       configured to coordinate with snapd to test the kernel", snapd "carefully
       orchestrates the swap to either a new kernel or new base snap in a way that
       enables either of those snaps to be rolled back if an error is detected", and "a
@@ -630,6 +634,21 @@ dimensions:
       survey asks the same question of every entry.
     evidence: DOCUMENTED
     sources:
+      - url: https://documentation.ubuntu.com/core/explanation/remodel-essential-snaps/
+        type: vendor-docs
+        title: "Remodel essential snaps, boot verification"
+        retrieved: "2026-10-19"
+        quote: >-
+          Remodeling is the process of swapping from one model assertion to another
+          on an Ubuntu Core system. ... A failed boot will result in the cancelation
+          of the remodel. Any changes up to that point will be undone.
+      - url: https://documentation.ubuntu.com/core/
+        type: vendor-docs
+        title: "Ubuntu Core documentation home page"
+        retrieved: "2026-10-19"
+        quote: >-
+          enabling the creation of production-ready systems with minimal attack
+          surface and automatic rollback capabilities
       - url: https://documentation.ubuntu.com/core/explanation/recovery-modes/
         type: vendor-docs
         title: "Recovery modes"
@@ -667,6 +686,7 @@ dimensions:
         retrieved: "2026-09-22"
         quote: "refresh.retain=3 on Ubuntu Core systems and refresh.retain=2 on classic Ubuntu systems"
     unknowns:
+      - "Whether an ordinary kernel or base snap refresh, outside a remodel, gets the same test boot and automatic rollback."
       - "How many failed boot attempts are tolerated before a kernel or base snap is rolled back automatically."
       - "What counts as a successful boot for the purposes of confirming a new kernel or base snap."
       - "Whether a device can enter a recovery mode automatically after repeated failures, or whether every entry is operator-initiated."
@@ -919,7 +939,8 @@ dimensions:
       architectures_with_confirmed_released_core_images:
         - amd64
         - arm64
-        - "armhf, Core 22 and Core 20 Raspberry Pi images only"
+      architectures_in_older_core_releases_only:
+        - "armhf, Core 22 and Core 20 Raspberry Pi images only; Core 24 and Core 26 have no armhf image"
       minimum_requirements: "512 MB RAM, 1 GB storage; NAND flash storage not supported"
       platforms:
         - bare-metal
@@ -986,6 +1007,11 @@ dimensions:
       for Core 26 specifically, and no accelerator other than NVIDIA is documented.
     evidence: DOCUMENTED
     sources:
+      - url: https://cdimage.ubuntu.com/ubuntu-core/26/stable/current/
+        type: release-notes
+        title: "Ubuntu Core 26 stable image directory"
+        retrieved: "2026-10-19"
+        quote: "ubuntu-core-26-amd64.img.xz"
       - url: https://ubuntu.com/download/core
         type: vendor-docs
         title: "Download Ubuntu Core"
@@ -2160,3 +2186,21 @@ corrections:
       title: 'Ubuntu Core docs: Inside Ubuntu Core'
       retrieved: '2026-10-12'
       quote: The kernel, boot assets, runtime environment, applications and device enablement capabilities are all delivered as snaps that are controlled by snapd
+  - date: "2026-10-19"
+    field: "dimensions.d05_rollback_recovery.normalized.automatic_rollback_on_boot_failure"
+    change: "Was available (\"Yes\"). The only page that describes the test boot and its undo is about remodelling; no page read documents it for an ordinary refresh. Now \"documented for a remodel only\", with the remodel page and the documentation home page as the first d05 sources."
+    source:
+      url: "https://documentation.ubuntu.com/core/explanation/remodel-essential-snaps/"
+      type: "vendor-docs"
+      title: "Remodel essential snaps"
+      retrieved: "2026-10-19"
+      quote: "A failed boot will result in the cancelation of the remodel."
+  - date: "2026-10-19"
+    field: "dimensions.d08_hardware_platform.normalized.architectures_with_confirmed_released_core_images"
+    change: "The Architectures cell showed armhf next to Ubuntu Core 26 and dropped \"Core 22 and Core 20 only\". The Core 26 image directory has amd64 and arm64 images only. armhf moved to architectures_in_older_core_releases_only, and the Core 26 directory is now the first d08 source."
+    source:
+      url: "https://cdimage.ubuntu.com/ubuntu-core/26/stable/current/"
+      type: "release-notes"
+      title: "Ubuntu Core 26 stable image directory"
+      retrieved: "2026-10-19"
+      quote: "ubuntu-core-26-amd64.img.xz"

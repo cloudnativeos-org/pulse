@@ -14,9 +14,10 @@ category_fit:
   note: >-
     A boundary case, included because it asks whether the host operating system
     is the right unit of deployment at all. Unikraft compiles an application and
-    the operating system into a single bootable binary, so there is no host to
-    manage, no multi-process user space, and no separation between kernel and
-    application address spaces.
+    the operating system into a single-address space binary, so there is no host
+    to manage and no separation between kernel and user address spaces. An
+    optional library, selected at build time, adds multiprocess support (vfork,
+    execve and wait4), and those processes share the one address space.
 
     Several dimensions are genuinely not applicable rather than absent, and that
     distinction is the reason this edition's schema has three different kinds of
@@ -81,7 +82,7 @@ dimensions:
       workload_scope: single-application-image
       library_os: true
       shell: "none"
-      multi_process_userspace: "none"
+      multi_process_userspace: "optional build-time library (LIBPOSIX_PROCESS_MULTIPROCESS: vfork, execve, wait4), in the one address space, with no isolation between processes"
       linux_binary_compatibility: "x86_64, position-independent executables, one hypervisor"
       documented_syscalls: "160 or more"
     summary: >-
@@ -116,6 +117,20 @@ dimensions:
         quote: >-
           a single-address space binary object: it does not have separation
           between kernel and user address spaces
+      - url: https://github.com/unikraft/unikraft/blob/RELEASE-0.21.0/lib/posix-process/Config.uk
+        type: source-repo
+        title: posix-process build options at RELEASE-0.21.0
+        retrieved: "2026-10-19"
+        quote: >-
+          config LIBPOSIX_PROCESS_MULTIPROCESS bool "Multiprocess support"
+      - url: https://github.com/unikraft/unikraft/blob/RELEASE-0.21.0/lib/posix-process/README.md
+        type: source-repo
+        title: posix-process library README at RELEASE-0.21.0
+        retrieved: "2026-10-19"
+        quote: >-
+          Being a single-address-space operating system, instead of the
+          traditional `fork()` that creates a new address space for the child,
+          Unikraft implements multiprocess with `vfork()` only.
       - url: https://unikraft.org/docs/internals/architecture
         type: official-docs
         title: Architecture
@@ -700,8 +715,9 @@ dimensions:
       operating system code at the same time, because they are one binary.
     notes: >-
       Shell and remote access are marked not-applicable rather than absent
-      because there is no process model, no user separation and no session to
-      attach to. Both halves of that are recorded, as the methodology requires.
+      because there is no user separation and no session to attach to. Processes
+      exist only through an optional build-time library, and they share one
+      address space. Both halves of that are recorded, as the methodology requires.
       What it costs: an operator cannot enter a misbehaving instance to diagnose
       it. What it buys: neither can an attacker, and the project's stated
       reduction of attack surface follows from the same fact.
@@ -1288,3 +1304,12 @@ corrections:
       title: 'Unikraft filesystems: root filesystem classes'
       retrieved: '2026-10-12'
       quote: Unikraft supports essentially two classes of root filesystems
+  - date: "2026-10-19"
+    field: "category_fit.note"
+    change: "Said there is \"no multi-process user space\". RELEASE-0.21.0 has an optional build-time multiprocess library (vfork, execve, wait4), in the one address space. The note, d01 multi_process_userspace and the d11 notes now say so, with the library sources added to d01."
+    source:
+      url: "https://github.com/unikraft/unikraft/blob/RELEASE-0.21.0/lib/posix-process/Config.uk"
+      type: "source-repo"
+      title: "posix-process build options at RELEASE-0.21.0"
+      retrieved: "2026-10-19"
+      quote: "config LIBPOSIX_PROCESS_MULTIPROCESS bool \"Multiprocess support\""

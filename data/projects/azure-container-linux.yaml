@@ -649,9 +649,9 @@ dimensions:
             delivery: vendor-image
             delivery_note: "vendor sysexts from Microsoft: nvidia-driver-cuda-open, nvidia-driver-cuda, nvidia-driver-vgpu, nvidia-container-toolkit, nvidia-fabric-manager"
             secure_boot: inferred-signed
-            gpu_operator: not-supported
+            gpu_operator: not-documented
             status: supported
-            note: "ACL requires Trusted Launch with Secure Boot and supports GPU node pools, but module signing is not stated. AKS lists the GPU Operator as unsupported for Flatcar Container Linux for AKS (preview); the page does not state it for GA ACL. The toolkit is a sysext. CDI is not stated."
+            note: "ACL requires Trusted Launch with Secure Boot and supports GPU node pools, but module signing is not stated. The AKS GPU Operator page lists the GPU Operator as unsupported for Flatcar Container Linux for AKS (preview), Windows Server and Azure Linux with OS Guard; it does not name ACL, and no page read states whether the GPU Operator is supported on ACL. The toolkit is a sysext. CDI is not stated."
             evidence: INFERRED
             sources:
               - url: https://learn.microsoft.com/en-us/azure/aks/azure-container-linux-overview
@@ -1338,3 +1338,12 @@ corrections:
       title: 'ACL docs: System Extensions (sysexts)'
       retrieved: '2026-10-12'
       quote: squashfs images to deliver optional functionality on top of the read-only
+  - date: "2026-10-19"
+    field: "dimensions.d08_hardware_platform.normalized.ai_accelerators.items[0].gpu_operator"
+    change: "Was not-supported. The AKS GPU Operator page lists Flatcar Container Linux for AKS (preview), not ACL, and no page read states ACL support either way. Now not-documented."
+    source:
+      url: "https://learn.microsoft.com/en-us/azure/aks/nvidia-gpu-operator"
+      type: "vendor-docs"
+      title: "AKS NVIDIA GPU Operator"
+      retrieved: "2026-10-19"
+      quote: "NVIDIA GPU Operator isn't supported for the following OS options: Windows Server versions, Flatcar Container Linux for AKS (preview), and Azure Linux with OS Guard for AKS (preview)"
