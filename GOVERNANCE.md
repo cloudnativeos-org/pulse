@@ -79,40 +79,55 @@ facts they can check will trust the Pulse little by little. A conflicted change:
    can object. An objection with a primary source blocks the merge until it is
    resolved, or until the profile records the disagreement with both sources.
    That includes an objection from the project's representative.
-4. Needs approval from a maintainer who has no affiliation with that project,
-   once such a maintainer exists. Until then, the 7 days and the public record
-   are the only safeguard. During the bootstrap, the Bootstrap section below
-   says so too.
+4. Needs approval from a maintainer under the approver rule below, once such a
+   maintainer exists. Until then, the 7 days and the public record are the
+   only safeguard. During the bootstrap, the Bootstrap section below says so
+   too.
 
-The rule is symmetric. For every covered project, a conflicted change to its
-profile needs approval from a maintainer with no affiliation to that project. A
-maintainer who is affiliated with the project cannot give that approval,
-however many of them there are. Kairos and Hadron are the worked example
-because the only maintainer today is affiliated with both: until a maintainer
-without that affiliation exists, rule 4 says what applies, and during the
-bootstrap the Bootstrap section adds its own rules. A maintainer who works on
-Talos does not approve a conflicted change to the Talos profile either.
+**The approver rule.** A person is "from" a project when they are affiliated
+with it. The approver is a maintainer who did not write the change and who is
+not affiliated with any project that the author is affiliated with. For a
+change to the profile of a project X, or to an entry about X in another file:
 
-GitHub does not enforce the symmetric rule. GitHub enforces only that a code
-owner approves. The symmetric rule rests on the maintainers and the public
+- When the author is not from X, a maintainer requests a review from a
+  representative of X, if X has one. That is a review. It is not a required
+  approval.
+- When the author is from X, the approver is from another project or from
+  none.
+- Mauro is from Kairos, whose maintainers also own Hadron Linux's code, and he
+  is employed by Spectro Cloud. So a change he makes to the Kairos or Hadron
+  profile, or to an entry about Kairos, Hadron or Spectro Cloud, needs an
+  approver who is not affiliated with Kairos or Hadron and is not employed by
+  Spectro Cloud.
+
+The rule is symmetric: it applies to every covered project in the same way. A
+maintainer who works on Talos does not approve a Talos maintainer's change to
+the Talos profile, however many Talos maintainers there are. Kairos and Hadron
+are the worked example because the only maintainer today is from both: until
+an approver under this rule exists, rule 4 says what applies, and during the
+bootstrap the Bootstrap section adds its own rules.
+
+GitHub does not enforce the approver rule. GitHub enforces only that a code
+owner approves. The approver rule rests on the maintainers and the public
 record.
 
-A change to `.github/CODEOWNERS` or `MAINTAINERS.md` is always conflicted,
-before the bootstrap ends and after it, so that nobody can put themselves back
-on the conflicted lines alone. It follows the four rules above. For these files,
-rule 4 asks for a maintainer with no affiliation with any covered project. For
-the first 24 months after the bootstrap ends the founder clause also applies to
-the protected text in them.
+A change to `.github/CODEOWNERS`, `MAINTAINERS.md` or `CODE_OF_CONDUCT.md` is
+always conflicted, before the bootstrap ends and after it, so that nobody can
+put themselves back on the conflicted lines alone. It follows the four rules
+above. For these files, the approver is not affiliated with any project that
+the author is affiliated with, as the approver rule says. For the first 24
+months after the bootstrap ends the founder clause also applies to the
+protected text in them.
 
 A change to a profile by an author, or with an approver, who is affiliated with
 any covered project is conflicted under all four rules, even when it changes
 the profile of a project they are not affiliated with. Editing a competitor is
 as conflicted as editing your own project, for example a Talos maintainer who
 edits the Kairos profile. Every value it changes must carry a primary source,
-and the pull request states the author's affiliations. When the author is
-affiliated with any covered project, rule 4 asks for approval from a maintainer
-with no affiliation with any covered project. A Talos maintainer cannot approve
-a Bottlerocket maintainer's edit to the Kairos profile.
+and the pull request states the author's affiliations. The approver rule says
+who approves it. A Bottlerocket maintainer's edit to the Kairos profile needs
+an approver who is not from Bottlerocket, and a maintainer requests a review
+from a representative of Kairos, if Kairos has one.
 
 A change to the methodology, the inclusion criteria, the schema or the
 vocabularies affects every project at once. It carries the
@@ -174,8 +189,9 @@ access, and one code owner on a line is enough for GitHub. A code owner's
 approval would then count as the approval of the profile.
 
 A representative's fact check is not an approval under the conflict-of-interest
-rules. Those rules ask for a maintainer with no affiliation with the project. A
-representative is affiliated with it by definition.
+rules. The approver rule asks for a maintainer. A representative's review is
+requested when the author is not from their project, and it is a review, not a
+required approval.
 
 ### External stewards
 
@@ -209,9 +225,9 @@ project is affiliated with it, so they cannot be an external steward of another.
 
 | Role | Propose a correction | Fact-check | Approve a change to a profile | Vote on governance |
 |---|---|---|---|---|
-| Representative | Yes | Yes, their project | No | No |
+| Representative | Yes | Yes, their project | No. Their review is a review, not a required approval | No |
 | External steward | Yes | Yes, the profiles they look after | No. Their review is requested and recorded. A maintainer approves and merges | No |
-| Maintainer | Yes | Yes | Yes. A conflicted change needs a maintainer with no affiliation | Yes |
+| Maintainer | Yes | Yes | Yes, under the approver rule: not the author, and not from a project the author is from | Yes |
 | Administrator | Yes | Yes | As a maintainer | As a maintainer. Admin rights add no vote |
 | Owner | Yes | Yes | As a maintainer | As a maintainer, plus the founder clause |
 
@@ -236,28 +252,37 @@ by being quiet would let anyone take over the Pulse by waiting.
 
 **A breach of the code of conduct.** The code of conduct is the Contributor
 Covenant, version 2.1, named by its version. The Pulse does not write its own.
-This cause cannot be used until the repository has a `CODE_OF_CONDUCT.md` file
-that names that version. Changing the version is a change to the protected text
-(see the founder clause).
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) adopts that version by reference.
+Changing the version is a change to the protected text (see the founder
+clause).
+
+The enforcement contact named in `CODE_OF_CONDUCT.md` receives reports. For
+now that is Mauro Morales. Replacing the enforcement contact follows the rule
+for becoming a maintainer: a public issue open for 14 days, and one
+maintainer's objection is a veto. A finding from the enforcement contact alone
+removes nobody.
 
 A removal for a breach needs all three of these:
 
 1. A public issue that names the cause and the evidence. It stays open for at
    least **30 days**, and the person concerned can answer in it.
-2. A written finding of a breach from the enforcement contact named in
-   `CODE_OF_CONDUCT.md`, or from an outside person named in MAINTAINERS.md.
-   Neither of them is a maintainer, neither has an affiliation with any covered
-   project, and neither votes in the removal. Naming or replacing either one
-   follows the rule for becoming a maintainer: a public issue open for 14 days,
-   and one maintainer's objection is a veto. Both are protected text.
+2. A written finding of a breach from the outside person named in
+   MAINTAINERS.md. The outside person is not a maintainer, has no affiliation
+   with any covered project, and does not vote in the removal. Naming or
+   replacing the outside person follows the rule for becoming a maintainer: a
+   public issue open for 14 days, and one maintainer's objection is a veto.
+   The outside person is to be named this way before the bootstrap ends.
 3. The votes of at least **two thirds** of the active maintainers other than the
    person concerned, rounded up. The two thirds are counted against that whole
    group, not against the votes cast. The vote cap applies, so the yes votes of
    one employer are reduced as described under Decisions.
 
+Until an outside person is named, nobody is removed for a breach of the code of
+conduct.
+
 Residual risk. More than one third of them can block any removal. Two
-employers acting together can reach two thirds. The written finding is the
-check on that: they cannot remove anyone without it.
+employers acting together can reach two thirds. The outside person's written
+finding is the check on that: they cannot remove anyone without it.
 
 A vote that says only that the others no longer want a person removes nobody.
 A cause has to be stated and shown.
@@ -271,14 +296,7 @@ to appoint another maintainer first.
 
 Mauro Morales is the owner of the GitHub organization `cloudnativeos-org` and
 of this repository, and he stays the owner. Maintainers get write access to the
-repository. They never get the owner role.
-
-The owner may name one second owner whom he trusts, so that a lost account does
-not lock the organization. This document calls that person a second owner
-chosen by the owner. The second owner is an owner with full access. That they
-do not remove the owner, and do not change this section, is a rule and not a
-technical limit. When a second owner is named, MAINTAINERS.md lists their name
-and handle.
+repository. They never get the owner role. There is no second owner.
 
 Maintainers and administrators cannot remove the owner from the ownership of
 the organization or the repository. Only the owner gives up that role.
@@ -343,8 +361,8 @@ The **protected text** is:
   clause sections;
 - the section "Changes to this document";
 - the vote rules in "Decisions", including the vote cap;
-- the rule in "Conflict of interest" that changes to CODEOWNERS and
-  MAINTAINERS.md are always conflicted, and the approver rule for them;
+- the approver rule in "Conflict of interest", and the rule there that changes
+  to CODEOWNERS, MAINTAINERS.md and `CODE_OF_CONDUCT.md` are always conflicted;
 - the choice of code of conduct, the enforcement contact named in
   `CODE_OF_CONDUCT.md`, and the outside person named in MAINTAINERS.md;
 - the date recorded in the Bootstrap section.
@@ -357,60 +375,53 @@ pull request that the owner opens counts. The recorded date follows its own rule
 in the Bootstrap section, and that rule does not lapse.
 
 The clause is not in force during the bootstrap. The owner merges then, and
-nothing changes without him except under the two exceptions that the Bootstrap
+nothing changes without him except under the one exception that the Bootstrap
 section names. The clause lapses on its own 24 months after the day recorded
 in the Bootstrap section. It needs no vote and no change to this document. The
 Ownership section is not part of the clause and does not lapse: only the owner
 changes it.
 
 GitHub cannot enforce this clause. CODEOWNERS accepts any one owner on a line,
-and after the hand-over the line names the maintainer with no affiliation. So
+and after the hand-over the line names the maintainer who replaced Mauro. So
 the clause rests on one thing: the owner's power as organization owner to
 revert a change that was made without his involvement. The same holds for
-MAINTAINERS.md.
+MAINTAINERS.md and `CODE_OF_CONDUCT.md`.
 
 ## Bootstrap
 
 Today the Pulse has one maintainer: Mauro Morales. He is a maintainer of Kairos,
 whose maintainers also own Hadron Linux's code. The Pulse covers both projects,
-and he is employed by Spectro Cloud. So today, nobody without an affiliation
-reviews the Kairos and Hadron profiles before they are merged. The 7-day window
-and the `conflict-of-interest` label make each such change public. They do not
-make it independent.
+and he is employed by Spectro Cloud. So today, nobody outside Kairos, Hadron
+and Spectro Cloud approves a change to the Kairos and Hadron profiles before it
+is merged. The 7-day window and the `conflict-of-interest` label make each such
+change public. They do not make it independent.
 
 During the bootstrap:
 
-- Mauro merges pull requests, with two exceptions: the pull request that
-  records the end of the bootstrap under rule 3 below, and the pull requests
-  that the second owner merges when the owner has been unreachable for 6
-  months, as the last item in this list says.
+- Mauro merges pull requests, with one exception: the pull request that records
+  the end of the bootstrap under rule 3 below.
 - Every change to `data/projects/kairos.yaml` or `data/projects/hadron.yaml` is
   conflicted, and so is every change to an entry about Kairos, Hadron or Spectro
   Cloud in `data/lineage.yaml`, `site/projects_meta.yaml`, `site/content.py` or
   `site/drafts/base_choice.yaml`. That includes corrections that Mauro did not
   write but merges.
-- The first maintainer who has no affiliation with any covered project
-  replaces Mauro as the required approver of the Kairos and Hadron profiles, of
-  the conflicted entries in the files above, of the methodology and the schema,
-  and of `.github/CODEOWNERS`, `MAINTAINERS.md` and this document. A
-  maintainer who works on another covered project, a competitor of Kairos or
-  Hadron for example, does not qualify.
+- The first maintainer who is not affiliated with Kairos or Hadron and is not
+  employed by Spectro Cloud replaces Mauro as the required approver of the
+  Kairos and Hadron profiles, of the conflicted entries in the files above, of
+  the methodology and the schema, and of `.github/CODEOWNERS`,
+  `MAINTAINERS.md`, `CODE_OF_CONDUCT.md` and this document. That is the
+  approver that the approver rule asks for when Mauro is the author.
 - Mauro proposes the new maintainers, so he picks the people who will oversee
   him. Each proposal is a public issue, open 14 days, and one maintainer's
   objection is a veto.
-- If the owner has been unreachable for 6 months, the second owner may merge
-  pull requests and propose maintainers under these rules. Unreachable means no
-  commit, review or comment anywhere in the organization, stated in a public
-  issue that stays unanswered for 30 days. The second owner never touches the
-  Ownership section. If there is no second owner, nobody can act: that is a
-  residual risk, and it is listed under "Known limits".
+- If the owner is unreachable and no administrator exists, nobody can act: that
+  is a residual risk, and it is listed under "Known limits".
 
-**The end condition** is that the Pulse has at least two maintainers besides
-Mauro, who are affiliated with different projects, or with none, and none of
-whom is employed by Spectro Cloud, and at least one of whom has no
-affiliation with any covered project. Without that last part the bootstrap
-could end with nobody allowed to approve a change to the Kairos and Hadron
-profiles.
+**The end condition** depends on who joins and whom they are affiliated with,
+not on a fixed number of maintainers. The bootstrap can end when the approver
+rule can be met for every change. That means that at least one maintainer
+besides Mauro is not affiliated with Kairos or Hadron and is not employed by
+Spectro Cloud.
 
 **How the bootstrap ends.** There is one rule, in five parts:
 
@@ -421,9 +432,8 @@ profiles.
 3. If the end condition has held for 90 days and the owner has not recorded the
    day, any maintainer may ask him in a public issue. If he has not acted within
    14 days of that request, the maintainer opens the recording pull request. An
-   administrator or the second owner merges it. If there is neither, a
-   maintainer who is not employed by Spectro Cloud, and who did not open it,
-   merges it. Nobody else can.
+   administrator merges it. If there is none, a maintainer who is not employed
+   by Spectro Cloud, and who did not open it, merges it. Nobody else can.
 4. The owner can delay the end only by publishing a reason in a public issue
    before the current period runs out. Each reason delays the end by at most 90
    days. He can do this at most twice, so the delay is at most 180 days. After
@@ -441,10 +451,11 @@ Bootstrap ended on: not yet.
 ## Changes to this document
 
 A change to this document is conflicted and follows all four
-conflict-of-interest rules above, whoever writes it. Rule 4 asks for a
-maintainer with no affiliation with any covered project. A change to the
-protected text also follows the founder clause. A change to the Ownership
-section follows only that section: the owner opens or approves it.
+conflict-of-interest rules above, whoever writes it. The approver is not
+affiliated with any project that the author is affiliated with, as the
+approver rule says. A change to the protected text also follows the founder
+clause. A change to the Ownership section follows only that section: the owner
+opens or approves it.
 
 ## Known limits
 
@@ -459,11 +470,14 @@ for now:
   maintainers with a majority.
 - While the owner is the only maintainer, every profile change that he writes or
   approves waits 7 days. This is intended.
-- If the owner is unreachable and there is no second owner, nobody can act
-  during the bootstrap.
+- There is no second owner. If the owner is unreachable and no administrator
+  exists, nobody can act.
+- Until the outside person is named, nobody is removed for a breach of the code
+  of conduct. While the owner is the enforcement contact, a report about the
+  owner has no independent contact until the outside person is named.
 - A group of more than one third of the active maintainers other than the
   person concerned can block any removal, and two employers together can reach
-  two thirds. The written finding is the only check.
+  two thirds. The outside person's written finding is the only check.
 - GitHub can block rule 3 of "How the bootstrap ends". The recording pull
   request changes this document, and CODEOWNERS names only the owner on its line
   if the owner has not yet handed over that line. A code owner review is

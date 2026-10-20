@@ -103,7 +103,8 @@ a merge since then names the assisting model in a `Co-developed-by:` trailer.
 The cloud native OS Pulse is not a CNCF project, and the CNCF does not endorse
 it. [GOVERNANCE.md](GOVERNANCE.md) says who decides what goes in, and how a
 change to the Kairos or Hadron profile is handled while I am the only
-maintainer.
+maintainer. Everyone who takes part follows the
+[code of conduct](CODE_OF_CONDUCT.md), the Contributor Covenant 2.1.
 
 ## License
 

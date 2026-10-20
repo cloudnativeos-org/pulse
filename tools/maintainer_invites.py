@@ -55,8 +55,8 @@ def main():
                 "As you know, I am one of the Kairos and Hadron maintainers too, and I work for Spectro Cloud, "
                 "so a change to these two profiles follows the conflict-of-interest rules in GOVERNANCE.md: it goes "
                 "through a public pull request that stays open for at least seven days. Your check is a fact check. "
-                "It is welcome, and it is not the approval those rules ask for from a maintainer with no tie to the "
-                "project. Every project gets this same request.")
+                "It is welcome, and it is not the approval those rules ask for when I make a change: that comes "
+                "from a maintainer with no tie to Kairos, Hadron or Spectro Cloud. Every project gets this same request.")
         who = names.get(pid)
         text = text.replace("Hi {name},", "Hi %s," % who if who else "Hi,")
         path = os.path.join(a.out, pid + ".txt")

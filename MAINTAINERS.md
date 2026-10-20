@@ -9,11 +9,8 @@ becomes one.
 
 ## Owner
 
-Mauro Morales is the owner of the organization and the repository. See
-[GOVERNANCE.md](GOVERNANCE.md), section Ownership.
-
-Second owner: none named yet. When the owner names one, this section lists their
-name and GitHub handle.
+Mauro Morales is the owner of the organization and the repository. There is no
+second owner. See [GOVERNANCE.md](GOVERNANCE.md), section Ownership.
 
 ## Administrators
 
@@ -33,13 +30,20 @@ request. See [GOVERNANCE.md](GOVERNANCE.md).
 
 None yet.
 
+## Code of conduct enforcement contact
+
+Mauro Morales, for now. See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). The
+enforcement contact receives reports. A finding from the enforcement contact
+alone removes nobody.
+
 ## Outside person for code of conduct findings
 
-None named yet. A removal for a breach of the code of conduct needs a written
-finding from the enforcement contact in `CODE_OF_CONDUCT.md` or from this
-person. Neither is a maintainer, neither has an affiliation with any covered
-project, and neither votes in the removal. Naming or replacing either one needs
-a public issue open for 14 days, and one maintainer's objection is a veto. See
+None named yet. Until one is named, nobody is removed for a breach of the code
+of conduct. A removal for a breach needs a written finding from this person.
+The outside person is not a maintainer, has no affiliation with any covered
+project, and does not vote in the removal. Naming or replacing the outside
+person needs a public issue open for 14 days, and one maintainer's objection is
+a veto. The outside person is to be named before the bootstrap ends. See
 [GOVERNANCE.md](GOVERNANCE.md), section Removing a maintainer.
 
 ## Emeritus
