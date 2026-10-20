@@ -24,7 +24,7 @@ representative, a maintainer requests the representative's review by hand, and
 the request is recorded in the pull request. It is a review, not a required
 approval. The approver is a maintainer other than the author who is not
 affiliated with any project that the author is affiliated with and is not
-employed by the author's employer. The rules are in
+employed by any employer of the author. The rules are in
 [GOVERNANCE.md](../GOVERNANCE.md).
 
 ## What to send

@@ -31,11 +31,12 @@ Ambassador, and that role gives the Pulse no standing with the CNCF.
 the tools and the site. The current list is in [MAINTAINERS.md](MAINTAINERS.md).
 
 **Profile reviewers** look after the factual profile of one covered project,
-`data/projects/<id>.yaml`, and are asked to review every change to it. A
-profile reviewer checks facts only. Reviewing a profile does not mean the
-project endorses the Pulse or agrees with its analysis. Profile reviewers are
-listed in [MAINTAINERS.md](MAINTAINERS.md). They are not listed in CODEOWNERS:
-their reviews are requested by hand. They come in two kinds:
+`data/projects/<id>.yaml`, and are asked to review a change to it as the
+approver rule says. A profile reviewer checks facts only. Reviewing a
+profile does not mean the project endorses the Pulse or agrees with its
+analysis. Profile reviewers are listed in [MAINTAINERS.md](MAINTAINERS.md).
+They are not listed in CODEOWNERS: their reviews are requested by hand.
+They come in two kinds:
 
 - A **representative** works on that project. They are a maintainer or a
   contributor named in the project's own docs.
@@ -89,9 +90,9 @@ facts they can check will trust the Pulse little by little. A conflicted change:
 **The approver rule.** A person is "from" a project when they are affiliated
 with it. The approver is a maintainer who did not write the change, who is
 not affiliated with any project that the author is affiliated with, and who is
-not employed by the author's employer. This applies to every conflicted change,
-in any file. For a change to the profile of a project X, or to an entry about X
-in another file:
+not employed by any employer of the author. This applies to every
+conflicted change, in any file. For a change to the profile of a project X, or
+to an entry about X in another file:
 
 - When the author is not from X, a maintainer requests a review from a
   representative of X, if X has one. That is a review. It is not a required
@@ -362,6 +363,7 @@ The **protected text** is:
   clause sections;
 - the section "Changes to this document";
 - the vote rules in "Decisions", including the vote cap;
+- the section "Affiliations", which defines who is affiliated with a project;
 - the approver rule in "Conflict of interest", and the rule there that changes
   to CODEOWNERS, MAINTAINERS.md and `CODE_OF_CONDUCT.md` are always conflicted;
 - the choice of code of conduct, the enforcement contact named in
