@@ -268,7 +268,7 @@
     },
 
     "providerEntry": {
-      "description": "d08 only. One infrastructure provider and how far the entry gets there. level is the highest level the entry reaches. unknown reads 'Not documented' and needs no source. Every other level needs a source with a verbatim quote.",
+      "description": "d08 only. One infrastructure provider and how far the entry gets there. level is the level the entry reaches on this provider. unknown reads 'Not documented' and needs no source. Every other level needs a source with a verbatim quote.",
       "type": "object",
       "required": ["provider", "level", "evidence"],
       "additionalProperties": false,

@@ -65,6 +65,9 @@ CASES = [
     ("duplicate provider fails", [good(), good()], 1, "appears twice"),
     ("other without a name fails", [good(provider="other")], 1, "needs a 'name'"),
     ("level outside the list fails", [good(level="works")], 1, "level must be one of"),
+    ("unknown with another evidence label fails", [{"provider": "hetzner", "level": "unknown", "evidence": "INFERRED", "inferred_from": "x"}], 1, "go together"),
+    ("name on a provider that is not other fails", [good(name="Flatcar on OpenStack")], 1, "'name' is only for provider 'other'"),
+    ("project-image without how fails", [without(good(), "how")], 1, "missing 'how'"),
     ("channel outside the list fails", [good(config={"tool": "Ignition", "channel": "magic"})], 1, "config.channel must be one of"),
 ]
 

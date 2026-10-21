@@ -28,6 +28,8 @@ jobs:
         run: |
           python3 tools/test_providers.py
           python3 tools/test_provider_filter.py
+          python3 tools/test_provider_rows.py
+          python3 tools/test_check_site.py
       - name: Validate profiles
         run: python3 tools/validate_profiles.py data/projects
       - name: Build and check the public preview site
