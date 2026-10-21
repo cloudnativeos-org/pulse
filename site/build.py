@@ -977,6 +977,84 @@ def col_k8s(p, S):
     return Cell(value("value", E(label), E(detail)) + meta(dim_of(p, "d07")["evidence"], cite), label, filt, tags=tags)
 
 
+# Where an entry runs (profile field d08.normalized.providers). Closed lists, kept in step with schema/vocabularies.md.
+PROVIDERS = [("aws", "AWS", "Hyperscalers"), ("azure", "Azure", "Hyperscalers"), ("gcp", "GCP", "Hyperscalers"),
+             ("openstack", "OpenStack", "Private cloud and virtualization"), ("vsphere", "VMware vSphere", "Private cloud and virtualization"),
+             ("proxmox", "Proxmox VE", "Private cloud and virtualization"), ("kvm-libvirt", "KVM/libvirt", "Private cloud and virtualization"),
+             ("hyper-v", "Hyper-V", "Private cloud and virtualization"), ("nutanix", "Nutanix", "Private cloud and virtualization"),
+             ("hetzner", "Hetzner", "Small clouds"), ("digitalocean", "DigitalOcean", "Small clouds"), ("vultr", "Vultr", "Small clouds"),
+             ("akamai", "Akamai (Linode)", "Small clouds"), ("ovhcloud", "OVHcloud", "Small clouds"), ("scaleway", "Scaleway", "Small clouds"),
+             ("bare-metal", "Bare metal", "Bare metal"), ("other", "Other cloud", "Other clouds")]
+PROV_LABEL = {k: lab for k, lab, _ in PROVIDERS}
+PROV_GROUP = {k: g for k, _, g in PROVIDERS}
+PROV_LEVEL = {"provider-catalogue": "Official image in the provider's catalogue",
+              "project-image": "Project image for this provider",
+              "bring-your-image": "Bring your own image",
+              "config-source-only": "Config source only",
+              "none": "Documented as not supported",
+              "unknown": "Not documented",
+              "not-applicable": "Does not apply"}
+PROV_REACHES = ("provider-catalogue", "project-image", "bring-your-image")   # levels at which the entry runs there
+PROV_TIER = {"project": "supported by the project", "community": "community-supported", "vendor": "shipped by the provider"}
+PROV_CHANNEL = {"userdata": "metadata service (user data)", "config-drive": "config drive", "guestinfo": "VMware guestinfo",
+                "fw-cfg": "QEMU fw_cfg", "kvp": "Hyper-V key-value pairs", "kernel-arg-url": "URL on the kernel command line",
+                "local-media": "local media", "not-documented": "not documented"}
+
+
+def prov_name(x):
+    return x.get("name") if x["provider"] == "other" and x.get("name") else PROV_LABEL[x["provider"]]
+
+
+def col_providers(p, S):
+    """Where the entry runs: one tag per provider at which it runs, grouped as the vocabulary lists them. A provider the
+    entry only reads configuration from is a "via" tag: it matches the provider filter and is marked. The data sheet gives
+    every provider with how far it gets, who supports it, the config tool and channel, and the sources."""
+    items = norm(p, "d08").get("providers")
+    if not items:
+        return Cell(value("notcollected", "Not collected"), "9", {"prov": "nc", "provlvl": "nc"}, tags=[("Not collected", "notcollected")])
+    order = {k: i for i, (k, _, _) in enumerate(PROVIDERS)}
+    items = sorted(items, key=lambda x: (order[x["provider"]], prov_name(x)))
+    evs = [x.get("evidence", "UNKNOWN") for x in items]
+    cell_ev = "UNKNOWN" if all(e == "UNKNOWN" for e in evs) else ("INFERRED" if "DOCUMENTED" not in evs else "DOCUMENTED")
+    lis, tags, runs, via, levels, srcs = [], [], [], [], [], []
+    for x in items:
+        lv, name = x["level"], prov_name(x)
+        kind = {"none": " v-none", "unknown": " v-unknown", "not-applicable": " v-na"}.get(lv, "")
+        bits = []
+        if x.get("tier"):
+            bits.append(PROV_TIER[x["tier"]])
+        if x.get("archs"):
+            bits.append("architectures: " + ", ".join(x["archs"]))
+        cfg = x.get("config")
+        if cfg:
+            bits.append("first configuration: %s, read from the %s" % (cfg["tool"], PROV_CHANNEL[cfg["channel"]]))
+        own = ""
+        if x.get("evidence") != cell_ev:
+            own = " " + badge(x["evidence"], compact=True)
+        if x.get("evidence") == "UNKNOWN" and x.get("searched"):
+            own += '<span class="v-detail">Searched: %s</span>' % E(x["searched"])
+        lis.append('<li><span class="v-tag">%s</span> <span class="v%s">%s</span>%s%s%s%s</li>' % (
+            E(name), kind, E(PROV_LEVEL[lv]),
+            ('<span class="v-detail">%s</span>' % E(x["how"])) if x.get("how") else "",
+            ('<span class="v-detail">%s</span>' % E("; ".join(bits))) if bits else "", own, cite_all(p, S, x.get("sources"))))
+        srcs += x.get("sources") or []
+        if lv in PROV_REACHES:
+            runs.append(x["provider"])
+            levels.append(lv)
+            tags.append((name, "value"))
+        elif lv == "config-source-only":
+            via.append(x["provider"])
+            tags.append(("%s (config source only)" % name, "via", [x["provider"]],
+                         "The entry's config tool reads %s metadata. The project documents no install path there." % name))
+    if not tags:
+        tags = [("Not documented", "unknown")]
+    html_ = '<ul class="v v-list providers">%s</ul>' % "".join(lis) + meta(cell_ev, "")
+    filt = {"prov": " ".join(runs) or "none", "provlvl": " ".join(sorted(set(levels))) or "none"}
+    if via:
+        filt["prov-via"] = " ".join(via)
+    return Cell(html_, "%02d" % (99 - len(runs)), filt, tags=tags)
+
+
 def arch_key(a):
     return a if a in ("amd64", "arm64", "riscv64") else "other"
 
@@ -1206,6 +1284,7 @@ COLUMNS = [
     ("access", "Node access", "How you reach a node. API-only access limits changes to what the API exposes and makes them easy to log; a shell is more flexible and familiar. Neither is more secure by default.", col_access, True),
     ("capi", "Cluster API", "How a node joins a cluster through Cluster API.", col_capi, True),
     ("ai", "AI accelerators", "Accelerators the project or its vendor documents. The data sheet says how the driver reaches the node, whether its modules load with Secure Boot, and the NVIDIA GPU Operator mode. NVIDIA's own validated list names none of these entries; it documents Container-Optimized OS on GKE, and lists Jetson as not supported. An entry that builds the OS from a base distribution you pick is credited with what that base distribution documents, once, as \"Via your base distribution\". Picking a specific accelerator in the filter keeps those entries too, marked.", col_ai, True),
+    ("prov", "Where it runs", "The infrastructure providers where the entry runs, and how it gets there. One tag per provider at which the project publishes an image, lists it in the provider's catalogue, or documents how to bring your own image. A provider where only the entry's config tool reads the metadata is marked \"config source only\". The data sheet gives every provider with how far the entry gets, who supports it, which config tool and channel reads the first configuration, and the source. \"Not documented\" means no source says. It is not a statement that the entry does not work there.", col_providers, True),
     ("arch", "Architectures", "CPU architectures that have released images, not intentions, each tagged. An entry that builds the OS from a base distribution you pick also lists the architectures its own components are built for, as \"via your base distribution\". Picking an architecture in the filter keeps those entries too, marked.", col_arch, False),
     ("selfhost", "Self-hostable update source", "Can you host where a node downloads its OS updates from, for example for an air-gapped site? Tools that decide when a node upgrades, such as Omni or the AuroraBoot fleet server, are a different question.", col_selfhost, True),
     ("own", "Who holds the assets", "Who holds the trademark and the project assets.", col_own, False),
@@ -1217,6 +1296,7 @@ COL_GLOSS = {"project": [("Entry kind", "entry-kind")], "constr": [("Framework o
              "update": [("Image-based", "image-based"), ("A/B partitions", "a-b-partitions")],
              "boot": [("Boot trust chain", "boot-trust-chain"), ("UKI", "uki"), ("Pivot", "pivot"), ("dm-verity", "dm-verity")],
              "rollback": [("Rollback", "rollback")], "capi": [("Cluster API", "cluster-api")],
+             "prov": [("Provider catalogue", "provider-catalogue"), ("Metadata service", "metadata-service"), ("Config drive", "config-drive")],
              "fleet": [("One-shot run", "one-shot-run"), ("Reconciled in place", "reconciled-in-place"), ("Reconciled by replacement", "reconciled-by-replacement")],
              "support": [("LTS", "lts")], "addsw": [("System extension (sysext)", "system-extension-sysext"), ("Image-based", "image-based")]}
 # Shown by default: five columns. The Columns control shows the rest. Entry is always shown and is not counted.
@@ -1243,6 +1323,8 @@ FILTERS = [
     ("ai", "AI accelerator", [("nvidia-gpu", "NVIDIA GPU"), ("nvidia-jetson", "NVIDIA Jetson"), ("amd", "AMD"), ("intel", "Intel"), ("aws-neuron", "AWS Neuron"), ("google-tpu", "Google TPU"), ("qualcomm", "Qualcomm"), ("edge-npu", "Edge NPU"), ("via-base", "Via your base distribution")]),
     ("aidel", "Accelerator driver", [("project-signed", "Signed driver from the project"), ("vendor-image", "Vendor image or package"), ("layered", "Layered package"), ("build-yourself", "You build it"), ("platform-build", "Platform build")]),
     ("aiop", "NVIDIA GPU Operator", [("documented", "Documented")]),
+    ("prov", "Infrastructure provider", [(k, lab) for k, lab, _ in PROVIDERS if k != "other"]),
+    ("provlvl", "How far it gets", [("provider-catalogue", "Official image in the catalogue"), ("project-image", "Project image"), ("bring-your-image", "Bring your own image")]),
     ("arch", "Architecture", [("amd64", "amd64"), ("arm64", "arm64"), ("riscv64", "riscv64"), ("other", "Other")]),
     ("day0", "Day-0 path", [("iso", "ISO"), ("pxe", "PXE"), ("cloud", "Cloud image"), ("disk", "Disk image")]),
     ("selfhost", "Self-hostable update source", [("yes", "Yes"), ("commercial", "Commercial only"), ("unknown", "Unknown")]),
@@ -1271,6 +1353,8 @@ FILTER_DESC = {
     "ai": "Accelerators the project or its vendor documents support for. Entries that build on a base distribution you pick also match, marked.",
     "aidel": "How the accelerator driver reaches the node.",
     "aiop": "Whether the NVIDIA GPU Operator mode is documented for the entry.",
+    "prov": "The infrastructure providers where the entry runs. An entry matches when it runs on any one you select. Entries whose config tool only reads that provider's metadata also match, marked.",
+    "provlvl": "The highest level the entry reaches on any provider: an official catalogue image, a project image, or documented steps to bring your own image.",
     "arch": "CPU architectures with a released image. Entries whose own components are built for an architecture, on a base distribution you pick, also match, marked.",
     "day0": "How a node gets its first install and bootstrap.",
     "selfhost": "Whether you can host the place where a node downloads its OS updates.",
@@ -1280,7 +1364,7 @@ FILTER_DESC = {
 # The column a filter reads. A filter on a hidden column shows that column.
 FILTER_COL = {"update": "update", "addsw": "addsw", "byod": "byod", "cfgrun": "config", "cfglatest": "config", "cfgrepeat": "config", "cfgscope": "config", "rollback": "rollback", "verified": "verified", "boot": "boot",
               "fleet": "fleet", "fleetrec": "fleet", "fleetlic": "fleet", "k8s": "k8s", "k8sdist": "k8s", "access": "access", "capi": "capi",
-              "ai": "ai", "aidel": "ai", "aiop": "ai", "arch": "arch", "day0": "day0", "selfhost": "selfhost", "own": "own"}
+              "ai": "ai", "aidel": "ai", "aiop": "ai", "prov": "prov", "provlvl": "prov", "arch": "arch", "day0": "day0", "selfhost": "selfhost", "own": "own"}
 
 # The evidence labels the legend and the glossary both list, in this order.
 EVIDENCE_SHOWN = ("DOCUMENTED", "INFERRED", "UNKNOWN", "NOT_TESTED")
@@ -1644,7 +1728,7 @@ def data_sheet(p, S):
 # The dimension each data sheet row belongs to, for the section source lists.
 ROW_DIM = {"constr": "d06", "byod": "d01", "day0": "d09", "config": "d09", "update": "d04", "mounts": "d02", "addsw": "d06",
            "verified": "d04", "boot": "d10", "rollback": "d05", "fleet": "d04", "k8s": "d07", "access": "d11", "capi": "d12",
-           "ai": "d08", "arch": "d08", "selfhost": "d04", "own": "d13", "support": "d14", "version": "d04", "maintainers": "d13"}
+           "ai": "d08", "prov": "d08", "arch": "d08", "selfhost": "d04", "own": "d13", "support": "d14", "version": "d04", "maintainers": "d13"}
 ROW_LEVEL_NOTE = {"documented": "Documented: stated by a primary source in this dimension's source list, shown under the sheet. No row-level source is recorded.",
                   "inferred": "Inferred: a conclusion from this dimension's sources, shown under the sheet. No row-level source is recorded."}
 
@@ -1887,6 +1971,9 @@ GLOSSARY = [
     ("Remote attestation", "A report of a machine's boot measurements, signed by its TPM and checked by another system before it trusts the machine."),
     ("UKI", "Unified Kernel Image: the kernel, its initrd and its command line in one signed boot file. See the <a href=\"https://uapi-group.org/specifications/specs/unified_kernel_image/\">UAPI Group specification</a>. After early boot, the system usually pivots to a root filesystem outside the UKI."),
     ("Pivot", "The point where early boot hands over from the initrd to the real root filesystem (switch_root). If that root filesystem is not covered by what was signed and measured, the chain of trust stops at the pivot."),
+    ("Provider catalogue", "The list of images a cloud provider offers in its own console, marketplace or image library. An official image in the catalogue is one the provider or the project lists there. An image you upload yourself is not in the catalogue."),
+    ("Metadata service", "A network address a cloud provider serves to each machine, which holds its user data and settings. A config tool such as cloud-init or Ignition reads it on first boot."),
+    ("Config drive", "A small disk image a cloud attaches to a machine. It holds the same user data and settings as a metadata service, for clouds that do not serve one."),
     ("USI", "Unified System Image: \"full OS images packed in a UKI\", in <a href=\"https://0pointer.net/blog/a-re-introduction-to-mkosi-a-tool-for-generating-os-images.html\">Daan De Meyer's words</a>. The whole OS is inside the signed image, so there is no separate root filesystem to pivot to."),
     ("dm-verity", "A Linux kernel feature that checks every block of a read-only filesystem against a hash tree. When the root hash is part of the signed and measured boot image, the chain of trust extends to that filesystem."),
     ('TUF', 'The Update Framework: a specification for securing software update systems. Signed metadata, split across several roles that each have their own keys, tells a client which files are current and what their hashes must be. See <a href="https://theupdateframework.io/">theupdateframework.io</a>.'),

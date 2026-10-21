@@ -297,6 +297,19 @@ def main():
                         errors.append("the %s Mounts row has an empty %s line" % (pid, line))
                 if mrow and 'class="ev ' not in mrow.group(0):
                     errors.append("the %s Mounts row has no evidence badge" % pid)
+            # the Where it runs column: every provider tag has a row in the data sheet, and every row there is sourced or says it is not
+            prow = re.search(r'<div class="ds-row" id="ds-%s-prov".*?</dd></div>' % re.escape(pid), sheet, re.S)
+            if prow:
+                plis = re.findall(r'<li>(.*?)</li>', prow.group(0), re.S)
+                for li in plis:
+                    shown = re.sub(r"<[^>]+>", " ", li)
+                    if not re.search(r"Not documented|Does not apply", shown) and 'class="cite"' not in li:
+                        errors.append("the %s Where it runs row lists a provider with no source: %s" % (pid, " ".join(shown.split())[:80]))
+                ptd = re.search(r'<td class="c-prov[^"]*" data-col="prov"[^>]*>(.*?)</td>', row, re.S)
+                for tag in re.findall(r'<li class="t[^"]*"[^>]*>(.*?)</li>', ptd.group(1) if ptd else "", re.S):
+                    name = re.sub(r"\s*\(config source only\)$", "", re.sub(r"<[^>]+>", "", tag)).strip()
+                    if name not in ("Not collected", "Not documented") and name not in re.sub(r"<[^>]+>", " ", " ".join(plis)):
+                        errors.append("the %s Where it runs tag %r has no row in the data sheet" % (pid, name))
             # a "via your base distribution" tag needs the filter attribute that makes the filter see it
             tagcount = row.count('class="t t-via"')
             trtag = re.search(r'<tr data-id="%s"[^>]*>' % re.escape(pid), table).group(0)
