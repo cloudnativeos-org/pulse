@@ -343,3 +343,28 @@ Each value other than `unknown` needs a `field_sources` entry whose `fields`
 list names it, with a `url`, `retrieved` and a `quote` or a `note`. `unknown`
 stands alone in its field. A cell without a source is `unknown`. `cell_notes`
 holds caveats that the cell cannot show.
+
+### Infrastructure providers (dimension 8, added 2026-10-21)
+
+`d08.normalized.providers` is a list. Each item is one infrastructure
+provider from a closed list, with how far the entry gets there. The list is
+fixed, so "Not documented" means the same thing in every row.
+
+- `provider`: `aws`, `azure`, `gcp` (hyperscalers). `openstack`, `vsphere`, `proxmox`, `kvm-libvirt`, `hyper-v`, `nutanix` (private cloud and virtualization). `hetzner`, `digitalocean`, `vultr`, `akamai` (Linode), `ovhcloud`, `scaleway` (small clouds). `bare-metal` (the method stays in the Day-0 column). `other` (a cloud the project documents that has no row; `name` is required).
+- `level`: the highest level the entry reaches.
+  - `provider-catalogue`: an official image in the provider's own catalogue or marketplace.
+  - `project-image`: the project publishes an image built for this provider. You import it.
+  - `bring-your-image`: the project documents how to upload a generic image or ISO to this provider.
+  - `config-source-only`: the entry's config tool reads this provider's metadata, but the OS documents no install path. A list from a config tool supports only this level.
+  - `none`: the project documents that it does not run there. Needs `evidence: DOCUMENTED`.
+  - `unknown`: no source says. Shown as "Not documented".
+  - `not-applicable`: the entry is not an OS image. Needs a `how` that says why.
+- `tier` (optional): `project`, `community` (the project names it community-supported) or `vendor` (the provider ships it).
+- `archs` (optional): the architectures the source names for this provider.
+- `config` (optional): `tool` is a name from the entry's own `d09.normalized.config_tools`. `channel` is `userdata` (metadata service), `config-drive`, `guestinfo` (VMware), `fw-cfg` (QEMU), `kvp` (Hyper-V), `kernel-arg-url`, `local-media` or `not-documented`.
+- `how`: one line on how the entry gets there. Required for every level except `unknown`.
+- `evidence`, `sources`: as everywhere. Every level except `unknown` and `not-applicable` needs at least one source with `url`, `type`, `retrieved` and a verbatim `quote`.
+
+"Works, but not documented" is not a level. It needs a run on the provider
+(`REPRODUCED`) and goes to `docs/follow-up-research.md`. A provider appears at
+most once per entry; `other` appears once per `name`.

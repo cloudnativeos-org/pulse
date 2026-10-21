@@ -186,6 +186,7 @@ def check_dimension(profile_id: str, name: str, dimension, report: Report, has_s
         check_mounts(profile_id, where, normalized, report)
     if name.startswith("d08_"):
         check_via_base(where, normalized, report)
+        check_providers(where, normalized, report)
     if name.startswith("d06_"):
         check_add_software(profile_id, where, normalized, report)
     if name.startswith("d07_"):
@@ -407,6 +408,85 @@ def check_distribution_options(where: str, normalized: dict, report: Report) -> 
                     report.error(f"{at}.sources[{j}]", f"missing '{field}'; the data sheet cites it, so it needs a verbatim quote")
 
 
+PROVIDERS = ("aws", "azure", "gcp", "openstack", "vsphere", "proxmox", "kvm-libvirt", "hyper-v", "nutanix",
+             "hetzner", "digitalocean", "vultr", "akamai", "ovhcloud", "scaleway", "bare-metal", "other")
+PROVIDER_LEVELS = ("provider-catalogue", "project-image", "bring-your-image", "config-source-only", "none", "unknown", "not-applicable")
+PROVIDER_TIERS = ("project", "community", "vendor")
+PROVIDER_CHANNELS = ("userdata", "config-drive", "guestinfo", "fw-cfg", "kvp", "kernel-arg-url", "local-media", "not-documented")
+
+
+def check_providers(where: str, normalized: dict, report: Report) -> None:
+    """The matrix column 'Where it runs' reads d08.normalized.providers. A level other than 'unknown' needs a source with a
+    verbatim quote, because the data sheet cites it. The name of a config tool is checked against d09 in check_provider_tools."""
+    items = normalized.get("providers")
+    if items is None:
+        return
+    if not isinstance(items, list) or not items:
+        report.error(where, "normalized.providers must be a non-empty list, or left out")
+        return
+    seen = set()
+    for i, item in enumerate(items):
+        at = f"{where}.providers[{i}]"
+        if not isinstance(item, dict):
+            report.error(at, "must be a mapping")
+            continue
+        provider = item.get("provider")
+        if provider not in PROVIDERS:
+            report.error(at, f"provider must be one of {', '.join(PROVIDERS)}, got {provider!r}")
+        if provider == "other" and not item.get("name"):
+            report.error(at, "provider 'other' needs a 'name'")
+        if provider != "other" and item.get("name"):
+            report.error(at, "'name' is only for provider 'other'")
+        key = (provider, item.get("name"))
+        if key in seen:
+            report.error(at, f"provider {provider!r} appears twice; record each once, with all its sources")
+        seen.add(key)
+        level = item.get("level")
+        if level not in PROVIDER_LEVELS:
+            report.error(at, f"level must be one of {', '.join(PROVIDER_LEVELS)}, got {level!r}")
+        if item.get("tier") is not None and item["tier"] not in PROVIDER_TIERS:
+            report.error(at, f"tier must be one of {', '.join(PROVIDER_TIERS)}, got {item['tier']!r}")
+        channel = (item.get("config") or {}).get("channel")
+        if item.get("config") and channel not in PROVIDER_CHANNELS:
+            report.error(at, f"config.channel must be one of {', '.join(PROVIDER_CHANNELS)}, got {channel!r}")
+        ev = item.get("evidence")
+        if ev not in ("DOCUMENTED", "REPRODUCED", "OBSERVED", "INFERRED", "UNKNOWN", "NOT_TESTED"):
+            report.error(at, f"evidence is missing or not an evidence label: {ev!r}")
+        if ev == "INFERRED" and not item.get("inferred_from"):
+            report.error(at, "evidence is INFERRED but 'inferred_from' is missing")
+        if ev == "UNKNOWN" and not item.get("searched"):
+            report.error(at, "evidence is UNKNOWN but 'searched' is missing")
+        if (level == "unknown") != (ev == "UNKNOWN"):
+            report.error(at, "level 'unknown' and evidence UNKNOWN go together")
+        if level == "none" and ev != "DOCUMENTED":
+            report.error(at, "level 'none' is a documented absence and needs evidence DOCUMENTED")
+        if level not in ("unknown", "not-applicable") and not item.get("how"):
+            report.error(at, "missing 'how'; say how the entry gets there")
+        if level == "not-applicable" and not item.get("how"):
+            report.error(at, "level 'not-applicable' needs a 'how' that says why")
+        if level not in ("unknown", "not-applicable") and not item.get("sources"):
+            report.error(at, f"level {level!r} has no sources; a provider with no source is 'unknown'")
+        for j, source in enumerate(item.get("sources") or []):
+            if not isinstance(source, dict):
+                report.error(f"{at}.sources[{j}]", "must be a mapping")
+                continue
+            for field in ("url", "type", "retrieved", "quote"):
+                if not source.get(field):
+                    report.error(f"{at}.sources[{j}]", f"missing '{field}'; the data sheet cites it, so it needs a verbatim quote")
+
+
+def check_provider_tools(profile_id: str, dimensions: dict, report: Report) -> None:
+    """A providers[].config.tool must be a name in the same entry's d09 config_tools."""
+    items = (((dimensions.get("d08_hardware_platform") or {}).get("normalized")) or {}).get("providers") or []
+    tools = {t.get("name") for t in (((dimensions.get("d09_provisioning") or {}).get("normalized")) or {}).get("config_tools") or []
+             if isinstance(t, dict)}
+    for i, item in enumerate(items):
+        tool = (item.get("config") or {}).get("tool") if isinstance(item, dict) else None
+        if tool and tool not in tools:
+            report.error(f"{profile_id}:d08_hardware_platform.providers[{i}]",
+                         f"config.tool {tool!r} is not a name in d09 config_tools ({', '.join(sorted(map(str, tools))) or 'none'})")
+
+
 def check_add_software(profile_id: str, where: str, normalized: dict, report: Report) -> None:
     """The matrix column 'Adding software to the OS' reads d06.normalized.add_software. Each entry is one way, with its own
     evidence label and sources. 'unknown' stands alone. A DOCUMENTED entry needs a source with a verbatim quote."""
@@ -503,6 +583,8 @@ def check_profile(path: pathlib.Path, report: Report) -> dict | None:
     has_sheet = (profile.get("category_fit") or {}).get("comparable") != "adjacent"
     for name, dimension in dimensions.items():
         check_dimension(profile_id, name, dimension, report, has_sheet)
+
+    check_provider_tools(profile_id, dimensions, report)
 
     declared_na = set((profile.get("category_fit") or {}).get("dimensions_not_applicable") or [])
     for name, dimension in dimensions.items():
