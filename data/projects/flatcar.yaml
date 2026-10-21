@@ -682,6 +682,416 @@ dimensions:
         - virtual-machines
         - public-cloud
         - sbc-experimental
+      providers:
+      - provider: aws
+        level: project-image
+        config:
+          tool: Ignition
+          channel: userdata
+        how: Launch the public Flatcar AMI in your region; pass Ignition as EC2 user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/aws-ec2.md
+          type: official-docs
+          title: AWS EC2
+          retrieved: '2026-10-21'
+          quote: After publishing, releases will remain available as public AMIs on AWS for 9 months.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/aws-ec2.md
+          type: official-docs
+          title: AWS EC2
+          retrieved: '2026-10-21'
+          quote: You can provide a raw Ignition JSON config to Flatcar Container Linux via the Amazon web console
+      - provider: azure
+        level: provider-catalogue
+        config:
+          tool: Ignition
+          channel: userdata
+        how: Use the official Flatcar image from the Azure Marketplace; pass Ignition as user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/azure.md
+          type: official-docs
+          title: Microsoft Azure
+          retrieved: '2026-10-21'
+          quote: Official Flatcar Container Linux images for all channels are available in the Marketplace.
+      - provider: gcp
+        level: provider-catalogue
+        config:
+          tool: Ignition
+          channel: userdata
+        how: Create instances from the Flatcar image published in the kinvolk-public project; pass Ignition as user-data metadata.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/gcp.md
+          type: official-docs
+          title: Google Compute Engine
+          retrieved: '2026-10-21'
+          quote: Flatcar is published by the `kinvolk` publisher on GCE.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/gcp.md
+          type: official-docs
+          title: Google Compute Engine
+          retrieved: '2026-10-21'
+          quote: You can provide a raw Ignition JSON config to Flatcar Container Linux via the Google Cloud console's metadata field `user-data` or via a flag using `gcloud`.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/using-google-cloud-launcher.md
+          type: official-docs
+          title: using-google-cloud-launcher.md
+          retrieved: '2026-10-21'
+          quote: How to use the Google Cloud Launcher Marketplace feature to launch
+      - provider: openstack
+        level: project-image
+        config:
+          tool: Ignition
+          channel: userdata
+        how: Download the Flatcar OpenStack image, import it with glance, boot with Ignition user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/virt-options/openstack.md
+          type: official-docs
+          title: OpenStack
+          retrieved: '2026-10-21'
+          quote: These instructions will walk you through downloading Flatcar Container Linux for OpenStack, importing it with the `glance` tool, and running your first cluster with the `nova` tool.
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [OpenStack] (`openstack`) - Ignition will read its configuration from the instance userdata via either metadata service or config drive. Cloud SSH keys are handled separately.'
+      - provider: vsphere
+        level: project-image
+        config:
+          tool: Ignition
+          channel: guestinfo
+        how: Deploy the Flatcar OVA on VMware Fusion or ESXi; pass Ignition through guestinfo.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/vmware.md
+          type: official-docs
+          title: VMware
+          retrieved: '2026-10-21'
+          quote: These instructions walk through running Flatcar Container Linux on VMware Fusion or ESXi.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/vmware.md
+          type: official-docs
+          title: VMware
+          retrieved: '2026-10-21'
+          quote: You can provide a raw Ignition config to Flatcar Container Linux via VMware's [Guestinfo interface][guestinfo].
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/vmware.md
+          type: official-docs
+          title: VMware
+          retrieved: '2026-10-21'
+          quote: curl -LO https://stable.release.flatcar-linux.net/amd64-usr/current/flatcar_production_vmware_ova.ova
+      - provider: proxmox
+        level: project-image
+        tier: community
+        config:
+          tool: Ignition
+          channel: config-drive
+        how: Download the Flatcar Proxmox VE qcow2 image and create a VM with qm; pass Ignition as cloud-init user-data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/virt-options/proxmoxve.md
+          type: official-docs
+          title: Proxmox VE (community support)
+          retrieved: '2026-10-21'
+          quote: _Please note that Proxmox VE is not an officially supported platform at this time because the release tests don't run for it._
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Proxmox VE] (`proxmoxve`) - Ignition will read its configuration from the instance userdata via config drive.'
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/virt-options/proxmoxve.md
+          type: official-docs
+          title: Proxmox VE (community support)
+          retrieved: '2026-10-21'
+          quote: $ wget https://stable.release.flatcar-linux.net/amd64-usr/current/flatcar_production_proxmoxve_image.img
+      - provider: kvm-libvirt
+        level: project-image
+        config:
+          tool: Ignition
+          channel: fw-cfg
+        how: Download the Flatcar QEMU image and run it with virt-install; pass Ignition via fw_cfg.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/virt-options/libvirt.md
+          type: official-docs
+          title: libvirt
+          retrieved: '2026-10-21'
+          quote: This guide explains how to run Flatcar Container Linux with libvirt using the QEMU driver.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/virt-options/libvirt.md
+          type: official-docs
+          title: libvirt
+          retrieved: '2026-10-21'
+          quote: --qemu-commandline='-fw_cfg name=opt/org.flatcar-linux/config,file=/var/lib/libvirt/flatcar-linux/flatcar-linux1/provision.ign'
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/virt-options/libvirt.md
+          type: official-docs
+          title: libvirt
+          retrieved: '2026-10-21'
+          quote: wget https://stable.release.flatcar-linux.net/amd64-usr/current/flatcar_production_qemu_image.img{,.sig}
+      - provider: hyper-v
+        level: project-image
+        tier: community
+        archs:
+        - amd64
+        config:
+          tool: Ignition
+          channel: kvp
+        how: Download the Flatcar VHDX image for Hyper-V; pass Ignition through KVP.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/virt-options/hyper-v.md
+          type: official-docs
+          title: Hyper-V (community support)
+          retrieved: '2026-10-21'
+          quote: Hyper-V images are created only for AMD64 and come in two disk formats, VHD for Hyper-V VM Generation 1 and VHDX for both Hyper-V Generation 1 and 2 VMs.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/virt-options/hyper-v.md
+          type: official-docs
+          title: Hyper-V (community support)
+          retrieved: '2026-10-21'
+          quote: _While we always welcome community contributions and fixes, please note that Hyper-V is not an officially supported platform at this time because the release tests don't run for it._
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Microsoft Hyper-V] (`hyperv`) - Ignition will read its configuration from the `ignition.config` key in pool 0 of the Hyper-V Data Exchange Service (KVP).'
+      - provider: nutanix
+        level: config-source-only
+        config:
+          tool: Ignition
+          channel: config-drive
+        how: Ignition reads its configuration from config drive on Nutanix; the Flatcar docs give no install page.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Nutanix] (`nutanix`) - Ignition will read its configuration from the instance userdata via config drive. Cloud SSH keys are handled separately.'
+      - provider: hetzner
+        level: project-image
+        archs:
+        - amd64
+        - arm64
+        config:
+          tool: Ignition
+          channel: userdata
+        how: Upload the Flatcar Hetzner image as a snapshot with hcloud-upload-image, then create servers with Ignition user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/hetzner.md
+          type: official-docs
+          title: Hetzner
+          retrieved: '2026-10-21'
+          quote: Flatcar Container Linux is not installable as one of the default operating system options, but you can deploy it by installing it through the rescue OS relatively easily.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/hetzner.md
+          type: official-docs
+          title: Hetzner
+          retrieved: '2026-10-21'
+          quote: We're going to provide our Butane Config to Hetzner via the user-data flag.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/hetzner.md
+          type: official-docs
+          title: Hetzner
+          retrieved: '2026-10-21'
+          quote: --image-url=https://stable.release.flatcar-linux.net/amd64-usr/current/flatcar_production_hetzner_image.bin.bz2
+      - provider: digitalocean
+        level: project-image
+        config:
+          tool: Ignition
+          channel: userdata
+        how: Upload the Flatcar DigitalOcean image as a custom image; pass Ignition as droplet user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/digitalocean.md
+          type: official-docs
+          title: DigitalOcean
+          retrieved: '2026-10-21'
+          quote: The _import URL_ should be `https://<channel>.release.flatcar-linux.net/amd64-usr/<version>/flatcar_production_digitalocean_image.bin.bz2`.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/digitalocean.md
+          type: official-docs
+          title: DigitalOcean
+          retrieved: '2026-10-21'
+          quote: You can provide a raw Ignition JSON config to Flatcar Container Linux via the DigitalOcean web console or [via the DigitalOcean API](#via-the-api).
+      - provider: vultr
+        level: provider-catalogue
+        tier: community
+        config:
+          tool: coreos-cloudinit (legacy, not Canonical cloud-init)
+          channel: kernel-arg-url
+        how: Select Flatcar Stable from Vultr's default offerings; custom cloud-config needs an iPXE script.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/vultr.md
+          type: official-docs
+          title: Vultr VPS (community support)
+          retrieved: '2026-10-21'
+          quote: The simplest option to boot up Flatcar Container Linux is to select the "Flatcar Container Linux Stable" operating system from Vultr's default offerings.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/vultr.md
+          type: official-docs
+          title: Vultr VPS (community support)
+          retrieved: '2026-10-21'
+          quote: kernel ${base-url}/flatcar_production_pxe.vmlinuz cloud-config-url=${cloud-config-url}
+      - provider: akamai
+        level: project-image
+        config:
+          tool: Ignition
+          channel: userdata
+        how: Upload the Akamai-branded Flatcar image with linode-cli; pass Ignition via the Linode Metadata Service.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/akamai.md
+          type: official-docs
+          title: Akamai Connected Cloud (Linode)
+          retrieved: '2026-10-21'
+          quote: First, retrieve an Akamai-branded image.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/akamai.md
+          type: official-docs
+          title: Akamai Connected Cloud (Linode)
+          retrieved: '2026-10-21'
+          quote: given to booting machines through instance userdata via the [Linode Metadata
+      - provider: ovhcloud
+        level: bring-your-image
+        tier: community
+        config:
+          tool: Ignition
+          channel: userdata
+        how: Import the Flatcar OpenStack image into OVHcloud with the OpenStack CLI; pass Ignition as user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/ovhcloud.md
+          type: official-docs
+          title: OVHcloud (community support)
+          retrieved: '2026-10-21'
+          quote: It is possible to import your own Flatcar image in OVHcloud using the OpenStack CLI.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/ovhcloud.md
+          type: official-docs
+          title: OVHcloud (community support)
+          retrieved: '2026-10-21'
+          quote: We're going to provide our Butane Config to OVHcloud via the user-data flag.
+      - provider: scaleway
+        level: project-image
+        tier: community
+        config:
+          tool: Ignition
+          channel: userdata
+        how: Upload the Flatcar Scaleway qcow2 image, snapshot it, and boot with Ignition as cloud-init data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/scaleway.md
+          type: official-docs
+          title: Scaleway (community support)
+          retrieved: '2026-10-21'
+          quote: It is possible to import your own Flatcar image in Scaleway using the [CLI][cli].
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Scaleway] (`scaleway`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.'
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/scaleway.md
+          type: official-docs
+          title: Scaleway (community support)
+          retrieved: '2026-10-21'
+          quote: $ wget https://beta.release.flatcar-linux.net/amd64-usr/current/flatcar_production_scaleway_image.qcow2
+      - provider: bare-metal
+        level: project-image
+        config:
+          tool: Ignition
+          channel: kernel-arg-url
+        how: Boot the Flatcar ISO or PXE image, or run flatcar-install to write Flatcar to disk.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/bare-metal/installing-to-disk.md
+          type: official-docs
+          title: Installing to disk
+          retrieved: '2026-10-21'
+          quote: There is a simple installer that will destroy everything on the given target disk and install Flatcar Container Linux.
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* Bare Metal (`metal`) - Use the `ignition.config.url` kernel parameter to provide a URL to the configuration.'
+      - provider: other
+        name: STACKIT
+        level: bring-your-image
+        config:
+          tool: Ignition
+          channel: userdata
+        how: Upload a custom Flatcar image to STACKIT and create a server from it; pass Ignition as User Data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/stackit.md
+          type: official-docs
+          title: STACKIT
+          retrieved: '2026-10-21'
+          quote: This guide shows you how to run Flatcar Container Linux on STACKIT Cloud by uploading a custom image and creating a server instance with it.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/stackit.md
+          type: official-docs
+          title: STACKIT
+          retrieved: '2026-10-21'
+          quote: On STACKIT, you provide this final configuration to your server via the User Data field.
+      - provider: other
+        name: Exoscale
+        level: provider-catalogue
+        config:
+          tool: coreos-cloudinit (legacy, not Canonical cloud-init)
+          channel: userdata
+        how: Exoscale deploys an official Flatcar image; first config is cloud-config user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/exoscale.md
+          type: official-docs
+          title: Exoscale
+          retrieved: '2026-10-21'
+          quote: The Exoscale Flatcar Container Linux image is built officially and each instance deployment is a unique fresh instance.
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/exoscale.md
+          type: official-docs
+          title: Exoscale
+          retrieved: '2026-10-21'
+          quote: You can provide raw cloud-config data to Flatcar Container Linux via the Exoscale portal
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/exoscale.md
+          type: official-docs
+          title: Exoscale
+          retrieved: '2026-10-21'
+          quote: Choose the Flatcar Container Linux template
+      - provider: other
+        name: Brightbox
+        level: provider-catalogue
+        config:
+          tool: Ignition
+          channel: userdata
+        how: Brightbox provides official Flatcar images; pass Ignition as user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/brightbox.md
+          type: official-docs
+          title: Brightbox
+          retrieved: '2026-10-21'
+          quote: While [Brightbox][brightbox] provides Flatcar images for Beta, Stable and LTS channels it is possible to import your own Flatcar image in Brightbox using the [CLI][cli].
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Brightbox] (`brightbox`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.'
+      - provider: other
+        name: Oracle Cloud Infrastructure
+        level: project-image
+        config:
+          tool: Ignition
+          channel: userdata
+        how: Upload the Flatcar image to an OracleCloud bucket, create a Custom Image, and boot with Ignition user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/oraclecloud.md
+          type: official-docs
+          title: OracleCloud
+          retrieved: '2026-10-21'
+          quote: It is possible to import a Flatcar image in OracleCloud using the [CLI][cli].
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Oracle Cloud Infrastucture] (`oraclecloud`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.'
+        - url: https://github.com/flatcar/flatcar-website/blob/6e71d13064dfc99d530a8d6965b7bde96f79a6ac/content/docs/latest/deploy/cloud/oraclecloud.md
+          type: official-docs
+          title: OracleCloud
+          retrieved: '2026-10-21'
+          quote: curl --fail --silent --show-error --location --remote-name "https://${CHANNEL}.release.flatcar-linux.net/${ARCH}-usr/${VERSION}/flatcar_production_oraclecloud_image.img"
       gpu: "NVIDIA, amd64 only, prebuilt signed sysext per release"
       tpm: "see d10"
       extension_mechanism: "Flatcar SDK for board and kernel changes; sysext for prebuilt modules"

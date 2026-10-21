@@ -772,6 +772,395 @@ dimensions:
         - virtual-machines
         - public-cloud
         - sbc
+      providers:
+      - provider: aws
+        level: project-image
+        tier: project
+        archs:
+        - amd64
+        - arm64
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Launch directly from the public FCOS AMIs, passing Ignition as user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/getting-started-aws.adoc
+          type: official-docs
+          title: Getting started on AWS
+          retrieved: '2026-10-21'
+          quote: New AWS instances can be directly created from the public FCOS images.
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/platforms.adoc
+          type: official-docs
+          title: Supported Platforms
+          retrieved: '2026-10-21'
+          quote: '* Amazon Web Services (`aws`): Cloud platform. See xref:provisioning-aws.adoc[Booting on AWS].'
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/getting-started-aws.adoc
+          type: official-docs
+          title: Getting started on AWS
+          retrieved: '2026-10-21'
+          quote: New AWS instances can be directly created from the public FCOS images. You can find the latest AMI for each region from the https://fedoraproject.org/coreos/download/[download page].
+      - provider: azure
+        level: project-image
+        tier: project
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Download the Azure image from Fedora and upload it to your subscription.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-azure.adoc
+          type: official-docs
+          title: Provisioning on Azure
+          retrieved: '2026-10-21'
+          quote: Fedora currently does not publish Fedora CoreOS images within Azure, so you must download an Azure image from Fedora and upload it to your Azure subscription.
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Microsoft Azure] (`azure`)- Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.'
+      - provider: gcp
+        level: project-image
+        tier: project
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Use the image families published under the fedora-coreos-cloud project, passing Ignition as user-data metadata.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-gcp.adoc
+          type: official-docs
+          title: Provisioning on GCP
+          retrieved: '2026-10-21'
+          quote: 'FCOS images are published under the `fedora-coreos-cloud` project and further organized into image families, tracking the corresponding stream:'
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Google Cloud] (`gcp`) - Ignition will read its configuration from the instance metadata entry named "user-data". Cloud SSH keys are handled separately.'
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-gcp.adoc
+          type: official-docs
+          title: Provisioning on GCP
+          retrieved: '2026-10-21'
+          quote: New GCP instances can be directly created and booted from public FCOS images.
+      - provider: openstack
+        level: project-image
+        tier: project
+        archs:
+        - amd64
+        - arm64
+        - s390x
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Download the OpenStack qcow2 image, upload it with the openstack CLI, and boot with user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-openstack.adoc
+          type: official-docs
+          title: Provisioning on OpenStack
+          retrieved: '2026-10-21'
+          quote: 'NOTE: If you''re uploading an `aarch64` disk image then add `--property architecture=aarch64`.'
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/platforms.adoc
+          type: official-docs
+          title: Supported Platforms
+          retrieved: '2026-10-21'
+          quote: '* OpenStack (`openstack`): Cloud platform. See xref:provisioning-openstack.adoc[Booting on OpenStack].'
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [OpenStack] (`openstack`) - Ignition will read its configuration from the instance userdata via either metadata service or config drive. Cloud SSH keys are handled separately.'
+      - provider: vsphere
+        level: project-image
+        tier: project
+        config:
+          tool: Ignition (written as Butane)
+          channel: guestinfo
+        how: Download the VMware OVA and deploy it, setting guestinfo Ignition variables.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-vmware.adoc
+          type: official-docs
+          title: Provisioning on VMware
+          retrieved: '2026-10-21'
+          quote: The examples below use the https://github.com/vmware/govmomi/blob/v0.29.0/govc/README.md[govc] command-line tool for remote vSphere provisioning
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [VMware] (`vmware`) - Use the VMware Guestinfo variables `ignition.config.data` and `ignition.config.data.encoding` to provide the config and its encoding to the virtual machine.'
+      - provider: proxmox
+        level: project-image
+        tier: project
+        config:
+          tool: Ignition (written as Butane)
+          channel: config-drive
+        how: Download the Proxmox VE qcow2 image and attach Ignition through a cloud-init drive.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-proxmoxve.adoc
+          type: official-docs
+          title: Provisioning on Proxmox VE
+          retrieved: '2026-10-21'
+          quote: Fedora CoreOS provides pre-built images specifically optimized for Proxmox VE.
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Proxmox VE] (`proxmoxve`) - Ignition will read its configuration from the instance userdata via config drive.'
+      - provider: kvm-libvirt
+        level: project-image
+        tier: project
+        config:
+          tool: Ignition (written as Butane)
+          channel: fw-cfg
+        how: Download the QEMU qcow2 image and launch it with virt-install, passing Ignition via fw_cfg.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-libvirt.adoc
+          type: official-docs
+          title: Provisioning on libvirt
+          retrieved: '2026-10-21'
+          quote: This guide shows how to provision new Fedora CoreOS (FCOS) instances on a https://libvirt.org/[libvirt] platform, using the https://www.qemu.org/[QEMU] hypervisor.
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [QEMU] (`qemu`) - Ignition will read its configuration from the ''opt/com.coreos/config'' key on the QEMU Firmware Configuration Device (available in QEMU 2.4.0 and higher).'
+      - provider: hyper-v
+        level: project-image
+        tier: project
+        config:
+          tool: Ignition (written as Butane)
+          channel: kvp
+        how: Download the Hyper-V disk image and attach the Ignition config with kvpctl.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-hyperv.adoc
+          type: official-docs
+          title: Provisioning on Hyper-V
+          retrieved: '2026-10-21'
+          quote: Hyper-V disk images can be manually downloaded from the https://fedoraproject.org/coreos/download/[download page].
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Microsoft Hyper-V] (`hyperv`) - Ignition will read its configuration from the `ignition.config` key in pool 0 of the Hyper-V Data Exchange Service (KVP).'
+      - provider: nutanix
+        level: project-image
+        tier: project
+        config:
+          tool: Ignition (written as Butane)
+          channel: config-drive
+        how: Upload the Nutanix qcow2 image to Prism Central and pass Ignition via guest customization.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-nutanix.adoc
+          type: official-docs
+          title: Provisioning on Nutanix AHV
+          retrieved: '2026-10-21'
+          quote: Fedora currently does not publish Fedora CoreOS images within Nutanix, so you need to upload a Nutanix image to your Nutanix Prism Central subscription.
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Nutanix] (`nutanix`) - Ignition will read its configuration from the instance userdata via config drive. Cloud SSH keys are handled separately.'
+      - provider: hetzner
+        level: project-image
+        tier: project
+        archs:
+        - amd64
+        - arm64
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Download the Hetzner image, create a snapshot with hcloud-upload-image, then create servers from it.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-hetzner.adoc
+          type: official-docs
+          title: Provisioning on Hetzner
+          retrieved: '2026-10-21'
+          quote: 'NOTE: Both x86_64 and aarch64 architectures are supported on Hetzner.'
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Hetzner Cloud] (`hetzner`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.'
+      - provider: digitalocean
+        level: project-image
+        tier: project
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Upload the DigitalOcean image as a custom image and launch a droplet with user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-digitalocean.adoc
+          type: official-docs
+          title: Provisioning on DigitalOcean
+          retrieved: '2026-10-21'
+          quote: Fedora CoreOS images are currently not published directly on DigitalOcean, so you must download a Fedora CoreOS DigitalOcean image and upload it to your DigitalOcean account as a
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [DigitalOcean] (`digitalocean`) - Ignition will read its configuration from the droplet userdata. Cloud SSH keys and network configuration are handled separately.'
+      - provider: vultr
+        level: project-image
+        tier: project
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Upload the Vultr raw image as a custom snapshot and launch with user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-vultr.adoc
+          type: official-docs
+          title: Provisioning on Vultr
+          retrieved: '2026-10-21'
+          quote: Vultr supports creating custom snapshots from public raw images.
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Vultr] (`vultr`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.'
+      - provider: akamai
+        level: config-source-only
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Ignition reads its config from Akamai (Linode) userdata; the FCOS docs give no install path.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Akamai Connected Cloud] (`akamai`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys and network configuration are handled separately.'
+      - provider: scaleway
+        level: config-source-only
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Ignition reads its config from Scaleway userdata; the FCOS docs give no install path.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Scaleway] (`scaleway`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.'
+      - provider: ovhcloud
+        level: unknown
+        evidence: UNKNOWN
+        searched: FCOS docs platforms.adoc and per-platform provisioning pages, Ignition supported-platforms.md; no OVHcloud entry
+      - provider: bare-metal
+        level: project-image
+        tier: project
+        config:
+          tool: Ignition (written as Butane)
+          channel: kernel-arg-url
+        how: Install from the live ISO, PXE or container with coreos-installer, pointing at an Ignition URL.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/bare-metal.adoc
+          type: official-docs
+          title: Installing on Bare Metal
+          retrieved: '2026-10-21'
+          quote: This guide provides instructions to install Fedora CoreOS to bare metal.
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* Bare Metal (`metal`) - Use the `ignition.config.url` kernel parameter to provide a URL to the configuration.'
+      - provider: other
+        name: Alibaba Cloud
+        level: project-image
+        tier: project
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Download the Alibaba Cloud image and import it into the platform.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-aliyun.adoc
+          type: official-docs
+          title: Provisioning on Alibaba Cloud
+          retrieved: '2026-10-21'
+          quote: Fedora currently does not publish Fedora CoreOS images within Alibaba Cloud, so you must download an Alibaba Cloud image from Fedora and upload it to one of your Object Storage Service (OSS) buckets.
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Alibaba Cloud] (`aliyun`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.'
+      - provider: other
+        name: Exoscale
+        level: project-image
+        tier: project
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Download the Exoscale image and import it into the platform.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-exoscale.adoc
+          type: official-docs
+          title: Provisioning on Exoscale
+          retrieved: '2026-10-21'
+          quote: This guide shows how to provision new Fedora CoreOS (FCOS) instances on https://exoscale.com[Exoscale] Cloud Hosting.
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Exoscale] (`exoscale`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.'
+      - provider: other
+        name: IBM Cloud
+        level: project-image
+        tier: project
+        archs:
+        - amd64
+        - s390x
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Download the IBM Cloud image and import it into the platform.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-ibmcloud.adoc
+          type: official-docs
+          title: Provisioning on IBM Cloud
+          retrieved: '2026-10-21'
+          quote: This guide shows how to provision new Fedora CoreOS (FCOS) instances in IBM Cloud for either the `x86_64` or `s390x` architectures.
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [IBM Cloud] (`ibmcloud`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.'
+      - provider: other
+        name: Oracle Cloud Infrastructure
+        level: project-image
+        tier: project
+        archs:
+        - amd64
+        - arm64
+        config:
+          tool: Ignition (written as Butane)
+          channel: userdata
+        how: Download the Oracle Cloud Infrastructure image and import it into the platform.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/provisioning-oraclecloud.adoc
+          type: official-docs
+          title: Provisioning on Oracle Cloud
+          retrieved: '2026-10-21'
+          quote: 'NOTE: Both x86_64 and aarch64 architectures are supported on Oracle Cloud Infrastructure.'
+        - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
+          type: source-repo
+          title: Ignition supported platforms
+          retrieved: '2026-10-21'
+          quote: '* [Oracle Cloud Infrastucture] (`oraclecloud`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.'
       gpu: "none documented"
       tpm: "TPM2 pinning for LUKS root encryption; PCR 7 supported, PCR 8 documented as unsupported"
       extension_mechanism: "kernel arguments, package layering, or a custom build"

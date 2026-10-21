@@ -792,6 +792,95 @@ dimensions:
         - bare-metal
         - virtual-machines
         - public-cloud
+      providers:
+      - provider: azure
+        level: project-image
+        tier: project
+        how: The Kairos pipeline publishes one Hadron image to the Azure Community Images.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/cloud-servers/azure.md
+          type: official-docs
+          title: Installation on Microsoft Azure
+          retrieved: '2026-10-21'
+          quote: That's why only one Kairos flavor is published in Azure (Hadron).
+      - provider: gcp
+        level: project-image
+        tier: project
+        archs:
+        - amd64
+        how: The Kairos pipeline publishes one Hadron image (core, amd64, generic) in the palette-kairos Google Cloud project.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/cloud-servers/gce.md
+          type: official-docs
+          title: Installation on Google Cloud
+          retrieved: '2026-10-21'
+          quote: That's the reason only one Kairos image is published in Google Cloud (Hadron, core, amd64, generic).
+      - provider: aws
+        level: bring-your-image
+        evidence: DOCUMENTED
+        how: Build a raw image from the Hadron container image and import it into AWS as an AMI.
+        sources:
+        - type: source-repo
+          retrieved: '2026-10-21'
+          quote: '**AWS**: Upload to S3, use `aws ec2 import-snapshot` and register an AMI; set firmware to UEFI.'
+          url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/operator-docs/osartifact.md
+          title: osartifact.md
+      - provider: openstack
+        level: bring-your-image
+        evidence: DOCUMENTED
+        how: Build a raw image from the Hadron container image and upload it with osp image create.
+        sources:
+        - type: source-repo
+          retrieved: '2026-10-21'
+          quote: '**OpenStack**: `osp image create my-hadron-cloud-image --property hw_firmware_type=''uefi'' --file ./my-hadron-cloud.raw`'
+          url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/operator-docs/osartifact.md
+          title: osartifact.md
+      - provider: vsphere
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-io/hadron README and docs, kairos-docs hadron-docs/*, Hadron blog posts, kairos.io install pages naming Hadron
+      - provider: proxmox
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-io/hadron README and docs, kairos-docs hadron-docs/*, Hadron blog posts, kairos.io install pages naming Hadron
+      - provider: kvm-libvirt
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-io/hadron README and docs, kairos-docs hadron-docs/*, Hadron blog posts, kairos.io install pages naming Hadron
+      - provider: hyper-v
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-io/hadron README and docs, kairos-docs hadron-docs/*, Hadron blog posts, kairos.io install pages naming Hadron
+      - provider: nutanix
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-io/hadron README and docs, kairos-docs hadron-docs/*, Hadron blog posts, kairos.io install pages naming Hadron
+      - provider: hetzner
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-io/hadron README and docs, kairos-docs hadron-docs/*, Hadron blog posts, kairos.io install pages naming Hadron
+      - provider: digitalocean
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-io/hadron README and docs, kairos-docs hadron-docs/*, Hadron blog posts, kairos.io install pages naming Hadron
+      - provider: vultr
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-io/hadron README and docs, kairos-docs hadron-docs/*, Hadron blog posts, kairos.io install pages naming Hadron
+      - provider: akamai
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-io/hadron README and docs, kairos-docs hadron-docs/*, Hadron blog posts, kairos.io install pages naming Hadron
+      - provider: ovhcloud
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-io/hadron README and docs, kairos-docs hadron-docs/*, Hadron blog posts, kairos.io install pages naming Hadron
+      - provider: scaleway
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-io/hadron README and docs, kairos-docs hadron-docs/*, Hadron blog posts, kairos.io install pages naming Hadron
       kernel_variants: "default (generic drivers) and cloud (minimal, for virtual machines)"
       firmware: "deliberately small in-image set; everything else via hadron-firmware"
       gpu: "NVIDIA discrete on x86_64 and Jetson AGX Thor, driver compiled into the image"

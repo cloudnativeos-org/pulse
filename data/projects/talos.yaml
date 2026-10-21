@@ -888,6 +888,336 @@ dimensions:
         - virtual-machines
         - public-cloud
         - sbc
+      providers:
+      - provider: aws
+        level: project-image
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: userdata
+        how: Use the official Talos AMI IDs published with each release, then pass the machine config as user-data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/aws.mdx
+          type: source-repo
+          title: AWS
+          retrieved: '2026-10-21'
+          quote: Official AMI image ID can be found in the `cloud-images.json` file attached to the [Talos release](https://github.com/siderolabs/talos/releases).
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/aws.mdx
+          type: source-repo
+          title: AWS
+          retrieved: '2026-10-21'
+          quote: We will bootstrap Talos with a MachineConfig via user-data
+      - provider: azure
+        level: project-image
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: userdata
+        how: Download the Azure image, upload it to Blob Storage, create an image, and pass the config as custom-data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/azure.mdx
+          type: source-repo
+          title: Azure
+          retrieved: '2026-10-21'
+          quote: Talos supports only `custom-data` method, machine configuration is available to the VM only on the first boot.
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/azure.mdx
+          type: source-repo
+          title: Azure
+          retrieved: '2026-10-21'
+          quote: First, download the Azure image from [Image Factory](https://factory.talos.dev/).
+      - provider: gcp
+        level: project-image
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: userdata
+        how: Upload the Talos GCP image to a Cloud Storage bucket, create a GCP image, and pass config as user-data metadata.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/gcp.mdx
+          type: source-repo
+          title: GCP
+          retrieved: '2026-10-21'
+          quote: --metadata-from-file=user-data=./controlplane.yaml
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/gcp.mdx
+          type: source-repo
+          title: GCP
+          retrieved: '2026-10-21'
+          quote: First, download the Google Cloud image from [Image Factory](https://factory.talos.dev/).
+      - provider: openstack
+        level: project-image
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: userdata
+        how: Download the OpenStack image from Image Factory, upload it to Glance, and boot with --user-data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/openstack.mdx
+          type: source-repo
+          title: OpenStack
+          retrieved: '2026-10-21'
+          quote: First, download the OpenStack image from [Image Factory](https://factory.talos.dev/).
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/openstack.mdx
+          type: source-repo
+          title: OpenStack
+          retrieved: '2026-10-21'
+          quote: --user-data /path/to/worker.yaml
+      - provider: vsphere
+        level: project-image
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: guestinfo
+        how: Deploy the Talos VMware OVA from Image Factory and set the machine config through guestinfo.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/virtualized-platforms/vmware.mdx
+          type: source-repo
+          title: VMware
+          retrieved: '2026-10-21'
+          quote: Talos makes use of the `guestinfo` facility of VMware to provide the machine/cluster configuration.
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/virtualized-platforms/vmware.mdx
+          type: source-repo
+          title: VMware
+          retrieved: '2026-10-21'
+          quote: A `talos.ova` asset is available from [Image Factory]
+      - provider: proxmox
+        level: bring-your-image
+        how: Upload the Talos metal ISO to Proxmox, boot a VM, and apply the config with talosctl.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/virtualized-platforms/proxmox.mdx
+          type: source-repo
+          title: Proxmox
+          retrieved: '2026-10-21'
+          quote: In this guide you will create a Kubernetes cluster on Proxmox, from uploading the Talos ISO to bootstrapping etcd and retrieving your kubeconfig.
+      - provider: kvm-libvirt
+        level: bring-your-image
+        how: Boot the Talos metal ISO in KVM guests created with virsh, then apply the config with talosctl.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/virtualized-platforms/kvm.mdx
+          type: source-repo
+          title: KVM
+          retrieved: '2026-10-21'
+          quote: Download the latest `metal-amd64.iso` from the Talos
+      - provider: hyper-v
+        level: bring-your-image
+        how: Boot the Talos metal ISO in Hyper-V VMs, then apply the config with talosctl.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/virtualized-platforms/hyper-v.mdx
+          type: source-repo
+          title: Hyper-V
+          retrieved: '2026-10-21'
+          quote: Download the latest `metal-amd64.iso` and `talosctl-windows-amd64.exe` from the [GitHub releases page](https://github.com/siderolabs/talos/releases).
+      - provider: nutanix
+        level: unknown
+        evidence: UNKNOWN
+        searched: Talos docs repo v1.15 platform-specific-installations tree (cloud, virtualized, bare-metal pages); no Nutanix page or mention in pages fetched
+      - provider: hetzner
+        level: provider-catalogue
+        tier: vendor
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: userdata
+        how: Hetzner Cloud offers Talos as a public ISO; snapshot images from Image Factory also work.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/hetzner.mdx
+          type: source-repo
+          title: Hetzner
+          retrieved: '2026-10-21'
+          quote: Hetzner Cloud provides Talos as a Public ISO with the schematic id `ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515` (Hetzner + qemu-guest-agent) since 2025-04-23.
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/hetzner.mdx
+          type: source-repo
+          title: Hetzner
+          retrieved: '2026-10-21'
+          quote: you can easily exceed the 32 kb limit on uploadable userdata
+      - provider: digitalocean
+        level: project-image
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: userdata
+        how: Download the DigitalOcean image from Image Factory, upload to a Space, create a custom image, pass user-data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/digitalocean.mdx
+          type: source-repo
+          title: DigitalOcean
+          retrieved: '2026-10-21'
+          quote: Download the DigitalOcean image `digital-ocean-amd64.raw.gz` from the
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/digitalocean.mdx
+          type: source-repo
+          title: DigitalOcean
+          retrieved: '2026-10-21'
+          quote: --user-data-file controlplane.yaml
+      - provider: vultr
+        level: project-image
+        how: Upload the Talos Vultr ISO to the Vultr ISO server, boot instances, and apply the config with talosctl.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/vultr.mdx
+          type: source-repo
+          title: Vultr
+          retrieved: '2026-10-21'
+          quote: First step is to make the Talos ISO available to Vultr by uploading the latest release of the ISO to the Vultr ISO server.
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/vultr.mdx
+          type: source-repo
+          title: Vultr
+          retrieved: '2026-10-21'
+          quote: Talos Linux can be PXE-booted on Vultr using [Image Factory](../../learn-more/image-factory), using the `vultr` platform
+      - provider: akamai
+        level: project-image
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: userdata
+        how: Download the Akamai image from Image Factory, upload it with linode-cli, and pass config as user_data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/akamai.mdx
+          type: source-repo
+          title: Akamai
+          retrieved: '2026-10-21'
+          quote: Download the Akamai image `akamai-amd64.raw.gz` from
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/akamai.mdx
+          type: source-repo
+          title: Akamai
+          retrieved: '2026-10-21'
+          quote: --metadata.user_data "$(base64 -i ./controlplane.yaml)"
+      - provider: ovhcloud
+        level: project-image
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: userdata
+        how: Download the OpenStack image from Image Factory, upload it to OVHcloud, and boot with --user-data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/ovhcloud.mdx
+          type: source-repo
+          title: OVHcloud
+          retrieved: '2026-10-21'
+          quote: First, download the <a href={`https://factory.talos.dev/image/376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba/${release_v1_15}/openstack-amd64.raw.xz`}> OpenStack image</a> from [Image Factory](https://factory.talos.dev/).
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/ovhcloud.mdx
+          type: source-repo
+          title: OVHcloud
+          retrieved: '2026-10-21'
+          quote: creating compute instances that use the `worker.yaml` configuration generated in **Step 4** as their user data.
+      - provider: scaleway
+        level: project-image
+        how: Convert the Talos Scaleway image, import it as a snapshot, boot an instance, and apply the config with talosctl.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/scaleway.mdx
+          type: source-repo
+          title: Scaleway
+          retrieved: '2026-10-21'
+          quote: Scaleway will only allow snapshots from their block storage, not URLs
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/scaleway.mdx
+          type: source-repo
+          title: Scaleway
+          retrieved: '2026-10-21'
+          quote: scaleway-amd64.raw.zst
+      - provider: bare-metal
+        level: project-image
+        archs:
+        - amd64
+        - arm64
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: kernel-arg-url
+        how: Boot the Talos ISO or PXE on the machine; config can be fetched through the talos.config kernel parameter.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/bare-metal-platforms/iso.mdx
+          type: source-repo
+          title: ISO
+          retrieved: '2026-10-21'
+          quote: Talos can be installed on bare-metal machines using an ISO image.
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/bare-metal-platforms/pxe.mdx
+          type: source-repo
+          title: PXE
+          retrieved: '2026-10-21'
+          quote: Talos can automatically fetch the machine configuration from the network on the initial boot using `talos.config` kernel parameter.
+      - provider: other
+        name: Oracle Cloud Infrastructure
+        level: project-image
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: userdata
+        how: Oracle has no official Talos image; import the Talos image through Bring Your Own Image, then pass user-data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/oracle.mdx
+          type: source-repo
+          title: Oracle
+          retrieved: '2026-10-21'
+          quote: Oracle Cloud at the moment does not have a Talos official image.
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/oracle.mdx
+          type: source-repo
+          title: Oracle
+          retrieved: '2026-10-21'
+          quote: --user-data-file worker.yaml
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/oracle.mdx
+          type: source-repo
+          title: Oracle
+          retrieved: '2026-10-21'
+          quote: 'Download the disk image artifact in qcow2 format (e.g:'
+      - provider: other
+        name: UpCloud
+        level: project-image
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: userdata
+        how: Use the UpCloud image from Image Factory, built into a template with Packer, then pass user-data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/upcloud.mdx
+          type: source-repo
+          title: UpCloud
+          retrieved: '2026-10-21'
+          quote: '`upcloud-amd64.raw.xz` image available from the [Image Factory](https://factory.talos.dev/).'
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/upcloud.mdx
+          type: source-repo
+          title: UpCloud
+          retrieved: '2026-10-21'
+          quote: specific features implemented, such as the fetching of metadata and user data to configure the nodes.
+      - provider: other
+        name: Apache CloudStack
+        level: project-image
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: userdata
+        how: Download the CloudStack image from Image Factory, register it, and supply the config as userdata.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/cloudstack.mdx
+          type: source-repo
+          title: CloudStack
+          retrieved: '2026-10-21'
+          quote: Download the Talos CloudStack image `cloudstack-amd64.raw.gz` from the [Image Factory](https://factory.talos.dev).
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/cloudstack.mdx
+          type: source-repo
+          title: CloudStack
+          retrieved: '2026-10-21'
+          quote: Next we will create the actual VM and supply the `controlplane.yaml` as base64 encoded `userdata`.
+      - provider: other
+        name: OpenNebula
+        level: project-image
+        config:
+          tool: Machine configuration (machined, gRPC API)
+          channel: userdata
+        how: Download the OpenNebula qcow2 image from Image Factory; config goes through the USER_DATA context variable.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/virtualized-platforms/opennebula.mdx
+          type: source-repo
+          title: OpenNebula
+          retrieved: '2026-10-21'
+          quote: Talos reads `USER_DATA` from the context and applies it automatically on first boot, bypassing maintenance mode.
+        - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/virtualized-platforms/opennebula.mdx
+          type: source-repo
+          title: OpenNebula
+          retrieved: '2026-10-21'
+          quote: Talos provides pre-built OpenNebula disk images via [Image Factory](https://factory.talos.dev/).
       gpu: "NVIDIA drivers as extensions, production and LTS branches"
       tpm: "used for Secure Boot disk encryption key binding"
       extension_mechanism: "system extensions for drivers and firmware; overlays for board support"

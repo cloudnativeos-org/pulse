@@ -1144,6 +1144,189 @@ dimensions:
         - virtual-machines
         - public-cloud
         - sbc
+      providers:
+      - provider: aws
+        level: project-image
+        tier: project
+        config:
+          tool: yip (cloud-config stages)
+          channel: userdata
+        how: The Kairos pipeline pushes a public AMI to AWS; launch it and pass the Kairos config as EC2 user data.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/cloud-servers/aws.md
+          type: official-docs
+          title: Installation on AWS
+          retrieved: '2026-10-21'
+          quote: Kairos pipeline is pushing a public AMI image to AWS which you can use.
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/cloud-servers/aws.md
+          type: official-docs
+          title: Installation on AWS
+          retrieved: '2026-10-21'
+          quote: You can also pass a Kairos config using the userdata field
+      - provider: azure
+        level: project-image
+        tier: project
+        config:
+          tool: yip (cloud-config stages)
+          channel: userdata
+        how: The Kairos pipeline publishes an image to the Azure Community Images; create a VM from it with user data enabled.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/cloud-servers/azure.md
+          type: official-docs
+          title: Installation on Microsoft Azure
+          retrieved: '2026-10-21'
+          quote: Kairos pipeline is pushing a public OS image to Azure which you can use.
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/cloud-servers/azure.md
+          type: official-docs
+          title: Installation on Microsoft Azure
+          retrieved: '2026-10-21'
+          quote: click on "Enable user data". In the field that is opened, you can put your [Kairos configuration]
+      - provider: gcp
+        level: project-image
+        tier: project
+        archs:
+        - amd64
+        config:
+          tool: yip (cloud-config stages)
+          channel: userdata
+        how: The Kairos pipeline publishes a public image in the palette-kairos project; create a VM from it with user-data metadata.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/cloud-servers/gce.md
+          type: official-docs
+          title: Installation on Google Cloud
+          retrieved: '2026-10-21'
+          quote: That's the reason only one Kairos image is published in Google Cloud (Hadron, core, amd64, generic).
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/cloud-servers/gce.md
+          type: official-docs
+          title: Installation on Google Cloud
+          retrieved: '2026-10-21'
+          quote: By passing a file to `--metadata-from-file=user-data=<your_file_here>` you can pass a cloud config to Kairos.
+      - provider: openstack
+        level: bring-your-image
+        how: Build a Kairos cloud raw image with an OSArtifact and upload it with the osp image create command.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/operator-docs/osartifact.md
+          type: official-docs
+          title: OSArtifact
+          retrieved: '2026-10-21'
+          quote: '**OpenStack**: `osp image create my-hadron-cloud-image --property hw_firmware_type=''uefi'' --file ./my-hadron-cloud.raw`'
+      - provider: vsphere
+        level: config-source-only
+        config:
+          tool: yip (cloud-config stages)
+          channel: guestinfo
+        how: Kairos docs name VMware guestinfo as a datasource for user data; no vSphere install page exists.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/advanced/partition_encryption.md
+          type: official-docs
+          title: Partition encryption
+          retrieved: '2026-10-21'
+          quote: the user data pulled from a datasource (a NoCloud ISO, VMware guestinfo, or a cloud provider's metadata service)
+      - provider: hetzner
+        level: bring-your-image
+        how: Request a custom Kairos ISO from Hetzner support, mount it on a server, and install through the WebUI.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/cloud-servers/hetzner.md
+          type: official-docs
+          title: Installation on Hetzner Cloud
+          retrieved: '2026-10-21'
+          quote: Unlike AWS or Azure, Kairos does not publish official images to Hetzner.
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/cloud-servers/hetzner.md
+          type: official-docs
+          title: Installation on Hetzner Cloud
+          retrieved: '2026-10-21'
+          quote: submit a support ticket with the direct download URL of the Kairos ISO and Hetzner will make it available in your account.
+      - provider: digitalocean
+        level: config-source-only
+        config:
+          tool: yip (cloud-config stages)
+          channel: not-documented
+        how: The yip datasource stage example lists digitalocean as a provider; no DigitalOcean install page exists.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/reference/stage_modules.md
+          type: official-docs
+          title: Stage modules
+          retrieved: '2026-10-21'
+          quote: '- "digitalocean"'
+      - provider: ovhcloud
+        level: unknown
+        evidence: UNKNOWN
+        searched: The takeover page documents a rescue-mode install, not an image upload.
+      - provider: bare-metal
+        level: bring-your-image
+        how: Download the Kairos ISO and flash it to a USB stick to install on real hardware.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/bare-metal.md
+          type: official-docs
+          title: Installing on Bare-Metal
+          retrieved: '2026-10-21'
+          quote: Download the Kairos ISO of your choice.
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/bare-metal.md
+          type: official-docs
+          title: Installing on Bare-Metal
+          retrieved: '2026-10-21'
+          quote: When deploying on a bare metal server, directly flash the image into a USB stick.
+      - provider: other
+        name: Canonical MAAS
+        level: bring-your-image
+        config:
+          tool: yip (cloud-config stages)
+          channel: userdata
+        how: Build a Kairos image, upload it to MAAS as a custom image, and MAAS deploys it to commissioned machines.
+        evidence: DOCUMENTED
+        sources:
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/maas.md
+          type: official-docs
+          title: Deploy Kairos with MAAS
+          retrieved: '2026-10-21'
+          quote: You build a Kairos image once, upload it to MaaS as a custom image, and MaaS deploys it to any commissioned machine.
+        - url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/installation/maas.md
+          type: official-docs
+          title: Deploy Kairos with MAAS
+          retrieved: '2026-10-21'
+          quote: passes the MaaS `user-data` to Kairos as cloud-config
+      - provider: proxmox
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-docs docs/installation/*, cloud-servers/*, reference/stage_modules.md, reference/configuration.md, build_raw_images_with_qemu.md, grep of docs/blog/operator-docs
+      - provider: kvm-libvirt
+        level: bring-your-image
+        evidence: DOCUMENTED
+        how: Boot a Kairos ISO in a libvirt KVM virtual machine with virt-install.
+        sources:
+        - type: source-repo
+          retrieved: '2026-10-21'
+          quote: virt-install --name my-first-kairos-vm
+          url: https://github.com/kairos-io/kairos-docs/blob/0db8614fdd2467e069799e1271300eaba90dfe44/docs/reference/auroraboot.md
+          title: auroraboot.md
+      - provider: hyper-v
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-docs docs/installation/*, cloud-servers/*, reference/stage_modules.md, reference/configuration.md, build_raw_images_with_qemu.md, grep of docs/blog/operator-docs
+      - provider: nutanix
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-docs docs/installation/*, cloud-servers/*, reference/stage_modules.md, reference/configuration.md, build_raw_images_with_qemu.md, grep of docs/blog/operator-docs
+      - provider: vultr
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-docs docs/installation/*, cloud-servers/*, reference/stage_modules.md, reference/configuration.md, build_raw_images_with_qemu.md, grep of docs/blog/operator-docs
+      - provider: akamai
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-docs docs/installation/*, cloud-servers/*, reference/stage_modules.md, reference/configuration.md, build_raw_images_with_qemu.md, grep of docs/blog/operator-docs
+      - provider: scaleway
+        level: unknown
+        evidence: UNKNOWN
+        searched: kairos-docs docs/installation/*, cloud-servers/*, reference/stage_modules.md, reference/configuration.md, build_raw_images_with_qemu.md, grep of docs/blog/operator-docs
       sbc: "Raspberry Pi 3 and 4 (64-bit); Pi 5 not supported"
       gpu: "NVIDIA Jetson AGX Orin, Orin NX and AGX Thor, and DGX Spark (GB10), all arm64, through kairos-init --model nvidia-*; prebuilt Orin images are no longer updated by the release pipeline"
       tpm: "TPM 2.0 required for encryption and Trusted Boot"
