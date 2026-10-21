@@ -860,7 +860,7 @@ dimensions:
           type: official-docs
           title: Provisioning on OpenStack
           retrieved: '2026-10-21'
-          quote: 'NOTE: If you''re uploading an `aarch64` disk image then add `--property architecture=aarch64`.'
+          quote: coreos-installer download --decompress -s $STREAM -p openstack -f qcow2.xz
         - url: https://github.com/coreos/fedora-coreos-docs/blob/5bf204248a296bb07a331fda6ce09b0a68f62260/modules/ROOT/pages/platforms.adoc
           type: official-docs
           title: Supported Platforms
@@ -884,7 +884,7 @@ dimensions:
           type: official-docs
           title: Provisioning on VMware
           retrieved: '2026-10-21'
-          quote: The examples below use the https://github.com/vmware/govmomi/blob/v0.29.0/govc/README.md[govc] command-line tool for remote vSphere provisioning
+          quote: 'Once you have picked the relevant stream, you can download the latest OVA:'
         - url: https://github.com/coreos/ignition/blob/874eb7df2b3e04c0b471f964a9679e290e429cd4/docs/supported-platforms.md
           type: source-repo
           title: Ignition supported platforms

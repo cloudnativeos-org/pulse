@@ -353,8 +353,8 @@ fixed, so "Not documented" means the same thing in every row.
 - `provider`: `aws`, `azure`, `gcp` (hyperscalers). `openstack`, `vsphere`, `proxmox`, `kvm-libvirt`, `hyper-v`, `nutanix` (private cloud and virtualization). `hetzner`, `digitalocean`, `vultr`, `akamai` (Linode), `ovhcloud`, `scaleway` (small clouds). `bare-metal` (the method stays in the Day-0 column). `other` (a cloud the project documents that has no row; `name` is required).
 - `level`: the highest level the entry reaches.
   - `provider-catalogue`: an official image in the provider's own catalogue or marketplace.
-  - `project-image`: the project publishes an image built for this provider. You import it.
-  - `bring-your-image`: the project documents how to upload a generic image or ISO to this provider.
+  - `project-image`: the project publishes an image built for this provider, or for this install path (the ISO or PXE image for `bare-metal`). You import or boot it.
+  - `bring-your-image`: the project documents how to upload a generic image or ISO to this provider. An image built for another provider, such as the OpenStack image used on OVHcloud, is generic here.
   - `config-source-only`: the entry's config tool reads this provider's metadata, but the OS documents no install path. A list from a config tool supports only this level.
   - `none`: the project documents that it does not run there. Needs `evidence: DOCUMENTED`.
   - `unknown`: no source says. Shown as "Not documented".

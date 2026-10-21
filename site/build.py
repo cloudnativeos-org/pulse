@@ -1011,7 +1011,7 @@ def col_providers(p, S):
     every provider with how far it gets, who supports it, the config tool and channel, and the sources."""
     items = norm(p, "d08").get("providers")
     if not items:
-        return Cell(value("notcollected", "Not collected"), "9", {"prov": "nc", "provlvl": "nc"}, tags=[("Not collected", "notcollected")])
+        return Cell(value("notcollected", "Not collected"), "9", {"prov": "nc", "provlvl": "nc", "provpair": "nc"}, tags=[("Not collected", "notcollected")])
     order = {k: i for i, (k, _, _) in enumerate(PROVIDERS)}
     items = sorted(items, key=lambda x: (order[x["provider"]], prov_name(x)))
     evs = [x.get("evidence", "UNKNOWN") for x in items]
@@ -1049,7 +1049,8 @@ def col_providers(p, S):
     if not tags:
         tags = [("Not documented", "unknown")]
     html_ = '<ul class="v v-list providers">%s</ul>' % "".join(lis) + meta(cell_ev, "")
-    filt = {"prov": " ".join(runs) or "none", "provlvl": " ".join(sorted(set(levels))) or "none"}
+    filt = {"prov": " ".join(runs) or "none", "provlvl": " ".join(sorted(set(levels))) or "none",
+            "provpair": " ".join("%s:%s" % (r, l) for r, l in zip(runs, levels)) or "none"}
     if via:
         filt["prov-via"] = " ".join(via)
     return Cell(html_, "%02d" % (99 - len(runs)), filt, tags=tags)
@@ -1354,7 +1355,7 @@ FILTER_DESC = {
     "aidel": "How the accelerator driver reaches the node.",
     "aiop": "Whether the NVIDIA GPU Operator mode is documented for the entry.",
     "prov": "The infrastructure providers where the entry runs. An entry matches when it runs on any one you select. Entries whose config tool only reads that provider's metadata also match, marked.",
-    "provlvl": "The highest level the entry reaches on any provider: an official catalogue image, a project image, or documented steps to bring your own image.",
+    "provlvl": "How the entry gets to a provider: an official catalogue image, a project image, or documented steps to bring your own image. An entry matches when it reaches any provider at a level you select. With a provider selected too, the level must be the one on that provider.",
     "arch": "CPU architectures with a released image. Entries whose own components are built for an architecture, on a base distribution you pick, also match, marked.",
     "day0": "How a node gets its first install and bootstrap.",
     "selfhost": "Whether you can host the place where a node downloads its OS updates.",

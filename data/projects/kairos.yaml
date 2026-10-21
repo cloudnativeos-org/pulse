@@ -1260,7 +1260,7 @@ dimensions:
         evidence: UNKNOWN
         searched: The takeover page documents a rescue-mode install, not an image upload.
       - provider: bare-metal
-        level: bring-your-image
+        level: project-image
         how: Download the Kairos ISO and flash it to a USB stick to install on real hardware.
         evidence: DOCUMENTED
         sources:

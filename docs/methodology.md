@@ -469,8 +469,8 @@ validator enforces them rather than relying on the author's good intentions.
     lists, for a fixed set of infrastructure providers, the highest level an
     entry reaches: an official image in the provider's catalogue, a project
     image for the provider, documented steps to bring your own image, or only
-    a config source. A level other than "Not documented" cites a page with a
-    verbatim quote. A general platform list from a config tool, such as the
+    a config source. A level other than "Not documented" or "Does not apply" cites a
+    page with a verbatim quote. A general platform list from a config tool, such as the
     Ignition list, supports "config source only" and nothing higher: a tool
     that reads a provider's metadata is not an OS that runs there. "Works, but
     not documented" is not a level, because it needs a run on the provider

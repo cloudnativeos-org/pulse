@@ -1052,7 +1052,7 @@ dimensions:
           quote: --user-data-file controlplane.yaml
       - provider: vultr
         level: project-image
-        how: Upload the Talos Vultr ISO to the Vultr ISO server, boot instances, and apply the config with talosctl.
+        how: Upload the Talos ISO to the Vultr ISO server, boot instances, and apply the config with talosctl. The project image for this provider is the `vultr` platform image from Image Factory, used for both the ISO upload and PXE boot.
         evidence: DOCUMENTED
         sources:
         - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/vultr.mdx
@@ -1084,11 +1084,11 @@ dimensions:
           retrieved: '2026-10-21'
           quote: --metadata.user_data "$(base64 -i ./controlplane.yaml)"
       - provider: ovhcloud
-        level: project-image
+        level: bring-your-image
         config:
           tool: Machine configuration (machined, gRPC API)
           channel: userdata
-        how: Download the OpenStack image from Image Factory, upload it to OVHcloud, and boot with --user-data.
+        how: Download the generic OpenStack image from Image Factory, upload it to OVHcloud, apply the control-plane config with talosctl, and boot workers with --user-data. The image is not built for OVHcloud.
         evidence: DOCUMENTED
         sources:
         - url: https://github.com/siderolabs/docs/blob/c94ce15b1b9483934f5c07148241837bbd2eeb98/public/talos/v1.15/platform-specific-installations/cloud-platforms/ovhcloud.mdx

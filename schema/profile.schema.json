@@ -472,7 +472,7 @@
               "items": { "$ref": "#/$defs/distributionOption" }
             },
             "providers": {
-              "description": "d08 only. Where the entry runs, one item per infrastructure provider from a closed list (schema/vocabularies.md), with how far it gets, who supports that, and which channel configures the node first. A provider with no source is not recorded. Read by the matrix column 'Where it runs', its filters and the data sheet.",
+              "description": "d08 only. Where the entry runs, one item per infrastructure provider from a closed list (schema/vocabularies.md), with how far it gets, who supports that, and which channel configures the node first. A provider with no source is recorded as unknown, with the places searched. Read by the matrix column 'Where it runs', its filters and the data sheet.",
               "type": "array",
               "minItems": 1,
               "items": { "$ref": "#/$defs/providerEntry" }

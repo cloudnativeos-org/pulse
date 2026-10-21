@@ -299,6 +299,9 @@ def main():
                     errors.append("the %s Mounts row has no evidence badge" % pid)
             # the Where it runs column: every provider tag has a row in the data sheet, and every row there is sourced or says it is not
             prow = re.search(r'<div class="ds-row" id="ds-%s-prov".*?</dd></div>' % re.escape(pid), sheet, re.S)
+            rowtag = re.search(r'<tr data-id="%s"[^>]*>' % re.escape(pid), table).group(0)
+            if not prow and 'data-fprov="nc"' not in rowtag:
+                errors.append("the %s row has provider data and no Where it runs row in its data sheet" % pid)
             if prow:
                 plis = re.findall(r'<li>(.*?)</li>', prow.group(0), re.S)
                 for li in plis:
