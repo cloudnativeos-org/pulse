@@ -231,6 +231,8 @@ START_HERE_BLOCKS = [
          [("Matrix", "#matrix?col=own", "column: Who holds the assets")]),
     ]),
     ("sh-capi", "If you run Kubernetes on your own hardware with Cluster API", [
+        ("Does it run on your infrastructure, for example OpenStack, and how does the node get its first configuration there?",
+         [("Matrix", "#matrix?prov=openstack", "filter: Infrastructure provider, OpenStack")]),
         ("Is there a Cluster API provider for the OS, of which type, and who maintains it?",
          [("Matrix", "#matrix?col=capi", "column: Cluster API")]),
         ("Is Kubernetes in the image, or does your bootstrap install it?",

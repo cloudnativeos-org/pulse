@@ -231,6 +231,11 @@ OS from a base distribution the adopter picks lists, as "via your base
 distribution", the architectures its own components are built for. It is a
 separate tag. It never counts as a released image.
 
+Where an entry runs follows the same rule. A provider counts when the project or
+the provider documents a path to it, with a source, and the level says how far
+that path goes (rule 22 in section 9). The old `platforms` field keeps its
+coarse values and its meaning.
+
 ## 6. Evidence standard
 
 Every dimension carries exactly one evidence label: `DOCUMENTED`, `REPRODUCED`,
@@ -459,6 +464,23 @@ validator enforces them rather than relying on the author's good intentions.
     for (profile field `architectures_via_base_distribution`, with the release
     assets or package builds as sources), and the architecture filter keeps
     them in the same way.
+22. **Where it runs records paths, not reputations.** (Added 2026-10-21.)
+    The column "Where it runs" (profile field `d08.normalized.providers`)
+    lists, for a fixed set of infrastructure providers, the highest level an
+    entry reaches: an official image in the provider's catalogue, a project
+    image for the provider, documented steps to bring your own image, or only
+    a config source. A level other than "Not documented" or "Does not apply" cites a
+    page with a verbatim quote. A general platform list from a config tool, such as the
+    Ignition list, supports "config source only" and nothing higher: a tool
+    that reads a provider's metadata is not an OS that runs there. "Works, but
+    not documented" is not a level, because it needs a run on the provider
+    (`REPRODUCED`); such questions go to `follow-up-research.md`. A provider
+    with no source reads "Not documented", which is not a statement that the
+    entry fails there. Equinix Metal is not a row. It ended on 2026-06-30.
+    The Ignition list still names it ([Equinix end-of-life
+    table](https://docs.equinix.com/releases/end-of-life/eol-products-services)).
+    The first pass covers Fedora CoreOS, Flatcar, Talos, Kairos and Hadron.
+    Every other entry reads "Not collected" until its pass is done.
 
 ## 10. Scope and inclusion criteria
 

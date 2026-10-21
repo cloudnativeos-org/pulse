@@ -96,8 +96,13 @@
     /* A row matches a filter when its own value matches, or when it credits the value "via your base distribution":
        data-f<k>-via lists the values its base distribution can supply (an accelerator, an architecture). */
     function viaOf(row, k) { return (row.dataset["f" + k + "Via"] || "").split(" ").filter(Boolean); }
+    /* A provider filter and a level filter together are one question: runs on this provider at this level. The row lists
+       its pairs as provider:level in data-fprovpair, so a level on one provider never answers for another. */
     function matches(row, f) {
+      var pairs = f.prov && f.provlvl ? (row.dataset.fprovpair || "").split(" ") : null;
+      if (pairs && !f.prov.some(function (p) { return f.provlvl.some(function (l) { return pairs.indexOf(p + ":" + l) !== -1; }); })) return false;
       return Object.keys(f).every(function (k) {
+        if (pairs && (k === "prov" || k === "provlvl")) return true;
         var have = (row.dataset["f" + k] || "").split(" "), via = viaOf(row, k);
         return f[k].some(function (v) { return have.indexOf(v) !== -1 || via.indexOf(v) !== -1; });
       });
