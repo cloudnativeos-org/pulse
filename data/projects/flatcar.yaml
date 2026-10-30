@@ -327,7 +327,7 @@ dimensions:
           retrieved: '2026-10-06'
           quote: The data stored on the root partition isn’t manipulated by the update process.
         - url: https://github.com/flatcar/update_engine/blob/f23d6ea/src/update_engine/omaha_response_handler_action.h
-          type: source-code
+          type: source-repo
           title: flatcar/update_engine, kernel path for the target slot (coreos-postinst is no longer on main)
           retrieved: '2026-10-06'
           quote: Selects the kernel path associated with the given partition path. ... E.g., /dev/sda4 -> /boot/flatcar/vmlinuz-a
@@ -672,6 +672,34 @@ dimensions:
                 retrieved: "2026-10-06"
                 quote: >-
                   The drivers come in two flavours: open and non-open for amd64 architecture.
+          - vendor: amd
+            what: "AMD GPU, amdgpu kernel module in the base OS image"
+            arch: [amd64]
+            delivery: vendor-image
+            delivery_note: "kernel module built into the base OS image (Alpha 4669.0.0, 2026-04-21)"
+            secure_boot: not-documented
+            status: supported
+            note: "In the OS image itself, with no sysext. The arm64 kernel config does not build it."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://github.com/flatcar/scripts/pull/3461
+                title: "flatcar/scripts#3461: sys-kernel/coreos-modules: build AMD GPU as module (merged 2026-03-18)"
+                retrieved: "2026-10-30"
+                quote: "CONFIG_DRM_AMDGPU=m"
+          - vendor: intel
+            what: "Intel iGPU, i915 kernel module in the base OS image"
+            arch: [amd64]
+            delivery: vendor-image
+            delivery_note: "kernel module built into the base OS image (Beta 4344.1.0, 2025-06-25)"
+            secure_boot: not-documented
+            status: supported
+            note: "In the OS image itself, with no sysext. The arm64 kernel config does not build it."
+            evidence: DOCUMENTED
+            sources:
+              - url: https://groups.google.com/g/flatcar-linux-user/c/1J8DcpAxnYA
+                title: "Flatcar release announcement, Beta 4344.1.0"
+                retrieved: "2026-10-30"
+                quote: "Build Intel iGPU i915 driver as module"
       architectures_released:
         - amd64
         - arm64
@@ -682,7 +710,7 @@ dimensions:
         - virtual-machines
         - public-cloud
         - sbc-experimental
-      gpu: "NVIDIA, amd64 only, prebuilt signed sysext per release"
+      gpu: "AMD and Intel i915 in the base OS image, NVIDIA as a prebuilt signed sysext per release; all amd64 only"
       tpm: "see d10"
       extension_mechanism: "Flatcar SDK for board and kernel changes; sysext for prebuilt modules"
     summary: >-
@@ -756,11 +784,20 @@ dimensions:
               title: "Flatcar: Ignition"
               retrieved: "2026-10-15"
               quote: "writing files (regular files, systemd units, networkd units, and more), and configuring users"
+          cell_notes: "Alpha: Ignition 2.27.0 also accepts Butane YAML directly, with no transpile step. It ships in Alpha and Beta, not yet in Stable. Before that, Butane transpiled YAML to Ignition JSON."
           runs_note: "Runs in the initramfs on first boot; it re-runs only through flatcar-reset."
           early_disk: "Partitions, filesystems and LUKS with Clevis or systemd-cryptenroll; TPM2 root encryption from 3913.0.1."
           change_after_first_boot: "flatcar-reset"
           evidence: DOCUMENTED
           sources:
+            - url: https://github.com/coreos/ignition/blob/main/docs/release-notes.md
+              title: "Ignition release notes, 2.27.0 (2026-08-26)"
+              retrieved: "2026-10-30"
+              quote: "Accept Butane YAML configs in addition to Ignition JSON, with automatic transpilation at boot"
+            - url: https://www.flatcar.org/releases
+              title: "Flatcar releases: Alpha 4865.0.0 and Beta 4820.1.1 ship ignition 2.27.0, Stable 4757.2.3 ships 2.24.0"
+              retrieved: "2026-10-30"
+              quote: "ignition - 2.27.0"
             - url: https://www.flatcar.org/docs/latest/fb-provision/ignition/boot-process/
               title: "Flatcar: Ignition boot process"
               retrieved: "2026-10-06"
@@ -810,16 +847,23 @@ dimensions:
         - ipxe
         - cloud-image
         - install-to-disk
+        - unattended-install
         - oem-partition-embedded-config
       config_mechanism: ignition
       config_reapplied: false
     summary: >-
       Every install route ends in Ignition, which runs once in the initramfs on
       first boot and never again. Delivery is by live ISO, PXE or iPXE, a
-      per-provider cloud image, or flatcar-install to a disk.
+      per-provider cloud image, or the flatcar-install installer script, which
+      writes an image to a disk.
     notes: >-
       Butane transpiles human-written YAML into the Ignition JSON the system
-      consumes. The OEM partition can carry mandatory or fallback Ignition
+      consumes. Ignition 2.27.0 can also accept Butane YAML directly and
+      transpile it at boot, so the separate transpile step is no longer needed
+      there. Flatcar ships Ignition 2.27.0 in Alpha and Beta (checked
+      2026-10-30: Alpha 4865.0.0 and Beta 4820.1.1 list 2.27.0, Stable 4757.2.3
+      lists 2.24.0). Direct YAML is therefore Alpha-stage in Flatcar, and the
+      transpile step stays the documented route for Stable. The OEM partition can carry mandatory or fallback Ignition
       configurations and kernel arguments, which is the documented route closest
       to zero-touch provisioning, though the docs do not use that term.
 
@@ -841,6 +885,13 @@ dimensions:
         quote: >-
           If you boot Flatcar Container Linux via PXE, the install script is
           already installed.
+      - url: https://www.flatcar.org/docs/latest/deploy/bare-metal/installing-to-disk/
+        type: official-docs
+        title: Installing to disk (the installer)
+        retrieved: "2026-10-30"
+        quote: >-
+          There is a simple installer that will destroy everything on the given
+          target disk and install Flatcar Container Linux.
       - url: https://www.flatcar.org/docs/latest/fb-provision/customize-image/customize-the-image/
         type: official-docs
         title: Customize the image
@@ -886,12 +937,12 @@ dimensions:
           build_library/grub.cfg line 27 sets secure_boot="0" and sources the OEM grub.cfg
         sources:
         - url: https://github.com/flatcar/scripts/blob/2bda3aa36db92f282ecb1981d6191fc97d8e7608/build_library/build_image_util.sh#L786-L798
-          type: source-code
+          type: source-repo
           title: flatcar/scripts build_image_util.sh
           retrieved: '2026-10-06'
           quote: Root hash injection works by writing the hash value to a known unused SHA256-sized location in the kernel image.
         - url: https://github.com/flatcar/scripts/blob/2bda3aa36db92f282ecb1981d6191fc97d8e7608/build_library/grub.cfg#L27
-          type: source-code
+          type: source-repo
           title: flatcar/scripts grub.cfg
           retrieved: '2026-10-06'
           quote: set secure_boot="0"
@@ -1651,3 +1702,30 @@ corrections:
       title: 'Flatcar docs: systemd-sysext'
       retrieved: '2026-10-12'
       quote: The systemd-sysext feature finally provides a way to extend the base OS with a /usr overlay, thereby making custom binaries available to the user.
+  - date: "2026-10-30"
+    field: dimensions.d09_provisioning.normalized.methods
+    change: "Reported by t-lo, Flatcar maintainer, 2026-10-22. The Day-0 paths missed the installer. Added the flatcar-install script as an installer path, next to install-to-disk."
+    source:
+      url: https://www.flatcar.org/docs/latest/deploy/bare-metal/installing-to-disk/
+      type: official-docs
+      title: Installing to disk
+      retrieved: "2026-10-30"
+      quote: There is a simple installer that will destroy everything on the given target disk and install Flatcar Container Linux.
+  - date: "2026-10-30"
+    field: dimensions.d09_provisioning.normalized.config_tools
+    change: "Reported by t-lo, Flatcar maintainer, 2026-10-22, who calls it Alpha. Ignition now accepts Butane YAML directly, with no transpile step. Recorded with the Alpha caveat: Ignition 2.27.0 is in Flatcar Alpha and Beta, and Stable still ships 2.24.0. Fixed the d09 notes, which said Butane transpiles YAML to Ignition JSON as the only route."
+    source:
+      url: https://github.com/coreos/ignition/blob/main/docs/release-notes.md
+      type: release-notes
+      title: Ignition release notes, 2.27.0
+      retrieved: "2026-10-30"
+      quote: Accept Butane YAML configs in addition to Ignition JSON, with automatic transpilation at boot
+  - date: "2026-10-30"
+    field: dimensions.d08_hardware_platform.normalized.ai_accelerators
+    change: "Reported by t-lo, Flatcar maintainer, 2026-10-22. Flatcar supports AMD and Intel i915 GPU drivers in the base OS image, and NVIDIA through a driver sysext. Added AMD (amdgpu, Alpha 4669.0.0) and Intel (i915, Beta 4344.1.0) as base-image modules. Both are amd64 only: the arm64 kernel config does not build either. NVIDIA stays a sysext, amd64 only. Updated the gpu summary."
+    source:
+      url: https://github.com/flatcar/scripts/pull/3461
+      type: source-repo
+      title: "flatcar/scripts#3461: build AMD GPU as module"
+      retrieved: "2026-10-30"
+      quote: CONFIG_DRM_AMDGPU=m
