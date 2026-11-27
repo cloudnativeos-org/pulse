@@ -673,7 +673,7 @@ dimensions:
                 quote: >-
                   The drivers come in two flavours: open and non-open for amd64 architecture.
           - vendor: amd
-            what: "AMD GPU, amdgpu kernel module in the base OS image; kernel driver only, no compute stack documented"
+            what: "AMD GPU, amdgpu kernel module in the base OS image; kernel driver only, /dev/kfd enabled from Stable 4757.2.0, no userspace compute stack documented"
             arch: [amd64]
             delivery: vendor-image
             delivery_note: "kernel module built into the base OS image (first in Alpha 4669.0.0, 2026-04-27; in Stable since 4757.2.0)"
@@ -694,12 +694,16 @@ dimensions:
                 title: "Flatcar release notes, Stable 4757.2.0 (2026-09-14)"
                 retrieved: "2026-11-27"
                 quote: "Build AMD GPU driver as module"
+              - url: https://github.com/flatcar/scripts/releases/tag/stable-4757.2.0
+                title: "Flatcar release notes, Stable 4757.2.0: /dev/kfd"
+                retrieved: "2026-11-27"
+                quote: "enable `/dev/kfd/` in amdgpu driver on AMD64"
               - url: https://github.com/flatcar/scripts/blob/stable-4757.2.0/sdk_container/src/third_party/coreos-overlay/sys-kernel/coreos-modules/files/arm64_defconfig-6.12
                 title: "flatcar/scripts: arm64_defconfig at stable-4757.2.0"
                 retrieved: "2026-11-27"
                 note: "The file does not set CONFIG_DRM_AMDGPU."
           - vendor: intel
-            what: "Intel iGPU, i915 kernel module in the base OS image; kernel driver only, no compute stack documented"
+            what: "Intel iGPU, i915 kernel module in the base OS image; kernel driver only, no userspace compute stack documented"
             arch: [amd64]
             delivery: vendor-image
             delivery_note: "kernel module built into the base OS image (first in Alpha 4284.0.0, 2025-03-25; in Stable since 4459.2.0)"
@@ -808,7 +812,7 @@ dimensions:
               title: "Flatcar: Ignition"
               retrieved: "2026-10-15"
               quote: "writing files (regular files, systemd units, networkd units, and more), and configuring users"
-          cell_notes: "Alpha and Beta, not yet Stable: Ignition 2.27.0 and later also accept Butane YAML directly, with no transpile step. Inferred from the upstream Ignition release and the version each channel ships; no Flatcar page says it. A Butane config with local file references fails at boot, so transpile it first. In Stable, Butane transpiles YAML to Ignition JSON."
+          cell_notes: "Alpha and Beta, not yet Stable: Ignition 2.27.0 and later also accept Butane YAML directly, with no transpile step. Inferred from the upstream Ignition release and the version each channel ships; no Flatcar page says it, and the Flatcar Butane page still describes transpiling before boot. A Butane config with local file references fails at boot, so transpile it first. In Stable, Butane transpiles YAML to Ignition JSON."
           runs_note: "Runs in the initramfs on first boot; it re-runs only through flatcar-reset."
           early_disk: "Partitions, filesystems and LUKS with Clevis or systemd-cryptenroll; TPM2 root encryption from 3913.0.1."
           change_after_first_boot: "flatcar-reset"
@@ -830,10 +834,14 @@ dimensions:
               title: "Flatcar Alpha 4890.0.0: image package list"
               retrieved: "2026-11-27"
               quote: "sys-apps/ignition-2.28.0::coreos-overlay"
-            - url: https://github.com/coreos/ignition/blob/v2.27.0/butane/base/v0_8_exp/translate.go
+            - url: https://github.com/coreos/ignition/blob/v2.27.0/butane/base/util/file.go
               title: "Ignition 2.27.0: Butane refuses local file references without a files directory"
               retrieved: "2026-11-27"
-              quote: "r.AddOnError(yamlPath, common.ErrNoFilesDir)"
+              quote: "return nil, common.ErrNoFilesDir"
+            - url: https://github.com/flatcar/flatcar-website/blob/3403fb8102e048670443295642197e2a41e8dd14/content/docs/latest/fb-provision/butane/_index.md
+              title: "Flatcar: Butane, why a two-step process"
+              retrieved: "2026-11-27"
+              quote: "There are a couple factors motivating the decision to not incorporate support for Butane Configs directly into the boot process of Container Linux"
             - url: https://github.com/coreos/ignition/blob/v2.27.0/config/config.go
               title: "Ignition 2.27.0: boot-time Butane translation sets no files directory"
               retrieved: "2026-11-27"
@@ -902,7 +910,9 @@ dimensions:
       and transpile it at boot. Flatcar ships such a version in Alpha and Beta,
       not yet in Stable (checked 2026-11-27: Alpha 4890.0.0 lists 2.28.0, Beta
       4865.1.0 lists 2.27.0, Stable 4757.2.4 lists 2.24.0). That Flatcar
-      therefore takes Butane YAML directly is inferred: no Flatcar page says it.
+      therefore takes Butane YAML directly is inferred: no Flatcar page says it,
+      and the Flatcar Butane page still explains a decision not to support Butane
+      Configs in the boot process.
       The boot-time translation has no files directory, so a config with local
       file references fails. The separate transpile step stays the documented
       route.
@@ -1775,7 +1785,7 @@ corrections:
       quote: CONFIG_DRM_AMDGPU=m
   - date: "2026-11-27"
     field: dimensions.d08_hardware_platform.normalized.ai_accelerators
-    change: "Follow-up review of the 2026-10-30 entry. The AMD date was wrong: Alpha 4669.0.0 was published 2026-04-27. Both modules now name the first Alpha release (i915: 4284.0.0, not Beta 4344.1.0) and the first Stable release. The status is narrowed to a built kernel module, because no source documents support or a compute stack. Added a source for the arm64 kernel config."
+    change: "Follow-up review of the 2026-10-30 entry. The AMD date was wrong: Alpha 4669.0.0 was published 2026-04-27. Both modules now name the first Alpha release (i915: 4284.0.0, not Beta 4344.1.0) and the first Stable release. The status is narrowed to a built kernel module, because no source documents support or a userspace compute stack. Added a source for the arm64 kernel config."
     source:
       url: https://github.com/flatcar/scripts/releases/tag/alpha-4284.0.0
       type: release-notes
@@ -1784,7 +1794,7 @@ corrections:
       quote: "Build Intel iGPU i915 driver as module"
   - date: "2026-11-27"
     field: dimensions.d09_provisioning.normalized.config_tools
-    change: "Follow-up review of the 2026-10-30 entry. Direct Butane YAML is in Alpha and Beta, not only Alpha, and is marked as inferred. Added that local file references fail at boot. Updated the channel versions."
+    change: "Follow-up review of the 2026-10-30 entry. Direct Butane YAML is in Alpha and Beta, not only Alpha, and is marked as inferred; the Flatcar Butane page still describes transpiling before boot. Added that local file references fail at boot. Updated the channel versions."
     source:
       url: https://github.com/coreos/ignition/blob/v2.27.0/config/config.go
       type: source-repo
