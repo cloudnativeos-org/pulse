@@ -4,8 +4,10 @@
 Usage:
     python3 tools/test_check_site.py
 
-Builds the site into a scratch directory, then runs check_site.py on the good build and on two broken copies: a
-Where it runs row in the data sheet with its citations removed, and a data sheet with no Where it runs row. The good build must pass. Each broken copy must fail with the message that names the rule.
+Builds the site into a scratch directory, then runs check_site.py on the good build and on three broken copies: a
+Where it runs row in the data sheet with its citations removed, a data sheet with no Where it runs row, and a Where
+it runs matrix cell with a provider tag that the data sheet does not list. The good build must pass. Each broken copy
+must fail with the message that names the rule.
 Exit code 0 means every case behaved as expected.
 """
 
@@ -19,6 +21,7 @@ import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PROW = re.compile(r'(<div class="ds-row" id="ds-flatcar-prov".*?</dd></div>)', re.S)
+CELL = re.compile(r'(<tr data-id="flatcar"[^>]*>(?:(?!</tr>).)*?<td class="c-prov[^"]*" data-col="prov"[^>]*><ul class="tags">)', re.S)
 
 
 def run_check(site: pathlib.Path):
@@ -44,10 +47,17 @@ def main() -> int:
         if not row:
             print("FAIL  no Where it runs row for flatcar in the data sheet")
             return 1
+        cell = CELL.search(index)
+        if not cell:
+            print("FAIL  no Where it runs cell for flatcar in the matrix")
+            return 1
+        extra_tag = cell.group(1) + '<li class="t">Unlisted Cloud</li>'
         cases = [
             ("good build passes", None, 0, "site check ok"),
             ("sheet row without citations fails", index.replace(row.group(1), strip_cites(row.group(1))), 1, "lists a provider with no source"),
             ("sheet without the row fails", index.replace(row.group(1), ""), 1, "no Where it runs row in its data sheet"),
+            ("matrix tag without a sheet row fails", index.replace(cell.group(1), extra_tag), 1,
+             "tag 'Unlisted Cloud' has no row in the data sheet"),
         ]
         failed = 0
         for name, broken, code, text in cases:
