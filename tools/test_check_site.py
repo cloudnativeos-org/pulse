@@ -4,10 +4,11 @@
 Usage:
     python3 tools/test_check_site.py
 
-Builds the site into a scratch directory, then runs check_site.py on the good build and on three broken copies: a
-Where it runs row in the data sheet with its citations removed, a data sheet with no Where it runs row, and a Where
-it runs matrix cell with a provider tag that the data sheet does not list. The good build must pass. Each broken copy
-must fail with the message that names the rule.
+Builds the site into a scratch directory, then runs check_site.py on the good build and on four broken copies: a
+Where it runs row in the data sheet with its citations removed, a data sheet with no Where it runs row, a Where it
+runs matrix cell with a provider tag that the data sheet does not list, and a data sheet that lost its OpenStack line
+while another line still names OpenStack. The good build must pass. Each broken copy must fail with the message that
+names the rule.
 Exit code 0 means every case behaved as expected.
 """
 
@@ -51,6 +52,14 @@ def main() -> int:
         if not cell:
             print("FAIL  no Where it runs cell for flatcar in the matrix")
             return 1
+        stack = re.search(r'<li><span class="v-tag">OpenStack</span>(?:(?!</li>).)*</li>', row.group(1), re.S)
+        if not stack:
+            print("FAIL  no OpenStack line in the flatcar data sheet")
+            return 1
+        lost_line = row.group(1).replace(stack.group(0), "")
+        if "OpenStack" not in lost_line:
+            print("FAIL  no other flatcar sheet line names OpenStack, so the lost line case proves nothing")
+            return 1
         extra_tag = cell.group(1) + '<li class="t">Unlisted Cloud</li>'
         cases = [
             ("good build passes", None, 0, "site check ok"),
@@ -58,6 +67,8 @@ def main() -> int:
             ("sheet without the row fails", index.replace(row.group(1), ""), 1, "no Where it runs row in its data sheet"),
             ("matrix tag without a sheet row fails", index.replace(cell.group(1), extra_tag), 1,
              "tag 'Unlisted Cloud' has no row in the data sheet"),
+            ("lost sheet line named in another line fails", index.replace(row.group(1), lost_line), 1,
+             "tag 'OpenStack' has no row in the data sheet"),
         ]
         failed = 0
         for name, broken, code, text in cases:

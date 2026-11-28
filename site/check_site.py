@@ -308,10 +308,11 @@ def main():
                     shown = re.sub(r"<[^>]+>", " ", li)
                     if not re.search(r"Not documented|Does not apply", shown) and 'class="cite"' not in li:
                         errors.append("the %s Where it runs row lists a provider with no source: %s" % (pid, " ".join(shown.split())[:80]))
+                listed = {m.group(1) for m in (re.match(r'\s*<span class="v-tag">(.*?)</span>', li, re.S) for li in plis) if m}
                 ptd = re.search(r'<td class="c-prov[^"]*" data-col="prov"[^>]*>(.*?)</td>', row, re.S)
                 for tag in re.findall(r'<li class="t[^"]*"[^>]*>(.*?)</li>', ptd.group(1) if ptd else "", re.S):
                     name = re.sub(r"\s*\(config source only\)$", "", re.sub(r"<[^>]+>", "", tag)).strip()
-                    if name not in ("Not collected", "Not documented") and name not in re.sub(r"<[^>]+>", " ", " ".join(plis)):
+                    if name not in ("Not collected", "Not documented") and name not in listed:
                         errors.append("the %s Where it runs tag %r has no row in the data sheet" % (pid, name))
             # a "via your base distribution" tag needs the filter attribute that makes the filter see it
             tagcount = row.count('class="t t-via"')
