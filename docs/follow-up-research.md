@@ -148,6 +148,14 @@ of them is not answerable from documentation at all. Establish the real default
 for each project and whether an operator can discover it without reading shipped
 configuration files.
 
+**FR-20. Does the entry work on a provider where no source says so?**
+The "Where it runs" column records only what a page documents. An entry may boot
+and configure itself correctly on a provider that its documentation never names,
+for example on a small cloud that serves an OpenStack-style metadata service. The
+Pulse cannot record that without a run on the provider, which is `REPRODUCED`
+evidence. The question is which unlisted providers work, with which image and
+which config channel, and whether a project would add the page if asked.
+
 ---
 
 ## How to use this

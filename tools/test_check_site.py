@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""Seam test for the provider checks in site/check_site.py.
+
+Usage:
+    python3 tools/test_check_site.py
+
+Builds the site into a scratch directory, then runs check_site.py on the good build and on four broken copies: a
+Where it runs row in the data sheet with its citations removed, a data sheet with no Where it runs row, a Where it
+runs matrix cell with a provider tag that the data sheet does not list, and a data sheet that lost its OpenStack line
+while another line still names OpenStack. The good build must pass. Each broken copy must fail with the message that
+names the rule.
+Exit code 0 means every case behaved as expected.
+"""
+
+from __future__ import annotations
+
+import pathlib
+import re
+import subprocess
+import sys
+import tempfile
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+PROW = re.compile(r'(<div class="ds-row" id="ds-flatcar-prov".*?</dd></div>)', re.S)
+CELL = re.compile(r'(<tr data-id="flatcar"[^>]*>(?:(?!</tr>).)*?<td class="c-prov[^"]*" data-col="prov"[^>]*><ul class="tags">)', re.S)
+
+
+def run_check(site: pathlib.Path):
+    r = subprocess.run([sys.executable, str(ROOT / "site" / "check_site.py"), str(site)], capture_output=True, text=True)
+    return r.returncode, r.stdout + r.stderr
+
+
+def strip_cites(row):
+    return re.sub(r'<[^<>]*class="cite"[^<>]*>.*?</(?:a|span|sup)>', "", row, flags=re.S)
+
+
+def main() -> int:
+    with tempfile.TemporaryDirectory() as tmp:
+        out = pathlib.Path(tmp) / "out"
+        r = subprocess.run([sys.executable, str(ROOT / "site" / "build.py"), str(ROOT / "data" / "projects"), str(out)],
+                           capture_output=True, text=True)
+        if r.returncode:
+            print("FAIL  site build\n" + r.stderr[-800:])
+            return 1
+        site = out / "site"
+        index = (site / "index.html").read_text()
+        row = PROW.search(index)
+        if not row:
+            print("FAIL  no Where it runs row for flatcar in the data sheet")
+            return 1
+        cell = CELL.search(index)
+        if not cell:
+            print("FAIL  no Where it runs cell for flatcar in the matrix")
+            return 1
+        stack = re.search(r'<li><span class="v-tag">OpenStack</span>(?:(?!</li>).)*</li>', row.group(1), re.S)
+        if not stack:
+            print("FAIL  no OpenStack line in the flatcar data sheet")
+            return 1
+        lost_line = row.group(1).replace(stack.group(0), "")
+        if "OpenStack" not in lost_line:
+            print("FAIL  no other flatcar sheet line names OpenStack, so the lost line case proves nothing")
+            return 1
+        extra_tag = cell.group(1) + '<li class="t">Unlisted Cloud</li>'
+        cases = [
+            ("good build passes", None, 0, "site check ok"),
+            ("sheet row without citations fails", index.replace(row.group(1), strip_cites(row.group(1))), 1, "lists a provider with no source"),
+            ("sheet without the row fails", index.replace(row.group(1), ""), 1, "no Where it runs row in its data sheet"),
+            ("matrix tag without a sheet row fails", index.replace(cell.group(1), extra_tag), 1,
+             "tag 'Unlisted Cloud' has no row in the data sheet"),
+            ("lost sheet line named in another line fails", index.replace(row.group(1), lost_line), 1,
+             "tag 'OpenStack' has no row in the data sheet"),
+        ]
+        failed = 0
+        for name, broken, code, text in cases:
+            work = pathlib.Path(tmp) / ("case-" + str(abs(hash(name))))
+            work.mkdir()
+            for f in site.iterdir():
+                if f.is_file():
+                    (work / f.name).write_bytes(f.read_bytes())
+            if broken is not None:
+                (work / "index.html").write_text(broken)
+            got, output = run_check(work)
+            ok = got == code and text in output
+            print(f"{'PASS' if ok else 'FAIL'}  {name}")
+            if not ok:
+                failed += 1
+                print(f"      expected exit {code} and {text!r}, got exit {got}\n      {output.strip()[-300:]}")
+    print(f"\n{len(cases) - failed}/{len(cases)} cases passed")
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
