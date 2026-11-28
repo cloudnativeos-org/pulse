@@ -7,7 +7,9 @@ Usage:
 Builds the site from data/projects into a scratch directory. For each matrix row it reads data-fprov, data-fprovlvl,
 data-fprovpair and data-fprov-via from the built HTML and compares them with d08.normalized.providers in the profile.
 Only the levels at which an entry runs (catalogue, project image, bring your image) may appear in the pairs. Then it runs the
-real matches() from pulse.js on the real rows. Exit code 0 means every check passed.
+real matches() from pulse.js on the real rows. For every profile with provider data it also reads the data sheet lines and checks
+that each provider's line shows the label of its level. The labels are written out here on purpose: a test that read them from
+build.py would pass when two of them are swapped. Exit code 0 means every check passed.
 """
 
 from __future__ import annotations
@@ -25,6 +27,17 @@ import yaml
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 REACHES = ("provider-catalogue", "project-image", "bring-your-image")
 JS = (ROOT / "site" / "src" / "pulse.js").read_text()
+LEVEL_LABELS = {"provider-catalogue": "Official image in the provider's catalogue",
+                "project-image": "Project image for this provider",
+                "bring-your-image": "Bring your own image",
+                "config-source-only": "Config source only",
+                "none": "Documented as not supported",
+                "unknown": "Not documented",
+                "not-applicable": "Does not apply"}
+NAMES = {"aws": "AWS", "azure": "Azure", "gcp": "GCP", "openstack": "OpenStack", "vsphere": "VMware vSphere",
+         "proxmox": "Proxmox VE", "kvm-libvirt": "KVM/libvirt", "hyper-v": "Hyper-V", "nutanix": "Nutanix",
+         "hetzner": "Hetzner", "digitalocean": "DigitalOcean", "vultr": "Vultr", "akamai": "Akamai (Linode)",
+         "ovhcloud": "OVHcloud", "scaleway": "Scaleway", "bare-metal": "Bare metal", "other": "Other cloud"}
 
 
 def expected(profile):
@@ -36,6 +49,19 @@ def expected(profile):
         "fprovlvl": sorted({x["level"] for x in runs}),
         "fprov-via": sorted(x["provider"] for x in items if x["level"] == "config-source-only"),
     }
+
+
+def providers_of(profile):
+    return (profile["dimensions"]["d08_hardware_platform"].get("normalized") or {}).get("providers") or []
+
+
+def sheet_lines(index, pid):
+    """(provider name, level label) for each line of the entry's Where it runs data sheet row."""
+    row = re.search(r'<div class="ds-row" id="ds-%s-prov".*?</dd></div>' % re.escape(pid), index, re.S)
+    if not row:
+        return []
+    found = re.findall(r'<li><span class="v-tag">([^<]*)</span> <span class="v[^"]*">([^<]*)</span>', row.group(0))
+    return sorted((html.unescape(n), html.unescape(label)) for n, label in found)
 
 
 def tokens(value):
@@ -84,6 +110,18 @@ def main() -> int:
         for pair in tokens(attrs.get("fprovpair")):
             check(pair.split(":", 1)[1] in REACHES, "%s: pair %s is not a level at which the entry runs" % (rid, pair))
     check(checked >= 4, "only %d matrix rows matched a profile" % checked)
+    sheets = 0
+    for pid, profile in profiles.items():
+        items = providers_of(profile)
+        if not items:
+            continue
+        sheets += 1
+        want = sorted((x["name"] if x["provider"] == "other" and x.get("name") else NAMES[x["provider"]],
+                       LEVEL_LABELS[x["level"]]) for x in items)
+        have = sheet_lines(index, pid)
+        check(have == want, "%s: the data sheet lines differ from the profile: only on the sheet %s, only in the profile %s"
+              % (pid, sorted(set(have) - set(want)), sorted(set(want) - set(have))))
+    check(sheets >= 5, "only %d data sheets have provider data" % sheets)
 
     m = re.search(r"function matches\(row, f\) \{.*?\n    \}\n", JS, re.S)
     v = re.search(r"function viaOf\(row, k\) \{.*?\}\n", JS)
@@ -106,7 +144,7 @@ console.log(JSON.stringify(fs.map(function (f) { return Object.keys(rows).filter
                       any(x["provider"] == "openstack" and x["level"] == f["provlvl"][0]
                           for x in (profiles[rid]["dimensions"]["d08_hardware_platform"].get("normalized") or {}).get("providers") or []))
         check(sorted(have) == want, "OpenStack + %s on the built rows matches %s, the profiles say %s" % (f["provlvl"][0], sorted(have), want))
-    print("%d rows checked against their profiles, 2 filter cases on the real rows" % checked)
+    print("%d rows checked against their profiles, %d data sheets, 2 filter cases on the real rows" % (checked, sheets))
     print("%s" % ("all passed" if not failed else "%d check(s) failed" % failed))
     return 1 if failed else 0
 

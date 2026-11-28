@@ -68,6 +68,10 @@ CASES = [
     ("unknown with another evidence label fails", [{"provider": "hetzner", "level": "unknown", "evidence": "INFERRED", "inferred_from": "x"}], 1, "go together"),
     ("name on a provider that is not other fails", [good(name="Flatcar on OpenStack")], 1, "'name' is only for provider 'other'"),
     ("project-image without how fails", [without(good(), "how")], 1, "missing 'how'"),
+    ("INFERRED without inferred_from fails", [good(evidence="INFERRED")], 1, "evidence is INFERRED but 'inferred_from' is missing"),
+    ("UNKNOWN without searched fails", [{"provider": "hetzner", "level": "unknown", "evidence": "UNKNOWN"}], 1,
+     "evidence is UNKNOWN but 'searched' is missing"),
+    ("not-applicable without how fails", [without(good(level="not-applicable"), "how")], 1, "level 'not-applicable' needs a 'how'"),
     ("channel outside the list fails", [good(config={"tool": "Ignition", "channel": "magic"})], 1, "config.channel must be one of"),
 ]
 
